@@ -1,7 +1,10 @@
 FROM debian:12
 
+# Set timezone to Melbourne
+ENV TZ=Australia/Melbourne
+
 # Install Apache, Certbot, and dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     apache2 \
     certbot \
     python3-certbot-apache \
@@ -11,10 +14,9 @@ RUN apt-get update && apt-get install -y \
     vim \
     net-tools \
     imagemagick \
+    tzdata \
+    libapache2-mod-auth-openidc \
     && rm -rf /var/lib/apt/lists/*
-
-# Install OpenID Connect authentication module for Office 365
-RUN apt-get install -y libapache2-mod-auth-openidc
 
 # Enable necessary Apache modules for reverse proxy and SSL
 RUN a2enmod rewrite \

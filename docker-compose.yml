@@ -13,6 +13,7 @@ services:
       # Required: Domain and email for Let's Encrypt
       DOMAIN: example.com
       EMAIL: admin@example.com
+      TZ: Australia/Melbourne
       
       # Service Enable/Disable (set to true/false)
       ENABLE_SONARR: "false"
