@@ -69,11 +69,11 @@
   <Environment>
     <Variable>
       <Name>DOMAIN</Name>
-      <Value/>
+      <Value>yourdomain.com</Value>
     </Variable>
     <Variable>
       <Name>EMAIL</Name>
-      <Value/>
+      <Value>admin@example.com</Value>
     </Variable>
     <Variable>
       <Name>TZ</Name>
