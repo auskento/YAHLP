@@ -41,10 +41,6 @@ __pycache__/
 build/
 dist/
 
-# Downloaded icons (regenerated each run)
-html/icons/
-!html/icons/.gitkeep
-
 # Session/cache files
 .cache/
 .session/
