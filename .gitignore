@@ -41,9 +41,8 @@ __pycache__/
 build/
 dist/
 
-# Downloaded icons (regenerated each run)
-html/icons/
-!html/icons/.gitkeep
+# User-downloaded custom icons only (defaults are bundled)
+# Bundled SVG icons are committed to the repo
 
 # Session/cache files
 .cache/
