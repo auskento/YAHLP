@@ -42,6 +42,8 @@ generate_include() {
     local enable_flag=$2
     local service_file="/etc/apache2/sites-available/services/${service_name}.conf"
     
+    echo "DEBUG: Checking $service_name: enable_flag='$enable_flag' (length=${#enable_flag})" >&2
+    
     if [ "$enable_flag" = "true" ]; then
         echo "  ✓ $service_name"
         echo "Include $service_file"
