@@ -3,8 +3,10 @@ set -e
 
 # Ensure proper permissions on mounted volumes (world-writable)
 chmod -R 777 /etc/letsencrypt 2>/dev/null || true
-chmod -R 777 /var/log/apache2 2>/dev/null || true
+chmod 777 /etc/letsencrypt/live 2>/dev/null || true
 mkdir -p /etc/letsencrypt/live 2>/dev/null || true
+chmod 777 /etc/letsencrypt/live 2>/dev/null || true
+chmod -R 777 /var/log/apache2 2>/dev/null || true
 
 # Configuration
 DOMAIN="${DOMAIN:-example.com}"

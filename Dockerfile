@@ -31,9 +31,11 @@ RUN a2enmod rewrite \
 RUN mkdir -p /var/www/html/error-pages \
     && mkdir -p /var/www/letsencrypt \
     && mkdir -p /etc/apache2/sites-available \
+    && mkdir -p /etc/letsencrypt \
     && mkdir -p /etc/letsencrypt/live \
     && mkdir -p /var/log/apache2 \
     && chmod -R 777 /etc/letsencrypt \
+    && chmod 777 /etc/letsencrypt/live \
     && chmod -R 777 /var/log/apache2
 
 # Copy custom HTML files (including subdirectories)
