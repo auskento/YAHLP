@@ -197,6 +197,11 @@ service cron start
 
 # Test Apache configuration
 echo "Testing Apache configuration..."
+echo ""
+echo "=== Generated reverse-proxy.conf ===" 
+cat /etc/apache2/sites-available/reverse-proxy.conf
+echo "===================================="
+echo ""
 apache2ctl configtest || {
     echo "Apache configuration error!"
     exit 1
