@@ -42,9 +42,7 @@ generate_include() {
     local enable_flag=$2
     local service_file="/etc/apache2/sites-available/services/${service_name}.conf"
     
-    # Trim whitespace
-    enable_flag=$(echo "$enable_flag" | xargs)
-    
+    echo "DEBUG: Raw bytes: $(echo -n "$enable_flag" | od -An -tx1)" >&2
     echo "DEBUG: Checking $service_name: enable_flag='$enable_flag' (length=${#enable_flag})" >&2
     
     case "$enable_flag" in
