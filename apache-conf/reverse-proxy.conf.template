@@ -41,6 +41,10 @@
     ProxyTimeout 300
     Timeout 300
     
+    # Landing page redirect
+    RewriteEngine On
+    RewriteRule ^/$ @@LANDING_PAGE@@ [R=302,L]
+    
     # Static content serving
     DocumentRoot /var/www/html
     
