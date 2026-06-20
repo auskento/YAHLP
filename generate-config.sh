@@ -49,8 +49,6 @@ generate_include() {
         echo ""
     fi
 }
-    fi
-}
 
 # Function to generate auth include directive
 generate_auth_include() {
