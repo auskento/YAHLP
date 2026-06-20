@@ -88,46 +88,7 @@ wait_for_cert() {
     return 1
 }
 
-# Check if certificate exists
-if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
-    echo "Certificate not found. Initializing Let's Encrypt..."
-    
-    # Ensure webroot directory exists
-    mkdir -p "$CERTBOT_WEBROOT"
-    
-    # Start Apache in background to handle ACME challenges
-    echo "Starting Apache for ACME challenge..."
-    apache2ctl start || true
-    sleep 3
-    
-    # Obtain certificate
-    echo "Requesting certificate from Let's Encrypt..."
-    certbot certonly \
-        --webroot \
-        --webroot-path "$CERTBOT_WEBROOT" \
-        --email "$EMAIL" \
-        --agree-tos \
-        --no-eff-email \
-        --non-interactive \
-        -d "$DOMAIN" \
-        || {
-            echo "Certbot failed. Continuing with self-signed certificate..."
-            
-            # Generate self-signed certificate as fallback
-            openssl req -x509 -nodes -days 365 \
-                -newkey rsa:2048 \
-                -keyout /etc/letsencrypt/live/$DOMAIN/privkey.pem \
-                -out /etc/letsencrypt/live/$DOMAIN/fullchain.pem \
-                -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$DOMAIN" \
-                2>/dev/null || true
-        }
-    
-    # Stop temporary Apache instance
-    apache2ctl stop || true
-    sleep 2
-else
-    echo "Certificate found for $DOMAIN"
-fi
+
 
 # Update Apache configuration with actual domain
 if [ "$DOMAIN" != "example.com" ]; then
