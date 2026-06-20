@@ -45,12 +45,10 @@ generate_include() {
     echo "DEBUG: Raw bytes: $(echo -n "$enable_flag" | od -An -tx1)" >&2
     echo "DEBUG: Checking $service_name: enable_flag='$enable_flag' (length=${#enable_flag})" >&2
     
-    case "$enable_flag" in
-        true|True|TRUE)
-            echo "  ✓ $service_name"
-            echo "Include $service_file"
-            ;;
-    esac
+    if echo "$enable_flag" | grep -q "^true$"; then
+        echo "  ✓ $service_name"
+        echo "Include $service_file"
+    fi
 }
 
 # Function to generate auth include directive
