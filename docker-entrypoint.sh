@@ -9,7 +9,7 @@ chmod 777 /etc/letsencrypt/live 2>/dev/null || true
 chmod -R 777 /var/log/apache2 2>/dev/null || true
 
 # Write environment variables to config file for scripts to source
-cat > /etc/apache2/env.conf << 'ENVEOF'
+cat > /etc/apache2/env.conf << ENVEOF
 DOMAIN="${DOMAIN:-example.com}"
 EMAIL="${EMAIL:-admin@example.com}"
 ENABLE_SONARR="${ENABLE_SONARR:-false}"
