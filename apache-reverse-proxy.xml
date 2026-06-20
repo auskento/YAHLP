@@ -11,7 +11,7 @@
   <Project>https://github.com/auskento/apache-reverse-proxy</Project>
   <Category>Network:Web</Category>
   <TemplateURL>https://raw.githubusercontent.com/auskento/apache-reverse-proxy/main/apache-reverse-proxy.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/auskento/apache-reverse-proxy/c8f727160560459ca8ad3aa2ae3517b485279250/apache-reverse-proxy-256.png</Icon>
+  <Icon>https://raw.githubusercontent.com/auskento/apache-reverse-proxy/main/apache-reverse-proxy-150.png</Icon>
   <PostArgs/>
   <CloudSync>false</CloudSync>
   <Description>Apache Reverse Proxy with Let's Encrypt HTTPS and modular service proxying.</Description>
