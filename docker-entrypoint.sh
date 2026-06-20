@@ -45,6 +45,12 @@ SABNZBD_URL="${SABNZBD_URL:-}"
 DELUGE_URL="${DELUGE_URL:-}"
 ENVEOF
 
+echo ""
+echo "=== Environment Configuration ===" 
+cat /etc/apache2/env.conf
+echo "=================================="
+echo ""
+
 # Configuration
 DOMAIN="${DOMAIN:-example.com}"
 EMAIL="${EMAIL:-admin@example.com}"
