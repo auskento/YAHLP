@@ -33,6 +33,7 @@ ENABLE_AUTH_OFFICE365="${ENABLE_AUTH_OFFICE365:-false}"
 
 echo "=== Generating Apache Configuration ==="
 echo "Domain: $DOMAIN"
+echo "DEBUG: ENABLE_SONARR=$ENABLE_SONARR"
 echo "Enabled services:"
 
 # Function to generate include directive
