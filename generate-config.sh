@@ -45,8 +45,10 @@ generate_include() {
         echo "  ✓ $service_name"
         echo "Include $service_file"
     else
-        echo "  - $service_name (disabled)"
+        # Output nothing for disabled services
         echo ""
+    fi
+}
     fi
 }
 
