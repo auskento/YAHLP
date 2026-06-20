@@ -44,9 +44,6 @@ generate_include() {
     if [ "$enable_flag" = "true" ]; then
         echo "  ✓ $service_name"
         echo "Include $service_file"
-    else
-        # Output nothing for disabled services
-        echo ""
     fi
 }
 
