@@ -32,11 +32,14 @@ process_service_config() {
     
     # Replace hardcoded hostname:port with the actual URL
     # Extract just the host from the URL (remove http://)
-    service_host=$(echo "$service_url" | sed 's|^http://||;s|^https://||;s|/.*||')
+    service_host=$(echo "$service_url" | sed 's|^http://||;s|^https://||;s|/.*||;s|:.*||')
     
     # Replace sonarr:8989 style references with the actual host
     sed -i "s|http://[^/:]*:${service_port}|http://${service_host}|g" "$service_file"
     sed -i "s|ws://[^/:]*:${service_port}|ws://${service_host}|g" "$service_file"
+    
+    # Replace cookie domain (e.g., ProxyPassReverseCookieDomain deluge localhost → ProxyPassReverseCookieDomain 192.168.9.13 localhost)
+    sed -i "s|ProxyPassReverseCookieDomain $service_name |ProxyPassReverseCookieDomain $service_host |g" "$service_file"
     
     echo "Updated $service_name config to use: $service_url"
 }
@@ -127,7 +130,22 @@ if [ ! -f "$TEMPLATE_FILE" ]; then
     exit 1
 fi
 
+# Determine landing page based on enabled services
+echo ""
+echo "=== Setting Landing Page ==="
+if [ "$ENABLE_SONARR" = "true" ]; then
+    LANDING_PAGE="/sonarr/calendar"
+    echo "Landing page: Sonarr Calendar"
+elif [ "$ENABLE_RADARR" = "true" ]; then
+    LANDING_PAGE="/radarr"
+    echo "Landing page: Radarr"
+else
+    LANDING_PAGE="/index.html"
+    echo "Landing page: Menu"
+fi
+
 # Generate configuration from template
+echo ""
 echo "Generating configuration from template..."
 
 CONFIG=$(cat "$TEMPLATE_FILE")
@@ -136,6 +154,7 @@ CONFIG=$(cat "$TEMPLATE_FILE")
 CONFIG="${CONFIG//@@DOMAIN@@/$DOMAIN}"
 CONFIG="${CONFIG//@@SSL_PROTOCOLS@@/$SSL_PROTOCOLS}"
 CONFIG="${CONFIG//@@SSL_CIPHERS@@/$SSL_CIPHERS}"
+CONFIG="${CONFIG//@@LANDING_PAGE@@/$LANDING_PAGE}"
 
 # Replace service includes
 CONFIG="${CONFIG//@@INCLUDE_SONARR@@/$SONARR_INCLUDE}"
