@@ -38,9 +38,8 @@
     ProxyVia Off
     
     # Default timeout settings
-    ProxyConnectTimeout 30
     ProxyTimeout 300
-    ProxyReceiveBufferSize 4096
+    Timeout 300
     
     # ============================================
     # CONDITIONAL SERVICE INCLUDES
