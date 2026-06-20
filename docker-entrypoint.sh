@@ -97,6 +97,45 @@ wait_for_cert() {
 
 
 
+# Check if certificate exists, if not generate it
+if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
+    echo ""
+    echo "=== Obtaining Let's Encrypt Certificate ==="
+    
+    # Ensure directory exists
+    mkdir -p "/etc/letsencrypt/live/$DOMAIN"
+    
+    # Obtain certificate using standalone method
+    echo "Requesting certificate from Let's Encrypt for $DOMAIN..."
+    certbot certonly \
+        --standalone \
+        --preferred-challenges http \
+        --email "$EMAIL" \
+        --agree-tos \
+        --no-eff-email \
+        --non-interactive \
+        -d "$DOMAIN" \
+        || {
+            echo "Certbot failed. Generating self-signed certificate as fallback..."
+            
+            # Ensure directory exists
+            mkdir -p "/etc/letsencrypt/live/$DOMAIN"
+            
+            # Generate self-signed certificate
+            openssl req -x509 -nodes -days 365 \
+                -newkey rsa:2048 \
+                -keyout "/etc/letsencrypt/live/$DOMAIN/privkey.pem" \
+                -out "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" \
+                -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$DOMAIN" \
+                2>/dev/null || true
+            
+            echo "Self-signed certificate generated"
+        }
+else
+    echo ""
+    echo "Certificate found for $DOMAIN"
+fi
+
 # Update Apache configuration with actual domain
 if [ "$DOMAIN" != "example.com" ]; then
     echo "Updating Apache configuration with domain: $DOMAIN"
