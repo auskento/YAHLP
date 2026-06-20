@@ -43,14 +43,12 @@
     
     # Static content serving
     DocumentRoot /var/www/html
-    <Directory /var/www/html>
+    
+    # Alias for icons (serve directly, don't proxy)
+    Alias /icons /var/www/html/icons
+    <Directory /var/www/html/icons>
         Require all granted
     </Directory>
-    
-    # Serve icons directly (don't proxy)
-    <Location /icons>
-        ProxyPass !
-    </Location>
     
     # ============================================
     # CONDITIONAL SERVICE INCLUDES
