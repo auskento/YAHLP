@@ -325,4 +325,12 @@ cp /etc/apache2/sites-available/reverse-proxy.conf "$DEBUG_DIR/" 2>/dev/null || 
 cp /etc/apache2/sites-enabled/reverse-proxy.conf "$DEBUG_DIR/" 2>/dev/null || true
 echo "Debug files saved to: $DEBUG_DIR"
 
-exec "$@"
+# Trap signals to gracefully shut down cron and Apache
+trap 'echo "Shutting down..."; service cron stop 2>/dev/null; kill ${APACHE_PID} 2>/dev/null; wait ${APACHE_PID} 2>/dev/null; exit 0' SIGTERM SIGINT
+
+# Start Apache in foreground and capture PID
+apache2ctl -D FOREGROUND &
+APACHE_PID=$!
+
+# Wait for Apache process
+wait ${APACHE_PID}
