@@ -88,7 +88,6 @@ generate_auth_include() {
     local auth_file="/etc/apache2/conf-available/${auth_name}.conf"
     
     if [ "$enable_flag" = "true" ]; then
-        echo "  ✓ Office 365 Authentication"
         echo "Include $auth_file"
     fi
 }
@@ -117,7 +116,6 @@ CUSTOM_BACKEND_INCLUDE=""
 if [ "$ENABLE_CUSTOM_BACKEND" = "true" ]; then
     CUSTOM_BACKEND_PATH="${CUSTOM_BACKEND_PATH:-/custom}"
     CUSTOM_BACKEND_URL="${CUSTOM_BACKEND_URL:-http://backend:8080}"
-    echo "  ✓ custom backend at $CUSTOM_BACKEND_PATH"
     CUSTOM_BACKEND_INCLUDE="<Location $CUSTOM_BACKEND_PATH>
     ProxyPass $CUSTOM_BACKEND_URL
     ProxyPassReverse $CUSTOM_BACKEND_URL
