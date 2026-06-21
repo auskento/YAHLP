@@ -4,6 +4,11 @@
 # Uses index.html.template with dynamic service icons
 # Organized in same categories as React dashboard
 
+# Source environment variables from config file written by entrypoint
+if [ -f /etc/apache2/env.conf ]; then
+    source /etc/apache2/env.conf
+fi
+
 SIMPLE_TEMPLATE="/var/www/html/index.html.template"
 DASHBOARD_TEMPLATE="/var/www/html/index.html.dashboard"
 SIMPLE_OUTPUT="/var/www/html/index.html"
