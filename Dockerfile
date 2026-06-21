@@ -51,8 +51,9 @@ COPY apache-conf/auth-office365-protect.conf /etc/apache2/conf-available/
 COPY apache-conf/services/ /etc/apache2/sites-available/services/
 
 # Copy configuration generator script
-COPY generate-config.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/generate-config.sh
+COPY generate-config.sh generate-html-menu.sh download-icons.sh /usr/local/bin/
+COPY support.js /usr/local/bin/
+RUN chmod +x /usr/local/bin/generate-config.sh /usr/local/bin/generate-html-menu.sh /usr/local/bin/download-icons.sh
 
 # Copy HTML menu generator script
 COPY generate-html-menu.sh /usr/local/bin/
