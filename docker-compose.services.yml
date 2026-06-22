@@ -39,9 +39,8 @@ services:
       # Disable others
       ENABLE_WHISPARR: "false"
       ENABLE_LIDARR: "false"
-      ENABLE_READARR: "false"
       ENABLE_PROWLARR: "false"
-      ENABLE_OVERSEERR: "false"
+      ENABLE_SEERR: "false"
       ENABLE_EMBY: "false"
       ENABLE_PLEX: "false"
       ENABLE_TAUTULLI: "false"
@@ -169,20 +168,6 @@ services:
   #     - proxy-network
   #   restart: unless-stopped
 
-  # Readarr (Uncomment if needed)
-  # readarr:
-  #   image: lscr.io/linuxserver/readarr:latest
-  #   container_name: readarr
-  #   environment:
-  #     PUID: 1000
-  #     PGID: 1000
-  #     TZ: Australia/Melbourne
-  #   volumes:
-  #     - ./appdata/readarr/config:/config
-  #     - ./media:/media
-  #   ports:
-  #     - "8787:8787"
-  #   networks:
   #     - proxy-network
   #   restart: unless-stopped
 
@@ -203,14 +188,14 @@ services:
   #   restart: unless-stopped
 
   # Overseerr (Uncomment if needed)
-  # overseerr:
-  #   image: sctx/overseerr:latest
-  #   container_name: overseerr
+  # seerr:
+  #   image: sctx/seerr:latest
+  #   container_name: seerr
   #   environment:
   #     LOG_LEVEL: info
   #     TZ: Australia/Melbourne
   #   volumes:
-  #     - ./appdata/overseerr/config:/app/config
+  #     - ./appdata/seerr/config:/app/config
   #   ports:
   #     - "5055:5055"
   #   networks:

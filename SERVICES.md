@@ -13,9 +13,8 @@ environment:
   ENABLE_RADARR: "true"      # /radarr - Movie automation
   ENABLE_WHISPARR: "false"   # /whisparr - Adult content collection manager
   ENABLE_LIDARR: "false"     # /lidarr - Music automation
-  ENABLE_READARR: "false"    # /readarr - Book automation
   ENABLE_PROWLARR: "false"   # /prowlarr - Indexer manager
-  ENABLE_OVERSEERR: "false"  # /overseerr - Request manager
+  ENABLE_SEERR: "false"  # /seerr - Request manager
   
   # Media Centers
   ENABLE_JELLYFIN: "false"   # /jellyfin - Open-source media server
@@ -108,10 +107,7 @@ whisparr:
   - Artist management
   - Quality control
 
-#### Readarr - Book Automation
-- **URL Path**: `/readarr`
 - **Port**: 8787
-- **Enable**: `ENABLE_READARR=true`
 - **Features**:
   - Book/magazine automation
   - Author tracking
@@ -126,10 +122,10 @@ whisparr:
   - Shared across all *arr apps
   - Health monitoring
 
-#### Overseerr - Request Manager
-- **URL Path**: `/overseerr`
+#### Seerr - Request Manager
+- **URL Path**: `/seerr`
 - **Port**: 5055
-- **Enable**: `ENABLE_OVERSEERR=true`
+- **Enable**: `ENABLE_SEERR=true`
 - **Features**:
   - User request management
   - Approval workflows
@@ -231,9 +227,8 @@ When using docker-compose with the provided services, they're connected via the 
 | Sonarr | 8989 | 8989 | Optional: expose if needed |
 | Radarr | 7878 | 7878 | Optional: expose if needed |
 | Lidarr | 8686 | 8686 | Optional: expose if needed |
-| Readarr | 8787 | 8787 | Optional: expose if needed |
 | Prowlarr | 9696 | 9696 | Optional: expose if needed |
-| Overseerr | 5055 | 5055 | Optional: expose if needed |
+| Seerr | 5055 | 5055 | Optional: expose if needed |
 | Jellyfin | 8096 | 8096 | Optional: expose if needed |
 | Plex | 32400 | 32400 | Optional: expose if needed |
 | Transmission | 6969 | 6969 | Optional: expose if needed |
@@ -242,8 +237,7 @@ When using docker-compose with the provided services, they're connected via the 
 ## WebSocket Support
 
 Services that use WebSockets for real-time updates are automatically configured:
-- **Sonarr, Radarr, Lidarr, Readarr**: SignalR updates
-- **Overseerr**: Socket.io notifications
+- **Seerr**: Socket.io notifications
 - **Jellyfin/Emby**: WebSocket connections
 - **qBittorrent**: Real-time status updates
 
@@ -364,7 +358,7 @@ environment:
   ENABLE_SONARR: "true"
   ENABLE_RADARR: "true"
   ENABLE_PROWLARR: "true"
-  ENABLE_OVERSEERR: "true"
+  ENABLE_SEERR: "true"
   ENABLE_JELLYFIN: "true"
   ENABLE_TAUTULLI: "true"
   ENABLE_QBITTORRENT: "true"
@@ -374,7 +368,7 @@ After restart, access at:
 - `https://media.example.com/sonarr` - Sonarr
 - `https://media.example.com/radarr` - Radarr
 - `https://media.example.com/prowlarr` - Prowlarr
-- `https://media.example.com/overseerr` - Overseerr
+- `https://media.example.com/seerr` - Seerr
 - `https://media.example.com/jellyfin` - Jellyfin
 - `https://media.example.com/tautulli` - Tautulli
 - `https://media.example.com/qbittorrent` - qBittorrent
