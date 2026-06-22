@@ -72,12 +72,13 @@ services:
       ICON_URL_SABNZBD: ""
       ICON_URL_DELUGE: ""
       
-      # Optional: Basic Authentication
-      ENABLE_BASIC_AUTH: "false"
+      # Authentication Method (none, basic, oauth)
+      AUTHTYPE: "none"
+
+      # Basic Authentication (if AUTHTYPE=basic)
       BASIC_AUTH_CREDENTIALS: ""
 
-      # Optional: Office 365 / Azure AD Authentication
-      ENABLE_AUTH_OFFICE365: "false"
+      # Office 365 / Azure AD (if AUTHTYPE=oauth)
       OAUTH2_CLIENT_ID: ""
       OAUTH2_CLIENT_SECRET: ""
       OAUTH2_REDIRECT_URI: "https://yourdomain.com/oauth2callback"
