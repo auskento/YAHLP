@@ -131,6 +131,7 @@ if [ "${ENABLE_AUTH_OFFICE365}" = "true" ]; then
         | sed "s|@@OAUTH2_CLIENT_ID@@|$OAUTH2_CLIENT_ID|g" \
         | sed "s|@@OAUTH2_CLIENT_SECRET@@|$OAUTH2_CLIENT_SECRET|g" \
         | sed "s|@@OAUTH2_REDIRECT_URI@@|$OAUTH2_REDIRECT_URI|g" \
+        | sed "s|@@OIDC_PROVIDER_METADATA_URL@@|$OIDC_PROVIDER_METADATA_URL|g" \
         | sed "s|@@CRYPTO_PASSPHRASE@@|$OAUTH2_CRYPTO_PASSPHRASE|g" \
         > /etc/apache2/conf-enabled/oauth2-office365.conf
     

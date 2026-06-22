@@ -22,7 +22,7 @@ process_service_config() {
     local service_name=$1
     local service_url_var="${1^^}_URL"  # Convert to uppercase: SONARR_URL
     local service_url="${!service_url_var}"  # Get the variable value
-    local service_port="${2:-8989}"  # Default port
+    local template_port="${2:-8989}"  # Default port in template
     local service_file="/etc/apache2/sites-available/services/${service_name}.conf"
     
     if [ -z "$service_url" ]; then
@@ -30,15 +30,15 @@ process_service_config() {
         return
     fi
     
-    # Extract host:port AND path (e.g., "192.168.9.13:8080/sabnzbd" from "http://192.168.9.13:8080/sabnzbd")
-    service_host_with_port=$(echo "$service_url" | sed 's|^http://||;s|^https://||')
+    # Extract host:port AND path from URL
+    service_host_with_port=$(echo "$service_url" | sed 's|^https*://||;s|/.*||')
     
-    # Extract host WITHOUT port (e.g., "192.168.9.13" from "http://192.168.9.13:8080/sabnzbd")
-    service_host_only=$(echo "$service_url" | sed 's|^http://||;s|^https://||;s|/.*||;s|:.*||')
+    # Extract host WITHOUT port for cookie domain
+    service_host_only=$(echo "$service_url" | sed 's|^https*://||;s|/.*||;s|:.*||')
     
     # Replace ProxyPass URLs (keep the full host:port/path)
-    sed -i "s|http://[^/]*:${service_port}[^/]*|http://${service_host_with_port}|g" "$service_file"
-    sed -i "s|ws://[^/]*:${service_port}[^/]*|ws://${service_host_with_port}|g" "$service_file"
+    sed -i "s|http://[^/]*:${template_port}[^/]*|http://${service_host_with_port}|g" "$service_file"
+    sed -i "s|ws://[^/]*:${template_port}[^/]*|ws://${service_host_with_port}|g" "$service_file"
     
     # Replace cookie domain ONLY if the line contains ProxyPassReverseCookieDomain
     sed -i "s|\(ProxyPassReverseCookieDomain\) $service_name |\1 $service_host_only |g" "$service_file"
