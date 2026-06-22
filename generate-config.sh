@@ -38,10 +38,14 @@ process_service_config() {
     
     # Extract the path from the URL (everything after host:port)
     service_path=$(echo "$service_url" | sed 's|^https*://[^/]*||')
-    
-    # If no path, default to the service name
+
+    # If no path, default to the service name (except Deluge which proxies to root)
     if [ -z "$service_path" ]; then
-        service_path="/$service_name"
+        if [ "$service_name" = "deluge" ]; then
+            service_path="/"
+        else
+            service_path="/$service_name"
+        fi
     fi
     
     # Replace ProxyPass URLs, preserving the path
