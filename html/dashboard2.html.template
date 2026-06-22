@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard - Icons Only</title>
+<title>Media Server Dashboard</title>
 </head>
 <body style="margin:0;height:100%;background:#08090c;font-family:system-ui,sans-serif">
-<div id="container" style="display:flex;height:100vh;width:100vw;color:#e9ecf2;background:radial-gradient(1200px 700px at 18% -10%,rgba(58,160,224,.10),transparent 60%),radial-gradient(900px 600px at 100% 110%,rgba(46,205,111,.07),transparent 55%),#08090c;overflow:hidden;align-items:center;justify-content:center">
+<div style="display:flex;height:100vh;width:100vw;color:#e9ecf2;background:radial-gradient(1200px 700px at 18% -10%,rgba(58,160,224,.10),transparent 60%),radial-gradient(900px 600px at 100% 110%,rgba(46,205,111,.07),transparent 55%),#08090c;overflow:hidden">
 
-  <aside id="sidebar" style="display:flex;flex-direction:column;align-items:center;gap:24px;padding:40px 30px;max-height:100%;overflow-y:auto">
+  <aside id="sidebar" style="display:flex;flex-direction:column;align-items:center;gap:24px;padding:40px 30px;max-height:100%;overflow-y:auto;flex:none">
 
     <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
       <img src="/icons/apache-reverse-proxy.svg" alt="Apache Reverse Proxy" style="width:48px;height:48px;filter:drop-shadow(0 4px 16px rgba(58,160,224,.4))">
@@ -31,9 +31,7 @@
   </aside>
 
   <main style="flex:1;min-width:0;position:relative">
-    <!-- NOTE: allow-same-origin is required for iframe API calls (CORS), but combined with allow-scripts
-         creates a sandbox escape vector. Long-term: use separate subdomain for dashboard isolation. -->
-    <iframe id="content-frame" name="Main" title="App" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#0b0d11"></iframe>
+    <iframe id="content-frame" name="Main" title="App" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#0b0d11"></iframe>
 
     <div id="welcome-screen" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;background:radial-gradient(900px 600px at 50% 30%,rgba(58,160,224,.08),transparent 60%),#0b0d11">
       <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#3aa0e0,#2ecd6f);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 40px rgba(58,160,224,.35);margin-bottom:26px">
