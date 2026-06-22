@@ -96,7 +96,6 @@ a2ensite reverse-proxy.conf 2>/dev/null || true
 echo "Enabling Apache modules..."
 a2enmod auth_openidc 2>/dev/null || true
 a2enmod auth_basic 2>/dev/null || true
-a2enmod authn_file 2>/dev/null || true
 a2enmod proxy 2>/dev/null || true
 a2enmod proxy_http 2>/dev/null || true
 a2enmod headers 2>/dev/null || true
