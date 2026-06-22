@@ -38,6 +38,7 @@ cat << 'EOF'
     RequestHeader set X-Forwarded-Port "443"
     RequestHeader set X-Real-IP %{REMOTE_ADDR}s
     RequestHeader set X-Forwarded-For %{HTTP:X-Forwarded-For}e
+    RequestHeader set X-Remote-User %{REMOTE_USER}s
 EOF
 
 # Add OIDC configuration if OAuth is enabled
