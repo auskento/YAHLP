@@ -28,9 +28,13 @@ ENABLE_TRANSMISSION="${ENABLE_TRANSMISSION:-false}"
 ENABLE_QBITTORRENT="${ENABLE_QBITTORRENT:-false}"
 ENABLE_SABNZBD="${ENABLE_SABNZBD:-false}"
 ENABLE_DELUGE="${ENABLE_DELUGE:-false}"
-ENABLE_AUTH_OFFICE365="${ENABLE_AUTH_OFFICE365:-false}"
-ENABLE_BASIC_AUTH="${ENABLE_BASIC_AUTH:-false}"
+AUTHTYPE="${AUTHTYPE:-none}"
 BASIC_AUTH_CREDENTIALS="${BASIC_AUTH_CREDENTIALS:-}"
+OAUTH2_CLIENT_ID="${OAUTH2_CLIENT_ID:-}"
+OAUTH2_CLIENT_SECRET="${OAUTH2_CLIENT_SECRET:-}"
+OAUTH2_REDIRECT_URI="${OAUTH2_REDIRECT_URI:-}"
+OAUTH2_ALLOWED_DOMAINS="${OAUTH2_ALLOWED_DOMAINS:-}"
+OAUTH2_CRYPTO_PASSPHRASE="${OAUTH2_CRYPTO_PASSPHRASE:-}"
 SONARR_URL="${SONARR_URL:-}"
 RADARR_URL="${RADARR_URL:-}"
 WHISPARR_URL="${WHISPARR_URL:-}"
@@ -111,114 +115,111 @@ else
     echo "✗ WARNING: auth_openidc module file NOT found"
 fi
 
-# Office 365 / Azure AD Authentication Setup
-if [ "${ENABLE_AUTH_OFFICE365}" = "true" ]; then
-    echo "=== Setting up Office 365 Authentication ==="
-    
-    # Validate required OAuth2 parameters
-    if [ -z "$OAUTH2_CLIENT_ID" ] || [ -z "$OAUTH2_CLIENT_SECRET" ]; then
-        echo "ERROR: OAUTH2_CLIENT_ID and OAUTH2_CLIENT_SECRET are required for Office 365 auth"
-        echo "Please set these environment variables in docker-compose.yml"
-        exit 1
-    fi
-    
-    # Generate crypto passphrase if not provided
-    if [ -z "$OAUTH2_CRYPTO_PASSPHRASE" ]; then
-        OAUTH2_CRYPTO_PASSPHRASE=$(openssl rand -base64 24)
-        echo "Generated random crypto passphrase"
-    fi
-    
-    # Update OAuth2 configuration with actual values
-    echo "Configuring Office 365 OAuth2 settings..."
-    
-    # Create temp oauth2 config with actual values
-    cat /etc/apache2/conf-available/oauth2-office365.conf \
-        | sed "s|@@OAUTH2_CLIENT_ID@@|$OAUTH2_CLIENT_ID|g" \
-        | sed "s|@@OAUTH2_CLIENT_SECRET@@|$OAUTH2_CLIENT_SECRET|g" \
-        | sed "s|@@OAUTH2_REDIRECT_URI@@|$OAUTH2_REDIRECT_URI|g" \
-        | sed "s|@@OIDC_PROVIDER_METADATA_URL@@|$OIDC_PROVIDER_METADATA_URL|g" \
-        | sed "s|@@CRYPTO_PASSPHRASE@@|$OAUTH2_CRYPTO_PASSPHRASE|g" \
-        > /etc/apache2/conf-enabled/oauth2-office365.conf
-    
-    # Enable auth protection
-    cp /etc/apache2/conf-available/auth-office365-protect.conf /etc/apache2/conf-enabled/
-    
-    # Enable the auth config
-    a2enconf oauth2-office365 2>/dev/null || true
-    a2enconf auth-office365-protect 2>/dev/null || true
-    
-    echo "Office 365 Authentication configured"
-    echo "  Client ID: ${OAUTH2_CLIENT_ID:0:20}..."
-    echo "  Redirect URI: $OAUTH2_REDIRECT_URI"
-    echo "  Allowed Domains: $OAUTH2_ALLOWED_DOMAINS"
-else
-    echo "Office 365 Authentication is disabled (ENABLE_AUTH_OFFICE365=false)"
-    # Disable OAuth2 configs if they were previously enabled
-    a2disconf oauth2-office365 2>/dev/null || true
-    a2disconf auth-office365-protect 2>/dev/null || true
-    rm -f /etc/apache2/conf-enabled/oauth2-office365.conf
-    rm -f /etc/apache2/conf-enabled/auth-office365-protect.conf
-fi
+# Normalize AUTHTYPE value (handle case and quotes)
+AUTHTYPE=$(echo "${AUTHTYPE}" | tr '[:upper:]' '[:lower:]' | sed "s/'//g" | sed 's/"//g' | xargs)
+echo "DEBUG: AUTHTYPE='${AUTHTYPE}'"
 
-# Basic Authentication Setup
-echo "DEBUG: ENABLE_BASIC_AUTH='${ENABLE_BASIC_AUTH}' (type: $([ -z "${ENABLE_BASIC_AUTH}" ] && echo 'empty' || echo 'set'))"
-echo "DEBUG: BASIC_AUTH_CREDENTIALS='${BASIC_AUTH_CREDENTIALS}' (length: ${#BASIC_AUTH_CREDENTIALS})"
+# Authentication Setup - Mutually Exclusive
+case "${AUTHTYPE}" in
+    basic)
+        echo "=== Setting up Basic Authentication ==="
 
-# Normalize the value (handle uppercase, with/without quotes, etc.)
-ENABLE_BASIC_AUTH=$(echo "${ENABLE_BASIC_AUTH}" | tr '[:upper:]' '[:lower:]' | sed "s/'//g" | sed 's/"//g' | xargs)
-echo "DEBUG: ENABLE_BASIC_AUTH normalized to '${ENABLE_BASIC_AUTH}'"
-
-if [ "${ENABLE_BASIC_AUTH}" = "true" ] || [ "${ENABLE_BASIC_AUTH}" = "1" ]; then
-    echo "=== Setting up Basic Authentication ==="
-
-    # Validate required parameters
-    if [ -z "$BASIC_AUTH_CREDENTIALS" ]; then
-        echo "ERROR: BASIC_AUTH_CREDENTIALS is required when ENABLE_BASIC_AUTH=true"
-        echo "Format: username:password|username2:password2 (pipe-separated pairs)"
-        exit 1
-    fi
-
-    # Create .htpasswd file
-    HTPASSWD_FILE="/etc/apache2/.htpasswd"
-    > "$HTPASSWD_FILE"  # Clear the file
-
-    # Parse credentials and add to .htpasswd
-    IFS='|' read -ra CREDENTIALS_ARRAY <<< "$BASIC_AUTH_CREDENTIALS"
-    for credential in "${CREDENTIALS_ARRAY[@]}"; do
-        IFS=':' read -r username password <<< "$credential"
-        if [ -z "$username" ] || [ -z "$password" ]; then
-            echo "ERROR: Invalid credential format. Expected 'username:password'"
+        # Validate required parameters
+        if [ -z "$BASIC_AUTH_CREDENTIALS" ]; then
+            echo "ERROR: BASIC_AUTH_CREDENTIALS is required when AUTHTYPE=basic"
+            echo "Format: username:password|username2:password2 (pipe-separated pairs)"
             exit 1
         fi
-        # Use htpasswd to create bcrypt hash (most secure)
-        htpasswd -bB "$HTPASSWD_FILE" "$username" "$password" 2>/dev/null || {
-            echo "ERROR: Failed to create htpasswd entry for user: $username"
+
+        # Create .htpasswd file
+        HTPASSWD_FILE="/etc/apache2/.htpasswd"
+        > "$HTPASSWD_FILE"
+
+        # Parse credentials and add to .htpasswd
+        IFS='|' read -ra CREDENTIALS_ARRAY <<< "$BASIC_AUTH_CREDENTIALS"
+        for credential in "${CREDENTIALS_ARRAY[@]}"; do
+            IFS=':' read -r username password <<< "$credential"
+            if [ -z "$username" ] || [ -z "$password" ]; then
+                echo "ERROR: Invalid credential format. Expected 'username:password'"
+                exit 1
+            fi
+            htpasswd -bB "$HTPASSWD_FILE" "$username" "$password" 2>/dev/null || {
+                echo "ERROR: Failed to create htpasswd entry for user: $username"
+                exit 1
+            }
+            echo "✓ Added user to basic auth: $username"
+        done
+
+        # Set proper permissions
+        chown root:www-data "$HTPASSWD_FILE"
+        chmod 640 "$HTPASSWD_FILE"
+
+        # Enable basic auth config
+        if [ -f /etc/apache2/conf-available/auth-basic.conf ]; then
+            cp /etc/apache2/conf-available/auth-basic.conf /etc/apache2/conf-enabled/auth-basic.conf
+            echo "✓ Basic authentication enabled"
+        else
+            echo "ERROR: auth-basic.conf not found"
             exit 1
-        }
-        echo "✓ Added user to basic auth: $username"
-    done
+        fi
 
-    # Set proper permissions - make readable by Apache (www-data)
-    chown root:www-data "$HTPASSWD_FILE"
-    chmod 640 "$HTPASSWD_FILE"
+        # Disable OAuth2
+        a2disconf oauth2-office365 2>/dev/null || true
+        a2disconf auth-office365-protect 2>/dev/null || true
+        rm -f /etc/apache2/conf-enabled/oauth2-office365.conf
+        rm -f /etc/apache2/conf-enabled/auth-office365-protect.conf
+        ;;
 
-    # Enable the auth-basic config (it's already in conf-available from Dockerfile)
-    if [ -f /etc/apache2/conf-available/auth-basic.conf ]; then
-        cp /etc/apache2/conf-available/auth-basic.conf /etc/apache2/conf-enabled/auth-basic.conf
-        echo "✓ Basic auth configuration enabled"
-    else
-        echo "ERROR: auth-basic.conf not found in /etc/apache2/conf-available/"
-        exit 1
-    fi
+    oauth)
+        echo "=== Setting up Office 365 OAuth2 Authentication ==="
 
-    echo "Basic Authentication configured with credentials from BASIC_AUTH_CREDENTIALS"
-else
-    echo "DEBUG: Basic Authentication check failed. ENABLE_BASIC_AUTH='${ENABLE_BASIC_AUTH}' is not equal to 'true'"
-    echo "Basic Authentication is disabled (ENABLE_BASIC_AUTH=false or not 'true')"
-    # Disable basic auth if it was previously enabled
-    rm -f /etc/apache2/conf-enabled/auth-basic.conf
-    rm -f /etc/apache2/.htpasswd
-fi
+        # Validate required parameters
+        if [ -z "$OAUTH2_CLIENT_ID" ] || [ -z "$OAUTH2_CLIENT_SECRET" ]; then
+            echo "ERROR: OAUTH2_CLIENT_ID and OAUTH2_CLIENT_SECRET are required for AUTHTYPE=oauth"
+            exit 1
+        fi
+
+        # Generate crypto passphrase if not provided
+        if [ -z "$OAUTH2_CRYPTO_PASSPHRASE" ]; then
+            OAUTH2_CRYPTO_PASSPHRASE=$(openssl rand -base64 24)
+            echo "Generated random crypto passphrase"
+        fi
+
+        # Configure OAuth2
+        cat /etc/apache2/conf-available/oauth2-office365.conf \
+            | sed "s|@@OAUTH2_CLIENT_ID@@|$OAUTH2_CLIENT_ID|g" \
+            | sed "s|@@OAUTH2_CLIENT_SECRET@@|$OAUTH2_CLIENT_SECRET|g" \
+            | sed "s|@@OAUTH2_REDIRECT_URI@@|$OAUTH2_REDIRECT_URI|g" \
+            | sed "s|@@OIDC_PROVIDER_METADATA_URL@@|$OIDC_PROVIDER_METADATA_URL|g" \
+            | sed "s|@@CRYPTO_PASSPHRASE@@|$OAUTH2_CRYPTO_PASSPHRASE|g" \
+            > /etc/apache2/conf-enabled/oauth2-office365.conf
+
+        cp /etc/apache2/conf-available/auth-office365-protect.conf /etc/apache2/conf-enabled/
+        a2enconf oauth2-office365 2>/dev/null || true
+        a2enconf auth-office365-protect 2>/dev/null || true
+
+        echo "✓ OAuth2 authentication enabled"
+        echo "  Client ID: ${OAUTH2_CLIENT_ID:0:20}..."
+
+        # Disable Basic Auth
+        rm -f /etc/apache2/conf-enabled/auth-basic.conf
+        rm -f /etc/apache2/.htpasswd
+        ;;
+
+    none|*)
+        echo "=== Authentication Disabled (AUTHTYPE=none) ==="
+
+        # Disable all authentication
+        a2disconf oauth2-office365 2>/dev/null || true
+        a2disconf auth-office365-protect 2>/dev/null || true
+        rm -f /etc/apache2/conf-enabled/oauth2-office365.conf
+        rm -f /etc/apache2/conf-enabled/auth-office365-protect.conf
+        rm -f /etc/apache2/conf-enabled/auth-basic.conf
+        rm -f /etc/apache2/.htpasswd
+
+        echo "✓ No authentication required"
+        ;;
+esac
 
 # Function to wait for certificate
 wait_for_cert() {

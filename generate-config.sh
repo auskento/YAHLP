@@ -115,9 +115,14 @@ QBITTORRENT_INCLUDE=$(generate_include "qbittorrent" "$ENABLE_QBITTORRENT")
 SABNZBD_INCLUDE=$(generate_include "sabnzbd" "$ENABLE_SABNZBD")
 DELUGE_INCLUDE=$(generate_include "deluge" "$ENABLE_DELUGE")
 
-# Generate auth includes
-AUTH_OFFICE365_INCLUDE=$(generate_auth_include "auth-office365-protect" "$ENABLE_AUTH_OFFICE365")
-BASIC_AUTH_INCLUDE=$(generate_auth_include "auth-basic" "$ENABLE_BASIC_AUTH")
+# Generate auth includes based on AUTHTYPE
+AUTH_OFFICE365_INCLUDE=""
+BASIC_AUTH_INCLUDE=""
+if [ "$AUTHTYPE" = "oauth" ]; then
+    AUTH_OFFICE365_INCLUDE=$(generate_auth_include "auth-office365-protect" "true")
+elif [ "$AUTHTYPE" = "basic" ]; then
+    BASIC_AUTH_INCLUDE=$(generate_auth_include "auth-basic" "true")
+fi
 
 # Generate custom backend include if enabled
 CUSTOM_BACKEND_INCLUDE=""
