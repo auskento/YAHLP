@@ -14,7 +14,38 @@
   <Icon>https://raw.githubusercontent.com/auskento/apache-reverse-proxy/main/apache-reverse-proxy-150.png</Icon>
   <PostArgs/>
   <CloudSync>false</CloudSync>
-  <Description>Apache Reverse Proxy with Let's Encrypt HTTPS and modular service proxying.</Description>
+  <Description>Apache Reverse Proxy with Let's Encrypt HTTPS, modular service proxying, and optional Office 365 OAuth2 authentication. Configure custom icons for each service via Advanced View.</Description>
+  <Overview>
+    <![CDATA[
+      <b>Apache Reverse Proxy for Media Services</b><br/>
+      <br/>
+      This container provides:<br/>
+      • Automatic HTTPS with Let's Encrypt SSL certificates<br/>
+      • Reverse proxy for up to 15 different services<br/>
+      • Web dashboard with service icons and navigation<br/>
+      • Optional Office 365/Azure AD authentication<br/>
+      • Custom service icons via icon URLs<br/>
+      <br/>
+      <b>Quick Start:</b><br/>
+      1. Set Domain and Email (required for Let's Encrypt)<br/>
+      2. Enable services by toggling each service switch<br/>
+      3. Configure backend URLs for each enabled service<br/>
+      4. (Optional) Enable Advanced View to set custom icons<br/>
+      5. Container will auto-generate dashboard with enabled services<br/>
+      <br/>
+      <b>Supported Services:</b><br/>
+      Sonarr, Radarr, Whisparr, Lidarr, Readarr, Prowlarr, Seerr, Jellyfin, Emby, Plex, Tautulli, Transmission, qBittorrent, SABnzbd, Deluge<br/>
+      <br/>
+      <b>Icon Customization (Advanced View):</b><br/>
+      Leave icon URLs blank to use bundled icons, or provide custom icon sources for each service.<br/>
+      <br/>
+      <b>Authentication (Optional):</b><br/>
+      Enable Office 365 OAuth2 to require login for all proxied services using Azure AD credentials.<br/>
+      <br/>
+      <b>Documentation:</b><br/>
+      https://github.com/auskento/apache-reverse-proxy
+    ]]>
+  </Overview>
   <Networking>
     <Mode>bridge</Mode>
     <Publish>
