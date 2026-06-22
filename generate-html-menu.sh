@@ -194,10 +194,16 @@ generate_simple_menu() {
     local menu_items=$(generate_menu_items)
     local services_list=$(generate_services_list)
     
+    # Set dashboard name and icon
+    local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
+    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy-logo.png}"
+    
     # Read template and replace placeholders
     local html_content=$(cat "$SIMPLE_TEMPLATE")
     html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
     html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
+    html_content="${html_content//@@DASHBOARD_NAME@@/$DASHBOARD_NAME}"
+    html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
     
     # Write output file
     echo "$html_content" > "$SIMPLE_OUTPUT"
@@ -218,9 +224,15 @@ generate_react_dashboard() {
     # Generate services array
     local services_array=$(generate_services_array)
     
+    # Set dashboard name and icon
+    local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
+    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy-logo.png}"
+    
     # Read template and replace placeholders
     local html_content=$(cat "$DASHBOARD_TEMPLATE")
     html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+    html_content="${html_content//@@DASHBOARD_NAME@@/$DASHBOARD_NAME}"
+    html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
     
     # Write output file
     echo "$html_content" > "$DASHBOARD_OUTPUT"
@@ -282,8 +294,13 @@ generate_dashboard2() {
     
     local services_array=$(generate_dashboard2_services_array)
     
+    # Set dashboard name and icon
+    local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
+    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy-logo.png}"
+    
     local html_content=$(cat "$DASHBOARD2_TEMPLATE")
     html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+    html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
     
     echo "$html_content" > "$DASHBOARD2_OUTPUT"
     echo "✓ Icons-only dashboard generated: $DASHBOARD2_OUTPUT"
