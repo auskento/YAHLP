@@ -160,6 +160,9 @@ else
 fi
 
 # Basic Authentication Setup
+echo "DEBUG: ENABLE_BASIC_AUTH='${ENABLE_BASIC_AUTH}' (type: $([ -z "${ENABLE_BASIC_AUTH}" ] && echo 'empty' || echo 'set'))"
+echo "DEBUG: BASIC_AUTH_CREDENTIALS='${BASIC_AUTH_CREDENTIALS}' (length: ${#BASIC_AUTH_CREDENTIALS})"
+
 if [ "${ENABLE_BASIC_AUTH}" = "true" ]; then
     echo "=== Setting up Basic Authentication ==="
 
@@ -204,7 +207,8 @@ if [ "${ENABLE_BASIC_AUTH}" = "true" ]; then
 
     echo "Basic Authentication configured with credentials from BASIC_AUTH_CREDENTIALS"
 else
-    echo "Basic Authentication is disabled (ENABLE_BASIC_AUTH=false)"
+    echo "DEBUG: Basic Authentication check failed. ENABLE_BASIC_AUTH='${ENABLE_BASIC_AUTH}' is not equal to 'true'"
+    echo "Basic Authentication is disabled (ENABLE_BASIC_AUTH=false or not 'true')"
     # Disable basic auth if it was previously enabled
     rm -f /etc/apache2/conf-enabled/auth-basic.conf
     rm -f /etc/apache2/.htpasswd
