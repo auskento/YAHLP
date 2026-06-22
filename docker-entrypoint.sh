@@ -198,7 +198,8 @@ if [ "${ENABLE_BASIC_AUTH}" = "true" ] || [ "${ENABLE_BASIC_AUTH}" = "1" ]; then
         echo "✓ Added user to basic auth: $username"
     done
 
-    # Set proper permissions
+    # Set proper permissions - make readable by Apache (www-data)
+    chown root:www-data "$HTPASSWD_FILE"
     chmod 640 "$HTPASSWD_FILE"
 
     # Enable the auth-basic config (it's already in conf-available from Dockerfile)
