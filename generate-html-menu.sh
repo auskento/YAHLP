@@ -230,6 +230,65 @@ generate_react_dashboard() {
     echo "$services_array" | grep -o "{ cat:" | wc -l
 }
 
+# Generate icons-only services array for dashboard2
+generate_dashboard2_services_array() {
+    local array=""
+    local first=true
+    
+    for service_key in "${SERVICE_ORDER[@]}"; do
+        local enable_var="ENABLE_${service_key}"
+        local is_enabled="${!enable_var}"
+        
+        if [ "$is_enabled" != "true" ]; then
+            continue
+        fi
+        
+        IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
+        local id=$(echo "$service_key" | tr '[:upper:]' '[:lower:]')
+        
+        if [ "$href" = "SUBDOMAIN" ]; then
+            if [ "$service_key" = "EMBY" ]; then
+                [ -z "$EMBY_DOMAIN" ] && continue
+                href="https://$EMBY_DOMAIN/"
+            elif [ "$service_key" = "PLEX" ]; then
+                [ -z "$PLEX_DOMAIN" ] && continue
+                href="https://$PLEX_DOMAIN/"
+            fi
+        fi
+        
+        local popup="false"
+        [[ "$href" == http* ]] && popup="true"
+        
+        if [ "$first" = true ]; then
+            first=false
+        else
+            array+=","
+        fi
+        
+        array+="{ id: '${id}', name: '${name}', icon: '${icon}', href: '${href}', accent: '${accent}', popup: ${popup} }"
+    done
+    
+    echo "[$array]"
+}
+
+# Generate icons-only dashboard (dashboard2.html)
+generate_dashboard2() {
+    local DASHBOARD2_OUTPUT="/var/www/html/dashboard2.html"
+    local DASHBOARD2_TEMPLATE="/var/www/html/dashboard2.html.template"
+    
+    if [ ! -f "$DASHBOARD2_TEMPLATE" ]; then
+        return
+    fi
+    
+    local services_array=$(generate_dashboard2_services_array)
+    
+    local html_content=$(cat "$DASHBOARD2_TEMPLATE")
+    html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+    
+    echo "$html_content" > "$DASHBOARD2_OUTPUT"
+    echo "✓ Icons-only dashboard generated: $DASHBOARD2_OUTPUT"
+}
+
 # Main generation function
 generate_html() {
     echo "Generating both dashboards in synchronized order..."
@@ -247,6 +306,7 @@ generate_html() {
     # Generate both versions
     generate_simple_menu
     generate_react_dashboard
+    generate_dashboard2
     
     echo ""
     echo "✓ Both dashboards generated with $count enabled service(s)"
