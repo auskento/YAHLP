@@ -283,27 +283,46 @@ generate_dashboard2_services_array() {
     echo "[$array]"
 }
 
-# Generate icons-only dashboard (dashboard2.html)
-generate_dashboard2() {
-    local DASHBOARD2_OUTPUT="/var/www/html/dashboard2.html"
-    local DASHBOARD2_TEMPLATE="/var/www/html/dashboard2.html.template"
-    
-    if [ ! -f "$DASHBOARD2_TEMPLATE" ]; then
+# Generate dashboard based on authentication type
+generate_dashboard_for_auth() {
+    local DASHBOARD_OUTPUT="/var/www/html/dashboard2.html"
+    local DASHBOARD_TEMPLATE=""
+
+    # Choose template based on AUTHTYPE
+    if [ "$AUTHTYPE" = "oauth" ]; then
+        DASHBOARD_TEMPLATE="/var/www/html/dashboard-oauth.html.template"
+    else
+        # Default to basic auth dashboard (direct links, no iframes)
+        DASHBOARD_TEMPLATE="/var/www/html/dashboard2.html.template"
+    fi
+
+    if [ ! -f "$DASHBOARD_TEMPLATE" ]; then
+        echo "⚠ Dashboard template not found: $DASHBOARD_TEMPLATE"
         return
     fi
-    
+
     local services_array=$(generate_dashboard2_services_array)
-    
+
     # Set dashboard name and icon
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
     local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy-logo.png}"
-    
-    local html_content=$(cat "$DASHBOARD2_TEMPLATE")
+
+    local html_content=$(cat "$DASHBOARD_TEMPLATE")
     html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
     html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
-    
-    echo "$html_content" > "$DASHBOARD2_OUTPUT"
-    echo "✓ Icons-only dashboard generated: $DASHBOARD2_OUTPUT"
+
+    echo "$html_content" > "$DASHBOARD_OUTPUT"
+
+    if [ "$AUTHTYPE" = "oauth" ]; then
+        echo "✓ OAuth dashboard generated (with iframes): $DASHBOARD_OUTPUT"
+    else
+        echo "✓ Basic auth dashboard generated (direct links): $DASHBOARD_OUTPUT"
+    fi
+}
+
+# Generate icons-only dashboard (dashboard2.html)
+generate_dashboard2() {
+    generate_dashboard_for_auth
 }
 
 # Main generation function
