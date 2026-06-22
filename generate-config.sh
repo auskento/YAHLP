@@ -49,8 +49,13 @@ process_service_config() {
     fi
     
     # Replace ProxyPass URLs, preserving the path
-    sed -i "s|http://[^/]*:${template_port}/[^/]*|http://${service_host_with_port}${service_path}|g" "$service_file"
-    sed -i "s|ws://[^/]*:${template_port}/[^/]*|ws://${service_host_with_port}${service_path}|g" "$service_file"
+    # Special handling for Deluge which proxies to root (/)
+    if [ "$service_name" = "deluge" ]; then
+        sed -i "s|http://deluge:${template_port}/|http://${service_host_with_port}/|g" "$service_file"
+    else
+        sed -i "s|http://[^/]*:${template_port}/[^/]*|http://${service_host_with_port}${service_path}|g" "$service_file"
+        sed -i "s|ws://[^/]*:${template_port}/[^/]*|ws://${service_host_with_port}${service_path}|g" "$service_file"
+    fi
     
     # Replace cookie domain ONLY if the line contains ProxyPassReverseCookieDomain
     sed -i "s|\(ProxyPassReverseCookieDomain\) $service_name |\1 $service_host_only |g" "$service_file"
