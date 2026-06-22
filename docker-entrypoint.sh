@@ -257,7 +257,7 @@ if [ "${ENABLE_EMBY}" = "true" ]; then
         
         echo "DEBUG Emby: URL=$EMBY_URL, HOST=$EMBY_HOST, PORT=$EMBY_PORT, DOMAIN=$EMBY_DOMAIN"
         
-        EMBY_CONFIG=$(/usr/local/bin/generate-emby-virtualhost.sh "$EMBY_DOMAIN")
+        EMBY_CONFIG=$(/usr/local/bin/generate-emby-virtualhost.sh "$EMBY_DOMAIN" "$ENABLE_AUTH_OFFICE365")
         EMBY_CONFIG="${EMBY_CONFIG//@@EMBY_DOMAIN@@/$EMBY_DOMAIN}"
         EMBY_CONFIG="${EMBY_CONFIG//@@EMBY_HOST@@/$EMBY_HOST}"
         EMBY_CONFIG="${EMBY_CONFIG//@@EMBY_PORT@@/$EMBY_PORT}"
@@ -308,7 +308,7 @@ if [ "${ENABLE_PLEX}" = "true" ]; then
         
         echo "DEBUG Plex: URL=$PLEX_URL, HOST=$PLEX_HOST, PORT=$PLEX_PORT, DOMAIN=$PLEX_DOMAIN"
         
-        PLEX_CONFIG=$(/usr/local/bin/generate-plex-virtualhost.sh "$PLEX_DOMAIN")
+        PLEX_CONFIG=$(/usr/local/bin/generate-plex-virtualhost.sh "$PLEX_DOMAIN" "$ENABLE_AUTH_OFFICE365")
         PLEX_CONFIG="${PLEX_CONFIG//@@PLEX_DOMAIN@@/$PLEX_DOMAIN}"
         PLEX_CONFIG="${PLEX_CONFIG//@@PLEX_HOST@@/$PLEX_HOST}"
         PLEX_CONFIG="${PLEX_CONFIG//@@PLEX_PORT@@/$PLEX_PORT}"
