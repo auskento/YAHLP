@@ -48,8 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Role-based access control
 
 - **Media Services** (13 pre-configured)
-  - Sonarr, Radarr, Whisparr, Lidarr, Readarr, Prowlarr
-  - Overseerr, Jellyfin, Emby, Plex, Tautulli
+  - Seerr, Jellyfin, Emby, Plex, Tautulli
   - Transmission, qBittorrent, SABnzbd, Deluge
 
 ### Changed
