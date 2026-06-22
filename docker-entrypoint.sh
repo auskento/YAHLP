@@ -261,6 +261,10 @@ if [ "${ENABLE_EMBY}" = "true" ]; then
         EMBY_CONFIG="${EMBY_CONFIG//@@EMBY_DOMAIN@@/$EMBY_DOMAIN}"
         EMBY_CONFIG="${EMBY_CONFIG//@@EMBY_HOST@@/$EMBY_HOST}"
         EMBY_CONFIG="${EMBY_CONFIG//@@EMBY_PORT@@/$EMBY_PORT}"
+        EMBY_CONFIG="${EMBY_CONFIG//@@OAUTH2_CLIENT_ID@@/$OAUTH2_CLIENT_ID}"
+        EMBY_CONFIG="${EMBY_CONFIG//@@OAUTH2_CLIENT_SECRET@@/$OAUTH2_CLIENT_SECRET}"
+        EMBY_CONFIG="${EMBY_CONFIG//@@OIDC_PROVIDER_METADATA_URL@@/$OIDC_PROVIDER_METADATA_URL}"
+        EMBY_CONFIG="${EMBY_CONFIG//@@OAUTH2_CRYPTO_PASSPHRASE@@/$OAUTH2_CRYPTO_PASSPHRASE}"
         echo "$EMBY_CONFIG" > /etc/apache2/sites-available/emby-subdomain.conf
         a2ensite emby-subdomain.conf 2>/dev/null || true
         echo "Emby VirtualHost created with: $EMBY_HOST:$EMBY_PORT"
@@ -312,6 +316,10 @@ if [ "${ENABLE_PLEX}" = "true" ]; then
         PLEX_CONFIG="${PLEX_CONFIG//@@PLEX_DOMAIN@@/$PLEX_DOMAIN}"
         PLEX_CONFIG="${PLEX_CONFIG//@@PLEX_HOST@@/$PLEX_HOST}"
         PLEX_CONFIG="${PLEX_CONFIG//@@PLEX_PORT@@/$PLEX_PORT}"
+        PLEX_CONFIG="${PLEX_CONFIG//@@OAUTH2_CLIENT_ID@@/$OAUTH2_CLIENT_ID}"
+        PLEX_CONFIG="${PLEX_CONFIG//@@OAUTH2_CLIENT_SECRET@@/$OAUTH2_CLIENT_SECRET}"
+        PLEX_CONFIG="${PLEX_CONFIG//@@OIDC_PROVIDER_METADATA_URL@@/$OIDC_PROVIDER_METADATA_URL}"
+        PLEX_CONFIG="${PLEX_CONFIG//@@OAUTH2_CRYPTO_PASSPHRASE@@/$OAUTH2_CRYPTO_PASSPHRASE}"
         echo "$PLEX_CONFIG" > /etc/apache2/sites-available/plex-subdomain.conf
         a2ensite plex-subdomain.conf 2>/dev/null || true
         echo "Plex VirtualHost created with: $PLEX_HOST:$PLEX_PORT"
