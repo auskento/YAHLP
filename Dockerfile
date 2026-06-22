@@ -27,7 +27,6 @@ RUN a2enmod rewrite \
     && a2enmod headers \
     && a2enmod auth_openidc \
     && a2enmod auth_basic \
-    && a2enmod authn_file \
     && a2enmod session_crypto
 
 # Create directories
