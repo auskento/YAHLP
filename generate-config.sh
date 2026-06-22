@@ -118,38 +118,6 @@ DELUGE_INCLUDE=$(generate_include "deluge" "$ENABLE_DELUGE")
 # Generate auth includes
 AUTH_OFFICE365_INCLUDE=$(generate_auth_include "auth-office365-protect" "$ENABLE_AUTH_OFFICE365")
 
-# Generate subdomain-specific OAuth2 configs for Emby and Plex
-OAUTH2_EMBY_SUBDOMAIN_INCLUDE=""
-OAUTH2_PLEX_SUBDOMAIN_INCLUDE=""
-
-if [ "$ENABLE_AUTH_OFFICE365" = "true" ] && [ -n "$EMBY_DOMAIN" ]; then
-    EMBY_REDIRECT_URI="https://${EMBY_DOMAIN}/emby/oauth/callback"
-    OAUTH2_EMBY_SUBDOMAIN_INCLUDE="OIDCClientID ${OAUTH2_CLIENT_ID}
-OIDCClientSecret ${OAUTH2_CLIENT_SECRET}
-OIDCRedirectURI ${EMBY_REDIRECT_URI}
-OIDCProviderMetadataURL ${OIDC_PROVIDER_METADATA_URL}
-OIDCScope \"openid profile email\"
-OIDCSessionInactivityTimeout 3600
-OIDCClaimPrefix OIDC_
-OIDCPassClaimsAs environment
-OIDCCryptoPassphrase \"${OAUTH2_CRYPTO_PASSPHRASE}\"
-OIDCSSLValidateServer On"
-fi
-
-if [ "$ENABLE_AUTH_OFFICE365" = "true" ] && [ -n "$PLEX_DOMAIN" ]; then
-    PLEX_REDIRECT_URI="https://${PLEX_DOMAIN}/plex/oauth/callback"
-    OAUTH2_PLEX_SUBDOMAIN_INCLUDE="OIDCClientID ${OAUTH2_CLIENT_ID}
-OIDCClientSecret ${OAUTH2_CLIENT_SECRET}
-OIDCRedirectURI ${PLEX_REDIRECT_URI}
-OIDCProviderMetadataURL ${OIDC_PROVIDER_METADATA_URL}
-OIDCScope \"openid profile email\"
-OIDCSessionInactivityTimeout 3600
-OIDCClaimPrefix OIDC_
-OIDCPassClaimsAs environment
-OIDCCryptoPassphrase \"${OAUTH2_CRYPTO_PASSPHRASE}\"
-OIDCSSLValidateServer On"
-fi
-
 # Generate custom backend include if enabled
 CUSTOM_BACKEND_INCLUDE=""
 if [ "$ENABLE_CUSTOM_BACKEND" = "true" ]; then
@@ -219,8 +187,6 @@ CONFIG="${CONFIG//@@INCLUDE_CUSTOM_BACKEND@@/$CUSTOM_BACKEND_INCLUDE}"
 
 # Replace auth includes
 CONFIG="${CONFIG//@@INCLUDE_AUTH_OFFICE365@@/$AUTH_OFFICE365_INCLUDE}"
-CONFIG="${CONFIG//@@INCLUDE_OAUTH2_EMBY_SUBDOMAIN@@/$OAUTH2_EMBY_SUBDOMAIN_INCLUDE}"
-CONFIG="${CONFIG//@@INCLUDE_OAUTH2_PLEX_SUBDOMAIN@@/$OAUTH2_PLEX_SUBDOMAIN_INCLUDE}"
 
 # Write output file
 echo "$CONFIG" > "$OUTPUT_FILE"

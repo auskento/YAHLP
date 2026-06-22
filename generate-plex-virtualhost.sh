@@ -2,6 +2,7 @@
 
 # Generate Plex Subdomain VirtualHost Configuration
 # Called with: domain [enable_oauth]
+# Requires OIDC env vars: OIDC_PROVIDER_METADATA_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET, OAUTH2_CRYPTO_PASSPHRASE
 
 PLEX_DOMAIN="${1:-plex.example.com}"
 ENABLE_OAUTH="${2:-false}"
@@ -37,13 +38,38 @@ cat << 'EOF'
     RequestHeader set X-Forwarded-Port "443"
     RequestHeader set X-Real-IP %{REMOTE_ADDR}s
     RequestHeader set X-Forwarded-For %{HTTP:X-Forwarded-For}e
+EOF
+
+# Add OIDC configuration if OAuth is enabled
+if [ "$ENABLE_OAUTH" = "true" ]; then
+    cat << 'EOF'
     
-    # Office 365 OAuth Protection (when enabled)
+    # Office 365 OpenID Connect Configuration for Plex subdomain
+    OIDCSessionType server-cache
+    OIDCClientID @@OAUTH2_CLIENT_ID@@
+    OIDCClientSecret @@OAUTH2_CLIENT_SECRET@@
+    OIDCRedirectURI https://@@PLEX_DOMAIN@@/oauth2/callback
+    OIDCProviderMetadataURL @@OIDC_PROVIDER_METADATA_URL@@
+    OIDCScope "openid profile email"
+    OIDCSessionInactivityTimeout 3600
+    OIDCSessionMaxDuration 86400
+    OIDCClaimPrefix OIDC_
+    OIDCPassClaimsAs environment
+    OIDCCryptoPassphrase "@@OAUTH2_CRYPTO_PASSPHRASE@@"
+    OIDCSSLValidateServer On
+    OIDCClaimDelimiter ;
+    OIDCPassUserInfoAs json
+EOF
+fi
+
+cat << 'EOF'
+    
+    # OAuth2 Handlers
     <Location /oauth2>
         SetHandler oauth2-handler
     </Location>
     
-    <Location /oauth2callback>
+    <Location /oauth2/callback>
         SetHandler oauth2-handler
     </Location>
 EOF

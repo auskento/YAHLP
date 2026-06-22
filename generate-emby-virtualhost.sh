@@ -2,6 +2,7 @@
 
 # Generate Emby Subdomain VirtualHost Configuration
 # Called with: domain [enable_oauth]
+# Requires OIDC env vars: OIDC_PROVIDER_METADATA_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET, OAUTH2_CRYPTO_PASSPHRASE
 
 EMBY_DOMAIN="${1:-emby.example.com}"
 ENABLE_OAUTH="${2:-false}"
@@ -19,26 +20,56 @@ cat << 'EOF'
     SSLCipherSuite ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384
     SSLHonorCipherOrder on
     
-    # Hardening & KeepAlive settings to prevent dropped playback sessions
-    KeepAlive On
-    Timeout 6000
-    
-    # Prevent Apache from acting as a forward proxy
+    # Proxy settings
     ProxyRequests Off
     ProxyPreserveHost On
     
-    # Forward crucial headers to Emby (Client IP, Host info, and connection scheme)
+    # Request limit settings for Emby compatibility
+    LimitRequestFieldSize 32768
+    LimitRequestFields 100
+    LimitRequestLine 32768
+    
+    # KeepAlive and timeout settings
+    KeepAlive On
+    Timeout 300
+    
+    # Forward crucial headers
     RequestHeader set X-Forwarded-Proto "https" env=HTTPS
     RequestHeader set X-Forwarded-Port "443"
     RequestHeader set X-Real-IP %{REMOTE_ADDR}s
     RequestHeader set X-Forwarded-For %{HTTP:X-Forwarded-For}e
+EOF
+
+# Add OIDC configuration if OAuth is enabled
+if [ "$ENABLE_OAUTH" = "true" ]; then
+    cat << 'EOF'
     
-    # Office 365 OAuth Protection (when enabled)
+    # Office 365 OpenID Connect Configuration for Emby subdomain
+    OIDCSessionType server-cache
+    OIDCClientID @@OAUTH2_CLIENT_ID@@
+    OIDCClientSecret @@OAUTH2_CLIENT_SECRET@@
+    OIDCRedirectURI https://@@EMBY_DOMAIN@@/oauth2/callback
+    OIDCProviderMetadataURL @@OIDC_PROVIDER_METADATA_URL@@
+    OIDCScope "openid profile email"
+    OIDCSessionInactivityTimeout 3600
+    OIDCSessionMaxDuration 86400
+    OIDCClaimPrefix OIDC_
+    OIDCPassClaimsAs environment
+    OIDCCryptoPassphrase "@@OAUTH2_CRYPTO_PASSPHRASE@@"
+    OIDCSSLValidateServer On
+    OIDCClaimDelimiter ;
+    OIDCPassUserInfoAs json
+EOF
+fi
+
+cat << 'EOF'
+    
+    # OAuth2 Handlers
     <Location /oauth2>
         SetHandler oauth2-handler
     </Location>
     
-    <Location /oauth2callback>
+    <Location /oauth2/callback>
         SetHandler oauth2-handler
     </Location>
 EOF
@@ -64,11 +95,7 @@ fi
 
 cat << 'EOF'
     
-    # Route /embywebsocket to handle live TV and real-time app sync
-    ProxyPassMatch "^/embywebsocket/(.*)" "ws://@@EMBY_HOST@@:@@EMBY_PORT@@/embywebsocket/$1"
-    ProxyPassReverse "^/embywebsocket/(.*)" "ws://@@EMBY_HOST@@:@@EMBY_PORT@@/embywebsocket/$1"
-    
-    # Route all other traffic to root
+    # Route all traffic to Emby backend
     ProxyPass "/" "http://@@EMBY_HOST@@:@@EMBY_PORT@@/"
     ProxyPassReverse "/" "http://@@EMBY_HOST@@:@@EMBY_PORT@@/"
 </VirtualHost>
