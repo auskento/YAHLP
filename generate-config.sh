@@ -70,6 +70,7 @@ process_service_config() {
 [ "$ENABLE_WHISPARR" = "true" ] && process_service_config "whisparr" "6969"
 [ "$ENABLE_LIDARR" = "true" ] && process_service_config "lidarr" "8686"
 [ "$ENABLE_PROWLARR" = "true" ] && process_service_config "prowlarr" "9696"
+[ "$ENABLE_SEERR" = "true" ] && process_service_config "seerr" "5055"
 [ "$ENABLE_JELLYFIN" = "true" ] && process_service_config "jellyfin" "8096"
 [ "$ENABLE_EMBY" = "true" ] && process_service_config "emby" "8096"
 [ "$ENABLE_PLEX" = "true" ] && process_service_config "plex" "32400"
