@@ -357,6 +357,7 @@ generate_dashboard_for_auth() {
 
     local html_content=$(cat "$DASHBOARD_TEMPLATE")
     html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+    html_content="${html_content//@@DASHBOARD_NAME@@/$DASHBOARD_NAME}"
     html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
     html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
     html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
