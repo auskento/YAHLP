@@ -29,7 +29,7 @@ declare -A SERVICES=(
     [SONARR]="INFRA|Sonarr|TV shows|/icons/sonarr.png|/sonarr/calendar|#3aa0e0"
     [WHISPARR]="INFRA|Whisparr|Adult content|/icons/whisparr.png|/whisparr/|#ef7e30"
     [PROWLARR]="INFRA|Prowlarr|Indexer manager|/icons/prowlarr.png|/prowlarr/|#e8810e"
-    [OVERSEERR]="INFRA|Overseerr|Requests|/icons/overseerr.png|/overseerr/|#00a4dc"
+    [SEERR]="INFRA|Seerr|Requests|/icons/overseerr.png|/seerr/|#00a4dc"
     [LIDARR]="INFRA|Lidarr|Music|/icons/lidarr.png|/lidarr/|#2ecd6f"
     
     # MEDIA category
@@ -44,7 +44,7 @@ declare -a SERVICE_ORDER=(
     # DOWNLOADERS
     "SABNZBD" "DELUGE" "TRANSMISSION" "QBITTORRENT"
     # INDEXERS
-    "RADARR" "SONARR" "WHISPARR" "PROWLARR" "OVERSEERR" "LIDARR"
+    "RADARR" "SONARR" "WHISPARR" "PROWLARR" "SEERR" "LIDARR"
     # MEDIA SERVERS
     "EMBY" "PLEX" "JELLYFIN" "TAUTULLI"
 )
