@@ -238,7 +238,7 @@
 
 <div class="header">
     <div id="dashboard-header" style="display:flex;align-items:center;gap:15px;flex-shrink:0">
-        <img src="/icons/apache-reverse-proxy.svg" alt="Apache Reverse Proxy" style="width:40px;height:40px;filter:drop-shadow(0 4px 16px rgba(58,160,224,.4))">
+        <img src="@@DASHBOARD_ICON@@" alt="Dashboard" style="width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(58,160,224,.4))">
         <div id="dashboard-name" style="font-weight:600;font-size:16px;color:#cdd3dd;letter-spacing:0.1em">@@DASHBOARD_NAME@@</div>
     </div>
     <div class="datetime-box">
