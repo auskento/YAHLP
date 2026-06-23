@@ -374,32 +374,6 @@ generate_dashboard2() {
     generate_dashboard_for_auth
 }
 
-# Generate animated dashboard (dashboard3.html with object tags)
-generate_dashboard3() {
-    local DASHBOARD_OUTPUT="/var/www/html/dashboard3.html"
-    local DASHBOARD_TEMPLATE="/var/www/html/dashboard3.html.template"
-
-    if [ ! -f "$DASHBOARD_TEMPLATE" ]; then
-        echo "⚠ Dashboard3 template not found: $DASHBOARD_TEMPLATE"
-        return
-    fi
-
-    local services_array=$(generate_dashboard2_services_array)
-
-    # Set dashboard name and icon
-    local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
-    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
-
-    local html_content=$(cat "$DASHBOARD_TEMPLATE")
-    html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
-    html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
-    html_content="${html_content//@@DASHBOARD_NAME@@/$DASHBOARD_NAME}"
-
-    echo "$html_content" > "$DASHBOARD_OUTPUT"
-
-    echo "✓ Animated dashboard generated (with object tags): $DASHBOARD_OUTPUT"
-}
-
 # Main generation function
 generate_html() {
     echo "Generating all dashboards in synchronized order..."
@@ -418,7 +392,6 @@ generate_html() {
     generate_simple_menu
     generate_react_dashboard
     generate_dashboard2
-    generate_dashboard3
 
     echo ""
     echo "✓ All dashboards generated with $count enabled service(s)"
@@ -426,8 +399,7 @@ generate_html() {
     echo "Available at:"
     echo "  /index.html (classic menu)"
     echo "  /dashboard.html (React modern UI)"
-    echo "  /dashboard2.html (direct links)"
-    echo "  /dashboard3.html (animated SVG support)"
+    echo "  /dashboard2.html (iframes with dynamic icons)"
 }
 
 # Run generation
