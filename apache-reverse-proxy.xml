@@ -89,7 +89,7 @@
     </Variable>
     <Variable>
       <Name>DASHBOARD_ICON</Name>
-      <Value>/icons/apache-reverse-proxy-logo.png</Value>
+      <Value>/icons/apache-reverse-proxy.png</Value>
     </Variable>
     <Variable>
       <Name>ENABLE_SABNZBD</Name>
