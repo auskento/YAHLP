@@ -65,7 +65,7 @@ Enterprise authentication using Microsoft Entra ID (formerly Azure AD). Best for
 AUTHTYPE=entra
 ENTRA_CLIENT_ID=your-client-id-here
 ENTRA_CLIENT_SECRET=your-client-secret-here
-ENTRA_REDIRECT_URI=https://transfers.limosani.au/oauth2callback
+ENTRA_REDIRECT_URI=https://transfers.limosani.au/auth/oauth2/callback
 ENTRA_PROVIDER_METADATA_URL=https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0/.well-known/openid-configuration
 ```
 
@@ -78,7 +78,7 @@ ENTRA_PROVIDER_METADATA_URL=https://login.microsoftonline.com/YOUR_TENANT_ID/v2.
 3. Fill in:
    - **Name**: "Apache Reverse Proxy"
    - **Supported account types**: "Accounts in this organizational directory only"
-   - **Redirect URI**: `https://transfers.limosani.au/oauth2callback`
+   - **Redirect URI**: `https://transfers.limosani.au/auth/oauth2/callback`
 4. Click **Register**
 
 #### 2. Get Credentials
@@ -125,7 +125,7 @@ Authentication using Google accounts. Best for teams using Google Workspace.
 AUTHTYPE=google
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-client-secret-here
-GOOGLE_REDIRECT_URI=https://transfers.limosani.au/oauth2callback
+GOOGLE_REDIRECT_URI=https://transfers.limosani.au/auth/oauth2/callback
 ```
 
 ### Setup Steps
@@ -152,7 +152,7 @@ GOOGLE_REDIRECT_URI=https://transfers.limosani.au/oauth2callback
 1. **APIs & Services → Credentials → Create Credentials → OAuth Client ID**
 2. Select **Web application**
 3. Add **Authorized redirect URIs**:
-   - `https://transfers.limosani.au/oauth2callback`
+   - `https://transfers.limosani.au/auth/oauth2/callback`
 4. Click **Create**
 5. Copy:
    - **Client ID** → `GOOGLE_CLIENT_ID`
@@ -330,14 +330,14 @@ BASIC_AUTH_CREDENTIALS=admin:SecurePassword123|user:AnotherPassword456
 # AUTHTYPE=entra
 # ENTRA_CLIENT_ID=12345678-1234-1234-1234-123456789012
 # ENTRA_CLIENT_SECRET=abc123~def456_GHI789.jkl~mno
-# ENTRA_REDIRECT_URI=https://transfers.limosani.au/oauth2callback
+# ENTRA_REDIRECT_URI=https://transfers.limosani.au/auth/oauth2/callback
 # ENTRA_PROVIDER_METADATA_URL=https://login.microsoftonline.com/12345678-1234-1234-1234-123456789012/v2.0/.well-known/openid-configuration
 
 # OPTION 3: Google OAuth
 # AUTHTYPE=google
 # GOOGLE_CLIENT_ID=123456789-abcdefghijklmnop.apps.googleusercontent.com
 # GOOGLE_CLIENT_SECRET=GOCSPX-abc123def456ghi
-# GOOGLE_REDIRECT_URI=https://transfers.limosani.au/oauth2callback
+# GOOGLE_REDIRECT_URI=https://transfers.limosani.au/auth/oauth2/callback
 
 # Services (example)
 ENABLE_RADARR=true
