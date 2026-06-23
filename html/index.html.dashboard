@@ -74,7 +74,7 @@
           <span style="font-size:11px;color:#ff9999;padding-left:15px">{{ offlineList }}</span>
         </sc-if>
       </div>
-      <a href="/" style="font-size:11px;color:#4a9eff;text-decoration:none;text-align:center;padding:8px 0;border-top:1px solid rgba(255,255,255,.06);transition:color 0.2s">← Classic Menu</a>
+      <a href="/index.html" style="font-size:11px;color:#4a9eff;text-decoration:none;text-align:center;padding:8px 0;border-top:1px solid rgba(255,255,255,.06);transition:color 0.2s">← Classic Menu</a>
     </div>
   </aside>
 
