@@ -11,13 +11,13 @@
   <aside style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 15px;flex:none;border-right:1px solid rgba(255,255,255,.05);overflow-y:hidden">
 
     <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
-      <img src="@@DASHBOARD_ICON@@" alt="Dashboard" style="width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(58,160,224,.4))">
+      <img src="@@DASHBOARD_ICON@@" alt="Dashboard" style="width:@@LOGO_SIZE@@;height:@@LOGO_SIZE@@;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(58,160,224,.4))">
       <div style="text-align:center">
         <div style="font-size:10px;color:#6b7385;letter-spacing:.05em">MEDIA</div>
       </div>
     </div>
 
-    <nav id="services-nav" style="display:flex;flex-direction:column;gap:8px;align-items:center;overflow-y:auto;flex:1;width:100%;padding-right:4px">
+    <nav id="services-nav" style="display:flex;flex-direction:column;gap:@@ICON_GAP@@;align-items:center;overflow-y:auto;flex:1;width:100%;padding-right:4px">
       <!-- Services injected here -->
     </nav>
 
@@ -57,9 +57,12 @@
     transform: scale(1.1);
     filter: brightness(1.3);
   }
+  :root {
+    --icon-size: @@ICON_SIZE@@;
+  }
   .service-icon {
-    width: 48px;
-    height: 48px;
+    width: var(--icon-size);
+    height: var(--icon-size);
     border-radius: 10px;
     background: rgba(255,255,255,.05);
     display: flex;
@@ -75,8 +78,8 @@
     box-shadow: inset 0 0 0 2px var(--accent), 0 0 12px var(--accent)66;
   }
   .service-icon img {
-    width: 32px;
-    height: 32px;
+    width: calc(var(--icon-size) - 16px);
+    height: calc(var(--icon-size) - 16px);
     object-fit: contain;
   }
 </style>

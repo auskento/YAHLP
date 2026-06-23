@@ -242,6 +242,37 @@ generate_react_dashboard() {
     echo "$services_array" | grep -o "{ cat:" | wc -l
 }
 
+# Calculate dynamic icon sizes based on service count
+calculate_icon_sizes() {
+    local service_count=$1
+    local icon_size icon_gap logo_size
+
+    # Dynamic sizing based on number of services
+    if [ "$service_count" -le 5 ]; then
+        icon_size="52px"
+        icon_gap="12px"
+        logo_size="40px"
+    elif [ "$service_count" -le 8 ]; then
+        icon_size="48px"
+        icon_gap="10px"
+        logo_size="36px"
+    elif [ "$service_count" -le 12 ]; then
+        icon_size="44px"
+        icon_gap="8px"
+        logo_size="32px"
+    elif [ "$service_count" -le 15 ]; then
+        icon_size="40px"
+        icon_gap="6px"
+        logo_size="30px"
+    else
+        icon_size="36px"
+        icon_gap="5px"
+        logo_size="28px"
+    fi
+
+    echo "$icon_size|$icon_gap|$logo_size"
+}
+
 # Generate icons-only services array for dashboard2
 generate_dashboard2_services_array() {
     local array=""
@@ -301,22 +332,40 @@ generate_dashboard_for_auth() {
         return
     fi
 
+    # Count enabled services
+    local service_count=0
+    for service_key in "${SERVICE_ORDER[@]}"; do
+        local enable_var="ENABLE_${service_key}"
+        if [ "${!enable_var}" = "true" ]; then
+            ((service_count++))
+        fi
+    done
+
     local services_array=$(generate_dashboard2_services_array)
 
     # Set dashboard name and icon
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
     local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
 
+    # Calculate dynamic icon sizes
+    local sizes=$(calculate_icon_sizes "$service_count")
+    local ICON_SIZE=$(echo "$sizes" | cut -d'|' -f1)
+    local ICON_GAP=$(echo "$sizes" | cut -d'|' -f2)
+    local LOGO_SIZE=$(echo "$sizes" | cut -d'|' -f3)
+
     local html_content=$(cat "$DASHBOARD_TEMPLATE")
     html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
     html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
+    html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
+    html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
+    html_content="${html_content//@@LOGO_SIZE@@/$LOGO_SIZE}"
 
     echo "$html_content" > "$DASHBOARD_OUTPUT"
 
     if [ "$AUTHTYPE" = "oauth" ]; then
         echo "✓ OAuth dashboard generated (with iframes): $DASHBOARD_OUTPUT"
     else
-        echo "✓ Basic auth dashboard generated (direct links): $DASHBOARD_OUTPUT"
+        echo "✓ Basic auth dashboard generated ($service_count services, $ICON_SIZE icons): $DASHBOARD_OUTPUT"
     fi
 }
 
