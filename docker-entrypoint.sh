@@ -30,11 +30,15 @@ ENABLE_SABNZBD="${ENABLE_SABNZBD:-false}"
 ENABLE_DELUGE="${ENABLE_DELUGE:-false}"
 AUTHTYPE="${AUTHTYPE:-none}"
 BASIC_AUTH_CREDENTIALS="${BASIC_AUTH_CREDENTIALS:-}"
-OAUTH2_CLIENT_ID="${OAUTH2_CLIENT_ID:-}"
-OAUTH2_CLIENT_SECRET="${OAUTH2_CLIENT_SECRET:-}"
-OAUTH2_REDIRECT_URI="${OAUTH2_REDIRECT_URI:-}"
-OAUTH2_ALLOWED_DOMAINS="${OAUTH2_ALLOWED_DOMAINS:-}"
-OAUTH2_CRYPTO_PASSPHRASE="${OAUTH2_CRYPTO_PASSPHRASE:-}"
+ENTRA_CLIENT_ID="${ENTRA_CLIENT_ID:-}"
+ENTRA_CLIENT_SECRET="${ENTRA_CLIENT_SECRET:-}"
+ENTRA_REDIRECT_URI="${ENTRA_REDIRECT_URI:-}"
+ENTRA_PROVIDER_METADATA_URL="${ENTRA_PROVIDER_METADATA_URL:-}"
+ENTRA_CRYPTO_PASSPHRASE="${ENTRA_CRYPTO_PASSPHRASE:-}"
+GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"
+GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET:-}"
+GOOGLE_REDIRECT_URI="${GOOGLE_REDIRECT_URI:-}"
+GOOGLE_CRYPTO_PASSPHRASE="${GOOGLE_CRYPTO_PASSPHRASE:-}"
 SONARR_URL="${SONARR_URL:-}"
 RADARR_URL="${RADARR_URL:-}"
 WHISPARR_URL="${WHISPARR_URL:-}"
@@ -170,50 +174,87 @@ case "${AUTHTYPE}" in
         rm -f /etc/apache2/conf-enabled/auth-office365-protect.conf
         ;;
 
-    oauth)
-        echo "=== Setting up Office 365 OAuth2 Authentication ==="
+    entra)
+        echo "=== Setting up Entra ID (Microsoft) Authentication ==="
 
         # Validate required parameters
-        if [ -z "$OAUTH2_CLIENT_ID" ] || [ -z "$OAUTH2_CLIENT_SECRET" ]; then
-            echo "ERROR: OAUTH2_CLIENT_ID and OAUTH2_CLIENT_SECRET are required for AUTHTYPE=oauth"
+        if [ -z "$ENTRA_CLIENT_ID" ] || [ -z "$ENTRA_CLIENT_SECRET" ] || [ -z "$ENTRA_PROVIDER_METADATA_URL" ]; then
+            echo "ERROR: ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET, and ENTRA_PROVIDER_METADATA_URL are required for AUTHTYPE=entra"
             exit 1
         fi
 
         # Generate crypto passphrase if not provided
-        if [ -z "$OAUTH2_CRYPTO_PASSPHRASE" ]; then
-            OAUTH2_CRYPTO_PASSPHRASE=$(openssl rand -base64 24)
+        if [ -z "$ENTRA_CRYPTO_PASSPHRASE" ]; then
+            ENTRA_CRYPTO_PASSPHRASE=$(openssl rand -base64 24)
             echo "Generated random crypto passphrase"
         fi
 
-        # Configure OAuth2
-        cat /etc/apache2/conf-available/oauth2-office365.conf \
-            | sed "s|@@OAUTH2_CLIENT_ID@@|$OAUTH2_CLIENT_ID|g" \
-            | sed "s|@@OAUTH2_CLIENT_SECRET@@|$OAUTH2_CLIENT_SECRET|g" \
-            | sed "s|@@OAUTH2_REDIRECT_URI@@|$OAUTH2_REDIRECT_URI|g" \
-            | sed "s|@@OIDC_PROVIDER_METADATA_URL@@|$OIDC_PROVIDER_METADATA_URL|g" \
-            | sed "s|@@CRYPTO_PASSPHRASE@@|$OAUTH2_CRYPTO_PASSPHRASE|g" \
-            > /etc/apache2/conf-enabled/oauth2-office365.conf
+        # Configure Entra OAuth2
+        cat /etc/apache2/conf-available/oauth2-entra.conf \
+            | sed "s|@@ENTRA_CLIENT_ID@@|$ENTRA_CLIENT_ID|g" \
+            | sed "s|@@ENTRA_CLIENT_SECRET@@|$ENTRA_CLIENT_SECRET|g" \
+            | sed "s|@@ENTRA_REDIRECT_URI@@|$ENTRA_REDIRECT_URI|g" \
+            | sed "s|@@ENTRA_PROVIDER_METADATA_URL@@|$ENTRA_PROVIDER_METADATA_URL|g" \
+            | sed "s|@@ENTRA_CRYPTO_PASSPHRASE@@|$ENTRA_CRYPTO_PASSPHRASE|g" \
+            > /etc/apache2/conf-enabled/oauth2-entra.conf
 
-        cp /etc/apache2/conf-available/auth-office365-protect.conf /etc/apache2/conf-enabled/
-        a2enconf oauth2-office365 2>/dev/null || true
-        a2enconf auth-office365-protect 2>/dev/null || true
+        cp /etc/apache2/conf-available/auth-entra-protect.conf /etc/apache2/conf-enabled/
+        a2enconf oauth2-entra 2>/dev/null || true
+        a2enconf auth-entra-protect 2>/dev/null || true
 
-        echo "✓ OAuth2 authentication enabled"
-        echo "  Client ID: ${OAUTH2_CLIENT_ID:0:20}..."
+        echo "✓ Entra ID authentication enabled"
+        echo "  Client ID: ${ENTRA_CLIENT_ID:0:20}..."
 
-        # Disable Basic Auth
-        rm -f /etc/apache2/conf-enabled/auth-basic.conf
+        # Disable other auth methods
+        rm -f /etc/apache2/conf-enabled/auth-basic.conf /etc/apache2/conf-enabled/oauth2-google.conf /etc/apache2/conf-enabled/auth-google-protect.conf
+        rm -f /etc/apache2/.htpasswd
+        ;;
+
+    google)
+        echo "=== Setting up Google OAuth2 Authentication ==="
+
+        # Validate required parameters
+        if [ -z "$GOOGLE_CLIENT_ID" ] || [ -z "$GOOGLE_CLIENT_SECRET" ] || [ -z "$GOOGLE_REDIRECT_URI" ]; then
+            echo "ERROR: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI are required for AUTHTYPE=google"
+            exit 1
+        fi
+
+        # Generate crypto passphrase if not provided
+        if [ -z "$GOOGLE_CRYPTO_PASSPHRASE" ]; then
+            GOOGLE_CRYPTO_PASSPHRASE=$(openssl rand -base64 24)
+            echo "Generated random crypto passphrase"
+        fi
+
+        # Configure Google OAuth2
+        cat /etc/apache2/conf-available/oauth2-google.conf \
+            | sed "s|@@GOOGLE_CLIENT_ID@@|$GOOGLE_CLIENT_ID|g" \
+            | sed "s|@@GOOGLE_CLIENT_SECRET@@|$GOOGLE_CLIENT_SECRET|g" \
+            | sed "s|@@GOOGLE_REDIRECT_URI@@|$GOOGLE_REDIRECT_URI|g" \
+            | sed "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|$GOOGLE_CRYPTO_PASSPHRASE|g" \
+            > /etc/apache2/conf-enabled/oauth2-google.conf
+
+        cp /etc/apache2/conf-available/auth-google-protect.conf /etc/apache2/conf-enabled/
+        a2enconf oauth2-google 2>/dev/null || true
+        a2enconf auth-google-protect 2>/dev/null || true
+
+        echo "✓ Google authentication enabled"
+        echo "  Client ID: ${GOOGLE_CLIENT_ID:0:20}..."
+
+        # Disable other auth methods
+        rm -f /etc/apache2/conf-enabled/auth-basic.conf /etc/apache2/conf-enabled/oauth2-entra.conf /etc/apache2/conf-enabled/auth-entra-protect.conf
         rm -f /etc/apache2/.htpasswd
         ;;
 
     none|*)
         echo "=== Authentication Disabled (AUTHTYPE=none) ==="
 
-        # Disable all authentication
-        a2disconf oauth2-office365 2>/dev/null || true
-        a2disconf auth-office365-protect 2>/dev/null || true
-        rm -f /etc/apache2/conf-enabled/oauth2-office365.conf
-        rm -f /etc/apache2/conf-enabled/auth-office365-protect.conf
+        # Disable all authentication methods
+        a2disconf oauth2-entra 2>/dev/null || true
+        a2disconf auth-entra-protect 2>/dev/null || true
+        a2disconf oauth2-google 2>/dev/null || true
+        a2disconf auth-google-protect 2>/dev/null || true
+        rm -f /etc/apache2/conf-enabled/oauth2-entra.conf /etc/apache2/conf-enabled/auth-entra-protect.conf
+        rm -f /etc/apache2/conf-enabled/oauth2-google.conf /etc/apache2/conf-enabled/auth-google-protect.conf
         rm -f /etc/apache2/conf-enabled/auth-basic.conf
         rm -f /etc/apache2/.htpasswd
 

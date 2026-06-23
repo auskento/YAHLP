@@ -48,8 +48,10 @@ RUN chmod -R 755 /var/www/html && \
 # Copy Apache configuration
 COPY apache-conf/reverse-proxy.conf.template /etc/apache2/sites-available/reverse-proxy.conf.template
 COPY apache-conf/ssl-config.conf /etc/apache2/mods-available/ssl-params.conf
-COPY apache-conf/oauth2-office365.conf /etc/apache2/conf-available/
-COPY apache-conf/auth-office365-protect.conf /etc/apache2/conf-available/
+COPY apache-conf/oauth2-entra.conf /etc/apache2/conf-available/
+COPY apache-conf/auth-entra-protect.conf /etc/apache2/conf-available/
+COPY apache-conf/oauth2-google.conf /etc/apache2/conf-available/
+COPY apache-conf/auth-google-protect.conf /etc/apache2/conf-available/
 COPY apache-conf/auth-basic.conf /etc/apache2/conf-available/
 COPY apache-conf/services/ /etc/apache2/sites-available/services/
 
