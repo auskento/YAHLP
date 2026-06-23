@@ -1,0 +1,45 @@
+## Summary
+Implements authentication-type-specific dashboards for basic auth and OAuth, with optimized UX for each method's constraints.
+
+## What Changed
+
+### 1. Basic Auth Dashboard (direct links)
+- Reverted auth-basic.conf to protect all paths except /health and /icons
+- Replaced dashboard2.html with a simple direct-link version
+- Users authenticate once at dashboard, then navigate directly to services
+- Eliminates the re-prompting issue inherent to iframe + basic auth
+
+### 2. OAuth Dashboard (iframes + sessions)
+- Created dashboard-oauth.html.template with advanced features
+- Embedded iframes keep sidebar visible while viewing service content
+- User info display shows authenticated user name and email
+- Logout button for proper session-based sign out
+- Top bar shows current service with close button
+- Health monitoring checks service status
+
+### 3. Smart Dashboard Generation
+- Updated generate-html-menu.sh to check AUTHTYPE environment variable
+- Automatically selects correct template:
+  - AUTHTYPE=oauth → dashboard-oauth.html (iframes)
+  - AUTHTYPE=basic → dashboard2.html (direct links)
+
+## Why
+
+**Basic Auth Limitations:**
+- Stateless, no session tracking
+- No built-in logout
+- Re-prompts on each iframe request
+
+**OAuth Strengths:**
+- Stateful sessions
+- User info available
+- Logout functionality
+- iframe-safe with proper session management
+
+Each auth method now gets an optimized dashboard that works with its constraints rather than against them.
+
+## Testing Needed
+- [ ] AUTHTYPE=basic: Verify no re-prompting when clicking services
+- [ ] AUTHTYPE=oauth: Verify iframes load with user info and logout button
+- [ ] Health monitoring works on both dashboards
+- [ ] Direct service access requires auth on basic auth setup

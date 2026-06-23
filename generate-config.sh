@@ -123,14 +123,21 @@ QBITTORRENT_INCLUDE=$(generate_include "qbittorrent" "$ENABLE_QBITTORRENT")
 SABNZBD_INCLUDE=$(generate_include "sabnzbd" "$ENABLE_SABNZBD")
 DELUGE_INCLUDE=$(generate_include "deluge" "$ENABLE_DELUGE")
 
-# Generate auth includes based on AUTHTYPE
-AUTH_OFFICE365_INCLUDE=""
+# Generate auth includes based on AUTHTYPE (mutually exclusive)
+AUTH_ENTRA_INCLUDE=""
+AUTH_GOOGLE_INCLUDE=""
 BASIC_AUTH_INCLUDE=""
-if [ "$AUTHTYPE" = "oauth" ]; then
-    AUTH_OFFICE365_INCLUDE=$(generate_auth_include "auth-office365-protect" "true")
-elif [ "$AUTHTYPE" = "basic" ]; then
-    BASIC_AUTH_INCLUDE=$(generate_auth_include "auth-basic" "true")
-fi
+case "$AUTHTYPE" in
+    entra)
+        AUTH_ENTRA_INCLUDE=$(generate_auth_include "auth-entra-protect" "true")
+        ;;
+    google)
+        AUTH_GOOGLE_INCLUDE=$(generate_auth_include "auth-google-protect" "true")
+        ;;
+    basic)
+        BASIC_AUTH_INCLUDE=$(generate_auth_include "auth-basic" "true")
+        ;;
+esac
 
 # Generate custom backend include if enabled
 CUSTOM_BACKEND_INCLUDE=""
@@ -200,7 +207,8 @@ CONFIG="${CONFIG//@@INCLUDE_DELUGE@@/$DELUGE_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_CUSTOM_BACKEND@@/$CUSTOM_BACKEND_INCLUDE}"
 
 # Replace auth includes
-CONFIG="${CONFIG//@@INCLUDE_AUTH_OFFICE365@@/$AUTH_OFFICE365_INCLUDE}"
+CONFIG="${CONFIG//@@INCLUDE_AUTH_ENTRA@@/$AUTH_ENTRA_INCLUDE}"
+CONFIG="${CONFIG//@@INCLUDE_AUTH_GOOGLE@@/$AUTH_GOOGLE_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_BASIC_AUTH@@/$BASIC_AUTH_INCLUDE}"
 
 # Write output file

@@ -77,11 +77,13 @@
     # ============================================
     # CONDITIONAL SERVICE INCLUDES
     # ============================================
-    
+
     # These sections will be included/excluded based on environment variables
     # See /etc/apache2/sites-available/services/*.conf
-    
-    @@INCLUDE_AUTH_OFFICE365@@
+
+    # Authentication includes (mutually exclusive: entra, google, or basic)
+    @@INCLUDE_AUTH_ENTRA@@
+    @@INCLUDE_AUTH_GOOGLE@@
     @@INCLUDE_SONARR@@
     @@INCLUDE_RADARR@@
     @@INCLUDE_WHISPARR@@
