@@ -24,14 +24,16 @@ declare -A SERVICES=(
     [DELUGE]="DOWNLOADS|Deluge|Torrent client|/icons/deluge.png|/deluge/|#3aa3e0"
     [TRANSMISSION]="DOWNLOADS|Transmission|Torrents|/icons/transmission.png|/transmission/|#343434"
     [QBITTORRENT]="DOWNLOADS|qBittorrent|Torrent client|/icons/qbittorrent.png|/qbittorrent/|#3683b6"
-    
+    [NZBGET]="DOWNLOADS|NZBGet|Usenet downloads|/icons/nzbget.png|/nzbget/|#3da7e0"
+    [NZBHYDRA]="DOWNLOADS|NZBHydra|NZB indexer|/icons/nzbhydra.png|/nzbhydra/|#3e9c7d"
+
     # INFRA category (Indexers & Infrastructure)
     [RADARR]="INFRA|Radarr|Movies|/icons/radarr.png|/radarr/|#febc2e"
     [SONARR]="INFRA|Sonarr|TV shows|/icons/sonarr.png|/sonarr/calendar|#3aa0e0"
-    [WHISPARR]="INFRA|Whisparr|Adult content|/icons/whisparr.png|/whisparr/|#ef7e30"
     [PROWLARR]="INFRA|Prowlarr|Indexer manager|/icons/prowlarr.png|/prowlarr/|#e8810e"
     [SEERR]="INFRA|Seerr|Requests|/icons/seerr.png|/seerr/|#00a4dc"
     [LIDARR]="INFRA|Lidarr|Music|/icons/lidarr.png|/lidarr/|#2ecd6f"
+    [WHISPARR]="INFRA|Whisparr|Adult content|/icons/whisparr.png|/whisparr/|#ef7e30"
     
     # MEDIA category
     [EMBY]="MEDIA|Emby|Streaming|/icons/emby.png|SUBDOMAIN|#9146FF"
@@ -43,9 +45,9 @@ declare -A SERVICES=(
 # Service display order (same order for both menus)
 declare -a SERVICE_ORDER=(
     # DOWNLOADERS
-    "SABNZBD" "DELUGE" "TRANSMISSION" "QBITTORRENT"
+    "SABNZBD" "DELUGE" "TRANSMISSION" "QBITTORRENT" "NZBGET" "NZBHYDRA"
     # INDEXERS
-    "RADARR" "SONARR" "WHISPARR" "PROWLARR" "SEERR" "LIDARR"
+    "RADARR" "SONARR" "PROWLARR" "SEERR" "LIDARR" "WHISPARR"
     # MEDIA SERVERS
     "EMBY" "PLEX" "JELLYFIN" "TAUTULLI"
 )
@@ -57,42 +59,85 @@ declare -A CATEGORY_LABEL=(
     [MEDIA]="MEDIA SERVERS"
 )
 
-# Generate menu items HTML in category order (for simple menu)
+# Generate group order from DASHBOARD_ORDER variable
+generate_group_order() {
+    local dash_order="${DASHBOARD_ORDER:-DOWNLOADS,INFRA,MEDIA}"
+    local order_array=""
+    local first=true
+
+    # Split by comma and convert to uppercase
+    IFS=',' read -ra groups <<< "$dash_order"
+    for group in "${groups[@]}"; do
+        # Trim whitespace
+        group=$(echo "$group" | xargs)
+        # Convert to uppercase for category matching
+        local cat_upper=$(echo "$group" | tr '[:lower:]' '[:upper:]')
+
+        if [ "$first" = true ]; then
+            first=false
+        else
+            order_array+="', '"
+        fi
+        order_array+="'$cat_upper"
+    done
+    order_array+="'"
+
+    echo "['$order_array]"
+}
+
+# Generate menu items HTML respecting DASHBOARD_ORDER
 generate_menu_items() {
     local menu_html=""
-    
-    for service_key in "${SERVICE_ORDER[@]}"; do
-        # Check if service is enabled
-        local enable_var="ENABLE_${service_key}"
-        local is_enabled="${!enable_var}"
-        
-        # Skip disabled services
-        if [ "$is_enabled" != "true" ]; then
-            continue
-        fi
-        
-        # Parse service metadata
-        IFS='|' read -r category service_name service_desc icon_path href accent <<< "${SERVICES[$service_key]}"
-        
-        # Handle subdomain services (Emby, Plex)
-        if [ "$href" = "SUBDOMAIN" ]; then
-            if [ "$service_key" = "EMBY" ]; then
-                if [ -z "$EMBY_DOMAIN" ]; then
-                    continue
-                fi
-                href="https://$EMBY_DOMAIN/"
-            elif [ "$service_key" = "PLEX" ]; then
-                if [ -z "$PLEX_DOMAIN" ]; then
-                    continue
-                fi
-                href="https://$PLEX_DOMAIN/"
-            fi
-        fi
-        
-        # Add menu item - NO label span!
-        menu_html+="<td class='menu-item'><a href='$href' target='content' title='$service_name'><img src='$icon_path' alt='$service_name' /></a></td>"
+
+    # Parse DASHBOARD_ORDER to get group ordering
+    local dash_order="${DASHBOARD_ORDER:-DOWNLOADS,INFRA,MEDIA}"
+    IFS=',' read -ra group_order <<< "$dash_order"
+
+    # Convert group names to uppercase for matching
+    for i in "${!group_order[@]}"; do
+        group_order[$i]=$(echo "${group_order[$i]}" | xargs | tr '[:lower:]' '[:upper:]')
     done
-    
+
+    # Process services in DASHBOARD_ORDER group order
+    for group in "${group_order[@]}"; do
+        for service_key in "${SERVICE_ORDER[@]}"; do
+            # Get service category
+            IFS='|' read -r category rest <<< "${SERVICES[$service_key]}"
+
+            # Skip if not in current group
+            [ "$category" != "$group" ] && continue
+
+            # Check if service is enabled
+            local enable_var="ENABLE_${service_key}"
+            local is_enabled="${!enable_var}"
+
+            if [ "$is_enabled" != "true" ]; then
+                continue
+            fi
+
+            # Parse service metadata
+            IFS='|' read -r category service_name service_desc icon_path href accent <<< "${SERVICES[$service_key]}"
+
+            # Handle subdomain services (Emby, Plex)
+            if [ "$href" = "SUBDOMAIN" ]; then
+                if [ "$service_key" = "EMBY" ]; then
+                    if [ -z "$EMBY_DOMAIN" ]; then
+                        continue
+                    fi
+                    href="https://$EMBY_DOMAIN/"
+                elif [ "$service_key" = "PLEX" ]; then
+                    if [ -z "$PLEX_DOMAIN" ]; then
+                        continue
+                    fi
+                    href="https://$PLEX_DOMAIN/"
+                fi
+            fi
+
+            # Add menu item - NO label span!
+            menu_html+="<td class='menu-item'><a href='$href' target='content' title='$service_name'><img src='$icon_path' alt='$service_name' /></a></td>"
+        done
+    done
+
     echo "$menu_html"
 }
 
@@ -226,25 +271,27 @@ generate_style_dashboard() {
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
 
-        if [ -z "$LANDING" ]; then
-            html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"|src="about:blank"|')
+        if [ -z "$DASHBOARD_LANDING" ]; then
+            html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"|src="about:blank"|')
         else
-            html_content="${html_content//@@LANDING@@/$LANDING}"
+            html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
         fi
 
         echo "$html_content" > "$OUTPUT_FILE"
     elif [ "$STYLE" = "modern" ]; then
         # Modern dashboard uses React with full services array (with categories)
         local services_array=$(generate_services_array)
+        local dash_order=$(generate_group_order)
         local html_content=$(cat "$TEMPLATE_FILE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
+        html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
 
-        if [ -z "$LANDING" ]; then
-            html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"||')
+        if [ -z "$DASHBOARD_LANDING" ]; then
+            html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
         else
-            html_content="${html_content//@@LANDING@@/$LANDING}"
+            html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
         fi
 
         echo "$html_content" > "$OUTPUT_FILE"
@@ -269,10 +316,10 @@ generate_style_dashboard() {
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
 
-        if [ -z "$LANDING" ]; then
-            html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"||')
+        if [ -z "$DASHBOARD_LANDING" ]; then
+            html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
         else
-            html_content="${html_content//@@LANDING@@/$LANDING}"
+            html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
         fi
 
         html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
@@ -310,10 +357,10 @@ generate_all_styles() {
         html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
-        if [ -z "$LANDING" ]; then
-            html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"|src="about:blank"|')
+        if [ -z "$DASHBOARD_LANDING" ]; then
+            html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"|src="about:blank"|')
         else
-            html_content="${html_content//@@LANDING@@/$LANDING}"
+            html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
         fi
         echo "$html_content" > "/var/www/html/classic.html"
     fi
@@ -321,14 +368,16 @@ generate_all_styles() {
     # Generate Modern (always)
     if [ -f "$MODERN_TEMPLATE" ]; then
         local services_array=$(generate_services_array)
+        local dash_order=$(generate_group_order)
         local html_content=$(cat "$MODERN_TEMPLATE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
-        if [ -z "$LANDING" ]; then
-            html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"||')
+        html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
+        if [ -z "$DASHBOARD_LANDING" ]; then
+            html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
         else
-            html_content="${html_content//@@LANDING@@/$LANDING}"
+            html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
         fi
         echo "$html_content" > "/var/www/html/modern.html"
     fi
@@ -340,10 +389,10 @@ generate_all_styles() {
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
-        if [ -z "$LANDING" ]; then
-            html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"||')
+        if [ -z "$DASHBOARD_LANDING" ]; then
+            html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
         else
-            html_content="${html_content//@@LANDING@@/$LANDING}"
+            html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
         fi
         html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
         html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
@@ -358,10 +407,10 @@ generate_all_styles() {
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
-        if [ -z "$LANDING" ]; then
-            html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"||')
+        if [ -z "$DASHBOARD_LANDING" ]; then
+            html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
         else
-            html_content="${html_content//@@LANDING@@/$LANDING}"
+            html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
         fi
         html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
         html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
@@ -382,23 +431,25 @@ generate_react_dashboard() {
 
     # Generate services array
     local services_array=$(generate_services_array)
+    local dash_order=$(generate_group_order)
 
     # Set dashboard name, icon, and landing page
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
     local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
-    local LANDING="${LANDING:-}"
+    local DASHBOARD_LANDING="${DASHBOARD_LANDING:-}"
 
     # Read template and replace placeholders
     local html_content=$(cat "$DASHBOARD_TEMPLATE")
     html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
     html_content="${html_content//@@DASHBOARD_NAME@@/$DASHBOARD_NAME}"
     html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
+    html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
 
-    # Only set iframe src if LANDING is provided
-    if [ -z "$LANDING" ]; then
-        html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"||')
+    # Only set iframe src if DASHBOARD_LANDING is provided
+    if [ -z "$DASHBOARD_LANDING" ]; then
+        html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
     else
-        html_content="${html_content//@@LANDING@@/$LANDING}"
+        html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
     fi
 
     # Write output file
@@ -443,44 +494,62 @@ calculate_icon_sizes() {
     echo "$icon_multiplier|$gap_multiplier|$logo_multiplier"
 }
 
-# Generate icons-only services array for dashboard2
+# Generate icons-only services array for dashboard2 (respects DASHBOARD_ORDER)
 generate_dashboard2_services_array() {
     local array=""
     local first=true
-    
-    for service_key in "${SERVICE_ORDER[@]}"; do
-        local enable_var="ENABLE_${service_key}"
-        local is_enabled="${!enable_var}"
-        
-        if [ "$is_enabled" != "true" ]; then
-            continue
-        fi
-        
-        IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
-        local id=$(echo "$service_key" | tr '[:upper:]' '[:lower:]')
-        
-        if [ "$href" = "SUBDOMAIN" ]; then
-            if [ "$service_key" = "EMBY" ]; then
-                [ -z "$EMBY_DOMAIN" ] && continue
-                href="https://$EMBY_DOMAIN/"
-            elif [ "$service_key" = "PLEX" ]; then
-                [ -z "$PLEX_DOMAIN" ] && continue
-                href="https://$PLEX_DOMAIN/"
-            fi
-        fi
-        
-        local popup="false"
-        [[ "$href" == http* ]] && popup="true"
-        
-        if [ "$first" = true ]; then
-            first=false
-        else
-            array+=","
-        fi
-        
-        array+="{ id: '${id}', name: '${name}', icon: '${icon}', href: '${href}', accent: '${accent}', popup: ${popup} }"
+
+    # Parse DASHBOARD_ORDER to get group ordering
+    local dash_order="${DASHBOARD_ORDER:-DOWNLOADS,INFRA,MEDIA}"
+    IFS=',' read -ra group_order <<< "$dash_order"
+
+    # Convert group names to uppercase for matching
+    for i in "${!group_order[@]}"; do
+        group_order[$i]=$(echo "${group_order[$i]}" | xargs | tr '[:lower:]' '[:upper:]')
     done
-    
+
+    # Process services in DASHBOARD_ORDER group order
+    for group in "${group_order[@]}"; do
+        for service_key in "${SERVICE_ORDER[@]}"; do
+            # Get service category
+            IFS='|' read -r category rest <<< "${SERVICES[$service_key]}"
+
+            # Skip if not in current group
+            [ "$category" != "$group" ] && continue
+
+            local enable_var="ENABLE_${service_key}"
+            local is_enabled="${!enable_var}"
+
+            if [ "$is_enabled" != "true" ]; then
+                continue
+            fi
+
+            IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
+            local id=$(echo "$service_key" | tr '[:upper:]' '[:lower:]')
+
+            if [ "$href" = "SUBDOMAIN" ]; then
+                if [ "$service_key" = "EMBY" ]; then
+                    [ -z "$EMBY_DOMAIN" ] && continue
+                    href="https://$EMBY_DOMAIN/"
+                elif [ "$service_key" = "PLEX" ]; then
+                    [ -z "$PLEX_DOMAIN" ] && continue
+                    href="https://$PLEX_DOMAIN/"
+                fi
+            fi
+
+            local popup="false"
+            [[ "$href" == http* ]] && popup="true"
+
+            if [ "$first" = true ]; then
+                first=false
+            else
+                array+=","
+            fi
+
+            array+="{ id: '${id}', name: '${name}', icon: '${icon}', href: '${href}', accent: '${accent}', popup: ${popup} }"
+        done
+    done
+
     echo "[$array]"
 }
 
@@ -516,7 +585,7 @@ generate_dashboard_for_auth() {
     # Set dashboard name, icon, and landing page
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
     local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
-    local LANDING="${LANDING:-}"
+    local DASHBOARD_LANDING="${DASHBOARD_LANDING:-}"
 
     # Calculate dynamic icon sizes
     local sizes=$(calculate_icon_sizes "$service_count")
@@ -529,11 +598,11 @@ generate_dashboard_for_auth() {
     html_content="${html_content//@@DASHBOARD_NAME@@/$DASHBOARD_NAME}"
     html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
 
-    # Only set iframe src if LANDING is provided; otherwise remove src attribute to show welcome screen
-    if [ -z "$LANDING" ]; then
-        html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"||')
+    # Only set iframe src if DASHBOARD_LANDING is provided; otherwise remove src attribute to show welcome screen
+    if [ -z "$DASHBOARD_LANDING" ]; then
+        html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
     else
-        html_content="${html_content//@@LANDING@@/$LANDING}"
+        html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
     fi
 
     html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
@@ -578,7 +647,7 @@ generate_dashboard3() {
     # Set dashboard name, icon, and landing page
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
     local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
-    local LANDING="${LANDING:-}"
+    local DASHBOARD_LANDING="${DASHBOARD_LANDING:-}"
 
     # Calculate dynamic icon sizes
     local sizes=$(calculate_icon_sizes "$service_count")
@@ -591,11 +660,11 @@ generate_dashboard3() {
     html_content="${html_content//@@DASHBOARD_NAME@@/$DASHBOARD_NAME}"
     html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
 
-    # Only set iframe src if LANDING is provided; otherwise remove src attribute to show welcome screen
-    if [ -z "$LANDING" ]; then
-        html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"||')
+    # Only set iframe src if DASHBOARD_LANDING is provided; otherwise remove src attribute to show welcome screen
+    if [ -z "$DASHBOARD_LANDING" ]; then
+        html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
     else
-        html_content="${html_content//@@LANDING@@/$LANDING}"
+        html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
     fi
 
     html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"

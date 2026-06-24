@@ -23,7 +23,7 @@ chmod 777 /var/log/apache2/reverse-proxy-debug || {
 if [ -f /etc/apache2/dashboard.conf ]; then
     echo "Loading persistent dashboard configuration..."
     source /etc/apache2/dashboard.conf
-    echo "DEBUG: Loaded STYLE=$STYLE, LANDING=$LANDING"
+    echo "DEBUG: Loaded STYLE=$STYLE, DASHBOARD_LANDING=$DASHBOARD_LANDING"
 fi
 
 # Write environment variables to config file for scripts to source
@@ -47,6 +47,8 @@ ENABLE_TRANSMISSION="${ENABLE_TRANSMISSION:-false}"
 ENABLE_QBITTORRENT="${ENABLE_QBITTORRENT:-false}"
 ENABLE_SABNZBD="${ENABLE_SABNZBD:-false}"
 ENABLE_DELUGE="${ENABLE_DELUGE:-false}"
+ENABLE_NZBGET="${ENABLE_NZBGET:-false}"
+ENABLE_NZBHYDRA="${ENABLE_NZBHYDRA:-false}"
 AUTHTYPE="${AUTHTYPE:-none}"
 BASIC_AUTH_CREDENTIALS="${BASIC_AUTH_CREDENTIALS:-}"
 ENTRA_CLIENT_ID="${ENTRA_CLIENT_ID:-}"
@@ -74,8 +76,11 @@ TRANSMISSION_URL="${TRANSMISSION_URL:-}"
 QBITTORRENT_URL="${QBITTORRENT_URL:-}"
 SABNZBD_URL="${SABNZBD_URL:-}"
 DELUGE_URL="${DELUGE_URL:-}"
+NZBGET_URL="${NZBGET_URL:-}"
+NZBHYDRA_URL="${NZBHYDRA_URL:-}"
 DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
-LANDING="${LANDING:-}"
+DASHBOARD_LANDING="${DASHBOARD_LANDING:-}"
+DASHBOARD_ORDER="${DASHBOARD_ORDER:-DOWNLOADS,INFRA,MEDIA}"
 ENVEOF
 
 echo ""
@@ -103,12 +108,13 @@ DOMAIN="${DOMAIN:-example.com}"
 EMAIL="${EMAIL:-admin@example.com}"
 CERTBOT_WEBROOT="${CERTBOT_WEBROOT:-/var/www/letsencrypt}"
 
-echo "=== Access Mode Setup ==="
+echo "=== Deployment Mode Setup ==="
 echo "Access Mode: $ACCESS_MODE"
 
-# Validate ACCESS_MODE for private
+# Determine deployment mode and set SKIP_CERT_GENERATION accordingly
 if [ "$ACCESS_MODE" = "private" ]; then
     echo "✓ Private mode - Internal dashboard only"
+    SKIP_CERT_GENERATION=true
 
     # Validate that only none or basic auth are used in private mode
     if [ "$AUTHTYPE" != "none" ] && [ "$AUTHTYPE" != "basic" ]; then
@@ -117,11 +123,7 @@ if [ "$ACCESS_MODE" = "private" ]; then
         exit 1
     fi
 
-    # Set default values for private mode
-    DOMAIN="${DOMAIN:-192.168.1.1}"
-    EMAIL="${EMAIL:-admin@local}"
-    SKIP_CERT_GENERATION=true
-    echo "Domain: $DOMAIN (IP-based, no certificate generation)"
+    echo "Domain: $DOMAIN (not used for certificates)"
 elif [ "$ACCESS_MODE" = "public" ]; then
     echo "✓ Public mode - Full features enabled"
     SKIP_CERT_GENERATION=false
