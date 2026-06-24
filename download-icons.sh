@@ -22,7 +22,7 @@ declare -A ICON_URLS=(
     [LIDARR]="${ICON_URL_LIDARR}"
     [READARR]="${ICON_URL_READARR}"
     [PROWLARR]="${ICON_URL_PROWLARR}"
-    [OVERSEERR]="${ICON_URL_OVERSEERR}"
+    [SEERR]="${ICON_URL_SEERR}"
     [JELLYFIN]="${ICON_URL_JELLYFIN}"
     [EMBY]="${ICON_URL_EMBY}"
     [PLEX]="${ICON_URL_PLEX}"
@@ -31,6 +31,8 @@ declare -A ICON_URLS=(
     [QBITTORRENT]="${ICON_URL_QBITTORRENT}"
     [SABNZBD]="${ICON_URL_SABNZBD}"
     [DELUGE]="${ICON_URL_DELUGE}"
+    [NZBGET]="${ICON_URL_NZBGET}"
+    [NZBHYDRA]="${ICON_URL_NZBHYDRA}"
 )
 
 # Service name to lowercase path converter
