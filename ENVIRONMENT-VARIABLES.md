@@ -122,6 +122,8 @@ ENABLE_TRANSMISSION=true/false
 ENABLE_QBITTORRENT=true/false
 ENABLE_SABNZBD=true/false
 ENABLE_DELUGE=true/false
+ENABLE_NZBGET=true/false
+ENABLE_NZBHYDRA=true/false
 ```
 
 **Type:** Boolean (`true` or `false`)  
@@ -150,6 +152,8 @@ TRANSMISSION_URL=http://transmission:6969
 QBITTORRENT_URL=http://qbittorrent:8080
 SABNZBD_URL=http://sabnzbd:8080
 DELUGE_URL=http://deluge:8112
+NZBGET_URL=http://nzbget:6789
+NZBHYDRA_URL=http://nzbhydra:5076
 ```
 
 **Type:** URL  
@@ -181,6 +185,8 @@ ICON_URL_TRANSMISSION=
 ICON_URL_QBITTORRENT=
 ICON_URL_SABNZBD=
 ICON_URL_DELUGE=
+ICON_URL_NZBGET=
+ICON_URL_NZBHYDRA=
 ```
 
 **Type:** URL  
