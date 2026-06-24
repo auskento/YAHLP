@@ -2,9 +2,9 @@
 
 Complete reference guide for all environment variables supported by the Apache Reverse Proxy.
 
-## Required Variables
+## Required Variables (Public Deployments)
 
-These **must** be set for the system to work properly:
+For external/internet-facing deployments, these **must** be set:
 
 ### DOMAIN
 - **Type:** String
@@ -12,6 +12,7 @@ These **must** be set for the system to work properly:
 - **Description:** Your domain name for Let's Encrypt SSL certificate
 - **Default:** `example.com` (will fail if not changed)
 - **Note:** Must be a valid registered domain with DNS pointing to your server
+- **Only required for:** Public deployments (SKIP_CERT_GENERATION=false)
 
 ### EMAIL
 - **Type:** String
@@ -19,6 +20,7 @@ These **must** be set for the system to work properly:
 - **Description:** Email address for Let's Encrypt certificate notifications
 - **Default:** `admin@example.com`
 - **Note:** You'll receive renewal notifications at this email
+- **Only required for:** Public deployments (SKIP_CERT_GENERATION=false)
 
 ---
 
@@ -31,6 +33,14 @@ These **must** be set for the system to work properly:
 - **Example:** `Australia/Sydney`, `UTC`, `US/Eastern`
 - **Description:** Container timezone for logs and cron jobs
 
+### Certificate Generation
+- **Variable:** `SKIP_CERT_GENERATION`
+- **Type:** Boolean (`true` or `false`)
+- **Default:** `false`
+- **Description:** Set to `true` for internal-only deployments to skip Let's Encrypt certificate generation
+- **Use case:** When running on internal networks without public domain/DNS
+- **Note:** DOMAIN and EMAIL variables are still required in the config, but not used if this is `true`
+
 ### SSL/Security
 - **Variable:** `SSL_PROTOCOLS`
 - **Type:** String
@@ -41,6 +51,49 @@ These **must** be set for the system to work properly:
 - **Type:** String
 - **Default:** `HIGH:!aNULL:!MD5`
 - **Description:** Allowed SSL cipher suites
+
+### Dashboard Customization
+- **Variable:** `STYLE`
+- **Type:** String (classic, modern, sleek, or minimal)
+- **Default:** `modern`
+- **Description:** Dashboard visual style
+- **Options:**
+  - `classic`: Original sidebar menu layout
+  - `modern`: React-based UI with full features (recommended)
+  - `sleek`: Compact sidebar with gradient styling
+  - `minimal`: Minimal single-column design
+
+- **Variable:** `DASHBOARD_NAME`
+- **Type:** String
+- **Default:** `Media Server`
+- **Description:** Display name shown in dashboard header and page title
+- **Example:** `My Homelab`, `Family Media`, `Media Center`
+
+- **Variable:** `DASHBOARD_ICON`
+- **Type:** URL path
+- **Default:** `/icons/apache-reverse-proxy.png`
+- **Description:** Icon displayed in dashboard header (relative path or full URL)
+- **Examples:** `/icons/my-logo.png`, `https://example.com/logo.png`
+- **Note:** Place custom icon files in the `html/icons/` directory
+
+- **Variable:** `LANDING`
+- **Type:** String (service path or empty)
+- **Default:** Empty (shows welcome screen)
+- **Description:** Default page to load in dashboard iframe on startup
+- **Examples:** `sonarr/calendar`, `radarr`, `plex/web`
+- **Note:** Only used in modern, sleek, and minimal dashboard styles
+
+### Authentication
+- **Variable:** `AUTHTYPE`
+- **Type:** String (none, basic, entra, or google)
+- **Default:** `none`
+- **Description:** Authentication method for dashboard access
+- **Options:**
+  - `none`: No authentication required
+  - `basic`: Simple username/password authentication
+  - `entra`: Microsoft Entra ID (Azure AD) OAuth
+  - `google`: Google OAuth2
+- **Note:** In private deployments (SKIP_CERT_GENERATION=true), only `none` and `basic` are supported
 
 ---
 
@@ -181,15 +234,25 @@ ICON_URL_DELUGE=
 
 ## Complete Example Configuration
 
-### docker-compose.yml
+### docker-compose.yml (Public Deployment)
 ```yaml
 environment:
-  # Required - MUST SET THESE!
+  # Required for Let's Encrypt HTTPS
   DOMAIN: yourdomain.com
   EMAIL: admin@yourdomain.com
   
-  # Optional - Timezone
+  # Optional - Timezone and dashboard
   TZ: Australia/Melbourne
+  STYLE: modern
+  DASHBOARD_NAME: My Homelab
+  DASHBOARD_ICON: /icons/apache-reverse-proxy.png
+  
+  # Optional - Default landing page (e.g., sonarr/calendar)
+  LANDING: sonarr/calendar
+  
+  # Authentication
+  AUTHTYPE: basic
+  BASIC_AUTH_CREDENTIALS: "user1:password1|user2:password2"
   
   # Enable services you want
   ENABLE_SONARR: "true"
@@ -208,14 +271,50 @@ environment:
   ICON_URL_JELLYFIN: ""
 ```
 
+### docker-compose.yml (Internal/Private Deployment)
+```yaml
+environment:
+  # Not required - skip certificate generation
+  DOMAIN: internal-proxy
+  EMAIL: admin@local
+  SKIP_CERT_GENERATION: "true"
+  
+  # Dashboard
+  TZ: Australia/Melbourne
+  STYLE: modern
+  DASHBOARD_NAME: Family Media
+  DASHBOARD_ICON: /icons/apache-reverse-proxy.png
+  LANDING: ""
+  
+  # Authentication - only none or basic allowed
+  AUTHTYPE: none
+  
+  # Services enabled (same as public)
+  ENABLE_SONARR: "true"
+  SONARR_URL: http://sonarr:8989
+```
+
 ### .env File
 ```bash
-# Required
+# Required for public deployments
 DOMAIN=yourdomain.com
 EMAIL=admin@yourdomain.com
 
+# For internal deployments, skip certs:
+SKIP_CERT_GENERATION=false
+
 # Timezone
 TZ=Australia/Melbourne
+
+# Dashboard customization
+STYLE=modern
+DASHBOARD_NAME=My Homelab
+DASHBOARD_ICON=/icons/apache-reverse-proxy.png
+LANDING=sonarr/calendar
+
+# Authentication
+AUTHTYPE=basic
+BASIC_AUTH_CREDENTIALS=user1:password1|user2:password2
 
 # Services
 ENABLE_SONARR=true
