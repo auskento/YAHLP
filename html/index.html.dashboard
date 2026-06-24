@@ -102,11 +102,33 @@ class Component extends DCLogic {
     this._t = setInterval(() => this.setState({ now: new Date() }), 1000);
     this.checkServices();
     this._healthCheck = setInterval(() => this.checkServices(), 30000); // Check every 30 seconds
+
+    // Handle iframe loading with LANDING page
+    if (this._frame) {
+      // If iframe has a src, hide welcome screen initially
+      if (this._frame.src && this._frame.src !== 'about:blank') {
+        this.setState({ showWelcome: false });
+      }
+
+      // Hide welcome screen when iframe loads successfully
+      this._frame.addEventListener('load', () => {
+        this.setState({ showWelcome: false });
+      });
+
+      // Show welcome screen if iframe fails to load
+      this._frame.addEventListener('error', () => {
+        this.setState({ showWelcome: true });
+      });
+    }
   }
   
-  componentWillUnmount() { 
+  componentWillUnmount() {
     clearInterval(this._t);
     clearInterval(this._healthCheck);
+    if (this._frame) {
+      this._frame.removeEventListener('load', this._onIframeLoad);
+      this._frame.removeEventListener('error', this._onIframeError);
+    }
   }
 
   checkServices() {
