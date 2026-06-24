@@ -149,6 +149,12 @@ if [ "$RELOAD" = true ]; then
         echo -e "${YELLOW}⚠ Dashboard generator not found${NC}"
     fi
 
+    # Regenerate style redirect
+    if [ -x "/usr/local/bin/generate-style-redirect.sh" ]; then
+        /usr/local/bin/generate-style-redirect.sh
+        echo -e "${GREEN}✓ Style redirect regenerated${NC}"
+    fi
+
     echo -e "${GREEN}✓ Configuration reloaded${NC}"
 fi
 

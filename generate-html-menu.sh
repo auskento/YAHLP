@@ -11,7 +11,7 @@ fi
 
 SIMPLE_TEMPLATE="/var/www/html/index.html.template"
 DASHBOARD_TEMPLATE="/var/www/html/index.html.dashboard"
-SIMPLE_OUTPUT="/var/www/html/index.html"
+SIMPLE_OUTPUT="/var/www/html/index.html.original"
 DASHBOARD_OUTPUT="/var/www/html/dashboard.html"
 
 # Define all available services with metadata
@@ -216,7 +216,7 @@ generate_simple_menu() {
     # Write output file
     echo "$html_content" > "$SIMPLE_OUTPUT"
 
-    echo "✓ Simple menu generated: $SIMPLE_OUTPUT"
+    echo "✓ Classic menu generated: $SIMPLE_OUTPUT"
 }
 
 # Generate React dashboard (dashboard.html)
