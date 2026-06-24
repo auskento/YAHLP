@@ -9,10 +9,11 @@ if [ -f /etc/apache2/env.conf ]; then
     source /etc/apache2/env.conf
 fi
 
-SIMPLE_TEMPLATE="/var/www/html/index.html.template"
-DASHBOARD_TEMPLATE="/var/www/html/index.html.dashboard"
-SIMPLE_OUTPUT="/var/www/html/index.html.original"
-DASHBOARD_OUTPUT="/var/www/html/dashboard.html"
+CLASSIC_TEMPLATE="/var/www/html/classic.template"
+MODERN_TEMPLATE="/var/www/html/modern.template"
+SLEEK_TEMPLATE="/var/www/html/sleek.template"
+MINIMAL_TEMPLATE="/var/www/html/minimal.template"
+DASHBOARD_OAUTH_TEMPLATE="/var/www/html/dashboard-oauth.html.template"
 
 # Define all available services with metadata
 # Format: SERVICE_KEY="Category|Name|Description|Icon|Href|Accent"
@@ -183,40 +184,123 @@ generate_services_array() {
     echo "$array"
 }
 
-# Generate simple menu (index.html)
-generate_simple_menu() {
-    if [ ! -f "$SIMPLE_TEMPLATE" ]; then
-        echo "ERROR: Simple template not found: $SIMPLE_TEMPLATE"
+# Generate dashboard based on STYLE
+generate_style_dashboard() {
+    local STYLE="${STYLE:-classic}"
+    local OUTPUT_FILE="/var/www/html/index.html"
+    local TEMPLATE_FILE
+
+    # Map style to template
+    case "$STYLE" in
+        classic)
+            TEMPLATE_FILE="$CLASSIC_TEMPLATE"
+            ;;
+        modern)
+            TEMPLATE_FILE="$MODERN_TEMPLATE"
+            ;;
+        sleek)
+            TEMPLATE_FILE="$SLEEK_TEMPLATE"
+            ;;
+        minimal)
+            TEMPLATE_FILE="$MINIMAL_TEMPLATE"
+            ;;
+        *)
+            echo "ERROR: Invalid STYLE: $STYLE"
+            return 1
+            ;;
+    esac
+
+    if [ ! -f "$TEMPLATE_FILE" ]; then
+        echo "ERROR: Template not found: $TEMPLATE_FILE"
         return 1
     fi
 
-    # Generate menu items and services list
+    # For classic style, generate menu items and services list
+    if [ "$STYLE" = "classic" ]; then
+        local menu_items=$(generate_menu_items)
+        local services_list=$(generate_services_list)
+
+        local html_content=$(cat "$TEMPLATE_FILE")
+        html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
+        html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
+        html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
+
+        if [ -z "$LANDING" ]; then
+            html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"|src="about:blank"|')
+        else
+            html_content="${html_content//@@LANDING@@/$LANDING}"
+        fi
+
+        echo "$html_content" > "$OUTPUT_FILE"
+    else
+        # For other styles, generate services array
+        local services_array=$(generate_dashboard2_services_array)
+        local service_count=0
+        for service_key in "${SERVICE_ORDER[@]}"; do
+            local enable_var="ENABLE_${service_key}"
+            if [ "${!enable_var}" = "true" ]; then
+                ((service_count++))
+            fi
+        done
+
+        local sizes=$(calculate_icon_sizes "$service_count")
+        local ICON_SIZE=$(echo "$sizes" | cut -d'|' -f1)
+        local ICON_GAP=$(echo "$sizes" | cut -d'|' -f2)
+        local LOGO_SIZE=$(echo "$sizes" | cut -d'|' -f3)
+
+        local html_content=$(cat "$TEMPLATE_FILE")
+        html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+        html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
+
+        if [ -z "$LANDING" ]; then
+            html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"||')
+        else
+            html_content="${html_content//@@LANDING@@/$LANDING}"
+        fi
+
+        html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
+        html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
+        html_content="${html_content//@@LOGO_SIZE@@/$LOGO_SIZE}"
+
+        echo "$html_content" > "$OUTPUT_FILE"
+    fi
+
+    echo "✓ Dashboard generated: $STYLE → $OUTPUT_FILE"
+}
+
+# Generate classic menu as alternate file if not primary style
+generate_classic_alternate() {
+    local STYLE="${STYLE:-classic}"
+
+    if [ "$STYLE" = "classic" ]; then
+        return 0  # Don't generate alternate if classic is primary
+    fi
+
+    if [ ! -f "$CLASSIC_TEMPLATE" ]; then
+        echo "ERROR: Classic template not found: $CLASSIC_TEMPLATE"
+        return 1
+    fi
+
+    local OUTPUT_FILE="/var/www/html/classic.html"
     local menu_items=$(generate_menu_items)
     local services_list=$(generate_services_list)
 
-    # Set dashboard name, icon, and landing page
-    local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
-    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
-    local LANDING="${LANDING:-}"
-
-    # Read template and replace placeholders
-    local html_content=$(cat "$SIMPLE_TEMPLATE")
+    local html_content=$(cat "$CLASSIC_TEMPLATE")
     html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
     html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
-    html_content="${html_content//@@DASHBOARD_NAME@@/$DASHBOARD_NAME}"
-    html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
+    html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
+    html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
 
-    # Only set iframe src if LANDING is provided; otherwise use about:blank
     if [ -z "$LANDING" ]; then
         html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"|src="about:blank"|')
     else
         html_content="${html_content//@@LANDING@@/$LANDING}"
     fi
 
-    # Write output file
-    echo "$html_content" > "$SIMPLE_OUTPUT"
-
-    echo "✓ Classic menu generated: $SIMPLE_OUTPUT"
+    echo "$html_content" > "$OUTPUT_FILE"
+    echo "✓ Classic alternate menu generated: $OUTPUT_FILE"
 }
 
 # Generate React dashboard (dashboard.html)
@@ -458,7 +542,7 @@ generate_dashboard3() {
 
 # Main generation function
 generate_html() {
-    echo "Generating all dashboards in synchronized order..."
+    echo "Generating dashboards for STYLE=$STYLE..."
     echo ""
 
     # Count enabled services
@@ -470,20 +554,24 @@ generate_html() {
         fi
     done
 
-    # Generate all versions
-    generate_simple_menu
-    generate_react_dashboard
-    generate_dashboard2
-    generate_dashboard3
+    # Generate primary dashboard based on STYLE
+    generate_style_dashboard
+
+    # Generate classic as alternate if not primary style
+    if [ "$STYLE" != "classic" ]; then
+        generate_classic_alternate
+    fi
 
     echo ""
-    echo "✓ All dashboards generated with $count enabled service(s)"
+    echo "✓ Dashboards generated with $count enabled service(s)"
     echo ""
-    echo "Available at:"
-    echo "  /index.html (classic menu)"
-    echo "  /dashboard.html (React modern UI)"
-    echo "  /dashboard2.html (iframes, single column)"
-    echo "  /dashboard3.html (iframes, auto-fit grid columns)"
+    echo "Primary dashboard:"
+    if [ "$STYLE" = "classic" ]; then
+        echo "  /index.html (classic menu)"
+    else
+        echo "  /index.html ($STYLE dashboard)"
+        echo "  /classic.html (classic menu alternate)"
+    fi
 }
 
 # Run generation

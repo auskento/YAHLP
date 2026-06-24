@@ -30,6 +30,16 @@
       <span id="health-text">Checking...</span>
     </div>
 
+    <div style="font-size:9px;text-align:center;padding:8px 0;border-top:1px solid rgba(255,255,255,.1);display:flex;gap:4px;justify-content:center;flex-wrap:wrap;width:100%">
+      <a href="/classic.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Classic</a>
+      <span style="color:#5d6575">|</span>
+      <a href="/" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Modern</a>
+      <span style="color:#5d6575">|</span>
+      <a href="/sleek.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Sleek</a>
+      <span style="color:#5d6575">|</span>
+      <a href="/minimal.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Minimal</a>
+    </div>
+
   </aside>
 
   <main style="flex:1;min-width:0;position:relative;display:flex;flex-direction:column">

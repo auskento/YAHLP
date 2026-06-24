@@ -116,14 +116,10 @@ echo "Generating Apache configuration with enabled services..."
 echo ""
 /usr/local/bin/download-icons.sh
 
-# Generate HTML dashboard menu based on enabled services
+# Generate HTML dashboard based on enabled services and STYLE
 echo ""
 echo "Generating dashboard menu based on enabled services..."
 /usr/local/bin/generate-html-menu.sh
-
-# Generate style-based redirect for root index.html
-echo "Generating dashboard redirect based on STYLE..."
-/usr/local/bin/generate-style-redirect.sh
 
 # Enable reverse proxy site
 a2ensite reverse-proxy.conf 2>/dev/null || true
