@@ -191,7 +191,6 @@ class Component extends DCLogic {
     const clock = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const today = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
 
-    // @@SERVICES_ARRAY@@ - Will be replaced with dynamically generated services
     const raw = [
       @@SERVICES_ARRAY@@
     ];
