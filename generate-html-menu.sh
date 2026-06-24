@@ -399,9 +399,10 @@ generate_dashboard3() {
 
     local services_array=$(generate_dashboard2_services_array)
 
-    # Set dashboard name and icon
+    # Set dashboard name, icon, and landing page
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
     local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
+    local LANDING="${LANDING:-}"
 
     # Calculate dynamic icon sizes
     local sizes=$(calculate_icon_sizes "$service_count")
@@ -413,6 +414,14 @@ generate_dashboard3() {
     html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
     html_content="${html_content//@@DASHBOARD_NAME@@/$DASHBOARD_NAME}"
     html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
+
+    # Only set iframe src if LANDING is provided; otherwise remove src attribute to show welcome screen
+    if [ -z "$LANDING" ]; then
+        html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"||')
+    else
+        html_content="${html_content//@@LANDING@@/$LANDING}"
+    fi
+
     html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
     html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
     html_content="${html_content//@@LOGO_SIZE@@/$LOGO_SIZE}"

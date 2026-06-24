@@ -66,6 +66,7 @@ QBITTORRENT_URL="${QBITTORRENT_URL:-}"
 SABNZBD_URL="${SABNZBD_URL:-}"
 DELUGE_URL="${DELUGE_URL:-}"
 DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
+LANDING="${LANDING:-}"
 ENVEOF
 
 echo ""
@@ -486,7 +487,7 @@ apache2ctl configtest || {
 echo "=== Starting Apache ==="
 
 # Debug logging - save generated files
-DEBUG_DIR="/var/log/apache-reverse-proxy-debug/$(date +%Y%m%d-%H%M%S)"
+DEBUG_DIR="/var/log/apache2/reverse-proxy-debug/$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$DEBUG_DIR"
 cp /etc/apache2/env.conf "$DEBUG_DIR/" 2>/dev/null || true
 cp /etc/apache2/sites-available/reverse-proxy.conf "$DEBUG_DIR/" 2>/dev/null || true
