@@ -90,6 +90,9 @@ grep "ENABLE_BASIC_AUTH" /etc/apache2/env.conf || echo "DEBUG: ENABLE_BASIC_AUTH
 echo "=================================="
 echo ""
 
+# Source env.conf to load defaults for variables not set in environment
+source /etc/apache2/env.conf
+
 echo ""
 echo "=== Setting Global ServerName ==="
 # Set global ServerName to suppress the warning
@@ -101,7 +104,7 @@ fi
 # Update env.conf with modified STYLE (in case basic auth forced it to classic)
 sed -i "s/^STYLE=.*/STYLE=\"${STYLE}\"/" /etc/apache2/env.conf
 
-# Configuration
+# Configuration - clean up ACCESS_MODE if it was set
 ACCESS_MODE=$(echo "${ACCESS_MODE}" | tr '[:upper:]' '[:lower:]' | sed "s/'//g" | sed 's/"//g' | xargs)
 DOMAIN="${DOMAIN:-example.com}"
 EMAIL="${EMAIL:-admin@example.com}"

@@ -346,6 +346,7 @@
   <Config Name="HTTP Port" Target="HostPort" Default="80" Mode="tcp" Description="HTTP Port" Type="Port" Display="always" Required="false" Mask="false">80</Config>
   <Config Name="HTTPS Port" Target="HostPort" Default="443" Mode="tcp" Description="HTTPS Port" Type="Port" Display="always" Required="false" Mask="false">443</Config>
 
+  <Config Name="Access Mode" Target="ACCESS_MODE" Default="public" Mode="" Description="Deployment mode: public (with Let's Encrypt HTTPS) or private (internal only)" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Timezone" Target="TZ" Default="Australia/Melbourne" Mode="" Description="Timezone" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Dashboard Style" Target="STYLE" Default="modern" Mode="" Description="Dashboard style: classic, modern, sleek, or minimal" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Dashboard Name" Target="DASHBOARD_NAME" Default="Media Server" Mode="" Description="Custom dashboard title shown in header" Type="Variable" Display="always" Required="false" Mask="false"/>
