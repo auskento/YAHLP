@@ -2,16 +2,28 @@
 
 Complete reference guide for all environment variables supported by the Apache Reverse Proxy.
 
-## Required Variables
+## Deployment Mode
 
-These **must** be set for the system to work properly:
+### ACCESS_MODE
+- **Type:** String (public or private)
+- **Default:** `public`
+- **Description:** Deployment mode that determines certificate generation and feature availability
+- **Options:**
+  - `public`: Internet-facing deployment with Let's Encrypt HTTPS (requires DOMAIN and EMAIL)
+  - `private`: Internal-only deployment without certificates (DOMAIN/EMAIL still in config but not used)
+- **Note:** In private mode, only `none` or `basic` authentication types are supported
+
+## Required Variables (Public Mode Only)
+
+For `ACCESS_MODE=public`, these **must** be set:
 
 ### DOMAIN
 - **Type:** String
 - **Example:** `yourdomain.com`
 - **Description:** Your domain name for Let's Encrypt SSL certificate
-- **Default:** `example.com` (will fail if not changed)
+- **Default:** `example.com`
 - **Note:** Must be a valid registered domain with DNS pointing to your server
+- **Required for:** `ACCESS_MODE=public` only
 
 ### EMAIL
 - **Type:** String
@@ -19,6 +31,7 @@ These **must** be set for the system to work properly:
 - **Description:** Email address for Let's Encrypt certificate notifications
 - **Default:** `admin@example.com`
 - **Note:** You'll receive renewal notifications at this email
+- **Required for:** `ACCESS_MODE=public` only
 
 ---
 
@@ -42,30 +55,94 @@ These **must** be set for the system to work properly:
 - **Default:** `HIGH:!aNULL:!MD5`
 - **Description:** Allowed SSL cipher suites
 
+### Dashboard Customization
+- **Variable:** `STYLE`
+- **Type:** String (classic, modern, sleek, or minimal)
+- **Default:** `modern`
+- **Description:** Dashboard visual style
+- **Options:**
+  - `classic`: Original sidebar menu layout
+  - `modern`: React-based UI with full features (recommended)
+  - `sleek`: Compact sidebar with gradient styling
+  - `minimal`: Minimal single-column design
+
+- **Variable:** `DASHBOARD_NAME`
+- **Type:** String
+- **Default:** `Media Server`
+- **Description:** Display name shown in dashboard header and page title
+- **Example:** `My Homelab`, `Family Media`, `Media Center`
+
+- **Variable:** `DASHBOARD_ICON`
+- **Type:** URL path
+- **Default:** `/icons/apache-reverse-proxy.png`
+- **Description:** Icon displayed in dashboard header (relative path or full URL)
+- **Examples:** `/icons/my-logo.png`, `https://example.com/logo.png`
+- **Note:** Place custom icon files in the `html/icons/` directory
+
+- **Variable:** `DASHBOARD_LANDING`
+- **Type:** String (service path or empty)
+- **Default:** Empty (shows welcome screen)
+- **Description:** Default page to load in dashboard iframe on startup
+- **Examples:** `sonarr/calendar`, `radarr`, `plex/web`
+- **Note:** Only used in modern, sleek, and minimal dashboard styles
+
+- **Variable:** `DASHBOARD_ORDER`
+- **Type:** String (comma-separated group names)
+- **Default:** `DOWNLOADS,INFRA,MEDIA`
+- **Description:** Order of service category groups in dashboard
+- **Examples:** 
+  - `DOWNLOADS,INFRA,MEDIA` (default: Downloads top, Media bottom)
+  - `MEDIA,DOWNLOADS,INFRA` (Media servers first)
+  - `INFRA,DOWNLOADS,MEDIA` (Indexers first)
+- **Valid Groups:** `DOWNLOADS`, `INFRA`, `MEDIA` (case-insensitive)
+- **Note:** Group names must be comma-separated with no extra spaces. Applies to all dashboard styles (modern, sleek, minimal, classic).
+
+### Authentication
+- **Variable:** `AUTHTYPE`
+- **Type:** String (none, basic, entra, or google)
+- **Default:** `none`
+- **Description:** Authentication method for dashboard access
+- **Options:**
+  - `none`: No authentication required
+  - `basic`: Simple username/password authentication
+  - `entra`: Microsoft Entra ID (Azure AD) OAuth
+  - `google`: Google OAuth2
+- **Note:** In private deployments (SKIP_CERT_GENERATION=true), only `none` and `basic` are supported
+
 ---
 
-## Service Configuration (15 Services)
+## Service Configuration (16 Services)
 
 ### Enable/Disable Services
 
-For each service, use `ENABLE_*` variables:
+For each service, use `ENABLE_*` variables (grouped by DASHBOARD_ORDER category):
 
+**DOWNLOADS Category:**
 ```
-ENABLE_SONARR=true/false
-ENABLE_RADARR=true/false
-ENABLE_WHISPARR=true/false
-ENABLE_JELLYFIN=true/false
-ENABLE_LIDARR=true/false
-ENABLE_READARR=true/false
-ENABLE_PROWLARR=true/false
-ENABLE_OVERSEERR=true/false
-ENABLE_EMBY=true/false
-ENABLE_PLEX=true/false
-ENABLE_TAUTULLI=true/false
+ENABLE_SABNZBD=true/false
+ENABLE_NZBGET=true/false
+ENABLE_NZBHYDRA=true/false
+ENABLE_DELUGE=true/false
 ENABLE_TRANSMISSION=true/false
 ENABLE_QBITTORRENT=true/false
-ENABLE_SABNZBD=true/false
-ENABLE_DELUGE=true/false
+```
+
+**INFRA Category (Indexers & Infrastructure):**
+```
+ENABLE_RADARR=true/false
+ENABLE_SONARR=true/false
+ENABLE_PROWLARR=true/false
+ENABLE_SEERR=true/false
+ENABLE_LIDARR=true/false
+ENABLE_WHISPARR=true/false
+```
+
+**MEDIA Category (Media Servers):**
+```
+ENABLE_EMBY=true/false
+ENABLE_PLEX=true/false
+ENABLE_JELLYFIN=true/false
+ENABLE_TAUTULLI=true/false
 ```
 
 **Type:** Boolean (`true` or `false`)  
@@ -76,24 +153,34 @@ ENABLE_DELUGE=true/false
 
 ### Service Backend URLs
 
-For each enabled service, specify the backend address:
+For each enabled service, specify the backend address (grouped by category):
 
+**DOWNLOADS Category:**
 ```
-SONARR_URL=http://sonarr:8989
-RADARR_URL=http://radarr:7878
-WHISPARR_URL=http://whisparr:6969
-JELLYFIN_URL=http://jellyfin:8096
-LIDARR_URL=http://lidarr:8686
-READARR_URL=http://readarr:8787
-PROWLARR_URL=http://prowlarr:9696
-OVERSEERR_URL=http://overseerr:5055
-EMBY_URL=http://emby:8096
-PLEX_URL=http://plex:32400
-TAUTULLI_URL=http://tautulli:8181
+SABNZBD_URL=http://sabnzbd:8080
+NZBGET_URL=http://nzbget:6789
+NZBHYDRA_URL=http://nzbhydra:5076
+DELUGE_URL=http://deluge:8112
 TRANSMISSION_URL=http://transmission:6969
 QBITTORRENT_URL=http://qbittorrent:8080
-SABNZBD_URL=http://sabnzbd:8080
-DELUGE_URL=http://deluge:8112
+```
+
+**INFRA Category:**
+```
+RADARR_URL=http://radarr:7878
+SONARR_URL=http://sonarr:8989
+PROWLARR_URL=http://prowlarr:9696
+SEERR_URL=http://seerr:5055
+LIDARR_URL=http://lidarr:8686
+WHISPARR_URL=http://whisparr:6969
+```
+
+**MEDIA Category:**
+```
+EMBY_URL=http://emby:8096
+PLEX_URL=http://plex:32400
+JELLYFIN_URL=http://jellyfin:8096
+TAUTULLI_URL=http://tautulli:8181
 ```
 
 **Type:** URL  
@@ -107,24 +194,34 @@ DELUGE_URL=http://deluge:8112
 
 ### Service Icon URLs
 
-Customize icons for each service:
+Customize icons for each service (grouped by category):
 
+**DOWNLOADS Category:**
 ```
-ICON_URL_SONARR=
-ICON_URL_RADARR=
-ICON_URL_WHISPARR=
-ICON_URL_JELLYFIN=
-ICON_URL_LIDARR=
-ICON_URL_READARR=
-ICON_URL_PROWLARR=
-ICON_URL_OVERSEERR=
-ICON_URL_EMBY=
-ICON_URL_PLEX=
-ICON_URL_TAUTULLI=
+ICON_URL_SABNZBD=
+ICON_URL_NZBGET=
+ICON_URL_NZBHYDRA=
+ICON_URL_DELUGE=
 ICON_URL_TRANSMISSION=
 ICON_URL_QBITTORRENT=
-ICON_URL_SABNZBD=
-ICON_URL_DELUGE=
+```
+
+**INFRA Category:**
+```
+ICON_URL_RADARR=
+ICON_URL_SONARR=
+ICON_URL_PROWLARR=
+ICON_URL_SEERR=
+ICON_URL_LIDARR=
+ICON_URL_WHISPARR=
+```
+
+**MEDIA Category:**
+```
+ICON_URL_EMBY=
+ICON_URL_PLEX=
+ICON_URL_JELLYFIN=
+ICON_URL_TAUTULLI=
 ```
 
 **Type:** URL  
@@ -181,15 +278,26 @@ ICON_URL_DELUGE=
 
 ## Complete Example Configuration
 
-### docker-compose.yml
+### docker-compose.yml (Public Deployment)
 ```yaml
 environment:
-  # Required - MUST SET THESE!
+  # Deployment mode
+  ACCESS_MODE: public
+  
+  # Required for Let's Encrypt HTTPS (public mode only)
   DOMAIN: yourdomain.com
   EMAIL: admin@yourdomain.com
   
-  # Optional - Timezone
+  # Optional - Timezone and dashboard customization
   TZ: Australia/Melbourne
+  STYLE: modern
+  DASHBOARD_NAME: My Homelab
+  DASHBOARD_ICON: /icons/apache-reverse-proxy.png
+  DASHBOARD_LANDING: sonarr/calendar
+  
+  # Authentication
+  AUTHTYPE: basic
+  BASIC_AUTH_CREDENTIALS: "user1:password1|user2:password2"
   
   # Enable services you want
   ENABLE_SONARR: "true"
@@ -208,14 +316,55 @@ environment:
   ICON_URL_JELLYFIN: ""
 ```
 
+### docker-compose.yml (Private/Internal Deployment)
+```yaml
+environment:
+  # Deployment mode - private disables certificate generation
+  ACCESS_MODE: private
+  
+  # DOMAIN and EMAIL required in config but not used for certificates
+  DOMAIN: internal-proxy
+  EMAIL: admin@local
+  
+  # Dashboard customization
+  TZ: Australia/Melbourne
+  STYLE: modern
+  DASHBOARD_NAME: Family Media
+  DASHBOARD_ICON: /icons/apache-reverse-proxy.png
+  DASHBOARD_LANDING: ""
+  
+  # Authentication - only none or basic allowed in private mode
+  AUTHTYPE: basic
+  BASIC_AUTH_CREDENTIALS: "user1:password1"
+  
+  # Services enabled (same as public mode)
+  ENABLE_SONARR: "true"
+  SONARR_URL: http://sonarr:8989
+  ENABLE_RADARR: "true"
+  RADARR_URL: http://radarr:7878
+```
+
 ### .env File
 ```bash
-# Required
+# Deployment mode (public or private)
+ACCESS_MODE=public
+
+# Required for public deployments
 DOMAIN=yourdomain.com
 EMAIL=admin@yourdomain.com
 
 # Timezone
 TZ=Australia/Melbourne
+
+# Dashboard customization
+STYLE=modern
+DASHBOARD_NAME=My Homelab
+DASHBOARD_ICON=/icons/apache-reverse-proxy.png
+DASHBOARD_LANDING=sonarr/calendar
+
+# Authentication
+AUTHTYPE=basic
+BASIC_AUTH_CREDENTIALS=user1:password1|user2:password2
 
 # Services
 ENABLE_SONARR=true
