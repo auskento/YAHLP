@@ -69,13 +69,13 @@ fi
 if [ -n "$STYLE" ]; then
     # Validate style option
     case "$STYLE" in
-        classic|modern|oauth)
+        classic|modern|sleek|minimal)
             sed -i "s|^STYLE=.*|STYLE=\"${STYLE}\"|" "$CONFIG_FILE"
             echo -e "${GREEN}✓ Dashboard style updated to: $STYLE${NC}"
             ;;
         *)
             echo -e "${RED}✗ Invalid style: $STYLE${NC}"
-            echo "Valid options: classic, modern, oauth"
+            echo "Valid options: classic, modern, sleek, minimal"
             exit 1
             ;;
     esac
@@ -147,12 +147,6 @@ if [ "$RELOAD" = true ]; then
         echo -e "${GREEN}✓ Dashboards regenerated${NC}"
     else
         echo -e "${YELLOW}⚠ Dashboard generator not found${NC}"
-    fi
-
-    # Regenerate style redirect
-    if [ -x "/usr/local/bin/generate-style-redirect.sh" ]; then
-        /usr/local/bin/generate-style-redirect.sh
-        echo -e "${GREEN}✓ Style redirect regenerated${NC}"
     fi
 
     echo -e "${GREEN}✓ Configuration reloaded${NC}"
