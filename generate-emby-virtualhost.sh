@@ -84,5 +84,10 @@ cat << 'EOF'
     # Route all traffic to Emby backend
     ProxyPass "/" "http://@@EMBY_HOST@@:@@EMBY_PORT@@/"
     ProxyPassReverse "/" "http://@@EMBY_HOST@@:@@EMBY_PORT@@/"
+
+    # Debug Logging with date-based folder organization
+    LogLevel warn
+    ErrorLog /var/log/apache2/reverse-proxy-debug/emby-error.log
+    CustomLog "|/usr/local/bin/apache-log-rotator.sh emby" combined env=!nolog
 </VirtualHost>
 EOF

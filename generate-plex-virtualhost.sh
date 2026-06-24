@@ -84,5 +84,10 @@ cat << 'EOF'
     # Route all traffic to Plex backend
     ProxyPass "/" "http://@@PLEX_HOST@@:@@PLEX_PORT@@/"
     ProxyPassReverse "/" "http://@@PLEX_HOST@@:@@PLEX_PORT@@/"
+
+    # Debug Logging with date-based folder organization
+    LogLevel warn
+    ErrorLog /var/log/apache2/reverse-proxy-debug/plex-error.log
+    CustomLog "|/usr/local/bin/apache-log-rotator.sh plex" combined env=!nolog
 </VirtualHost>
 EOF
