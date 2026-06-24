@@ -61,7 +61,7 @@ declare -A CATEGORY_LABEL=(
 
 # Generate group order from DASH_ORDER variable
 generate_group_order() {
-    local dash_order="${DASH_ORDER:-Downloads,Infra,Media}"
+    local dash_order="${DASH_ORDER:-DOWNLOADS,INFRA,MEDIA}"
     local order_array=""
     local first=true
 
@@ -90,7 +90,7 @@ generate_menu_items() {
     local menu_html=""
 
     # Parse DASH_ORDER to get group ordering
-    local dash_order="${DASH_ORDER:-Downloads,Infra,Media}"
+    local dash_order="${DASH_ORDER:-DOWNLOADS,INFRA,MEDIA}"
     IFS=',' read -ra group_order <<< "$dash_order"
 
     # Convert group names to uppercase for matching
@@ -500,7 +500,7 @@ generate_dashboard2_services_array() {
     local first=true
 
     # Parse DASH_ORDER to get group ordering
-    local dash_order="${DASH_ORDER:-Downloads,Infra,Media}"
+    local dash_order="${DASH_ORDER:-DOWNLOADS,INFRA,MEDIA}"
     IFS=',' read -ra group_order <<< "$dash_order"
 
     # Convert group names to uppercase for matching

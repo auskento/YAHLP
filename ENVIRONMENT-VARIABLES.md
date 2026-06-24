@@ -88,14 +88,14 @@ For `ACCESS_MODE=public`, these **must** be set:
 
 - **Variable:** `DASH_ORDER`
 - **Type:** String (comma-separated group names)
-- **Default:** `Downloads,Infra,Media`
-- **Description:** Order of service category groups in dashboard (modern style only)
+- **Default:** `DOWNLOADS,INFRA,MEDIA`
+- **Description:** Order of service category groups in dashboard
 - **Examples:** 
-  - `Downloads,Infra,Media` (default: Downloads top, Media bottom)
-  - `Media,Downloads,Infra` (Media servers first)
-  - `Infra,Downloads,Media` (Indexers first)
-- **Valid Groups:** `Downloads`, `Infra`, `Media` (case-insensitive)
-- **Note:** Group names must be comma-separated with no extra spaces. Only affects the modern dashboard style.
+  - `DOWNLOADS,INFRA,MEDIA` (default: Downloads top, Media bottom)
+  - `MEDIA,DOWNLOADS,INFRA` (Media servers first)
+  - `INFRA,DOWNLOADS,MEDIA` (Indexers first)
+- **Valid Groups:** `DOWNLOADS`, `INFRA`, `MEDIA` (case-insensitive)
+- **Note:** Group names must be comma-separated with no extra spaces. Applies to all dashboard styles (modern, sleek, minimal, classic).
 
 ### Authentication
 - **Variable:** `AUTHTYPE`
