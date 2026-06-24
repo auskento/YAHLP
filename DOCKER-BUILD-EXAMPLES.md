@@ -46,77 +46,16 @@ services:
       DASHBOARD_ORDER: DOWNLOADS,INFRA,MEDIA
       AUTHTYPE: basic
       BASIC_AUTH_CREDENTIALS: "admin:securepassword|user:password"
-      # Services
       ENABLE_RADARR: "true"
       RADARR_URL: http://radarr:7878
       ENABLE_SONARR: "true"
       SONARR_URL: http://sonarr:8989
       ENABLE_JELLYFIN: "true"
       JELLYFIN_URL: http://jellyfin:8096
-      ENABLE_SABNZBD: "true"
-      SABNZBD_URL: http://sabnzbd:8080
     volumes:
       - /mnt/user/appdata/apache-reverse-proxy/letsencrypt:/etc/letsencrypt
       - /mnt/user/appdata/apache-reverse-proxy/logs:/var/log/apache2
     restart: unless-stopped
-    networks:
-      - media-network
-
-  radarr:
-    image: lscr.io/linuxserver/radarr:latest
-    environment:
-      PUID: 1000
-      PGID: 1000
-      TZ: Australia/Melbourne
-    volumes:
-      - /mnt/user/appdata/radarr:/config
-      - /mnt/user/media:/media
-    networks:
-      - media-network
-    restart: unless-stopped
-
-  sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
-    environment:
-      PUID: 1000
-      PGID: 1000
-      TZ: Australia/Melbourne
-    volumes:
-      - /mnt/user/appdata/sonarr:/config
-      - /mnt/user/media:/media
-    networks:
-      - media-network
-    restart: unless-stopped
-
-  jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
-    environment:
-      PUID: 1000
-      PGID: 1000
-      TZ: Australia/Melbourne
-    volumes:
-      - /mnt/user/appdata/jellyfin:/config
-      - /mnt/user/media:/media
-    networks:
-      - media-network
-    restart: unless-stopped
-
-  sabnzbd:
-    image: lscr.io/linuxserver/sabnzbd:latest
-    environment:
-      PUID: 1000
-      PGID: 1000
-      TZ: Australia/Melbourne
-    volumes:
-      - /mnt/user/appdata/sabnzbd:/config
-      - /mnt/user/downloads:/downloads
-    networks:
-      - media-network
-    restart: unless-stopped
-
-networks:
-  media-network:
-    driver: bridge
 ```
 
 **Run:**
@@ -134,7 +73,6 @@ version: '3.8'
 services:
   apache-reverse-proxy:
     image: auskento/apache-reverse-proxy:latest
-    network_mode: bridge
     ports:
       - "8080:80"
     environment:
@@ -148,26 +86,15 @@ services:
       DASHBOARD_ORDER: MEDIA,DOWNLOADS,INFRA
       AUTHTYPE: basic
       BASIC_AUTH_CREDENTIALS: "user:password"
-      # Media Services
       ENABLE_PLEX: "true"
       PLEX_URL: http://192.168.1.100:32400
       ENABLE_EMBY: "true"
       EMBY_URL: http://192.168.1.101:8096
       ENABLE_JELLYFIN: "true"
       JELLYFIN_URL: http://192.168.1.102:8096
-      # Automation
-      ENABLE_RADARR: "true"
-      RADARR_URL: http://192.168.1.103:7878
-      ENABLE_SONARR: "true"
-      SONARR_URL: http://192.168.1.104:8989
     volumes:
       - /mnt/docker-data/apache-reverse-proxy/logs:/var/log/apache2
     restart: unless-stopped
-```
-
-**Run:**
-```bash
-docker-compose -f docker-compose.private.yml up -d
 ```
 
 ---
@@ -190,17 +117,14 @@ services:
       TZ: Europe/London
       STYLE: modern
       DASHBOARD_NAME: Company Services
-      DASHBOARD_ICON: /icons/custom-logo.png
       DASHBOARD_LANDING: radarr/calendar
       DASHBOARD_ORDER: INFRA,DOWNLOADS,MEDIA
-      # Entra ID / Azure AD OAuth
       AUTHTYPE: entra
       ENTRA_CLIENT_ID: your-azure-app-id
       ENTRA_CLIENT_SECRET: your-azure-app-secret
       ENTRA_REDIRECT_URI: https://mycompany.com/auth/oauth2/callback
       ENTRA_PROVIDER_METADATA_URL: https://login.microsoftonline.com/your-tenant-id/v2.0/.well-known/openid-configuration
       ENTRA_CRYPTO_PASSPHRASE: your-secure-passphrase
-      # Services
       ENABLE_SONARR: "true"
       SONARR_URL: http://sonarr:8989
       ENABLE_RADARR: "true"
@@ -235,13 +159,11 @@ services:
       DASHBOARD_NAME: Dashboard
       DASHBOARD_LANDING: ""
       DASHBOARD_ORDER: DOWNLOADS,INFRA,MEDIA
-      # Google OAuth
       AUTHTYPE: google
       GOOGLE_CLIENT_ID: your-client-id.apps.googleusercontent.com
       GOOGLE_CLIENT_SECRET: your-client-secret
       GOOGLE_REDIRECT_URI: https://services.example.com
       GOOGLE_CRYPTO_PASSPHRASE: your-secure-passphrase
-      # All Services
       ENABLE_SABNZBD: "true"
       SABNZBD_URL: http://sabnzbd:8080
       ENABLE_NZBGET: "true"
@@ -298,7 +220,6 @@ services:
     volumes:
       - /mnt/appdata/apache-proxy/letsencrypt:/etc/letsencrypt
       - /mnt/appdata/apache-proxy/logs:/var/log/apache2
-      - /mnt/appdata/apache-proxy/html:/var/www/html
     restart: unless-stopped
 ```
 
@@ -315,20 +236,17 @@ DASHBOARD_LANDING=radarr
 DASHBOARD_ORDER=DOWNLOADS,INFRA,MEDIA
 AUTHTYPE=basic
 BASIC_AUTH_CREDENTIALS=admin:password123
-
 ENABLE_RADARR=true
 RADARR_URL=http://radarr:7878
-
 ENABLE_SONARR=true
 SONARR_URL=http://sonarr:8989
-
 ENABLE_JELLYFIN=true
 JELLYFIN_URL=http://jellyfin:8096
 ```
 
 ---
 
-### Example 6: Multiple Dashboard Orders
+### Example 6: Different Dashboard Orders
 
 **Custom Media-First Order:**
 ```yaml
@@ -441,7 +359,6 @@ docker run -d \
   -e ENABLE_PLEX=true \
   -e PLEX_URL=http://192.168.1.100:32400 \
   -v /data/logs:/var/log/apache2 \
-  -v /data/html:/var/www/html \
   auskento/apache-reverse-proxy:latest
 ```
 
