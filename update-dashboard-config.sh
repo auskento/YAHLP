@@ -70,7 +70,7 @@ if [ -n "$STYLE" ]; then
     # Validate style option
     case "$STYLE" in
         classic|modern|oauth)
-            sed -i "s/^STYLE=.*/STYLE=\"${STYLE}\"/" "$CONFIG_FILE"
+            sed -i "s|^STYLE=.*|STYLE=\"${STYLE}\"|" "$CONFIG_FILE"
             echo -e "${GREEN}✓ Dashboard style updated to: $STYLE${NC}"
             ;;
         *)
@@ -83,7 +83,7 @@ fi
 
 # Update LANDING if provided
 if [ -n "$LANDING" ]; then
-    sed -i "s/^LANDING=.*/LANDING=\"${LANDING}\"/" "$CONFIG_FILE"
+    sed -i "s|^LANDING=.*|LANDING=\"${LANDING}\"|" "$CONFIG_FILE"
     echo -e "${GREEN}✓ Landing page updated to: $LANDING${NC}"
 fi
 
@@ -109,12 +109,12 @@ if [ "$RELOAD" = true ]; then
     if [ -n "$STYLE" ] || [ -n "$LANDING" ]; then
         # Update STYLE in env.conf
         if [ -n "$STYLE" ]; then
-            sed -i "s/^STYLE=.*/STYLE=\"${STYLE}\"/" "$ENTRYPOINT_CONFIG"
+            sed -i "s|^STYLE=.*|STYLE=\"${STYLE}\"|" "$ENTRYPOINT_CONFIG"
         fi
 
         # Update LANDING in env.conf
         if [ -n "$LANDING" ]; then
-            sed -i "s/^LANDING=.*/LANDING=\"${LANDING}\"/" "$ENTRYPOINT_CONFIG"
+            sed -i "s|^LANDING=.*|LANDING=\"${LANDING}\"|" "$ENTRYPOINT_CONFIG"
         fi
     fi
 
