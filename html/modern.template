@@ -6,6 +6,7 @@
 <title>@@DASHBOARD_NAME@@</title>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/react.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/react-dom.production.min.js"></script>
+<script src="support.js"></script>
 </head>
 <body>
 <x-dc>
@@ -190,13 +191,12 @@ class Component extends DCLogic {
     const clock = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const today = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
 
-    // @@SERVICES_ARRAY@@ - Will be replaced with dynamically generated services
     const raw = [
       @@SERVICES_ARRAY@@
     ];
 
     const labels = { MEDIA: 'MEDIA', DOWNLOADS: 'DOWNLOADS', INFRA: 'INDEXERS & INFRA' };
-    const order = @@DASH_ORDER@@;
+    const order = @@DASHBOARD_ORDER@@;
 
     const mk = (app) => {
       const active = this.state.activeId === app.id;
@@ -245,7 +245,5 @@ class Component extends DCLogic {
   }
 }
 </script>
-
-<script src="support.js"></script>
 </body>
 </html>
