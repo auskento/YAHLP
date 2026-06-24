@@ -28,6 +28,7 @@ fi
 
 # Write environment variables to config file for scripts to source
 cat > /etc/apache2/env.conf << ENVEOF
+ACCESS_MODE="${ACCESS_MODE:-public}"
 DOMAIN="${DOMAIN:-example.com}"
 EMAIL="${EMAIL:-admin@example.com}"
 STYLE="${STYLE:-classic}"
@@ -97,13 +98,43 @@ fi
 sed -i "s/^STYLE=.*/STYLE=\"${STYLE}\"/" /etc/apache2/env.conf
 
 # Configuration
+ACCESS_MODE=$(echo "${ACCESS_MODE}" | tr '[:upper:]' '[:lower:]' | sed "s/'//g" | sed 's/"//g' | xargs)
 DOMAIN="${DOMAIN:-example.com}"
 EMAIL="${EMAIL:-admin@example.com}"
 CERTBOT_WEBROOT="${CERTBOT_WEBROOT:-/var/www/letsencrypt}"
 
-echo "=== Apache & Let's Encrypt Setup ==="
-echo "Domain: $DOMAIN"
-echo "Email: $EMAIL"
+echo "=== Access Mode Setup ==="
+echo "Access Mode: $ACCESS_MODE"
+
+# Validate ACCESS_MODE for private
+if [ "$ACCESS_MODE" = "private" ]; then
+    echo "✓ Private mode - Internal dashboard only"
+
+    # Validate that only none or basic auth are used in private mode
+    if [ "$AUTHTYPE" != "none" ] && [ "$AUTHTYPE" != "basic" ]; then
+        echo "ERROR: Private mode only supports 'none' or 'basic' authentication"
+        echo "Provided AUTHTYPE: $AUTHTYPE"
+        exit 1
+    fi
+
+    # Set default values for private mode
+    DOMAIN="${DOMAIN:-192.168.1.1}"
+    EMAIL="${EMAIL:-admin@local}"
+    SKIP_CERT_GENERATION=true
+    echo "Domain: $DOMAIN (IP-based, no certificate generation)"
+elif [ "$ACCESS_MODE" = "public" ]; then
+    echo "✓ Public mode - Full features enabled"
+    SKIP_CERT_GENERATION=false
+    echo "Domain: $DOMAIN"
+    echo "Email: $EMAIL"
+else
+    echo "ERROR: Invalid ACCESS_MODE: $ACCESS_MODE"
+    echo "Valid options: private, public"
+    exit 1
+fi
+
+echo ""
+echo "=== Apache Setup ==="
 echo "Style: $STYLE (Auth: $AUTHTYPE)"
 
 # Generate Apache configuration from template based on environment variables
@@ -314,47 +345,66 @@ wait_for_cert() {
 
 
 
-# Check if certificate exists, if not generate it
-if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
-    echo ""
-    echo "=== Obtaining Let's Encrypt Certificate ==="
-    
-    # Ensure directory exists
-    mkdir -p "/etc/letsencrypt/live/$DOMAIN"
-    
-    # Obtain certificate using standalone method
-    echo "Requesting certificate from Let's Encrypt for $DOMAIN..."
-    certbot certonly \
-        --standalone \
-        --preferred-challenges http \
-        --email "$EMAIL" \
-        --agree-tos \
-        --no-eff-email \
-        --non-interactive \
-        -d "$DOMAIN" \
-        || {
-            echo "Certbot failed. Generating self-signed certificate as fallback..."
-            
-            # Ensure directory exists
-            mkdir -p "/etc/letsencrypt/live/$DOMAIN"
-            
-            # Generate self-signed certificate
-            openssl req -x509 -nodes -days 365 \
-                -newkey rsa:2048 \
-                -keyout "/etc/letsencrypt/live/$DOMAIN/privkey.pem" \
-                -out "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" \
-                -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$DOMAIN" \
-                2>/dev/null || true
-            
-            echo "Self-signed certificate generated"
-        }
+# Generate certificate only if not skipped (public mode)
+if [ "$SKIP_CERT_GENERATION" = "false" ]; then
+    # Check if certificate exists, if not generate it
+    if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
+        echo ""
+        echo "=== Obtaining Let's Encrypt Certificate ==="
+
+        # Ensure directory exists
+        mkdir -p "/etc/letsencrypt/live/$DOMAIN"
+
+        # Obtain certificate using standalone method
+        echo "Requesting certificate from Let's Encrypt for $DOMAIN..."
+        certbot certonly \
+            --standalone \
+            --preferred-challenges http \
+            --email "$EMAIL" \
+            --agree-tos \
+            --no-eff-email \
+            --non-interactive \
+            -d "$DOMAIN" \
+            || {
+                echo "Certbot failed. Generating self-signed certificate as fallback..."
+
+                # Ensure directory exists
+                mkdir -p "/etc/letsencrypt/live/$DOMAIN"
+
+                # Generate self-signed certificate
+                openssl req -x509 -nodes -days 365 \
+                    -newkey rsa:2048 \
+                    -keyout "/etc/letsencrypt/live/$DOMAIN/privkey.pem" \
+                    -out "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" \
+                    -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$DOMAIN" \
+                    2>/dev/null || true
+
+                echo "Self-signed certificate generated"
+            }
+    else
+        echo ""
+        echo "Certificate found for $DOMAIN"
+    fi
 else
     echo ""
-    echo "Certificate found for $DOMAIN"
+    echo "=== Certificate Generation Skipped (Private Mode) ==="
+    # Ensure directory structure exists for private mode
+    mkdir -p "/etc/letsencrypt/live/$DOMAIN"
+
+    # Generate self-signed certificate for private mode
+    if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
+        openssl req -x509 -nodes -days 365 \
+            -newkey rsa:2048 \
+            -keyout "/etc/letsencrypt/live/$DOMAIN/privkey.pem" \
+            -out "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" \
+            -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$DOMAIN" \
+            2>/dev/null || true
+        echo "Self-signed certificate generated for private mode"
+    fi
 fi
 
-# Handle Emby subdomain if enabled
-if [ "${ENABLE_EMBY}" = "true" ]; then
+# Handle Emby subdomain if enabled (only in public mode)
+if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ]; then
     # Use provided EMBY_DOMAIN or skip
     if [ -z "$EMBY_DOMAIN" ]; then
         echo "WARNING: ENABLE_EMBY=true but EMBY_DOMAIN not set. Skipping Emby subdomain setup."
@@ -362,7 +412,7 @@ if [ "${ENABLE_EMBY}" = "true" ]; then
         echo ""
         echo "=== Emby Subdomain Setup ==="
         echo "Emby domain: $EMBY_DOMAIN"
-        
+
         if [ ! -f "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" ]; then
             echo "Requesting certificate for $EMBY_DOMAIN..."
             certbot certonly \
@@ -408,8 +458,8 @@ if [ "${ENABLE_EMBY}" = "true" ]; then
     fi
 fi
 
-# Handle Plex subdomain if enabled
-if [ "${ENABLE_PLEX}" = "true" ]; then
+# Handle Plex subdomain if enabled (only in public mode)
+if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ]; then
     # Use provided PLEX_DOMAIN or skip
     if [ -z "$PLEX_DOMAIN" ]; then
         echo "WARNING: ENABLE_PLEX=true but PLEX_DOMAIN not set. Skipping Plex subdomain setup."
@@ -417,7 +467,7 @@ if [ "${ENABLE_PLEX}" = "true" ]; then
         echo ""
         echo "=== Plex Subdomain Setup ==="
         echo "Plex domain: $PLEX_DOMAIN"
-        
+
         if [ ! -f "/etc/letsencrypt/live/$PLEX_DOMAIN/fullchain.pem" ]; then
             echo "Requesting certificate for $PLEX_DOMAIN..."
             certbot certonly \

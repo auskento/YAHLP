@@ -16,6 +16,7 @@ NC='\033[0m' # No Color
 # Parse arguments
 STYLE=""
 LANDING=""
+ACCESS_MODE=""
 RELOAD=false
 
 while [[ $# -gt 0 ]]; do
@@ -28,6 +29,10 @@ while [[ $# -gt 0 ]]; do
             LANDING="$2"
             shift 2
             ;;
+        --access-mode)
+            ACCESS_MODE="$2"
+            shift 2
+            ;;
         --reload)
             RELOAD=true
             shift
@@ -38,13 +43,15 @@ while [[ $# -gt 0 ]]; do
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --style STYLE         Set dashboard style: classic, modern, or oauth"
+            echo "  --style STYLE         Set dashboard style: classic, modern, sleek, or minimal"
             echo "  --landing PATH        Set default landing page (e.g., sonarr/calendar, radarr)"
+            echo "  --access-mode MODE    Set access mode: private or public"
             echo "  --reload              Reload dashboards after updating config"
             echo "  --help                Show this help message"
             echo ""
             echo "Examples:"
             echo "  $0 --style modern --landing radarr --reload"
+            echo "  $0 --access-mode private --reload"
             echo "  $0 --landing sonarr/calendar"
             exit 0
             ;;
@@ -87,10 +94,26 @@ if [ -n "$LANDING" ]; then
     echo -e "${GREEN}✓ Landing page updated to: $LANDING${NC}"
 fi
 
+# Update ACCESS_MODE if provided
+if [ -n "$ACCESS_MODE" ]; then
+    # Validate access mode option
+    case "$ACCESS_MODE" in
+        private|public)
+            sed -i "s|^ACCESS_MODE=.*|ACCESS_MODE=\"${ACCESS_MODE}\"|" "$CONFIG_FILE"
+            echo -e "${GREEN}✓ Access mode updated to: $ACCESS_MODE${NC}"
+            ;;
+        *)
+            echo -e "${RED}✗ Invalid access mode: $ACCESS_MODE${NC}"
+            echo "Valid options: private, public"
+            exit 1
+            ;;
+    esac
+fi
+
 # Display current configuration
 echo ""
 echo -e "${YELLOW}Current Configuration:${NC}"
-grep -E "^(STYLE|LANDING)=" "$CONFIG_FILE"
+grep -E "^(ACCESS_MODE|STYLE|LANDING)=" "$CONFIG_FILE"
 
 # Reload dashboards if requested
 if [ "$RELOAD" = true ]; then
@@ -98,7 +121,7 @@ if [ "$RELOAD" = true ]; then
     echo "Reloading dashboards..."
 
     # First, update env.conf with new values
-    if [ -n "$STYLE" ] || [ -n "$LANDING" ]; then
+    if [ -n "$STYLE" ] || [ -n "$LANDING" ] || [ -n "$ACCESS_MODE" ]; then
         # Update STYLE in env.conf
         if [ -n "$STYLE" ]; then
             sed -i "s|^STYLE=.*|STYLE=\"${STYLE}\"|" "$ENTRYPOINT_CONFIG"
@@ -108,6 +131,11 @@ if [ "$RELOAD" = true ]; then
         if [ -n "$LANDING" ]; then
             sed -i "s|^LANDING=.*|LANDING=\"${LANDING}\"|" "$ENTRYPOINT_CONFIG"
         fi
+
+        # Update ACCESS_MODE in env.conf
+        if [ -n "$ACCESS_MODE" ]; then
+            sed -i "s|^ACCESS_MODE=.*|ACCESS_MODE=\"${ACCESS_MODE}\"|" "$ENTRYPOINT_CONFIG"
+        fi
     fi
 
     # Source the updated env.conf to get all environment variables
@@ -116,6 +144,7 @@ if [ "$RELOAD" = true ]; then
     fi
 
     # Export variables so generate-html-menu.sh can use them
+    export ACCESS_MODE
     export STYLE
     export LANDING
     export DASHBOARD_NAME
