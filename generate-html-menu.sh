@@ -85,42 +85,59 @@ generate_group_order() {
     echo "['$order_array]"
 }
 
-# Generate menu items HTML in category order (for simple menu)
+# Generate menu items HTML respecting DASH_ORDER
 generate_menu_items() {
     local menu_html=""
-    
-    for service_key in "${SERVICE_ORDER[@]}"; do
-        # Check if service is enabled
-        local enable_var="ENABLE_${service_key}"
-        local is_enabled="${!enable_var}"
-        
-        # Skip disabled services
-        if [ "$is_enabled" != "true" ]; then
-            continue
-        fi
-        
-        # Parse service metadata
-        IFS='|' read -r category service_name service_desc icon_path href accent <<< "${SERVICES[$service_key]}"
-        
-        # Handle subdomain services (Emby, Plex)
-        if [ "$href" = "SUBDOMAIN" ]; then
-            if [ "$service_key" = "EMBY" ]; then
-                if [ -z "$EMBY_DOMAIN" ]; then
-                    continue
-                fi
-                href="https://$EMBY_DOMAIN/"
-            elif [ "$service_key" = "PLEX" ]; then
-                if [ -z "$PLEX_DOMAIN" ]; then
-                    continue
-                fi
-                href="https://$PLEX_DOMAIN/"
-            fi
-        fi
-        
-        # Add menu item - NO label span!
-        menu_html+="<td class='menu-item'><a href='$href' target='content' title='$service_name'><img src='$icon_path' alt='$service_name' /></a></td>"
+
+    # Parse DASH_ORDER to get group ordering
+    local dash_order="${DASH_ORDER:-Downloads,Infra,Media}"
+    IFS=',' read -ra group_order <<< "$dash_order"
+
+    # Convert group names to uppercase for matching
+    for i in "${!group_order[@]}"; do
+        group_order[$i]=$(echo "${group_order[$i]}" | xargs | tr '[:lower:]' '[:upper:]')
     done
-    
+
+    # Process services in DASH_ORDER group order
+    for group in "${group_order[@]}"; do
+        for service_key in "${SERVICE_ORDER[@]}"; do
+            # Get service category
+            IFS='|' read -r category rest <<< "${SERVICES[$service_key]}"
+
+            # Skip if not in current group
+            [ "$category" != "$group" ] && continue
+
+            # Check if service is enabled
+            local enable_var="ENABLE_${service_key}"
+            local is_enabled="${!enable_var}"
+
+            if [ "$is_enabled" != "true" ]; then
+                continue
+            fi
+
+            # Parse service metadata
+            IFS='|' read -r category service_name service_desc icon_path href accent <<< "${SERVICES[$service_key]}"
+
+            # Handle subdomain services (Emby, Plex)
+            if [ "$href" = "SUBDOMAIN" ]; then
+                if [ "$service_key" = "EMBY" ]; then
+                    if [ -z "$EMBY_DOMAIN" ]; then
+                        continue
+                    fi
+                    href="https://$EMBY_DOMAIN/"
+                elif [ "$service_key" = "PLEX" ]; then
+                    if [ -z "$PLEX_DOMAIN" ]; then
+                        continue
+                    fi
+                    href="https://$PLEX_DOMAIN/"
+                fi
+            fi
+
+            # Add menu item - NO label span!
+            menu_html+="<td class='menu-item'><a href='$href' target='content' title='$service_name'><img src='$icon_path' alt='$service_name' /></a></td>"
+        done
+    done
+
     echo "$menu_html"
 }
 
