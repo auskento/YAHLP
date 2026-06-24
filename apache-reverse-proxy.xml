@@ -15,7 +15,7 @@
   <PostArgs/>
   <CloudSync>false</CloudSync>
   <Description>Apache Reverse Proxy with flexible deployment modes, 14 media services, customizable dashboards (4 styles), and authentication options (None, Basic, Entra ID, Google OAuth).</Description>
-  <Overview>Apache Reverse Proxy for Media Services&#13;&#13;This container provides:&#13;- Public mode: Automatic HTTPS with Let's Encrypt SSL certificates&#13;- Private mode: Internal-only deployment without certificate generation&#13;- Reverse proxy for up to 14 different services&#13;- Responsive web dashboard with 4 customizable styles: classic, modern, sleek, minimal&#13;- Dashboard customization: custom title, icon, and default landing page&#13;- Four authentication options: None, Basic Auth, Entra ID (Microsoft), or Google OAuth2&#13;- Custom service icons and smart icon management&#13;- Service health monitoring&#13;&#13;Quick Start (Public Deployment - ACCESS_MODE=public):&#13;1. Set DOMAIN and EMAIL (required for Let's Encrypt)&#13;2. Choose AUTHTYPE (none, basic, entra, or google)&#13;3. Enable services and configure backend URLs&#13;4. (Optional) Customize dashboard STYLE, DASHBOARD_NAME, DASHBOARD_ICON, LANDING&#13;&#13;Quick Start (Private Deployment - ACCESS_MODE=private):&#13;1. Set ACCESS_MODE=private&#13;2. Choose AUTHTYPE (none or basic only - Entra/Google not available)&#13;3. Enable services and configure backend URLs&#13;4. DOMAIN and EMAIL still required in config but not used for certificates&#13;&#13;Supported Services (14):&#13;SABnzbd, Deluge, Transmission, qBittorrent, Radarr, Sonarr, Whisparr, Prowlarr, Seerr, Lidarr, Emby, Plex, Jellyfin, Tautulli&#13;&#13;Dashboard Styles:&#13;- Classic: Traditional sidebar menu&#13;- Modern: React-based with full features (recommended)&#13;- Sleek: Compact sidebar with gradient styling&#13;- Minimal: Single-column minimal design&#13;&#13;Documentation:&#13;https://github.com/auskento/apache-reverse-proxy</Overview>
+  <Overview>Apache Reverse Proxy for Media Services&#13;&#13;This container provides:&#13;- Public mode: Automatic HTTPS with Let's Encrypt SSL certificates&#13;- Private mode: Internal-only deployment without certificate generation&#13;- Reverse proxy for up to 16 different services&#13;- Responsive web dashboard with 4 customizable styles: classic, modern, sleek, minimal&#13;- Dashboard customization: custom title, icon, and default landing page&#13;- Four authentication options: None, Basic Auth, Entra ID (Microsoft), or Google OAuth2&#13;- Custom service icons and smart icon management&#13;- Service health monitoring&#13;&#13;Quick Start (Public Deployment - ACCESS_MODE=public):&#13;1. Set DOMAIN and EMAIL (required for Let's Encrypt)&#13;2. Choose AUTHTYPE (none, basic, entra, or google)&#13;3. Enable services and configure backend URLs&#13;4. (Optional) Customize dashboard STYLE, DASHBOARD_NAME, DASHBOARD_ICON, LANDING&#13;&#13;Quick Start (Private Deployment - ACCESS_MODE=private):&#13;1. Set ACCESS_MODE=private&#13;2. Choose AUTHTYPE (none or basic only - Entra/Google not available)&#13;3. Enable services and configure backend URLs&#13;4. DOMAIN and EMAIL still required in config but not used for certificates&#13;&#13;Supported Services (16):&#13;SABnzbd, NZBGet, NZBHydra, Deluge, Transmission, qBittorrent, Radarr, Sonarr, Whisparr, Prowlarr, Seerr, Lidarr, Emby, Plex, Jellyfin, Tautulli&#13;&#13;Dashboard Styles:&#13;- Classic: Traditional sidebar menu&#13;- Modern: React-based with full features (recommended)&#13;- Sleek: Compact sidebar with gradient styling&#13;- Minimal: Single-column minimal design&#13;&#13;Documentation:&#13;https://github.com/auskento/apache-reverse-proxy</Overview>
   <Networking>
     <Mode>bridge</Mode>
     <Publish>
@@ -276,6 +276,30 @@
       <Value/>
     </Variable>
     <Variable>
+      <Name>ENABLE_NZBGET</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>NZBGET_URL</Name>
+      <Value>http://nzbget:6789</Value>
+    </Variable>
+    <Variable>
+      <Name>ICON_URL_NZBGET</Name>
+      <Value/>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_NZBHYDRA</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>NZBHYDRA_URL</Name>
+      <Value>http://nzbhydra:5076</Value>
+    </Variable>
+    <Variable>
+      <Name>ICON_URL_NZBHYDRA</Name>
+      <Value/>
+    </Variable>
+    <Variable>
       <Name>BASIC_AUTH_CREDENTIALS</Name>
       <Value/>
     </Variable>
@@ -401,9 +425,19 @@
   <Config Name="Jellyfin Icon URL" Target="ICON_URL_JELLYFIN" Default="" Mode="" Description="Icon URL (leave blank for auto-generated)" Type="Variable" Display="advanced" Required="false" Mask="false"/>
 
   <!-- TAUTULLI -->
-  <Config Name="[14/14] Enable Tautulli" Target="ENABLE_TAUTULLI" Default="false" Mode="" Description="Tautulli - Analytics" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="[14/16] Enable Tautulli" Target="ENABLE_TAUTULLI" Default="false" Mode="" Description="Tautulli - Analytics" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Tautulli URL" Target="TAUTULLI_URL" Default="http://tautulli:8181" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Tautulli Icon URL" Target="ICON_URL_TAUTULLI" Default="" Mode="" Description="Icon URL (leave blank for auto-generated)" Type="Variable" Display="advanced" Required="false" Mask="false"/>
+
+  <!-- NZBGET -->
+  <Config Name="[15/16] Enable NZBGet" Target="ENABLE_NZBGET" Default="false" Mode="" Description="NZBGet - Usenet Downloads" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBGet URL" Target="NZBGET_URL" Default="http://nzbget:6789" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBGet Icon URL" Target="ICON_URL_NZBGET" Default="" Mode="" Description="Icon URL (leave blank for auto-generated)" Type="Variable" Display="advanced" Required="false" Mask="false"/>
+
+  <!-- NZBHYDRA -->
+  <Config Name="[16/16] Enable NZBHydra" Target="ENABLE_NZBHYDRA" Default="false" Mode="" Description="NZBHydra - NZB Indexer" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBHydra URL" Target="NZBHYDRA_URL" Default="http://nzbhydra:5076" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBHydra Icon URL" Target="ICON_URL_NZBHYDRA" Default="" Mode="" Description="Icon URL (leave blank for auto-generated)" Type="Variable" Display="advanced" Required="false" Mask="false"/>
 
   <!-- AUTHENTICATION -->
   <Config Name="Auth Type" Target="AUTHTYPE" Default="none" Mode="" Description="Authentication method: none, basic, entra, or google" Type="Variable" Display="always" Required="true" Mask="false"/>

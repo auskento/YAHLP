@@ -24,7 +24,9 @@ declare -A SERVICES=(
     [DELUGE]="DOWNLOADS|Deluge|Torrent client|/icons/deluge.png|/deluge/|#3aa3e0"
     [TRANSMISSION]="DOWNLOADS|Transmission|Torrents|/icons/transmission.png|/transmission/|#343434"
     [QBITTORRENT]="DOWNLOADS|qBittorrent|Torrent client|/icons/qbittorrent.png|/qbittorrent/|#3683b6"
-    
+    [NZBGET]="DOWNLOADS|NZBGet|Usenet downloads|/icons/nzbget.png|/nzbget/|#3da7e0"
+    [NZBHYDRA]="DOWNLOADS|NZBHydra|NZB indexer|/icons/nzbhydra.png|/nzbhydra/|#3e9c7d"
+
     # INFRA category (Indexers & Infrastructure)
     [RADARR]="INFRA|Radarr|Movies|/icons/radarr.png|/radarr/|#febc2e"
     [SONARR]="INFRA|Sonarr|TV shows|/icons/sonarr.png|/sonarr/calendar|#3aa0e0"
@@ -43,7 +45,7 @@ declare -A SERVICES=(
 # Service display order (same order for both menus)
 declare -a SERVICE_ORDER=(
     # DOWNLOADERS
-    "SABNZBD" "DELUGE" "TRANSMISSION" "QBITTORRENT"
+    "SABNZBD" "DELUGE" "TRANSMISSION" "QBITTORRENT" "NZBGET" "NZBHYDRA"
     # INDEXERS
     "RADARR" "SONARR" "WHISPARR" "PROWLARR" "SEERR" "LIDARR"
     # MEDIA SERVERS
