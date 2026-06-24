@@ -342,8 +342,10 @@
   <Labels/>
   
   <!-- FORM CONFIGURATION - These appear in Unraid UI -->
-  <Config Name="DOMAIN" Target="DOMAIN" Default="yourdomain.com" Mode="" Description="Domain Name (REQUIRED - e.g., example.com)" Type="Variable" Display="always" Required="true" Mask="false"/>
-  <Config Name="EMAIL" Target="EMAIL" Default="admin@example.com" Mode="" Description="Email for Let's Encrypt (REQUIRED)" Type="Variable" Display="always" Required="true" Mask="false"/>
+  <!-- NETWORK -->
+  <Config Name="HTTP Port" Target="HostPort" Default="80" Mode="tcp" Description="HTTP Port" Type="Port" Display="always" Required="false" Mask="false">80</Config>
+  <Config Name="HTTPS Port" Target="HostPort" Default="443" Mode="tcp" Description="HTTPS Port" Type="Port" Display="always" Required="false" Mask="false">443</Config>
+
   <Config Name="Timezone" Target="TZ" Default="Australia/Melbourne" Mode="" Description="Timezone" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Dashboard Style" Target="STYLE" Default="modern" Mode="" Description="Dashboard style: classic, modern, sleek, or minimal" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Dashboard Name" Target="DASHBOARD_NAME" Default="Media Server" Mode="" Description="Custom dashboard title shown in header" Type="Variable" Display="always" Required="false" Mask="false"/>
@@ -424,6 +426,8 @@
   <Config Name="Auth Type" Target="AUTHTYPE" Default="none" Mode="" Description="Authentication method: none, basic, entra, or google" Type="Variable" Display="always" Required="true" Mask="false"/>
 
   <!-- BASIC AUTH -->
+  <Config Name="DOMAIN" Target="DOMAIN" Default="yourdomain.com" Mode="" Description="Domain Name (REQUIRED - e.g., example.com)" Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="EMAIL" Target="EMAIL" Default="admin@example.com" Mode="" Description="Email for Let's Encrypt (REQUIRED)" Type="Variable" Display="always" Required="true" Mask="false"/>
   <Config Name="Basic Auth Credentials" Target="BASIC_AUTH_CREDENTIALS" Default="" Mode="" Description="For AUTHTYPE=basic. Format: user1:pass1|user2:pass2" Type="Variable" Display="always" Required="false" Mask="true"/>
 
   <!-- ENTRA ID (MICROSOFT) -->
@@ -437,11 +441,7 @@
   <Config Name="Google Client ID" Target="GOOGLE_CLIENT_ID" Default="" Mode="" Description="For AUTHTYPE=google. From Google Cloud Console" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Google Client Secret" Target="GOOGLE_CLIENT_SECRET" Default="" Mode="" Description="For AUTHTYPE=google. From Google Cloud Console" Type="Variable" Display="always" Required="false" Mask="true"/>
   <Config Name="Google Redirect URI" Target="GOOGLE_REDIRECT_URI" Default="https://yourdomain.com" Mode="" Description="For AUTHTYPE=google. Just the domain root (no path). Must match Google OAuth configuration" Type="Variable" Display="always" Required="false" Mask="false"/>
-  
-  <!-- PORTS -->
-  <Config Name="HTTP Port" Target="HostPort" Default="80" Mode="tcp" Description="HTTP Port" Type="Port" Display="always" Required="false" Mask="false">80</Config>
-  <Config Name="HTTPS Port" Target="HostPort" Default="443" Mode="tcp" Description="HTTPS Port" Type="Port" Display="always" Required="false" Mask="false">443</Config>
-  
+
   <!-- VOLUMES -->
   <Config Name="Certificates Volume" Target="/etc/letsencrypt" Default="/mnt/user/appdata/apache-reverse-proxy/letsencrypt" Mode="rw" Description="SSL Certificates" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/apache-reverse-proxy/letsencrypt</Config>
   <Config Name="Logs Volume" Target="/var/log/apache2" Default="/mnt/user/appdata/apache-reverse-proxy/logs" Mode="rw" Description="Apache Logs" Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/apache-reverse-proxy/logs</Config></Container>
