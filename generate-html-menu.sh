@@ -301,8 +301,8 @@ generate_all_styles() {
     local ICON_GAP=$(echo "$sizes" | cut -d'|' -f2)
     local LOGO_SIZE=$(echo "$sizes" | cut -d'|' -f3)
 
-    # Generate Classic
-    if [ "$STYLE" != "classic" ] && [ -f "$CLASSIC_TEMPLATE" ]; then
+    # Generate Classic (always)
+    if [ -f "$CLASSIC_TEMPLATE" ]; then
         local menu_items=$(generate_menu_items)
         local services_list=$(generate_services_list)
         local html_content=$(cat "$CLASSIC_TEMPLATE")
@@ -318,8 +318,8 @@ generate_all_styles() {
         echo "$html_content" > "/var/www/html/classic.html"
     fi
 
-    # Generate Modern
-    if [ "$STYLE" != "modern" ] && [ -f "$MODERN_TEMPLATE" ]; then
+    # Generate Modern (always)
+    if [ -f "$MODERN_TEMPLATE" ]; then
         local services_array=$(generate_services_array)
         local html_content=$(cat "$MODERN_TEMPLATE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
@@ -333,8 +333,8 @@ generate_all_styles() {
         echo "$html_content" > "/var/www/html/modern.html"
     fi
 
-    # Generate Sleek
-    if [ "$STYLE" != "sleek" ] && [ -f "$SLEEK_TEMPLATE" ]; then
+    # Generate Sleek (always)
+    if [ -f "$SLEEK_TEMPLATE" ]; then
         local services_array=$(generate_dashboard2_services_array)
         local html_content=$(cat "$SLEEK_TEMPLATE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
@@ -351,8 +351,8 @@ generate_all_styles() {
         echo "$html_content" > "/var/www/html/sleek.html"
     fi
 
-    # Generate Minimal
-    if [ "$STYLE" != "minimal" ] && [ -f "$MINIMAL_TEMPLATE" ]; then
+    # Generate Minimal (always)
+    if [ -f "$MINIMAL_TEMPLATE" ]; then
         local services_array=$(generate_dashboard2_services_array)
         local html_content=$(cat "$MINIMAL_TEMPLATE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
