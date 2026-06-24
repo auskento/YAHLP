@@ -189,25 +189,33 @@ generate_simple_menu() {
         echo "ERROR: Simple template not found: $SIMPLE_TEMPLATE"
         return 1
     fi
-    
+
     # Generate menu items and services list
     local menu_items=$(generate_menu_items)
     local services_list=$(generate_services_list)
-    
-    # Set dashboard name and icon
+
+    # Set dashboard name, icon, and landing page
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
     local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
-    
+    local LANDING="${LANDING:-}"
+
     # Read template and replace placeholders
     local html_content=$(cat "$SIMPLE_TEMPLATE")
     html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
     html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
     html_content="${html_content//@@DASHBOARD_NAME@@/$DASHBOARD_NAME}"
     html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
-    
+
+    # Only set iframe src if LANDING is provided; otherwise use about:blank
+    if [ -z "$LANDING" ]; then
+        html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"|src="about:blank"|')
+    else
+        html_content="${html_content//@@LANDING@@/$LANDING}"
+    fi
+
     # Write output file
     echo "$html_content" > "$SIMPLE_OUTPUT"
-    
+
     echo "✓ Simple menu generated: $SIMPLE_OUTPUT"
 }
 
@@ -217,26 +225,34 @@ generate_react_dashboard() {
         echo "ERROR: Dashboard template not found: $DASHBOARD_TEMPLATE"
         return 1
     fi
-    
+
     # Copy support.js
     cp /usr/local/bin/support.js /var/www/html/support.js 2>/dev/null || true
-    
+
     # Generate services array
     local services_array=$(generate_services_array)
-    
-    # Set dashboard name and icon
+
+    # Set dashboard name, icon, and landing page
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
     local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
-    
+    local LANDING="${LANDING:-}"
+
     # Read template and replace placeholders
     local html_content=$(cat "$DASHBOARD_TEMPLATE")
     html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
     html_content="${html_content//@@DASHBOARD_NAME@@/$DASHBOARD_NAME}"
     html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
-    
+
+    # Only set iframe src if LANDING is provided
+    if [ -z "$LANDING" ]; then
+        html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"||')
+    else
+        html_content="${html_content//@@LANDING@@/$LANDING}"
+    fi
+
     # Write output file
     echo "$html_content" > "$DASHBOARD_OUTPUT"
-    
+
     echo "✓ React dashboard generated: $DASHBOARD_OUTPUT"
     echo "Debug: Service count in dashboard array:"
     echo "$services_array" | grep -o "{ cat:" | wc -l
@@ -346,9 +362,10 @@ generate_dashboard_for_auth() {
 
     local services_array=$(generate_dashboard2_services_array)
 
-    # Set dashboard name and icon
+    # Set dashboard name, icon, and landing page
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
     local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
+    local LANDING="${LANDING:-}"
 
     # Calculate dynamic icon sizes
     local sizes=$(calculate_icon_sizes "$service_count")
@@ -360,6 +377,14 @@ generate_dashboard_for_auth() {
     html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
     html_content="${html_content//@@DASHBOARD_NAME@@/$DASHBOARD_NAME}"
     html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON}"
+
+    # Only set iframe src if LANDING is provided; otherwise remove src attribute to show welcome screen
+    if [ -z "$LANDING" ]; then
+        html_content=$(echo "$html_content" | sed 's|src="/@@LANDING@@"||')
+    else
+        html_content="${html_content//@@LANDING@@/$LANDING}"
+    fi
+
     html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
     html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
     html_content="${html_content//@@LOGO_SIZE@@/$LOGO_SIZE}"
