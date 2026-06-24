@@ -18,6 +18,14 @@ chmod 777 /var/log/apache2/reverse-proxy-debug || {
     exit 1
 }
 
+# Load persistent dashboard configuration if it exists
+# This allows changing UI style and landing page without rebuilding the image
+if [ -f /etc/apache2/dashboard.conf ]; then
+    echo "Loading persistent dashboard configuration..."
+    source /etc/apache2/dashboard.conf
+    echo "DEBUG: Loaded STYLE=$STYLE, LANDING=$LANDING"
+fi
+
 # Write environment variables to config file for scripts to source
 cat > /etc/apache2/env.conf << ENVEOF
 DOMAIN="${DOMAIN:-example.com}"
