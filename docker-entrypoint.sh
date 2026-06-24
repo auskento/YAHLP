@@ -8,6 +8,16 @@ mkdir -p /etc/letsencrypt/live 2>/dev/null || true
 chmod 777 /etc/letsencrypt/live 2>/dev/null || true
 chmod -R 777 /var/log/apache2 2>/dev/null || true
 
+# Ensure debug log directory exists and has proper permissions
+mkdir -p /var/log/apache2/reverse-proxy-debug || {
+    echo "ERROR: Failed to create /var/log/apache2/reverse-proxy-debug directory"
+    exit 1
+}
+chmod 777 /var/log/apache2/reverse-proxy-debug || {
+    echo "ERROR: Failed to set permissions on /var/log/apache2/reverse-proxy-debug"
+    exit 1
+}
+
 # Write environment variables to config file for scripts to source
 cat > /etc/apache2/env.conf << ENVEOF
 DOMAIN="${DOMAIN:-example.com}"
