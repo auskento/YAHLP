@@ -1,17 +1,17 @@
-# Apache Reverse Proxy - Unraid Installation Guide
+# HomELabPortal (HeLP) - Unraid Installation Guide
 
 ## Overview
 
-This is an **Apache reverse proxy Docker container** designed specifically for Unraid. It does NOT include any media applications - it proxies to your existing containers and services.
+This is **HomELabPortal (HeLP)** - a unified media server dashboard Docker container designed specifically for Unraid. It does NOT include any media applications - it proxies to your existing containers and services.
 
 ## Features
 
-✅ **Reverse Proxy Only** - No apps installed, just proxying  
-✅ **14+ Services Supported** - Sonarr, Radarr, Jellyfin, Plex, Transmission, qBittorrent, and more  
+✅ **Unified Dashboard** - All your homelab services in one place  
+✅ **17 Services Supported** - Sonarr, Radarr, Jellyfin, Plex, qBittorrent, Bazarr, and more  
 ✅ **Automatic HTTPS** - Let's Encrypt with daily auto-renewal  
-✅ **Modular Configuration** - Enable/disable services via environment variables  
-✅ **Optional Office 365 Auth** - Protect services with Microsoft login  
-✅ **Custom Dashboard** - Frame-based layout with service icons  
+✅ **Flexible Authentication** - None, Basic, Entra ID, or Google OAuth  
+✅ **4 Dashboard Themes** - Customize your interface  
+✅ **Custom Service Ordering** - Reorder categories as you like  
 ✅ **Unraid Native** - Full Unraid template support  
 
 ## Prerequisites
