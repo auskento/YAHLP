@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; iso-8859-1">
+<title>@@DASHBOARD_NAME@@ - Basic</title>
+<style>
+body { background-color: black; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+#menu { background-color: #111; padding: 10px; text-align: center; border-bottom: 1px solid #333; }
+#menu table { width: 100%; }
+#menu td { padding: 8px; }
+#menu a { text-decoration: none; display: inline-block; }
+#menu img { border: 0; max-width: 60px; max-height: 60px; }
+</style>
+</head>
+<body>
+
+<div id="menu">
+<table border="0" cellpadding="1" cellspacing="1">
+<tbody>
+<tr>
+@@MENU_ITEMS@@
+</tr>
+</tbody>
+</table>
+</div>
+
+<iframe name="Main" src="/@@DASHBOARD_LANDING@@" frameborder="0" border="0" style="width: 100%; height: calc(100vh - 90px); display: block;"></iframe>
+
+</body>
+</html>
