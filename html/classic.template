@@ -41,6 +41,10 @@
             flex-direction: column;
             height: 100vh;
         }
+
+        [data-theme="light"] img {
+            filter: invert(0.85) hue-rotate(180deg) brightness(0.95);
+        }
         
         .header {
             background-color: var(--bg-secondary);
