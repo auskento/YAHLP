@@ -1,14 +1,14 @@
-# Apache Reverse Proxy with Modular Service Configuration
+# HomELabPortal (HeLP) - Unified Media Server Dashboard
 
 ## What You've Got
 
-A complete, production-ready Docker setup for an Apache reverse proxy with:
+A complete, production-ready Docker setup for HomELabPortal (HeLP) with:
 
 ✅ **Automatic HTTPS** - Let's Encrypt with auto-renewal  
-✅ **Modular Services** - Enable/disable services with environment variables  
-✅ **13+ Pre-configured Services** - Sonarr, Radarr, Jellyfin, qBittorrent, and more  
-✅ **Load Balancing** - Distribute traffic across multiple backends  
-✅ **Custom HTML** - Professional error pages and home page  
+✅ **17 Pre-configured Services** - Sonarr, Radarr, Jellyfin, qBittorrent, Bazarr, and more  
+✅ **Flexible Authentication** - None, Basic, Entra ID, or Google OAuth  
+✅ **4 Dashboard Themes** - Modern, Classic, Sleek, or Minimal  
+✅ **Custom Service Ordering** - Reorder categories without config changes  
 ✅ **Zero Manual Config** - Service selection via simple env vars  
 ✅ **Auto-renewal** - Certificates renew automatically daily  
 

@@ -1,6 +1,6 @@
-# Deploying Apache Reverse Proxy on Unraid
+# Deploying HomELabPortal (HeLP) on Unraid
 
-Complete guide for installing and configuring via Unraid web UI.
+Complete guide for installing and configuring HomELabPortal via Unraid web UI.
 
 ---
 
