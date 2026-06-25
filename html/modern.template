@@ -70,6 +70,7 @@ if (typeof window !== 'undefined' && window.parent && window.parent !== window) 
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
   body{background:var(--bg-primary);overflow:hidden}
+  [data-theme="light"] img{filter:invert(0.85) hue-rotate(180deg) brightness(0.95)}
   ::-webkit-scrollbar{width:9px}
   ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:9px}
   ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.16)}
