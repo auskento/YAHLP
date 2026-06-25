@@ -71,7 +71,7 @@ declare -A CATEGORY_LABEL=(
 
 # Generate group order from DASHBOARD_ORDER variable
 generate_group_order() {
-    local dash_order="${DASHBOARD_ORDER:-USENET,TORRENTS,CONTENT,SEARCH,MEDIA}"
+    local dash_order="${DASHBOARD_ORDER:-CONTENT,SEARCH,USENET,TORRENTS,MEDIA}"
     local items=()
 
     # Split by comma and convert to uppercase
@@ -94,7 +94,7 @@ generate_menu_items() {
     local menu_html=""
 
     # Parse DASHBOARD_ORDER to get group ordering
-    local dash_order="${DASHBOARD_ORDER:-USENET,TORRENTS,CONTENT,SEARCH,MEDIA}"
+    local dash_order="${DASHBOARD_ORDER:-CONTENT,SEARCH,USENET,TORRENTS,MEDIA}"
     IFS=',' read -ra group_order <<< "$dash_order"
 
     # Convert group names to uppercase for matching
@@ -512,7 +512,7 @@ generate_dashboard2_services_array() {
     local first=true
 
     # Parse DASHBOARD_ORDER to get group ordering
-    local dash_order="${DASHBOARD_ORDER:-USENET,TORRENTS,CONTENT,SEARCH,MEDIA}"
+    local dash_order="${DASHBOARD_ORDER:-CONTENT,SEARCH,USENET,TORRENTS,MEDIA}"
     IFS=',' read -ra group_order <<< "$dash_order"
 
     # Convert group names to uppercase for matching

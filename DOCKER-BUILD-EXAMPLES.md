@@ -43,7 +43,7 @@ services:
       DASHBOARD_NAME: My Homelab
       DASHBOARD_ICON: /icons/apache-reverse-proxy.png
       DASHBOARD_LANDING: radarr
-      DASHBOARD_ORDER: USENET,TORRENTS,CONTENT,SEARCH,MEDIA
+      DASHBOARD_ORDER: CONTENT,SEARCH,USENET,TORRENTS,MEDIA
       AUTHTYPE: basic
       BASIC_AUTH_CREDENTIALS: "admin:securepassword|user:password"
       ENABLE_RADARR: "true"
@@ -160,7 +160,7 @@ services:
       STYLE: minimal
       DASHBOARD_NAME: Dashboard
       DASHBOARD_LANDING: ""
-      DASHBOARD_ORDER: USENET,TORRENTS,CONTENT,SEARCH,MEDIA
+      DASHBOARD_ORDER: CONTENT,SEARCH,USENET,TORRENTS,MEDIA
       AUTHTYPE: google
       GOOGLE_CLIENT_ID: your-client-id.apps.googleusercontent.com
       GOOGLE_CLIENT_SECRET: your-client-secret
