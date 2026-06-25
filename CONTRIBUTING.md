@@ -1,6 +1,6 @@
-# Contributing to Apache Reverse Proxy
+# Contributing to HomELabPortal (HeLP)
 
-Thank you for your interest in contributing! This document provides guidelines for contributing to the project.
+Thank you for your interest in contributing! This document provides guidelines for contributing to HomELabPortal - Unified Media Server Dashboard.
 
 ## Getting Started
 
