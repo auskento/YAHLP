@@ -43,9 +43,9 @@
         }
         
         .header {
-            background-color: #1a1a1a;
+            background-color: var(--bg-secondary);
             padding: 15px 20px;
-            border-bottom: 2px solid #444;
+            border-bottom: 2px solid var(--border-color);
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
@@ -70,8 +70,8 @@
 
         .datetime-box {
             flex-shrink: 0;
-            background-color: rgba(74, 158, 255, 0.1);
-            border: 1px solid rgba(74, 158, 255, 0.3);
+            background-color: rgba(74, 158, 255, 0.08);
+            border: 1px solid rgba(74, 158, 255, 0.2);
             border-radius: 8px;
             padding: 8px 12px;
             text-align: center;
