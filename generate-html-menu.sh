@@ -127,8 +127,16 @@ generate_menu_items() {
                 fi
             fi
 
+            # Check if this service should open in a popup (qBittorrent, external links, etc)
+            local popup_attr=""
+            if [[ "$service_key" == "QBITTORRENT" ]] || [[ "$href" == http* ]]; then
+                popup_attr=" onclick=\"window.open(this.href, '$service_name', 'resizable=yes,status=yes,location=yes,toolbar=yes,menubar=yes,scrollbars=yes'); return false;\""
+            else
+                popup_attr=" target='Main'"
+            fi
+
             # Add menu item - NO label span!
-            menu_html+="<td class='menu-item'><a href='$href' target='Main' title='$service_name'><img src='$icon_path' alt='$service_name' /></a></td>"
+            menu_html+="<td class='menu-item'><a href='$href'$popup_attr title='$service_name'><img src='$icon_path' alt='$service_name' /></a></td>"
         done
     done
 
