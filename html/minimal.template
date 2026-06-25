@@ -4,8 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>@@DASHBOARD_NAME@@</title>
+<style>
+:root {
+  --bg-primary: #08090c;
+  --bg-secondary: #0b0d11;
+  --text-primary: #e9ecf2;
+  --text-secondary: #5d6575;
+  --border-color: rgba(255, 255, 255, 0.05);
+  --border-light: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] {
+  --bg-primary: #f5f5f7;
+  --bg-secondary: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-light: rgba(0, 0, 0, 0.1);
+}
+</style>
 </head>
-<body style="margin:0;padding:0;min-height:100vh;background:#08090c;font-family:system-ui,sans-serif;color:#e9ecf2">
+<body style="margin:0;padding:0;min-height:100vh;background:var(--bg-primary);font-family:system-ui,sans-serif;color:var(--text-primary)">
 <div style="display:flex;height:100vh;width:100vw;background:radial-gradient(1200px 700px at 18% -10%,rgba(58,160,224,.10),transparent 60%),radial-gradient(900px 600px at 100% 110%,rgba(46,205,111,.07),transparent 55%),#08090c;overflow:hidden">
 
   <aside style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 15px;flex:none;border-right:1px solid rgba(255,255,255,.05);overflow-y:hidden">
@@ -30,7 +49,7 @@
       <span id="health-text">Checking...</span>
     </div>
 
-    <div style="font-size:9px;text-align:center;padding:8px 0;border-top:1px solid rgba(255,255,255,.1);display:flex;gap:4px;justify-content:center;flex-wrap:wrap;width:100%">
+    <div style="font-size:9px;text-align:center;padding:8px 0;border-top:1px solid rgba(255,255,255,.1);display:flex;gap:4px;justify-content:center;flex-wrap:wrap;width:100%;align-items:center">
       <a href="/classic.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Classic</a>
       <span style="color:#5d6575">|</span>
       <a href="/" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Modern</a>
@@ -38,6 +57,8 @@
       <a href="/sleek.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Sleek</a>
       <span style="color:#5d6575">|</span>
       <a href="/minimal.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Minimal</a>
+      <span style="color:#5d6575">|</span>
+      <button id="theme-toggle-minimal" style="background:none;border:none;cursor:pointer;font-size:12px;padding:0;color:#4a9eff;transition:color 0.2s" title="Toggle theme">☀️</button>
     </div>
 
   </aside>
@@ -193,6 +214,25 @@
 
   checkServices();
   setInterval(checkServices, 30000);
+
+  // Theme management
+  (function() {
+    const defaultTheme = '@@DASHBOARD_THEME@@' || 'dark';
+    const savedTheme = localStorage.getItem('theme') || defaultTheme;
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    const themeButton = document.getElementById('theme-toggle-minimal');
+    if (themeButton) {
+      themeButton.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+      themeButton.addEventListener('click', function() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        themeButton.textContent = next === 'dark' ? '☀️' : '🌙';
+      });
+    }
+  })();
 </script>
 </body>
 </html>
