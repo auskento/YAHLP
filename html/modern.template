@@ -31,27 +31,46 @@ if (typeof window !== 'undefined' && window.parent && window.parent !== window) 
     --bg-primary: #08090c;
     --bg-secondary: rgba(20, 23, 30, 0.72);
     --bg-tertiary: rgba(255, 255, 255, 0.05);
+    --bg-gradient-start: rgba(20, 23, 30, 0.72);
+    --bg-gradient-end: rgba(12, 14, 19, 0.72);
     --text-primary: #e9ecf2;
     --text-secondary: #8b93a3;
     --text-tertiary: #5d6575;
+    --text-accent: #cdd3dd;
+    --text-bright: #f4f6fa;
+    --text-light: #eef1f6;
+    --text-muted: #828b9c;
+    --text-dim: #4b5263;
+    --text-link: #4a9eff;
     --border-color: rgba(255, 255, 255, 0.06);
     --border-light: rgba(255, 255, 255, 0.07);
+    --border-hover: rgba(255, 255, 255, 0.09);
   }
 
   [data-theme="light"] {
     --bg-primary: #f5f5f7;
     --bg-secondary: rgba(245, 245, 247, 0.95);
     --bg-tertiary: rgba(0, 0, 0, 0.05);
+    --bg-gradient-start: rgba(250, 250, 252, 0.95);
+    --bg-gradient-end: rgba(240, 240, 242, 0.95);
     --text-primary: #1a1a1a;
     --text-secondary: #6b7280;
     --text-tertiary: #9ca3af;
+    --text-accent: #374151;
+    --text-bright: #000000;
+    --text-light: #1f2937;
+    --text-muted: #6b7280;
+    --text-dim: #9ca3af;
+    --text-link: #0066cc;
     --border-color: rgba(0, 0, 0, 0.08);
     --border-light: rgba(0, 0, 0, 0.1);
+    --border-hover: rgba(0, 0, 0, 0.15);
   }
 
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
   body{background:var(--bg-primary);overflow:hidden}
+  [data-theme="light"] img{filter:invert(0.85) hue-rotate(180deg) brightness(0.95)}
   ::-webkit-scrollbar{width:9px}
   ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:9px}
   ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.16)}
@@ -61,19 +80,19 @@ if (typeof window !== 'undefined' && window.parent && window.parent !== window) 
 </style>
 </helmet>
 
-<div style="display:flex;height:100vh;width:100vw;font-family:'Inter',system-ui,sans-serif;color:#e9ecf2;background:radial-gradient(1200px 700px at 18% -10%,rgba(58,160,224,.10),transparent 60%),radial-gradient(900px 600px at 100% 110%,rgba(46,205,111,.07),transparent 55%),#08090c;overflow:hidden">
+<div style="display:flex;height:100vh;width:100vw;font-family:'Inter',system-ui,sans-serif;color:var(--text-primary);background:radial-gradient(1200px 700px at 18% -10%,rgba(58,160,224,.10),transparent 60%),radial-gradient(900px 600px at 100% 110%,rgba(46,205,111,.07),transparent 55%),var(--bg-primary);overflow:hidden">
 
-  <aside style="width:320px;flex:none;height:100%;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(20,23,30,.72),rgba(12,14,19,.72));backdrop-filter:blur(18px);border-right:1px solid rgba(255,255,255,.07)">
+  <aside style="width:320px;flex:none;height:100%;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--bg-gradient-start),var(--bg-gradient-end));backdrop-filter:blur(18px);border-right:1px solid var(--border-light)">
 
-    <div style="padding:26px 26px 20px 26px;border-bottom:1px solid rgba(255,255,255,.06)">
+    <div style="padding:26px 26px 20px 26px;border-bottom:1px solid var(--border-color)">
       <a href="/" style="display:flex;align-items:center;gap:11px;margin-bottom:22px;text-decoration:none;cursor:pointer">
         <img src="@@DASHBOARD_ICON@@" alt="Dashboard" style="width:34px;height:34px;border-radius:9px;object-fit:contain;box-shadow:0 4px 16px rgba(58,160,224,.4)">
-        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:.14em;font-size:13px;color:#cdd3dd">@@DASHBOARD_NAME@@</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:.14em;font-size:13px;color:var(--text-accent)">@@DASHBOARD_NAME@@</div>
       </a>
-      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:25px;line-height:1.15;letter-spacing:-.01em;color:#f4f6fa">{{ greeting }}</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:25px;line-height:1.15;letter-spacing:-.01em;color:var(--text-bright)">{{ greeting }}</div>
       <div style="display:flex;align-items:baseline;gap:10px;margin-top:7px">
-        <div style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:15px;color:#8b93a3;font-variant-numeric:tabular-nums">{{ clock }}</div>
-        <div style="font-size:13px;color:#5d6575">{{ today }}</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:15px;color:var(--text-secondary);font-variant-numeric:tabular-nums">{{ clock }}</div>
+        <div style="font-size:13px;color:var(--text-tertiary)">{{ today }}</div>
       </div>
     </div>
 
@@ -81,18 +100,18 @@ if (typeof window !== 'undefined' && window.parent && window.parent !== window) 
       <sc-for list="{{ groups }}" as="group">
         <div style="margin-top:18px">
           <div style="display:flex;align-items:center;gap:9px;padding:0 10px 9px 10px">
-            <span style="font-size:11px;font-weight:600;letter-spacing:.16em;color:#6b7385">{{ group.label }}</span>
-            <span style="flex:1;height:1px;background:rgba(255,255,255,.06)"></span>
-            <span style="font-size:11px;color:#4b5263;font-variant-numeric:tabular-nums">{{ group.count }}</span>
+            <span style="font-size:11px;font-weight:600;letter-spacing:.16em;color:var(--text-secondary)">{{ group.label }}</span>
+            <span style="flex:1;height:1px;background:var(--border-color)"></span>
+            <span style="font-size:11px;color:var(--text-dim);font-variant-numeric:tabular-nums">{{ group.count }}</span>
           </div>
           <sc-for list="{{ group.items }}" as="app">
             <button onClick="{{ app.open }}" style="{{ app.style }}" style-hover="{{ app.hoverStyle }}">
-              <span style="width:46px;height:46px;flex:none;border-radius:12px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)">
+              <span style="width:46px;height:46px;flex:none;border-radius:12px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 1px var(--border-color)">
                 {{ app.iconEl }}
               </span>
               <span style="flex:1;min-width:0;text-align:left">
-                <span style="display:block;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:#eef1f6">{{ app.name }}</span>
-                <span style="display:block;font-size:12.5px;color:#828b9c;margin-top:1px">{{ app.desc }}</span>
+                <span style="display:block;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:var(--text-light)">{{ app.name }}</span>
+                <span style="display:block;font-size:12.5px;color:var(--text-muted);margin-top:1px">{{ app.desc }}</span>
               </span>
               <span style="{{ app.dotStyle }}"></span>
             </button>
@@ -101,32 +120,32 @@ if (typeof window !== 'undefined' && window.parent && window.parent !== window) 
       </sc-for>
     </nav>
 
-    <div style="padding:14px 26px;border-top:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:12px">
+    <div style="padding:14px 26px;border-top:1px solid var(--border-color);display:flex;flex-direction:column;gap:12px">
       <div style="display:flex;flex-direction:column;gap:8px">
         <div style="display:flex;align-items:center;gap:8px">
           <span style="width:7px;height:7px;border-radius:50%;background:{{ healthColor }};box-shadow:0 0 8px {{ healthColor }};animation:floatGlow 2.6s ease-in-out infinite"></span>
-          <span style="font-size:12px;color:#6b7385">{{ healthStatus }}</span>
+          <span style="font-size:12px;color:var(--text-secondary)">{{ healthStatus }}</span>
         </div>
         <sc-if expr="{{ offlineList }}">
           <span style="font-size:11px;color:#ff9999;padding-left:15px">{{ offlineList }}</span>
         </sc-if>
       </div>
-      <div style="font-size:11px;text-align:center;padding:8px 0;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:6px;justify-content:center;flex-wrap:wrap;align-items:center">
-        <a href="/classic.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Classic</a>
-        <span style="color:#5d6575">|</span>
-        <a href="/modern.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Modern</a>
-        <span style="color:#5d6575">|</span>
-        <a href="/sleek.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Sleek</a>
-        <span style="color:#5d6575">|</span>
-        <a href="/minimal.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Minimal</a>
-        <span style="color:#5d6575">|</span>
-        <button id="theme-toggle-modern" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0;color:#4a9eff;transition:color 0.2s" title="Toggle theme">☀️</button>
+      <div style="font-size:11px;text-align:center;padding:8px 0;border-top:1px solid var(--border-color);display:flex;gap:6px;justify-content:center;flex-wrap:wrap;align-items:center">
+        <a href="/classic.html" style="color:var(--text-link);text-decoration:none;transition:color 0.2s">Classic</a>
+        <span style="color:var(--text-tertiary)">|</span>
+        <a href="/modern.html" style="color:var(--text-link);text-decoration:none;transition:color 0.2s">Modern</a>
+        <span style="color:var(--text-tertiary)">|</span>
+        <a href="/sleek.html" style="color:var(--text-link);text-decoration:none;transition:color 0.2s">Sleek</a>
+        <span style="color:var(--text-tertiary)">|</span>
+        <a href="/minimal.html" style="color:var(--text-link);text-decoration:none;transition:color 0.2s">Minimal</a>
+        <span style="color:var(--text-tertiary)">|</span>
+        <button id="theme-toggle-modern" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0;color:var(--text-link);transition:color 0.2s" title="Toggle theme">☀️</button>
       </div>
     </div>
   </aside>
 
   <main style="flex:1;min-width:0;position:relative">
-    <iframe name="Main" ref="{{ frameRef }}" title="App" src="/@@DASHBOARD_LANDING@@" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#0b0d11"></iframe>
+    <iframe name="Main" ref="{{ frameRef }}" title="App" src="/@@DASHBOARD_LANDING@@" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg-primary)"></iframe>
 
     <sc-if value="{{ showWelcome }}" hint-placeholder-val="{{ true }}">
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;background:radial-gradient(900px 600px at 50% 30%,rgba(58,160,224,.08),transparent 60%),#0b0d11">
