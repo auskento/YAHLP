@@ -714,18 +714,8 @@ EMBYAUTHEOF
             sed -i "/@@INCLUDE_EMBY_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-entra-emby.conf\n    Include /etc/apache2/conf-available/auth-entra-protect-emby.conf" /etc/apache2/sites-available/emby-vhost.conf
             ;;
         basic)
-            # Generate basic auth protection config
-            cat > /etc/apache2/conf-available/auth-basic-protect-emby.conf <<'EMBYAUTHEOF'
-<Location />
-    AuthType Basic
-    AuthName "Emby"
-    AuthUserFile /etc/apache2/.htpasswd
-    Require valid-user
-</Location>
-EMBYAUTHEOF
-
-            # Add basic auth include
-            sed -i "/@@INCLUDE_EMBY_OAUTH@@/c\\    Include /etc/apache2/conf-available/auth-basic-protect-emby.conf" /etc/apache2/sites-available/emby-vhost.conf
+            # Basic auth is handled globally by auth-basic.conf, don't add service-level protection
+            sed -i "/@@INCLUDE_EMBY_OAUTH@@/d" /etc/apache2/sites-available/emby-vhost.conf
             ;;
         none|*)
             # No auth protection - just remove the placeholder
@@ -864,18 +854,8 @@ PLEXAUTHEOF
             sed -i "/@@INCLUDE_PLEX_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-entra-plex.conf\n    Include /etc/apache2/conf-available/auth-entra-protect-plex.conf" /etc/apache2/sites-available/plex-vhost.conf
             ;;
         basic)
-            # Generate basic auth protection config
-            cat > /etc/apache2/conf-available/auth-basic-protect-plex.conf <<'PLEXAUTHEOF'
-<Location />
-    AuthType Basic
-    AuthName "Plex"
-    AuthUserFile /etc/apache2/.htpasswd
-    Require valid-user
-</Location>
-PLEXAUTHEOF
-
-            # Add basic auth include
-            sed -i "/@@INCLUDE_PLEX_OAUTH@@/c\\    Include /etc/apache2/conf-available/auth-basic-protect-plex.conf" /etc/apache2/sites-available/plex-vhost.conf
+            # Basic auth is handled globally by auth-basic.conf, don't add service-level protection
+            sed -i "/@@INCLUDE_PLEX_OAUTH@@/d" /etc/apache2/sites-available/plex-vhost.conf
             ;;
         none|*)
             # No auth protection - just remove the placeholder
