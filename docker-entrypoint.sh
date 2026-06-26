@@ -659,7 +659,7 @@ RequestHeader set X-Auth-Method "Google"
 EMBYAUTHEOF
 
             # Add includes for Google OAuth
-            sed -i "s|@@INCLUDE_EMBY_OAUTH@@|Include /etc/apache2/conf-available/oauth2-google-emby.conf\nInclude /etc/apache2/conf-available/auth-google-protect-emby.conf|g" /etc/apache2/sites-available/emby-vhost.conf
+            sed -i "/@@INCLUDE_EMBY_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-google-emby.conf\n    Include /etc/apache2/conf-available/auth-google-protect-emby.conf" /etc/apache2/sites-available/emby-vhost.conf
             ;;
         entra)
             # Generate auth protection config
@@ -682,7 +682,7 @@ RequestHeader set X-Auth-Method "Entra"
 EMBYAUTHEOF
 
             # Add includes for Entra OAuth
-            sed -i "s|@@INCLUDE_EMBY_OAUTH@@|Include /etc/apache2/conf-available/oauth2-entra-emby.conf\nInclude /etc/apache2/conf-available/auth-entra-protect-emby.conf|g" /etc/apache2/sites-available/emby-vhost.conf
+            sed -i "/@@INCLUDE_EMBY_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-entra-emby.conf\n    Include /etc/apache2/conf-available/auth-entra-protect-emby.conf" /etc/apache2/sites-available/emby-vhost.conf
             ;;
     esac
 
@@ -790,7 +790,7 @@ RequestHeader set X-Auth-Method "Google"
 PLEXAUTHEOF
 
             # Add includes for Google OAuth
-            sed -i "s|@@INCLUDE_PLEX_OAUTH@@|Include /etc/apache2/conf-available/oauth2-google-plex.conf\nInclude /etc/apache2/conf-available/auth-google-protect-plex.conf|g" /etc/apache2/sites-available/plex-vhost.conf
+            sed -i "/@@INCLUDE_PLEX_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-google-plex.conf\n    Include /etc/apache2/conf-available/auth-google-protect-plex.conf" /etc/apache2/sites-available/plex-vhost.conf
             ;;
         entra)
             # Generate auth protection config
@@ -813,7 +813,7 @@ RequestHeader set X-Auth-Method "Entra"
 PLEXAUTHEOF
 
             # Add includes for Entra OAuth
-            sed -i "s|@@INCLUDE_PLEX_OAUTH@@|Include /etc/apache2/conf-available/oauth2-entra-plex.conf\nInclude /etc/apache2/conf-available/auth-entra-protect-plex.conf|g" /etc/apache2/sites-available/plex-vhost.conf
+            sed -i "/@@INCLUDE_PLEX_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-entra-plex.conf\n    Include /etc/apache2/conf-available/auth-entra-protect-plex.conf" /etc/apache2/sites-available/plex-vhost.conf
             ;;
     esac
 
