@@ -10,8 +10,8 @@
   <Support>https://github.com/auskento/HomELabPortal</Support>
   <Project>https://github.com/auskento/HomELabPortal</Project>
   <Category>Network:Web</Category>
-  <TemplateURL>https://raw.githubusercontent.com/auskento/HomELabPortal/main/apache-reverse-proxy.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/auskento/HomELabPortal/main/apache-reverse-proxy-150.png</Icon>
+  <TemplateURL>https://raw.githubusercontent.com/auskento/HomELabPortal/main/homelabportal.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/auskento/HomELabPortal/main/homelabportal-150.png</Icon>
   <PostArgs/>
   <CloudSync>false</CloudSync>
   <Description>HomELabPortal with flexible deployment modes, 17 media services, customizable dashboards (4 styles), light/dark theme toggle, and authentication options (None, Basic, Entra ID, Google OAuth).</Description>
@@ -84,7 +84,7 @@
     </Variable>
     <Variable>
       <Name>DASHBOARD_ICON</Name>
-      <Value>/icons/apache-reverse-proxy.png</Value>
+      <Value>/icons/homelabportal.png</Value>
     </Variable>
     <Variable>
       <Name>DASHBOARD_LANDING</Name>
@@ -370,7 +370,7 @@
   <Config Name="Timezone" Target="TZ" Default="Australia/Melbourne" Mode="" Description="Timezone" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Dashboard Style" Target="STYLE" Default="modern" Mode="" Description="Dashboard style: classic, modern, sleek, or minimal" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Dashboard Name" Target="DASHBOARD_NAME" Default="Media Server" Mode="" Description="Custom dashboard title shown in header" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Dashboard Icon" Target="DASHBOARD_ICON" Default="/icons/apache-reverse-proxy.png" Mode="" Description="Dashboard icon path (place custom icons in html/icons directory)" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Dashboard Icon" Target="DASHBOARD_ICON" Default="/icons/homelabportal.png" Mode="" Description="Dashboard icon path (place custom icons in html/icons directory)" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Dashboard Landing" Target="DASHBOARD_LANDING" Default="" Mode="" Description="Default iframe page (examples: radarr, sonarr/calendar, plex/web). Leave blank for welcome screen" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Dashboard Order" Target="DASHBOARD_ORDER" Default="CONTENT,SEARCH,USENET,TORRENTS,MEDIA" Mode="" Description="Service group display order. Categories: CONTENT (Sonarr, Radarr, Lidarr, Whisparr), SEARCH (Seerr, Prowlarr), USENET (SABnzbd, NZBGet, NZBHydra), TORRENTS (Deluge, Transmission, qBittorrent), MEDIA (Emby, Plex, Jellyfin, Tautulli). Example: MEDIA,USENET,TORRENTS,CONTENT,SEARCH" Type="Variable" Display="always" Required="false" Mask="false"/>
   
