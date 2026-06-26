@@ -855,17 +855,105 @@ PLEXAUTHEOF
     echo "✓ Plex VirtualHost enabled"
 fi
 
-# Update Apache configuration with actual domain and certificates
-if [ "$DOMAIN" != "example.com" ]; then
-    echo "Updating Apache configuration with domain: $DOMAIN"
-    sed -i "s/example\.com/$DOMAIN/g" /etc/apache2/sites-available/reverse-proxy.conf
-fi
-
-# Disable SSL for private mode
+# Update Apache configuration based on mode
 if [ "$ACCESS_MODE" = "private" ]; then
-    echo "Disabling SSL for private mode (HTTP only)"
-    # Remove the 443 VirtualHost block (SSL)
-    sed -i '/<VirtualHost \*:443>/,/<\/VirtualHost>/d' /etc/apache2/sites-available/reverse-proxy.conf
+    echo "Configuring for private mode (HTTP only)"
+    # Recreate the 80 VirtualHost for private mode with service includes
+    cat > /etc/apache2/sites-available/reverse-proxy.conf <<'PRIVEOF'
+<VirtualHost *:80>
+    ServerName @@IP@@
+
+    # Enable Proxy
+    ProxyRequests Off
+    ProxyPreserveHost On
+    ProxyVia Off
+
+    # Proxy access control
+    <Proxy *>
+        Order deny,allow
+        Allow from all
+        Satisfy Any
+    </Proxy>
+
+    # Default timeout settings
+    ProxyTimeout 300
+    Timeout 300
+
+    # Request limit settings (needed for Plex and other large requests)
+    LimitRequestFieldSize 32768
+    LimitRequestFields 100
+    LimitRequestLine 32768
+
+    # Static content serving
+    DocumentRoot /var/www/html
+    DirectoryIndex index.html dashboard.html
+
+    # Alias for icons (serve directly, don't proxy)
+    Alias /icons /var/www/html/icons
+    <Directory /var/www/html/icons>
+        Require all granted
+    </Directory>
+
+    <Directory /var/www/html>
+        Require all granted
+    </Directory>
+
+    # Basic Authentication (if enabled)
+    @@INCLUDE_BASIC_AUTH@@
+
+    # ============================================
+    # CONDITIONAL SERVICE INCLUDES
+    # ============================================
+
+    @@INCLUDE_AUTH_ENTRA@@
+    @@INCLUDE_AUTH_GOOGLE@@
+    @@INCLUDE_SONARR@@
+    @@INCLUDE_RADARR@@
+    @@INCLUDE_WHISPARR@@
+    @@INCLUDE_LIDARR@@
+    @@INCLUDE_PROWLARR@@
+    @@INCLUDE_SEERR@@
+    @@INCLUDE_JELLYFIN@@
+    @@INCLUDE_EMBY@@
+    @@INCLUDE_PLEX@@
+    @@INCLUDE_TAUTULLI@@
+    @@INCLUDE_TRANSMISSION@@
+    @@INCLUDE_QBITTORRENT@@
+    @@INCLUDE_SABNZBD@@
+    @@INCLUDE_DELUGE@@
+    @@INCLUDE_NZBGET@@
+    @@INCLUDE_NZBHYDRA@@
+    @@INCLUDE_BAZARR@@
+    @@INCLUDE_CUSTOM_BACKEND@@
+
+    # ============================================
+    # END CONDITIONAL INCLUDES
+    # ============================================
+
+    # Error pages
+    ErrorDocument 502 /error-pages/502.html
+    ErrorDocument 503 /error-pages/503.html
+
+    # Logging
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+    LogLevel warn
+
+    # Health check endpoint
+    <Location /health>
+        ProxyPass !
+        SetHandler server-status
+    </Location>
+</VirtualHost>
+PRIVEOF
+
+    # Replace IP placeholder
+    sed -i "s|@@IP@@|$IP|g" /etc/apache2/sites-available/reverse-proxy.conf
+else
+    echo "Configuring for public mode (HTTPS)"
+    sed -i "s|@@DOMAIN@@|$DOMAIN|g" /etc/apache2/sites-available/reverse-proxy.conf
+    # Remove the 80 VirtualHost (no longer needed in public mode, redirect to 443)
+    sed -i '/<VirtualHost \*:80>/,/<\/VirtualHost>/d' /etc/apache2/sites-available/reverse-proxy.conf
 fi
 
 # Setup cron for certificate renewal
