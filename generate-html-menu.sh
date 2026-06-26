@@ -48,6 +48,27 @@ declare -A SERVICES=(
 )
 
 # Substitute service landing page variables
+# If DASHBOARD_LANDING is set, sync the corresponding service landing page
+if [ ! -z "$DASHBOARD_LANDING" ]; then
+    # Extract service name from DASHBOARD_LANDING (first path component)
+    local service_name=$(echo "$DASHBOARD_LANDING" | sed 's|^/||' | cut -d'/' -f1)
+
+    case "$service_name" in
+        sonarr)
+            SONARR_LANDING="${SONARR_LANDING:-$DASHBOARD_LANDING}"
+            ;;
+        radarr)
+            RADARR_LANDING="${RADARR_LANDING:-$DASHBOARD_LANDING}"
+            ;;
+        lidarr)
+            LIDARR_LANDING="${LIDARR_LANDING:-$DASHBOARD_LANDING}"
+            ;;
+        whisparr)
+            WHISPARR_LANDING="${WHISPARR_LANDING:-$DASHBOARD_LANDING}"
+            ;;
+    esac
+fi
+
 # Format hrefs to use "/" prefix for consistency
 SONARR_LANDING="${SONARR_LANDING:-sonarr}"
 RADARR_LANDING="${RADARR_LANDING:-radarr}"
