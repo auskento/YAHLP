@@ -947,7 +947,8 @@ if [ "$ACCESS_MODE" = "private" ]; then
 </VirtualHost>
 PRIVEOF
 
-    # Replace IP placeholder
+    # Replace IP placeholder - normalize IP variable
+    IP=$(echo "$IP" | xargs)  # Trim whitespace
     sed -i "s|@@IP@@|$IP|g" /etc/apache2/sites-available/reverse-proxy.conf
 else
     echo "Configuring for public mode (HTTPS)"
