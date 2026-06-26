@@ -198,9 +198,11 @@ fi
 # Substitute environment variables in service config files
 echo "Substituting environment variables in service configs..."
 if [ ! -z "$JELLYFIN_URL" ]; then
+    # Remove trailing /jellyfin if present
+    JELLYFIN_BASE_URL=$(echo "$JELLYFIN_URL" | sed 's|/jellyfin/?$||')
     # Convert http to ws protocol for websocket
-    JELLYFIN_URL_WS=$(echo "$JELLYFIN_URL" | sed 's|^http://|ws://|; s|^https://|wss://|')
-    sed -i "s|@@JELLYFIN_URL@@|$JELLYFIN_URL|g" /etc/apache2/sites-available/services/jellyfin.conf
+    JELLYFIN_URL_WS=$(echo "$JELLYFIN_BASE_URL" | sed 's|^http://|ws://|; s|^https://|wss://|')
+    sed -i "s|@@JELLYFIN_URL@@|$JELLYFIN_BASE_URL|g" /etc/apache2/sites-available/services/jellyfin.conf
     sed -i "s|@@JELLYFIN_URL_WS@@|$JELLYFIN_URL_WS|g" /etc/apache2/sites-available/services/jellyfin.conf
 fi
 
