@@ -325,7 +325,8 @@ class Component extends DCLogic {
 <script>
   // Theme management
   (function() {
-    const defaultTheme = '@@DASHBOARD_THEME@@' || 'dark';
+    const themeValue = '@@DASHBOARD_THEME@@';
+    const defaultTheme = (themeValue && themeValue !== '@@DASHBOARD_THEME@@') ? themeValue : 'dark';
     const savedTheme = localStorage.getItem('theme') || defaultTheme;
     document.documentElement.setAttribute('data-theme', savedTheme);
 
