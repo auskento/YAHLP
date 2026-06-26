@@ -70,8 +70,10 @@ SEERR_URL="${SEERR_URL:-}"
 JELLYFIN_URL="${JELLYFIN_URL:-}"
 EMBY_URL="${EMBY_URL:-}"
 EMBY_DOMAIN="${EMBY_DOMAIN:-}"
+EMBY_REDIRECT_URI="${EMBY_REDIRECT_URI:-}"
 PLEX_URL="${PLEX_URL:-}"
 PLEX_DOMAIN="${PLEX_DOMAIN:-}"
+PLEX_REDIRECT_URI="${PLEX_REDIRECT_URI:-}"
 TAUTULLI_URL="${TAUTULLI_URL:-}"
 TRANSMISSION_URL="${TRANSMISSION_URL:-}"
 QBITTORRENT_URL="${QBITTORRENT_URL:-}"
@@ -429,113 +431,182 @@ else
     fi
 fi
 
-# Handle Emby subdomain if enabled (only in public mode)
-if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ]; then
-    # Use provided EMBY_DOMAIN or skip
-    if [ -z "$EMBY_DOMAIN" ]; then
-        echo "WARNING: ENABLE_EMBY=true but EMBY_DOMAIN not set. Skipping Emby subdomain setup."
-    else
-        echo ""
-        echo "=== Emby Subdomain Setup ==="
-        echo "Emby domain: $EMBY_DOMAIN"
+# Handle Emby subdomain with separate OAuth if enabled (only in public mode with OAuth)
+if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_REDIRECT_URI" ] && [ "$AUTHTYPE" != "none" ]; then
+    echo ""
+    echo "=== Emby Subdomain OAuth Setup ==="
+    echo "Emby domain: $EMBY_DOMAIN"
 
-        if [ ! -f "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" ]; then
-            echo "Requesting certificate for $EMBY_DOMAIN..."
-            certbot certonly \
-                --standalone \
-                --preferred-challenges http \
-                --email "$EMAIL" \
-                --agree-tos \
-                --no-eff-email \
-                --non-interactive \
-                -d "$EMBY_DOMAIN" \
-                || {
-                    echo "Certbot failed for Emby. Generating self-signed certificate..."
-                    mkdir -p "/etc/letsencrypt/live/$EMBY_DOMAIN"
-                    openssl req -x509 -nodes -days 365 \
-                        -newkey rsa:2048 \
-                        -keyout "/etc/letsencrypt/live/$EMBY_DOMAIN/privkey.pem" \
-                        -out "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" \
-                        -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$EMBY_DOMAIN" \
-                        2>/dev/null || true
-                }
-        else
-            echo "Certificate found for $EMBY_DOMAIN"
-        fi
-        
-        # Generate Emby VirtualHost with proper variable substitution
-        EMBY_HOST=$(echo "$EMBY_URL" | sed 's|^https*://||;s|/.*||;s|:.*||')
-        EMBY_PORT=$(echo "$EMBY_URL" | grep -oP ':\K[0-9]+' | head -1)
-        [ -z "$EMBY_PORT" ] && EMBY_PORT="8096"
-        
-        echo "DEBUG Emby: URL=$EMBY_URL, HOST=$EMBY_HOST, PORT=$EMBY_PORT, DOMAIN=$EMBY_DOMAIN"
-        
-        EMBY_CONFIG=$(/usr/local/bin/generate-emby-virtualhost.sh "$EMBY_DOMAIN" "$ENABLE_AUTH_OFFICE365")
-        EMBY_CONFIG="${EMBY_CONFIG//@@EMBY_DOMAIN@@/$EMBY_DOMAIN}"
-        EMBY_CONFIG="${EMBY_CONFIG//@@EMBY_HOST@@/$EMBY_HOST}"
-        EMBY_CONFIG="${EMBY_CONFIG//@@EMBY_PORT@@/$EMBY_PORT}"
-        EMBY_CONFIG="${EMBY_CONFIG//@@OAUTH2_CLIENT_ID@@/$OAUTH2_CLIENT_ID}"
-        EMBY_CONFIG="${EMBY_CONFIG//@@OAUTH2_CLIENT_SECRET@@/$OAUTH2_CLIENT_SECRET}"
-        EMBY_CONFIG="${EMBY_CONFIG//@@OAUTH2_CRYPTO_PASSPHRASE@@/$OAUTH2_CRYPTO_PASSPHRASE}"
-        echo "$EMBY_CONFIG" > /etc/apache2/sites-available/emby-subdomain.conf
-        a2ensite emby-subdomain.conf 2>/dev/null || true
-        echo "Emby VirtualHost created with: $EMBY_HOST:$EMBY_PORT"
-    fi
+    # Extract subdomain from EMBY_DOMAIN (e.g., emby.limosani.net.au → emby)
+    EMBY_SUBDOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://([^.]+)\..*|\1|')
+
+    # Extract domain for certificate (limosani.net.au)
+    EMBY_CERT_DOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
+
+    echo "Emby subdomain: $EMBY_SUBDOMAIN, cert domain: $EMBY_CERT_DOMAIN"
+
+    # Generate Emby OAuth config based on auth type
+    case "$AUTHTYPE" in
+        google)
+            if [ ! -z "$EMBY_REDIRECT_URI" ]; then
+                # Extract cookie domain from Emby redirect URI
+                EMBY_COOKIE_DOMAIN=$(echo "$EMBY_REDIRECT_URI" | sed -E 's|^https?://[^/]+\.([^/]+).*$|.\1|')
+                if [ -z "$EMBY_COOKIE_DOMAIN" ] || [ "$EMBY_COOKIE_DOMAIN" = "$EMBY_REDIRECT_URI" ]; then
+                    EMBY_COOKIE_DOMAIN=$(echo "$EMBY_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
+                fi
+
+                cat /etc/apache2/conf-available/oauth2-google-emby.conf.template 2>/dev/null || cat /etc/apache2/conf-available/oauth2-google.conf \
+                    | sed "s|@@GOOGLE_CLIENT_ID@@|$GOOGLE_CLIENT_ID|g" \
+                    | sed "s|@@GOOGLE_CLIENT_SECRET@@|$GOOGLE_CLIENT_SECRET|g" \
+                    | sed "s|@@EMBY_REDIRECT_URI@@|$EMBY_REDIRECT_URI|g" \
+                    | sed "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|$GOOGLE_CRYPTO_PASSPHRASE|g" \
+                    | sed "s|@@EMBY_COOKIE_DOMAIN@@|$EMBY_COOKIE_DOMAIN|g" \
+                    > /etc/apache2/conf-available/oauth2-google-emby.conf
+
+                echo "✓ Emby Google OAuth config generated"
+            fi
+            ;;
+        entra)
+            if [ ! -z "$EMBY_REDIRECT_URI" ]; then
+                # Extract cookie domain from Emby redirect URI
+                EMBY_COOKIE_DOMAIN=$(echo "$EMBY_REDIRECT_URI" | sed -E 's|^https?://[^/]+\.([^/]+).*$|.\1|')
+                if [ -z "$EMBY_COOKIE_DOMAIN" ] || [ "$EMBY_COOKIE_DOMAIN" = "$EMBY_REDIRECT_URI" ]; then
+                    EMBY_COOKIE_DOMAIN=$(echo "$EMBY_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
+                fi
+
+                cat /etc/apache2/conf-available/oauth2-entra-emby.conf.template 2>/dev/null || cat /etc/apache2/conf-available/oauth2-entra.conf \
+                    | sed "s|@@ENTRA_CLIENT_ID@@|$ENTRA_CLIENT_ID|g" \
+                    | sed "s|@@ENTRA_CLIENT_SECRET@@|$ENTRA_CLIENT_SECRET|g" \
+                    | sed "s|@@EMBY_REDIRECT_URI@@|$EMBY_REDIRECT_URI|g" \
+                    | sed "s|@@ENTRA_PROVIDER_METADATA_URL@@|$ENTRA_PROVIDER_METADATA_URL|g" \
+                    | sed "s|@@ENTRA_CRYPTO_PASSPHRASE@@|$ENTRA_CRYPTO_PASSPHRASE|g" \
+                    | sed "s|@@EMBY_COOKIE_DOMAIN@@|$EMBY_COOKIE_DOMAIN|g" \
+                    > /etc/apache2/conf-available/oauth2-entra-emby.conf
+
+                echo "✓ Emby Entra OAuth config generated"
+            fi
+            ;;
+    esac
 fi
 
-# Handle Plex subdomain if enabled (only in public mode)
-if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ]; then
-    # Use provided PLEX_DOMAIN or skip
-    if [ -z "$PLEX_DOMAIN" ]; then
-        echo "WARNING: ENABLE_PLEX=true but PLEX_DOMAIN not set. Skipping Plex subdomain setup."
-    else
-        echo ""
-        echo "=== Plex Subdomain Setup ==="
-        echo "Plex domain: $PLEX_DOMAIN"
+# Handle Plex subdomain with separate OAuth if enabled (only in public mode with OAuth)
+if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && [ "$AUTHTYPE" != "none" ]; then
+    echo ""
+    echo "=== Plex Subdomain OAuth Setup ==="
+    echo "Plex domain: $PLEX_DOMAIN"
 
-        if [ ! -f "/etc/letsencrypt/live/$PLEX_DOMAIN/fullchain.pem" ]; then
-            echo "Requesting certificate for $PLEX_DOMAIN..."
-            certbot certonly \
-                --standalone \
-                --preferred-challenges http \
-                --email "$EMAIL" \
-                --agree-tos \
-                --no-eff-email \
-                --non-interactive \
-                -d "$PLEX_DOMAIN" \
-                || {
-                    echo "Certbot failed for Plex. Generating self-signed certificate..."
-                    mkdir -p "/etc/letsencrypt/live/$PLEX_DOMAIN"
-                    openssl req -x509 -nodes -days 365 \
-                        -newkey rsa:2048 \
-                        -keyout "/etc/letsencrypt/live/$PLEX_DOMAIN/privkey.pem" \
-                        -out "/etc/letsencrypt/live/$PLEX_DOMAIN/fullchain.pem" \
-                        -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$PLEX_DOMAIN" \
-                        2>/dev/null || true
-                }
-        else
-            echo "Certificate found for $PLEX_DOMAIN"
-        fi
-        
-        # Generate Plex VirtualHost with proper variable substitution
-        PLEX_HOST=$(echo "$PLEX_URL" | sed 's|^https*://||;s|/.*||;s|:.*||')
-        PLEX_PORT=$(echo "$PLEX_URL" | grep -oP ':\K[0-9]+' | head -1)
-        [ -z "$PLEX_PORT" ] && PLEX_PORT="32400"
-        
-        echo "DEBUG Plex: URL=$PLEX_URL, HOST=$PLEX_HOST, PORT=$PLEX_PORT, DOMAIN=$PLEX_DOMAIN"
-        
-        PLEX_CONFIG=$(/usr/local/bin/generate-plex-virtualhost.sh "$PLEX_DOMAIN" "$ENABLE_AUTH_OFFICE365")
-        PLEX_CONFIG="${PLEX_CONFIG//@@PLEX_DOMAIN@@/$PLEX_DOMAIN}"
-        PLEX_CONFIG="${PLEX_CONFIG//@@PLEX_HOST@@/$PLEX_HOST}"
-        PLEX_CONFIG="${PLEX_CONFIG//@@PLEX_PORT@@/$PLEX_PORT}"
-        PLEX_CONFIG="${PLEX_CONFIG//@@OAUTH2_CLIENT_ID@@/$OAUTH2_CLIENT_ID}"
-        PLEX_CONFIG="${PLEX_CONFIG//@@OAUTH2_CLIENT_SECRET@@/$OAUTH2_CLIENT_SECRET}"
-        PLEX_CONFIG="${PLEX_CONFIG//@@OAUTH2_CRYPTO_PASSPHRASE@@/$OAUTH2_CRYPTO_PASSPHRASE}"
-        echo "$PLEX_CONFIG" > /etc/apache2/sites-available/plex-subdomain.conf
-        a2ensite plex-subdomain.conf 2>/dev/null || true
-        echo "Plex VirtualHost created with: $PLEX_HOST:$PLEX_PORT"
-        echo "Plex VirtualHost created"
-    fi
+    # Extract subdomain from PLEX_DOMAIN (e.g., plex.limosani.net.au → plex)
+    PLEX_SUBDOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://([^.]+)\..*|\1|')
+
+    # Extract domain for certificate (limosani.net.au)
+    PLEX_CERT_DOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
+
+    echo "Plex subdomain: $PLEX_SUBDOMAIN, cert domain: $PLEX_CERT_DOMAIN"
+
+    # Generate Plex OAuth config based on auth type
+    case "$AUTHTYPE" in
+        google)
+            if [ ! -z "$PLEX_REDIRECT_URI" ]; then
+                # Extract cookie domain from Plex redirect URI
+                PLEX_COOKIE_DOMAIN=$(echo "$PLEX_REDIRECT_URI" | sed -E 's|^https?://[^/]+\.([^/]+).*$|.\1|')
+                if [ -z "$PLEX_COOKIE_DOMAIN" ] || [ "$PLEX_COOKIE_DOMAIN" = "$PLEX_REDIRECT_URI" ]; then
+                    PLEX_COOKIE_DOMAIN=$(echo "$PLEX_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
+                fi
+
+                cat /etc/apache2/conf-available/oauth2-google-plex.conf.template 2>/dev/null || cat /etc/apache2/conf-available/oauth2-google.conf \
+                    | sed "s|@@GOOGLE_CLIENT_ID@@|$GOOGLE_CLIENT_ID|g" \
+                    | sed "s|@@GOOGLE_CLIENT_SECRET@@|$GOOGLE_CLIENT_SECRET|g" \
+                    | sed "s|@@PLEX_REDIRECT_URI@@|$PLEX_REDIRECT_URI|g" \
+                    | sed "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|$GOOGLE_CRYPTO_PASSPHRASE|g" \
+                    | sed "s|@@PLEX_COOKIE_DOMAIN@@|$PLEX_COOKIE_DOMAIN|g" \
+                    > /etc/apache2/conf-available/oauth2-google-plex.conf
+
+                echo "✓ Plex Google OAuth config generated"
+            fi
+            ;;
+        entra)
+            if [ ! -z "$PLEX_REDIRECT_URI" ]; then
+                # Extract cookie domain from Plex redirect URI
+                PLEX_COOKIE_DOMAIN=$(echo "$PLEX_REDIRECT_URI" | sed -E 's|^https?://[^/]+\.([^/]+).*$|.\1|')
+                if [ -z "$PLEX_COOKIE_DOMAIN" ] || [ "$PLEX_COOKIE_DOMAIN" = "$PLEX_REDIRECT_URI" ]; then
+                    PLEX_COOKIE_DOMAIN=$(echo "$PLEX_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
+                fi
+
+                cat /etc/apache2/conf-available/oauth2-entra-plex.conf.template 2>/dev/null || cat /etc/apache2/conf-available/oauth2-entra.conf \
+                    | sed "s|@@ENTRA_CLIENT_ID@@|$ENTRA_CLIENT_ID|g" \
+                    | sed "s|@@ENTRA_CLIENT_SECRET@@|$ENTRA_CLIENT_SECRET|g" \
+                    | sed "s|@@PLEX_REDIRECT_URI@@|$PLEX_REDIRECT_URI|g" \
+                    | sed "s|@@ENTRA_PROVIDER_METADATA_URL@@|$ENTRA_PROVIDER_METADATA_URL|g" \
+                    | sed "s|@@ENTRA_CRYPTO_PASSPHRASE@@|$ENTRA_CRYPTO_PASSPHRASE|g" \
+                    | sed "s|@@PLEX_COOKIE_DOMAIN@@|$PLEX_COOKIE_DOMAIN|g" \
+                    > /etc/apache2/conf-available/oauth2-entra-plex.conf
+
+                echo "✓ Plex Entra OAuth config generated"
+            fi
+            ;;
+    esac
+fi
+
+# Generate Emby VirtualHost if enabled
+if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_REDIRECT_URI" ] && [ "$AUTHTYPE" != "none" ]; then
+    echo ""
+    echo "=== Generating Emby VirtualHost ==="
+
+    EMBY_SUBDOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://([^.]+)\..*|\1|')
+
+    # Generate Emby VirtualHost config
+    cat /etc/apache2/conf-available/emby-vhost.conf.template 2>/dev/null || echo "" \
+        | sed "s|@@EMBY_SUBDOMAIN@@|$EMBY_SUBDOMAIN|g" \
+        | sed "s|@@DOMAIN@@|$DOMAIN|g" \
+        | sed "s|@@SSL_PROTOCOLS@@|$SSL_PROTOCOLS|g" \
+        | sed "s|@@SSL_CIPHERS@@|$SSL_CIPHERS|g" \
+        > /etc/apache2/sites-available/emby-vhost.conf
+
+    # Include appropriate OAuth and auth protection based on AUTHTYPE
+    case "$AUTHTYPE" in
+        google)
+            # Add includes for Google OAuth
+            sed -i "s|@@INCLUDE_EMBY_OAUTH@@|Include /etc/apache2/conf-available/oauth2-google-emby.conf\nInclude /etc/apache2/conf-available/auth-google-protect-emby.conf.template|g" /etc/apache2/sites-available/emby-vhost.conf
+            ;;
+        entra)
+            # Add includes for Entra OAuth
+            sed -i "s|@@INCLUDE_EMBY_OAUTH@@|Include /etc/apache2/conf-available/oauth2-entra-emby.conf\nInclude /etc/apache2/conf-available/auth-entra-protect-emby.conf.template|g" /etc/apache2/sites-available/emby-vhost.conf
+            ;;
+    esac
+
+    a2ensite emby-vhost.conf 2>/dev/null || true
+    echo "✓ Emby VirtualHost enabled"
+fi
+
+# Generate Plex VirtualHost if enabled
+if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && [ "$AUTHTYPE" != "none" ]; then
+    echo ""
+    echo "=== Generating Plex VirtualHost ==="
+
+    PLEX_SUBDOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://([^.]+)\..*|\1|')
+
+    # Generate Plex VirtualHost config
+    cat /etc/apache2/conf-available/plex-vhost.conf.template 2>/dev/null || echo "" \
+        | sed "s|@@PLEX_SUBDOMAIN@@|$PLEX_SUBDOMAIN|g" \
+        | sed "s|@@DOMAIN@@|$DOMAIN|g" \
+        | sed "s|@@SSL_PROTOCOLS@@|$SSL_PROTOCOLS|g" \
+        | sed "s|@@SSL_CIPHERS@@|$SSL_CIPHERS|g" \
+        > /etc/apache2/sites-available/plex-vhost.conf
+
+    # Include appropriate OAuth and auth protection based on AUTHTYPE
+    case "$AUTHTYPE" in
+        google)
+            # Add includes for Google OAuth
+            sed -i "s|@@INCLUDE_PLEX_OAUTH@@|Include /etc/apache2/conf-available/oauth2-google-plex.conf\nInclude /etc/apache2/conf-available/auth-google-protect-plex.conf.template|g" /etc/apache2/sites-available/plex-vhost.conf
+            ;;
+        entra)
+            # Add includes for Entra OAuth
+            sed -i "s|@@INCLUDE_PLEX_OAUTH@@|Include /etc/apache2/conf-available/oauth2-entra-plex.conf\nInclude /etc/apache2/conf-available/auth-entra-protect-plex.conf.template|g" /etc/apache2/sites-available/plex-vhost.conf
+            ;;
+    esac
+
+    a2ensite plex-vhost.conf 2>/dev/null || true
+    echo "✓ Plex VirtualHost enabled"
 fi
 
 # Update Apache configuration with actual domain
