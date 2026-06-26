@@ -589,27 +589,108 @@ if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_RED
     fi
 
     # Generate Emby VirtualHost config
-    cat /etc/apache2/conf-available/emby-vhost.conf.template 2>/dev/null || echo "" \
-        | sed "s|@@EMBY_DOMAIN_NAME@@|$EMBY_DOMAIN_NAME|g" \
-        | sed "s|@@DOMAIN@@|$EMBY_CERT_PATH|g" \
-        | sed "s|@@SSL_PROTOCOLS@@|$SSL_PROTOCOLS|g" \
-        | sed "s|@@SSL_CIPHERS@@|$SSL_CIPHERS|g" \
-        > /etc/apache2/sites-available/emby-vhost.conf
+    cat > /etc/apache2/sites-available/emby-vhost.conf <<'EMBYEOF'
+<VirtualHost *:80>
+    ServerName @@EMBY_DOMAIN_NAME@@
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    DocumentRoot /var/www/letsencrypt
+    <Directory /var/www/letsencrypt>
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName @@EMBY_DOMAIN_NAME@@
+    SSLEngine on
+    SSLCertificateFile /etc/letsencrypt/live/@@EMBY_CERT_PATH@@/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/@@EMBY_CERT_PATH@@/privkey.pem
+    SSLProtocol @@SSL_PROTOCOLS@@
+    SSLCipherSuite @@SSL_CIPHERS@@
+    SSLHonorCipherOrder on
+
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+
+    ProxyRequests Off
+    ProxyPreserveHost On
+    ProxyVia Off
+
+    <Proxy *>
+        Order deny,allow
+        Allow from all
+        Satisfy Any
+    </Proxy>
+
+    ProxyTimeout 300
+    Timeout 300
+
+    @@INCLUDE_EMBY_OAUTH@@
+
+    ProxyPass / http://emby:8096/
+    ProxyPassReverse / http://emby:8096/
+
+    ErrorDocument 502 /error-pages/502.html
+    ErrorDocument 503 /error-pages/503.html
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+    LogLevel warn
+</VirtualHost>
+EMBYEOF
+
+    sed -i "s|@@EMBY_DOMAIN_NAME@@|$EMBY_DOMAIN_NAME|g" /etc/apache2/sites-available/emby-vhost.conf
+    sed -i "s|@@EMBY_CERT_PATH@@|$EMBY_CERT_PATH|g" /etc/apache2/sites-available/emby-vhost.conf
+    sed -i "s|@@SSL_PROTOCOLS@@|$SSL_PROTOCOLS|g" /etc/apache2/sites-available/emby-vhost.conf
+    sed -i "s|@@SSL_CIPHERS@@|$SSL_CIPHERS|g" /etc/apache2/sites-available/emby-vhost.conf
 
     # Generate auth protection config for Emby based on AUTHTYPE
     case "$AUTHTYPE" in
         google)
             # Generate auth protection config
-            cat /etc/apache2/conf-available/auth-google-protect-emby.conf.template 2>/dev/null || cat /etc/apache2/conf-available/auth-google-protect.conf \
-                > /etc/apache2/conf-available/auth-google-protect-emby.conf
+            cat > /etc/apache2/conf-available/auth-google-protect-emby.conf <<'EMBYAUTHEOF'
+<Location /oauth2>
+    SetHandler oauth2-handler
+</Location>
+<Location /oauth2callback>
+    SetHandler oauth2-handler
+</Location>
+<Location />
+    AuthType openid-connect
+    Require valid-user
+    LogLevel debug
+</Location>
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Google"
+EMBYAUTHEOF
 
             # Add includes for Google OAuth
             sed -i "s|@@INCLUDE_EMBY_OAUTH@@|Include /etc/apache2/conf-available/oauth2-google-emby.conf\nInclude /etc/apache2/conf-available/auth-google-protect-emby.conf|g" /etc/apache2/sites-available/emby-vhost.conf
             ;;
         entra)
             # Generate auth protection config
-            cat /etc/apache2/conf-available/auth-entra-protect-emby.conf.template 2>/dev/null || cat /etc/apache2/conf-available/auth-entra-protect.conf \
-                > /etc/apache2/conf-available/auth-entra-protect-emby.conf
+            cat > /etc/apache2/conf-available/auth-entra-protect-emby.conf <<'EMBYAUTHEOF'
+<Location /oauth2>
+    SetHandler oauth2-handler
+</Location>
+<Location /oauth2callback>
+    SetHandler oauth2-handler
+</Location>
+<Location />
+    AuthType openid-connect
+    Require valid-user
+    LogLevel debug
+</Location>
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Entra"
+EMBYAUTHEOF
 
             # Add includes for Entra OAuth
             sed -i "s|@@INCLUDE_EMBY_OAUTH@@|Include /etc/apache2/conf-available/oauth2-entra-emby.conf\nInclude /etc/apache2/conf-available/auth-entra-protect-emby.conf|g" /etc/apache2/sites-available/emby-vhost.conf
@@ -639,27 +720,108 @@ if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_RED
     fi
 
     # Generate Plex VirtualHost config
-    cat /etc/apache2/conf-available/plex-vhost.conf.template 2>/dev/null || echo "" \
-        | sed "s|@@PLEX_DOMAIN_NAME@@|$PLEX_DOMAIN_NAME|g" \
-        | sed "s|@@DOMAIN@@|$PLEX_CERT_PATH|g" \
-        | sed "s|@@SSL_PROTOCOLS@@|$SSL_PROTOCOLS|g" \
-        | sed "s|@@SSL_CIPHERS@@|$SSL_CIPHERS|g" \
-        > /etc/apache2/sites-available/plex-vhost.conf
+    cat > /etc/apache2/sites-available/plex-vhost.conf <<'PLEXEOF'
+<VirtualHost *:80>
+    ServerName @@PLEX_DOMAIN_NAME@@
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    DocumentRoot /var/www/letsencrypt
+    <Directory /var/www/letsencrypt>
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName @@PLEX_DOMAIN_NAME@@
+    SSLEngine on
+    SSLCertificateFile /etc/letsencrypt/live/@@PLEX_CERT_PATH@@/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/@@PLEX_CERT_PATH@@/privkey.pem
+    SSLProtocol @@SSL_PROTOCOLS@@
+    SSLCipherSuite @@SSL_CIPHERS@@
+    SSLHonorCipherOrder on
+
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+
+    ProxyRequests Off
+    ProxyPreserveHost On
+    ProxyVia Off
+
+    <Proxy *>
+        Order deny,allow
+        Allow from all
+        Satisfy Any
+    </Proxy>
+
+    ProxyTimeout 300
+    Timeout 300
+
+    @@INCLUDE_PLEX_OAUTH@@
+
+    ProxyPass / http://plex:32400/
+    ProxyPassReverse / http://plex:32400/
+
+    ErrorDocument 502 /error-pages/502.html
+    ErrorDocument 503 /error-pages/503.html
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+    LogLevel warn
+</VirtualHost>
+PLEXEOF
+
+    sed -i "s|@@PLEX_DOMAIN_NAME@@|$PLEX_DOMAIN_NAME|g" /etc/apache2/sites-available/plex-vhost.conf
+    sed -i "s|@@PLEX_CERT_PATH@@|$PLEX_CERT_PATH|g" /etc/apache2/sites-available/plex-vhost.conf
+    sed -i "s|@@SSL_PROTOCOLS@@|$SSL_PROTOCOLS|g" /etc/apache2/sites-available/plex-vhost.conf
+    sed -i "s|@@SSL_CIPHERS@@|$SSL_CIPHERS|g" /etc/apache2/sites-available/plex-vhost.conf
 
     # Generate auth protection config for Plex based on AUTHTYPE
     case "$AUTHTYPE" in
         google)
             # Generate auth protection config
-            cat /etc/apache2/conf-available/auth-google-protect-plex.conf.template 2>/dev/null || cat /etc/apache2/conf-available/auth-google-protect.conf \
-                > /etc/apache2/conf-available/auth-google-protect-plex.conf
+            cat > /etc/apache2/conf-available/auth-google-protect-plex.conf <<'PLEXAUTHEOF'
+<Location /oauth2>
+    SetHandler oauth2-handler
+</Location>
+<Location /oauth2callback>
+    SetHandler oauth2-handler
+</Location>
+<Location />
+    AuthType openid-connect
+    Require valid-user
+    LogLevel debug
+</Location>
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Google"
+PLEXAUTHEOF
 
             # Add includes for Google OAuth
             sed -i "s|@@INCLUDE_PLEX_OAUTH@@|Include /etc/apache2/conf-available/oauth2-google-plex.conf\nInclude /etc/apache2/conf-available/auth-google-protect-plex.conf|g" /etc/apache2/sites-available/plex-vhost.conf
             ;;
         entra)
             # Generate auth protection config
-            cat /etc/apache2/conf-available/auth-entra-protect-plex.conf.template 2>/dev/null || cat /etc/apache2/conf-available/auth-entra-protect.conf \
-                > /etc/apache2/conf-available/auth-entra-protect-plex.conf
+            cat > /etc/apache2/conf-available/auth-entra-protect-plex.conf <<'PLEXAUTHEOF'
+<Location /oauth2>
+    SetHandler oauth2-handler
+</Location>
+<Location /oauth2callback>
+    SetHandler oauth2-handler
+</Location>
+<Location />
+    AuthType openid-connect
+    Require valid-user
+    LogLevel debug
+</Location>
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Entra"
+PLEXAUTHEOF
 
             # Add includes for Entra OAuth
             sed -i "s|@@INCLUDE_PLEX_OAUTH@@|Include /etc/apache2/conf-available/oauth2-entra-plex.conf\nInclude /etc/apache2/conf-available/auth-entra-protect-plex.conf|g" /etc/apache2/sites-available/plex-vhost.conf
