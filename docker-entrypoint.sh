@@ -27,10 +27,11 @@ if [ -f /etc/apache2/dashboard.conf ]; then
 fi
 
 # Write environment variables to config file for scripts to source
+# Note: DOMAIN and EMAIL are cleared in private mode after ACCESS_MODE check
 cat > /etc/apache2/env.conf << ENVEOF
 ACCESS_MODE="${ACCESS_MODE:-public}"
-DOMAIN="${DOMAIN:-example.com}"
-EMAIL="${EMAIL:-admin@example.com}"
+DOMAIN="${DOMAIN}"
+EMAIL="${EMAIL}"
 STYLE="${STYLE:-classic}"
 DASHBOARD_THEME="${DASHBOARD_THEME:-dark}"
 ENABLE_SONARR="${ENABLE_SONARR:-false}"
@@ -144,7 +145,11 @@ if [ "$ACCESS_MODE" = "private" ]; then
         exit 1
     fi
 
-    echo "Domain: $IP (private mode)"
+    # Clear domain and email in private mode - not needed
+    DOMAIN=""
+    EMAIL=""
+
+    echo "IP: $IP (private mode)"
 elif [ "$ACCESS_MODE" = "public" ]; then
     echo "✓ Public mode - Full features enabled"
     SKIP_CERT_GENERATION=false
@@ -159,6 +164,12 @@ fi
 echo ""
 echo "=== Apache Setup ==="
 echo "Style: $STYLE (Auth: $AUTHTYPE)"
+
+# Update env.conf with cleared values for private mode
+if [ "$ACCESS_MODE" = "private" ]; then
+    sed -i "s|^DOMAIN=.*|DOMAIN=\"\"|" /etc/apache2/env.conf
+    sed -i "s|^EMAIL=.*|EMAIL=\"\"|" /etc/apache2/env.conf
+fi
 
 # Generate Apache configuration from template based on environment variables
 echo "Generating Apache configuration with enabled services..."
