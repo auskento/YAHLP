@@ -862,6 +862,7 @@ PLEXAUTHEOF
     echo "✓ Plex VirtualHost enabled"
 fi
 
+
 # Update Apache configuration based on mode
 if [ "$ACCESS_MODE" = "private" ]; then
     echo "Configuring for private mode (HTTP only)"
@@ -870,24 +871,25 @@ if [ "$ACCESS_MODE" = "private" ]; then
     IP=$(echo "$IP" | xargs)
     echo "DEBUG: Using IP: '$IP'"
 
-    # Modify the existing generated config for private mode
-    # 1. Remove the 443 VirtualHost (SSL section)
-    sed -i '/<VirtualHost \*:443>/,/<\/VirtualHost>/d' /etc/apache2/sites-available/reverse-proxy.conf
+    # Use a temporary file to carefully modify the config
+    # Change 443 to 80 and remove SSL directives
+    sed \
+        -e 's/<VirtualHost \*:443>/<VirtualHost *:80>/g' \
+        -e '/SSLEngine on/d' \
+        -e '/SSLCertificateFile/d' \
+        -e '/SSLCertificateKeyFile/d' \
+        -e '/SSLProtocol/d' \
+        -e '/SSLCipherSuite/d' \
+        -e '/SSLHonorCipherOrder/d' \
+        -e '/Header always set Strict-Transport-Security/d' \
+        -e '/Header always set X-Content-Type-Options/d' \
+        -e '/Header always set X-Frame-Options/d' \
+        -e '/Header always set X-XSS-Protection/d' \
+        -e "s|ServerName @@DOMAIN@@|ServerName $IP|g" \
+        -e "s|ServerName example.com|ServerName $IP|g" \
+        /etc/apache2/sites-available/reverse-proxy.conf > /tmp/reverse-proxy.tmp
 
-    # 2. In the 80 VirtualHost, replace domain with IP
-    sed -i "s|ServerName example.com|ServerName $IP|g" /etc/apache2/sites-available/reverse-proxy.conf
-    sed -i "s|ServerName @@DOMAIN@@|ServerName $IP|g" /etc/apache2/sites-available/reverse-proxy.conf
-
-    # 3. Remove ServerAlias www lines
-    sed -i '/ServerAlias www\./d' /etc/apache2/sites-available/reverse-proxy.conf
-
-    # 4. Remove HTTP->HTTPS redirect section
-    sed -i '/# Redirect HTTP to HTTPS/,/\[L,R=301\]/d' /etc/apache2/sites-available/reverse-proxy.conf
-    sed -i '/RewriteEngine On/d' /etc/apache2/sites-available/reverse-proxy.conf
-    sed -i '/RewriteCond %{HTTPS}/d' /etc/apache2/sites-available/reverse-proxy.conf
-
-    # 5. Remove ACME challenge section
-    sed -i '/# Let.*s Encrypt ACME challenge/,/<\/Directory>/d' /etc/apache2/sites-available/reverse-proxy.conf
+    mv /tmp/reverse-proxy.tmp /etc/apache2/sites-available/reverse-proxy.conf
 
     # Show the ServerName line for debugging
     echo "DEBUG: Generated ServerName line:"
