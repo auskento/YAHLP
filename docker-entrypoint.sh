@@ -434,8 +434,8 @@ else
     fi
 fi
 
-# Request certificates for Emby and Plex subdomains (only for OAuth auth types)
-if [ "$SKIP_CERT_GENERATION" = "false" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
+# Request certificates for Emby and Plex subdomains
+if [ "$SKIP_CERT_GENERATION" = "false" ]; then
     if [ ! -z "$EMBY_DOMAIN" ] && [ "${ENABLE_EMBY}" = "true" ]; then
         EMBY_CERT_DOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
         if [ ! -f "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" ]; then
@@ -567,8 +567,8 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ !
     esac
 fi
 
-# Generate Emby VirtualHost if enabled (only for OAuth auth types)
-if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
+# Generate Emby VirtualHost if enabled
+if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ]; then
     echo ""
     echo "=== Generating Emby VirtualHost ==="
 
@@ -693,14 +693,32 @@ EMBYAUTHEOF
             # Add includes for Entra OAuth
             sed -i "/@@INCLUDE_EMBY_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-entra-emby.conf\n    Include /etc/apache2/conf-available/auth-entra-protect-emby.conf" /etc/apache2/sites-available/emby-vhost.conf
             ;;
+        basic)
+            # Generate basic auth protection config
+            cat > /etc/apache2/conf-available/auth-basic-protect-emby.conf <<'EMBYAUTHEOF'
+<Location />
+    AuthType Basic
+    AuthName "Emby"
+    AuthUserFile /etc/apache2/.htpasswd
+    Require valid-user
+</Location>
+EMBYAUTHEOF
+
+            # Add basic auth include
+            sed -i "/@@INCLUDE_EMBY_OAUTH@@/c\\    Include /etc/apache2/conf-available/auth-basic-protect-emby.conf" /etc/apache2/sites-available/emby-vhost.conf
+            ;;
+        none|*)
+            # No auth protection - just remove the placeholder
+            sed -i "/@@INCLUDE_EMBY_OAUTH@@/d" /etc/apache2/sites-available/emby-vhost.conf
+            ;;
     esac
 
     a2ensite emby-vhost.conf 2>/dev/null || true
     echo "✓ Emby VirtualHost enabled"
 fi
 
-# Generate Plex VirtualHost if enabled (only for OAuth auth types)
-if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
+# Generate Plex VirtualHost if enabled
+if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ]; then
     echo ""
     echo "=== Generating Plex VirtualHost ==="
 
@@ -824,6 +842,24 @@ PLEXAUTHEOF
 
             # Add includes for Entra OAuth
             sed -i "/@@INCLUDE_PLEX_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-entra-plex.conf\n    Include /etc/apache2/conf-available/auth-entra-protect-plex.conf" /etc/apache2/sites-available/plex-vhost.conf
+            ;;
+        basic)
+            # Generate basic auth protection config
+            cat > /etc/apache2/conf-available/auth-basic-protect-plex.conf <<'PLEXAUTHEOF'
+<Location />
+    AuthType Basic
+    AuthName "Plex"
+    AuthUserFile /etc/apache2/.htpasswd
+    Require valid-user
+</Location>
+PLEXAUTHEOF
+
+            # Add basic auth include
+            sed -i "/@@INCLUDE_PLEX_OAUTH@@/c\\    Include /etc/apache2/conf-available/auth-basic-protect-plex.conf" /etc/apache2/sites-available/plex-vhost.conf
+            ;;
+        none|*)
+            # No auth protection - just remove the placeholder
+            sed -i "/@@INCLUDE_PLEX_OAUTH@@/d" /etc/apache2/sites-available/plex-vhost.conf
             ;;
     esac
 

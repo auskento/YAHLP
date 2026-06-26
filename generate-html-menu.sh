@@ -123,31 +123,23 @@ generate_menu_items() {
             # Parse service metadata
             IFS='|' read -r category service_name service_desc icon_path href accent <<< "${SERVICES[$service_key]}"
 
-            # Handle subdomain services (Emby, Plex) - only for OAuth in public mode
+            # Handle subdomain services (Emby, Plex)
             if [ "$href" = "SUBDOMAIN" ]; then
                 if [ "$service_key" = "EMBY" ]; then
-                    # Use subdomain only in public mode with OAuth
-                    if [ "$ACCESS_MODE" = "public" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
-                        if [ -z "$EMBY_DOMAIN" ]; then
-                            continue
-                        fi
+                    # Use subdomain in public mode if defined, otherwise use internal URL
+                    if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$EMBY_DOMAIN" ]; then
                         href="https://$EMBY_DOMAIN/"
                     else
-                        # Use internal URL for private mode or non-OAuth
                         if [ -z "$EMBY_URL" ]; then
                             continue
                         fi
                         href="$EMBY_URL"
                     fi
                 elif [ "$service_key" = "PLEX" ]; then
-                    # Use subdomain only in public mode with OAuth
-                    if [ "$ACCESS_MODE" = "public" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
-                        if [ -z "$PLEX_DOMAIN" ]; then
-                            continue
-                        fi
+                    # Use subdomain in public mode if defined, otherwise use internal URL
+                    if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$PLEX_DOMAIN" ]; then
                         href="https://$PLEX_DOMAIN/"
                     else
-                        # Use internal URL for private mode or non-OAuth
                         if [ -z "$PLEX_URL" ]; then
                             continue
                         fi
@@ -189,19 +181,17 @@ generate_services_list() {
         # Parse service metadata
         IFS='|' read -r category service_name service_desc icon_path href accent <<< "${SERVICES[$service_key]}"
         
-        # Handle subdomain services - only for OAuth in public mode
+        # Handle subdomain services
         if [ "$href" = "SUBDOMAIN" ]; then
             if [ "$service_key" = "EMBY" ]; then
-                if [ "$ACCESS_MODE" = "public" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
-                    [ -z "$EMBY_DOMAIN" ] && continue
+                if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$EMBY_DOMAIN" ]; then
                     href="https://$EMBY_DOMAIN/"
                 else
                     [ -z "$EMBY_URL" ] && continue
                     href="$EMBY_URL"
                 fi
             elif [ "$service_key" = "PLEX" ]; then
-                if [ "$ACCESS_MODE" = "public" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
-                    [ -z "$PLEX_DOMAIN" ] && continue
+                if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$PLEX_DOMAIN" ]; then
                     href="https://$PLEX_DOMAIN/"
                 else
                     [ -z "$PLEX_URL" ] && continue
@@ -241,22 +231,30 @@ generate_services_array() {
         IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
         local id=$(echo "$service_key" | tr '[:upper:]' '[:lower:]')
 
-        # MEDIA services: use DOMAIN in public mode with OAuth, URL otherwise
+        # MEDIA services: use DOMAIN in public mode, URL in private mode
         if [ "$category" = "MEDIA" ]; then
-            if [ "$ACCESS_MODE" = "public" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
-                # Public mode with OAuth: use OAuth-protected subdomains
+            if [ "$ACCESS_MODE" = "public" ]; then
+                # Public mode: use subdomains if configured
                 case "$service_key" in
                     EMBY)
-                        [ -z "$EMBY_DOMAIN" ] && continue
-                        href="https://$EMBY_DOMAIN/"
+                        if [ ! -z "$EMBY_DOMAIN" ]; then
+                            href="https://$EMBY_DOMAIN/"
+                        else
+                            [ -z "$EMBY_URL" ] && continue
+                            href="$EMBY_URL"
+                        fi
                         ;;
                     PLEX)
-                        [ -z "$PLEX_DOMAIN" ] && continue
-                        href="https://$PLEX_DOMAIN/"
+                        if [ ! -z "$PLEX_DOMAIN" ]; then
+                            href="https://$PLEX_DOMAIN/"
+                        else
+                            [ -z "$PLEX_URL" ] && continue
+                            href="$PLEX_URL"
+                        fi
                         ;;
                     JELLYFIN)
-                        [ -z "$JELLYFIN_DOMAIN" ] && continue
-                        href="https://$JELLYFIN_DOMAIN/"
+                        [ -z "$JELLYFIN_URL" ] && continue
+                        href="$JELLYFIN_URL"
                         ;;
                     TAUTULLI)
                         [ -z "$TAUTULLI_URL" ] && continue
@@ -264,7 +262,7 @@ generate_services_array() {
                         ;;
                 esac
             else
-                # Private mode or non-OAuth: use internal URLs
+                # Private mode: use internal URLs
                 case "$service_key" in
                     EMBY)
                         [ -z "$EMBY_URL" ] && continue
@@ -287,16 +285,14 @@ generate_services_array() {
         elif [ "$href" = "SUBDOMAIN" ]; then
             # Handle other subdomain services (shouldn't reach here for MEDIA)
             if [ "$service_key" = "EMBY" ]; then
-                if [ "$ACCESS_MODE" = "public" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
-                    [ -z "$EMBY_DOMAIN" ] && continue
+                if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$EMBY_DOMAIN" ]; then
                     href="https://$EMBY_DOMAIN/"
                 else
                     [ -z "$EMBY_URL" ] && continue
                     href="$EMBY_URL"
                 fi
             elif [ "$service_key" = "PLEX" ]; then
-                if [ "$ACCESS_MODE" = "public" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
-                    [ -z "$PLEX_DOMAIN" ] && continue
+                if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$PLEX_DOMAIN" ]; then
                     href="https://$PLEX_DOMAIN/"
                 else
                     [ -z "$PLEX_URL" ] && continue
