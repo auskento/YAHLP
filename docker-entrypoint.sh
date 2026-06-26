@@ -265,9 +265,9 @@ case "${AUTHTYPE}" in
 
         # Extract domain from ENTRA_REDIRECT_URI for wildcard cookie domain
         # Example: https://transfers.limosani.net.au/oauth2callback → .limosani.net.au
-        COOKIE_DOMAIN=$(echo "$ENTRA_REDIRECT_URI" | sed -E 's|^https?://[^/]+\.([^/]+).*$|.\1|')
+        COOKIE_DOMAIN=$(echo "$ENTRA_REDIRECT_URI" | sed -E 's|^https?://[^.]+\.([^/]+).*$|.\1|')
         if [ -z "$COOKIE_DOMAIN" ] || [ "$COOKIE_DOMAIN" = "$ENTRA_REDIRECT_URI" ]; then
-            # Fallback: extract just the domain part and add leading dot
+            # Fallback: if URL doesn't have subdomain, use full domain
             COOKIE_DOMAIN=$(echo "$ENTRA_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
         fi
 
@@ -308,9 +308,9 @@ case "${AUTHTYPE}" in
 
         # Extract domain from GOOGLE_REDIRECT_URI for wildcard cookie domain
         # Example: https://transfers.limosani.net.au/oauth2callback → .limosani.net.au
-        COOKIE_DOMAIN=$(echo "$GOOGLE_REDIRECT_URI" | sed -E 's|^https?://[^/]+\.([^/]+).*$|.\1|')
+        COOKIE_DOMAIN=$(echo "$GOOGLE_REDIRECT_URI" | sed -E 's|^https?://[^.]+\.([^/]+).*$|.\1|')
         if [ -z "$COOKIE_DOMAIN" ] || [ "$COOKIE_DOMAIN" = "$GOOGLE_REDIRECT_URI" ]; then
-            # Fallback: extract just the domain part and add leading dot
+            # Fallback: if URL doesn't have subdomain, use full domain
             COOKIE_DOMAIN=$(echo "$GOOGLE_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
         fi
 
@@ -473,7 +473,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ !
         google)
             if [ ! -z "$EMBY_REDIRECT_URI" ]; then
                 # Extract cookie domain from Emby redirect URI
-                EMBY_COOKIE_DOMAIN=$(echo "$EMBY_REDIRECT_URI" | sed -E 's|^https?://[^/]+\.([^/]+).*$|.\1|')
+                EMBY_COOKIE_DOMAIN=$(echo "$EMBY_REDIRECT_URI" | sed -E 's|^https?://[^.]+\.([^/]+).*$|.\1|')
                 if [ -z "$EMBY_COOKIE_DOMAIN" ] || [ "$EMBY_COOKIE_DOMAIN" = "$EMBY_REDIRECT_URI" ]; then
                     EMBY_COOKIE_DOMAIN=$(echo "$EMBY_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
                 fi
@@ -492,7 +492,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ !
         entra)
             if [ ! -z "$EMBY_REDIRECT_URI" ]; then
                 # Extract cookie domain from Emby redirect URI
-                EMBY_COOKIE_DOMAIN=$(echo "$EMBY_REDIRECT_URI" | sed -E 's|^https?://[^/]+\.([^/]+).*$|.\1|')
+                EMBY_COOKIE_DOMAIN=$(echo "$EMBY_REDIRECT_URI" | sed -E 's|^https?://[^.]+\.([^/]+).*$|.\1|')
                 if [ -z "$EMBY_COOKIE_DOMAIN" ] || [ "$EMBY_COOKIE_DOMAIN" = "$EMBY_REDIRECT_URI" ]; then
                     EMBY_COOKIE_DOMAIN=$(echo "$EMBY_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
                 fi
@@ -531,7 +531,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ !
         google)
             if [ ! -z "$PLEX_REDIRECT_URI" ]; then
                 # Extract cookie domain from Plex redirect URI
-                PLEX_COOKIE_DOMAIN=$(echo "$PLEX_REDIRECT_URI" | sed -E 's|^https?://[^/]+\.([^/]+).*$|.\1|')
+                PLEX_COOKIE_DOMAIN=$(echo "$PLEX_REDIRECT_URI" | sed -E 's|^https?://[^.]+\.([^/]+).*$|.\1|')
                 if [ -z "$PLEX_COOKIE_DOMAIN" ] || [ "$PLEX_COOKIE_DOMAIN" = "$PLEX_REDIRECT_URI" ]; then
                     PLEX_COOKIE_DOMAIN=$(echo "$PLEX_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
                 fi
@@ -550,7 +550,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ !
         entra)
             if [ ! -z "$PLEX_REDIRECT_URI" ]; then
                 # Extract cookie domain from Plex redirect URI
-                PLEX_COOKIE_DOMAIN=$(echo "$PLEX_REDIRECT_URI" | sed -E 's|^https?://[^/]+\.([^/]+).*$|.\1|')
+                PLEX_COOKIE_DOMAIN=$(echo "$PLEX_REDIRECT_URI" | sed -E 's|^https?://[^.]+\.([^/]+).*$|.\1|')
                 if [ -z "$PLEX_COOKIE_DOMAIN" ] || [ "$PLEX_COOKIE_DOMAIN" = "$PLEX_REDIRECT_URI" ]; then
                     PLEX_COOKIE_DOMAIN=$(echo "$PLEX_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
                 fi
