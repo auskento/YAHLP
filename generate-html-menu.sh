@@ -30,10 +30,10 @@ declare -A SERVICES=(
     [QBITTORRENT]="TORRENTS|qBittorrent|Torrent client|/icons/qbittorrent.png|/qbittorrent/|#3683b6"
 
     # CONTENT category
-    [SONARR]="CONTENT|Sonarr|TV shows|/icons/sonarr.png|/sonarr/calendar|#3aa0e0"
-    [RADARR]="CONTENT|Radarr|Movies|/icons/radarr.png|/radarr/|#febc2e"
-    [LIDARR]="CONTENT|Lidarr|Music|/icons/lidarr.png|/lidarr/|#2ecd6f"
-    [WHISPARR]="CONTENT|Whisparr|Adult content|/icons/whisparr.png|/whisparr/|#ef7e30"
+    [SONARR]="CONTENT|Sonarr|TV shows|/icons/sonarr.png|@@SONARR_LANDING@@|#3aa0e0"
+    [RADARR]="CONTENT|Radarr|Movies|/icons/radarr.png|@@RADARR_LANDING@@|#febc2e"
+    [LIDARR]="CONTENT|Lidarr|Music|/icons/lidarr.png|@@LIDARR_LANDING@@|#2ecd6f"
+    [WHISPARR]="CONTENT|Whisparr|Adult content|/icons/whisparr.png|@@WHISPARR_LANDING@@|#ef7e30"
 
     # SEARCH category
     [SEERR]="SEARCH|Seerr|Requests|/icons/seerr.png|/seerr/|#00a4dc"
@@ -46,6 +46,31 @@ declare -A SERVICES=(
     [JELLYFIN]="MEDIA|Jellyfin|Streaming|/icons/jellyfin.png|/jellyfin/|#00a4dc"
     [TAUTULLI]="MEDIA|Tautulli|Analytics|/icons/tautulli.png|/tautulli/|#4a9eff"
 )
+
+# Substitute service landing page variables
+# Format hrefs to use "/" prefix for consistency
+SONARR_LANDING="${SONARR_LANDING:-sonarr}"
+RADARR_LANDING="${RADARR_LANDING:-radarr}"
+LIDARR_LANDING="${LIDARR_LANDING:-lidarr}"
+WHISPARR_LANDING="${WHISPARR_LANDING:-whisparr}"
+
+# Ensure landing pages start with /
+[[ ! "$SONARR_LANDING" =~ ^/ ]] && SONARR_LANDING="/$SONARR_LANDING"
+[[ ! "$RADARR_LANDING" =~ ^/ ]] && RADARR_LANDING="/$RADARR_LANDING"
+[[ ! "$LIDARR_LANDING" =~ ^/ ]] && LIDARR_LANDING="/$LIDARR_LANDING"
+[[ ! "$WHISPARR_LANDING" =~ ^/ ]] && WHISPARR_LANDING="/$WHISPARR_LANDING"
+
+# Ensure landing pages end with /
+[[ ! "$SONARR_LANDING" =~ /$ ]] && SONARR_LANDING="$SONARR_LANDING/"
+[[ ! "$RADARR_LANDING" =~ /$ ]] && RADARR_LANDING="$RADARR_LANDING/"
+[[ ! "$LIDARR_LANDING" =~ /$ ]] && LIDARR_LANDING="$LIDARR_LANDING/"
+[[ ! "$WHISPARR_LANDING" =~ /$ ]] && WHISPARR_LANDING="$WHISPARR_LANDING/"
+
+# Update SERVICES array with actual landing page values
+SERVICES[SONARR]="CONTENT|Sonarr|TV shows|/icons/sonarr.png|$SONARR_LANDING|#3aa0e0"
+SERVICES[RADARR]="CONTENT|Radarr|Movies|/icons/radarr.png|$RADARR_LANDING|#febc2e"
+SERVICES[LIDARR]="CONTENT|Lidarr|Music|/icons/lidarr.png|$LIDARR_LANDING|#2ecd6f"
+SERVICES[WHISPARR]="CONTENT|Whisparr|Adult content|/icons/whisparr.png|$WHISPARR_LANDING|#ef7e30"
 
 # Service display order (same order for both menus)
 declare -a SERVICE_ORDER=(
