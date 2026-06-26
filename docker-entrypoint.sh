@@ -177,6 +177,18 @@ echo "Generating Apache configuration with enabled services..."
     /etc/apache2/sites-available/reverse-proxy.conf.template \
     /etc/apache2/sites-available/reverse-proxy.conf
 
+# In private mode, update service configs to use IP address instead of domain
+if [ "$ACCESS_MODE" = "private" ]; then
+    IP=$(echo "$IP" | xargs)
+    echo "Updating service configs for private mode (IP: $IP)..."
+    # Replace https://example.com with http://IP in all service config files
+    for service_conf in /etc/apache2/sites-available/services/*.conf; do
+        if [ -f "$service_conf" ]; then
+            sed -i "s|https://example\.com|http://$IP|g" "$service_conf"
+        fi
+    done
+fi
+
 # Download and resize app icons from provided URLs
 echo ""
 /usr/local/bin/download-icons.sh
