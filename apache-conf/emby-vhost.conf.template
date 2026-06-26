@@ -1,7 +1,7 @@
 # Emby VirtualHost for subdomain OAuth
 # Generated at runtime from docker-entrypoint.sh
 <VirtualHost *:80>
-    ServerName @@EMBY_SUBDOMAIN@@
+    ServerName @@EMBY_DOMAIN_NAME@@
 
     # Redirect HTTP to HTTPS
     RewriteEngine On
@@ -16,7 +16,7 @@
 </VirtualHost>
 
 <VirtualHost *:443>
-    ServerName @@EMBY_SUBDOMAIN@@
+    ServerName @@EMBY_DOMAIN_NAME@@
 
     # SSL Configuration
     SSLEngine on

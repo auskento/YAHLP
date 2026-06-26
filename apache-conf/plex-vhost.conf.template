@@ -1,7 +1,7 @@
 # Plex VirtualHost for subdomain OAuth
 # Generated at runtime from docker-entrypoint.sh
 <VirtualHost *:80>
-    ServerName @@PLEX_SUBDOMAIN@@
+    ServerName @@PLEX_DOMAIN_NAME@@
 
     # Redirect HTTP to HTTPS
     RewriteEngine On
@@ -16,7 +16,7 @@
 </VirtualHost>
 
 <VirtualHost *:443>
-    ServerName @@PLEX_SUBDOMAIN@@
+    ServerName @@PLEX_DOMAIN_NAME@@
 
     # SSL Configuration
     SSLEngine on
