@@ -481,12 +481,9 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ !
                     EMBY_COOKIE_DOMAIN=$(echo "$EMBY_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
                 fi
 
-                cat /etc/apache2/conf-available/oauth2-google-emby.conf.template 2>/dev/null || cat /etc/apache2/conf-available/oauth2-google.conf \
-                    | sed "s|@@GOOGLE_CLIENT_ID@@|$GOOGLE_CLIENT_ID|g" \
-                    | sed "s|@@GOOGLE_CLIENT_SECRET@@|$GOOGLE_CLIENT_SECRET|g" \
-                    | sed "s|@@EMBY_REDIRECT_URI@@|$EMBY_REDIRECT_URI|g" \
-                    | sed "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|$GOOGLE_CRYPTO_PASSPHRASE|g" \
-                    | sed "s|@@EMBY_COOKIE_DOMAIN@@|$EMBY_COOKIE_DOMAIN|g" \
+                cat /etc/apache2/conf-available/oauth2-google.conf \
+                    | sed "s#@@GOOGLE_REDIRECT_URI@@#$EMBY_REDIRECT_URI#g" \
+                    | sed "s#@@COOKIE_DOMAIN@@#$EMBY_COOKIE_DOMAIN#g" \
                     > /etc/apache2/conf-available/oauth2-google-emby.conf
 
                 echo "✓ Emby Google OAuth config generated"
@@ -500,13 +497,9 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ !
                     EMBY_COOKIE_DOMAIN=$(echo "$EMBY_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
                 fi
 
-                cat /etc/apache2/conf-available/oauth2-entra-emby.conf.template 2>/dev/null || cat /etc/apache2/conf-available/oauth2-entra.conf \
-                    | sed "s|@@ENTRA_CLIENT_ID@@|$ENTRA_CLIENT_ID|g" \
-                    | sed "s|@@ENTRA_CLIENT_SECRET@@|$ENTRA_CLIENT_SECRET|g" \
-                    | sed "s|@@EMBY_REDIRECT_URI@@|$EMBY_REDIRECT_URI|g" \
-                    | sed "s|@@ENTRA_PROVIDER_METADATA_URL@@|$ENTRA_PROVIDER_METADATA_URL|g" \
-                    | sed "s|@@ENTRA_CRYPTO_PASSPHRASE@@|$ENTRA_CRYPTO_PASSPHRASE|g" \
-                    | sed "s|@@EMBY_COOKIE_DOMAIN@@|$EMBY_COOKIE_DOMAIN|g" \
+                cat /etc/apache2/conf-available/oauth2-entra.conf \
+                    | sed "s#@@ENTRA_REDIRECT_URI@@#$EMBY_REDIRECT_URI#g" \
+                    | sed "s#@@COOKIE_DOMAIN@@#$EMBY_COOKIE_DOMAIN#g" \
                     > /etc/apache2/conf-available/oauth2-entra-emby.conf
 
                 echo "✓ Emby Entra OAuth config generated"
@@ -539,12 +532,9 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ !
                     PLEX_COOKIE_DOMAIN=$(echo "$PLEX_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
                 fi
 
-                cat /etc/apache2/conf-available/oauth2-google-plex.conf.template 2>/dev/null || cat /etc/apache2/conf-available/oauth2-google.conf \
-                    | sed "s|@@GOOGLE_CLIENT_ID@@|$GOOGLE_CLIENT_ID|g" \
-                    | sed "s|@@GOOGLE_CLIENT_SECRET@@|$GOOGLE_CLIENT_SECRET|g" \
-                    | sed "s|@@PLEX_REDIRECT_URI@@|$PLEX_REDIRECT_URI|g" \
-                    | sed "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|$GOOGLE_CRYPTO_PASSPHRASE|g" \
-                    | sed "s|@@PLEX_COOKIE_DOMAIN@@|$PLEX_COOKIE_DOMAIN|g" \
+                cat /etc/apache2/conf-available/oauth2-google.conf \
+                    | sed "s#@@GOOGLE_REDIRECT_URI@@#$PLEX_REDIRECT_URI#g" \
+                    | sed "s#@@COOKIE_DOMAIN@@#$PLEX_COOKIE_DOMAIN#g" \
                     > /etc/apache2/conf-available/oauth2-google-plex.conf
 
                 echo "✓ Plex Google OAuth config generated"
@@ -558,13 +548,9 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ !
                     PLEX_COOKIE_DOMAIN=$(echo "$PLEX_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
                 fi
 
-                cat /etc/apache2/conf-available/oauth2-entra-plex.conf.template 2>/dev/null || cat /etc/apache2/conf-available/oauth2-entra.conf \
-                    | sed "s|@@ENTRA_CLIENT_ID@@|$ENTRA_CLIENT_ID|g" \
-                    | sed "s|@@ENTRA_CLIENT_SECRET@@|$ENTRA_CLIENT_SECRET|g" \
-                    | sed "s|@@PLEX_REDIRECT_URI@@|$PLEX_REDIRECT_URI|g" \
-                    | sed "s|@@ENTRA_PROVIDER_METADATA_URL@@|$ENTRA_PROVIDER_METADATA_URL|g" \
-                    | sed "s|@@ENTRA_CRYPTO_PASSPHRASE@@|$ENTRA_CRYPTO_PASSPHRASE|g" \
-                    | sed "s|@@PLEX_COOKIE_DOMAIN@@|$PLEX_COOKIE_DOMAIN|g" \
+                cat /etc/apache2/conf-available/oauth2-entra.conf \
+                    | sed "s#@@ENTRA_REDIRECT_URI@@#$PLEX_REDIRECT_URI#g" \
+                    | sed "s#@@COOKIE_DOMAIN@@#$PLEX_COOKIE_DOMAIN#g" \
                     > /etc/apache2/conf-available/oauth2-entra-plex.conf
 
                 echo "✓ Plex Entra OAuth config generated"
