@@ -29,6 +29,7 @@ fi
 # Write environment variables to config file for scripts to source
 cat > /etc/apache2/env.conf << ENVEOF
 ACCESS_MODE="${ACCESS_MODE:-public}"
+PRIVATE_IP="${PRIVATE_IP:-}"
 DOMAIN="${DOMAIN:-example.com}"
 EMAIL="${EMAIL:-admin@example.com}"
 STYLE="${STYLE:-classic}"
@@ -419,19 +420,35 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
 else
     echo ""
     echo "=== Certificate Generation Skipped (Private Mode) ==="
-    # Ensure directory structure exists for private mode
-    mkdir -p "/etc/letsencrypt/live/$DOMAIN"
+    # For private mode, generate local self-signed certificate with IP address
+    PRIVATE_CERT_DIR="/etc/apache2/certs/local"
+    mkdir -p "$PRIVATE_CERT_DIR"
 
-    # Generate self-signed certificate for private mode
-    if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
+    # If PRIVATE_IP not set, try to detect it
+    if [ -z "$PRIVATE_IP" ]; then
+        PRIVATE_IP=$(hostname -I | awk '{print $1}')
+        echo "Auto-detected PRIVATE_IP: $PRIVATE_IP"
+    else
+        echo "Using provided PRIVATE_IP: $PRIVATE_IP"
+    fi
+
+    # Generate self-signed certificate with IP address in CN and SAN
+    if [ ! -f "$PRIVATE_CERT_DIR/fullchain.pem" ]; then
         openssl req -x509 -nodes -days 365 \
             -newkey rsa:2048 \
-            -keyout "/etc/letsencrypt/live/$DOMAIN/privkey.pem" \
-            -out "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" \
-            -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$DOMAIN" \
+            -keyout "$PRIVATE_CERT_DIR/privkey.pem" \
+            -out "$PRIVATE_CERT_DIR/fullchain.pem" \
+            -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$PRIVATE_IP" \
+            -addext "subjectAltName=IP:$PRIVATE_IP" \
             2>/dev/null || true
-        echo "Self-signed certificate generated for private mode"
+        echo "✓ Self-signed certificate generated for private mode"
+        echo "  Certificate CN: $PRIVATE_IP"
+        echo "  Certificate SAN: IP:$PRIVATE_IP"
+        echo "  Location: $PRIVATE_CERT_DIR"
     fi
+
+    # Also ensure /etc/letsencrypt/live structure exists for consistency
+    mkdir -p "/etc/letsencrypt/live/$DOMAIN"
 fi
 
 # Request certificates for Emby and Plex subdomains
@@ -867,10 +884,16 @@ PLEXAUTHEOF
     echo "✓ Plex VirtualHost enabled"
 fi
 
-# Update Apache configuration with actual domain
+# Update Apache configuration with actual domain and certificates
 if [ "$DOMAIN" != "example.com" ]; then
     echo "Updating Apache configuration with domain: $DOMAIN"
     sed -i "s/example\.com/$DOMAIN/g" /etc/apache2/sites-available/reverse-proxy.conf
+fi
+
+# Update SSL certificate paths for private mode
+if [ "$ACCESS_MODE" = "private" ]; then
+    echo "Updating SSL certificates for private mode (local certs)"
+    sed -i "s|/etc/letsencrypt/live/[^/]*/|/etc/apache2/certs/local/|g" /etc/apache2/sites-available/reverse-proxy.conf
 fi
 
 # Setup cron for certificate renewal
