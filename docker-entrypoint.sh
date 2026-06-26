@@ -575,12 +575,13 @@ if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_RED
     echo ""
     echo "=== Generating Emby VirtualHost ==="
 
-    EMBY_SUBDOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://([^.]+)\..*|\1|')
+    # Extract full domain name from EMBY_DOMAIN (e.g., https://emby.limosani.net.au → emby.limosani.net.au)
+    EMBY_DOMAIN_NAME=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://([^/]+).*$|\1|')
     EMBY_CERT_DOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
 
     # Use subdomain cert if it exists, otherwise use main domain cert
-    if [ -f "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" ]; then
-        EMBY_CERT_PATH="$EMBY_DOMAIN"
+    if [ -f "/etc/letsencrypt/live/$EMBY_DOMAIN_NAME/fullchain.pem" ]; then
+        EMBY_CERT_PATH="$EMBY_DOMAIN_NAME"
     elif [ -f "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" ]; then
         EMBY_CERT_PATH="$EMBY_CERT_DOMAIN"
     else
@@ -589,7 +590,7 @@ if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_RED
 
     # Generate Emby VirtualHost config
     cat /etc/apache2/conf-available/emby-vhost.conf.template 2>/dev/null || echo "" \
-        | sed "s|@@EMBY_SUBDOMAIN@@|$EMBY_SUBDOMAIN|g" \
+        | sed "s|@@EMBY_DOMAIN_NAME@@|$EMBY_DOMAIN_NAME|g" \
         | sed "s|@@DOMAIN@@|$EMBY_CERT_PATH|g" \
         | sed "s|@@SSL_PROTOCOLS@@|$SSL_PROTOCOLS|g" \
         | sed "s|@@SSL_CIPHERS@@|$SSL_CIPHERS|g" \
@@ -624,12 +625,13 @@ if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_RED
     echo ""
     echo "=== Generating Plex VirtualHost ==="
 
-    PLEX_SUBDOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://([^.]+)\..*|\1|')
+    # Extract full domain name from PLEX_DOMAIN (e.g., https://plex.limosani.net.au → plex.limosani.net.au)
+    PLEX_DOMAIN_NAME=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://([^/]+).*$|\1|')
     PLEX_CERT_DOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
 
     # Use subdomain cert if it exists, otherwise use main domain cert
-    if [ -f "/etc/letsencrypt/live/$PLEX_DOMAIN/fullchain.pem" ]; then
-        PLEX_CERT_PATH="$PLEX_DOMAIN"
+    if [ -f "/etc/letsencrypt/live/$PLEX_DOMAIN_NAME/fullchain.pem" ]; then
+        PLEX_CERT_PATH="$PLEX_DOMAIN_NAME"
     elif [ -f "/etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem" ]; then
         PLEX_CERT_PATH="$PLEX_CERT_DOMAIN"
     else
@@ -638,7 +640,7 @@ if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_RED
 
     # Generate Plex VirtualHost config
     cat /etc/apache2/conf-available/plex-vhost.conf.template 2>/dev/null || echo "" \
-        | sed "s|@@PLEX_SUBDOMAIN@@|$PLEX_SUBDOMAIN|g" \
+        | sed "s|@@PLEX_DOMAIN_NAME@@|$PLEX_DOMAIN_NAME|g" \
         | sed "s|@@DOMAIN@@|$PLEX_CERT_PATH|g" \
         | sed "s|@@SSL_PROTOCOLS@@|$SSL_PROTOCOLS|g" \
         | sed "s|@@SSL_CIPHERS@@|$SSL_CIPHERS|g" \
