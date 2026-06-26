@@ -261,6 +261,14 @@ case "${AUTHTYPE}" in
             echo "Generated random crypto passphrase"
         fi
 
+        # Extract domain from ENTRA_REDIRECT_URI for wildcard cookie domain
+        # Example: https://transfers.limosani.net.au/oauth2callback → .limosani.net.au
+        COOKIE_DOMAIN=$(echo "$ENTRA_REDIRECT_URI" | sed -E 's|^https?://[^/]+\.([^/]+).*$|.\1|')
+        if [ -z "$COOKIE_DOMAIN" ] || [ "$COOKIE_DOMAIN" = "$ENTRA_REDIRECT_URI" ]; then
+            # Fallback: extract just the domain part and add leading dot
+            COOKIE_DOMAIN=$(echo "$ENTRA_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
+        fi
+
         # Configure Entra OAuth2
         cat /etc/apache2/conf-available/oauth2-entra.conf \
             | sed "s|@@ENTRA_CLIENT_ID@@|$ENTRA_CLIENT_ID|g" \
@@ -268,6 +276,7 @@ case "${AUTHTYPE}" in
             | sed "s|@@ENTRA_REDIRECT_URI@@|$ENTRA_REDIRECT_URI|g" \
             | sed "s|@@ENTRA_PROVIDER_METADATA_URL@@|$ENTRA_PROVIDER_METADATA_URL|g" \
             | sed "s|@@ENTRA_CRYPTO_PASSPHRASE@@|$ENTRA_CRYPTO_PASSPHRASE|g" \
+            | sed "s|@@COOKIE_DOMAIN@@|$COOKIE_DOMAIN|g" \
             > /etc/apache2/conf-enabled/oauth2-entra.conf
 
         cp /etc/apache2/conf-available/auth-entra-protect.conf /etc/apache2/conf-enabled/
