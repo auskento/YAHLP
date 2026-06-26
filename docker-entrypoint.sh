@@ -615,6 +615,10 @@ if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_RED
     ProxyRequests Off
     ProxyPreserveHost On
     ProxyVia Off
+    SSLProxyEngine On
+    SSLProxyVerify none
+    SSLProxyCheckPeerCN off
+    SSLProxyCheckPeerExpire off
 
     <Proxy *>
         Order deny,allow
@@ -747,6 +751,10 @@ if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_RED
     ProxyRequests Off
     ProxyPreserveHost On
     ProxyVia Off
+    SSLProxyEngine On
+    SSLProxyVerify none
+    SSLProxyCheckPeerCN off
+    SSLProxyCheckPeerExpire off
 
     <Proxy *>
         Order deny,allow
