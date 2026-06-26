@@ -434,8 +434,8 @@ else
     fi
 fi
 
-# Request certificates for Emby and Plex subdomains
-if [ "$SKIP_CERT_GENERATION" = "false" ]; then
+# Request certificates for Emby and Plex subdomains (only for OAuth auth types)
+if [ "$SKIP_CERT_GENERATION" = "false" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
     if [ ! -z "$EMBY_DOMAIN" ] && [ "${ENABLE_EMBY}" = "true" ]; then
         EMBY_CERT_DOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
         if [ ! -f "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" ]; then
@@ -457,8 +457,8 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
     fi
 fi
 
-# Handle Emby subdomain with separate OAuth if enabled (only in public mode with OAuth)
-if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_REDIRECT_URI" ] && [ "$AUTHTYPE" != "none" ]; then
+# Handle Emby subdomain with separate OAuth if enabled (only for OAuth auth types)
+if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
     echo ""
     echo "=== Emby Subdomain OAuth Setup ==="
     echo "Emby domain: $EMBY_DOMAIN"
@@ -512,8 +512,8 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ !
     esac
 fi
 
-# Handle Plex subdomain with separate OAuth if enabled (only in public mode with OAuth)
-if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && [ "$AUTHTYPE" != "none" ]; then
+# Handle Plex subdomain with separate OAuth if enabled (only for OAuth auth types)
+if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
     echo ""
     echo "=== Plex Subdomain OAuth Setup ==="
     echo "Plex domain: $PLEX_DOMAIN"
@@ -567,8 +567,8 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ !
     esac
 fi
 
-# Generate Emby VirtualHost if enabled
-if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_REDIRECT_URI" ] && [ "$AUTHTYPE" != "none" ]; then
+# Generate Emby VirtualHost if enabled (only for OAuth auth types)
+if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
     echo ""
     echo "=== Generating Emby VirtualHost ==="
 
@@ -699,8 +699,8 @@ EMBYAUTHEOF
     echo "✓ Emby VirtualHost enabled"
 fi
 
-# Generate Plex VirtualHost if enabled
-if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && [ "$AUTHTYPE" != "none" ]; then
+# Generate Plex VirtualHost if enabled (only for OAuth auth types)
+if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
     echo ""
     echo "=== Generating Plex VirtualHost ==="
 
