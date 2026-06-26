@@ -224,9 +224,10 @@ generate_services_array() {
             fi
         fi
 
-        # Determine if popup (external link)
+        # Determine if popup (external link or qBittorrent)
         local popup="false"
         [[ "$href" == http* ]] && popup="true"
+        [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
 
         # Add comma between items (with newline for readability)
         if [ "$first" = true ]; then
@@ -282,7 +283,7 @@ generate_style_dashboard() {
         html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
         html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
 
         if [ -z "$DASHBOARD_LANDING" ]; then
@@ -299,7 +300,7 @@ generate_style_dashboard() {
         local html_content=$(cat "$TEMPLATE_FILE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
         html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
 
@@ -329,7 +330,7 @@ generate_style_dashboard() {
         local html_content=$(cat "$TEMPLATE_FILE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
 
         if [ -z "$DASHBOARD_LANDING" ]; then
@@ -372,7 +373,7 @@ generate_all_styles() {
         html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
         html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"|src="about:blank"|')
         else
@@ -388,7 +389,7 @@ generate_all_styles() {
         local html_content=$(cat "$MODERN_TEMPLATE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
         html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
@@ -404,7 +405,7 @@ generate_all_styles() {
         local html_content=$(cat "$SLEEK_TEMPLATE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
         else
@@ -422,7 +423,7 @@ generate_all_styles() {
         local html_content=$(cat "$MINIMAL_TEMPLATE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
         else
@@ -451,7 +452,7 @@ generate_react_dashboard() {
 
     # Set dashboard name, icon, and landing page
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
-    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
+    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/homelabportal.png}"
     local DASHBOARD_LANDING="${DASHBOARD_LANDING:-}"
 
     # Read template and replace placeholders
@@ -555,6 +556,7 @@ generate_dashboard2_services_array() {
 
             local popup="false"
             [[ "$href" == http* ]] && popup="true"
+            [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
 
             if [ "$first" = true ]; then
                 first=false
@@ -600,7 +602,7 @@ generate_dashboard_for_auth() {
 
     # Set dashboard name, icon, and landing page
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
-    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
+    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/homelabportal.png}"
     local DASHBOARD_LANDING="${DASHBOARD_LANDING:-}"
 
     # Calculate dynamic icon sizes
@@ -662,7 +664,7 @@ generate_dashboard3() {
 
     # Set dashboard name, icon, and landing page
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
-    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/apache-reverse-proxy.png}"
+    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/homelabportal.png}"
     local DASHBOARD_LANDING="${DASHBOARD_LANDING:-}"
 
     # Calculate dynamic icon sizes
