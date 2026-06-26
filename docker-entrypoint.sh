@@ -635,6 +635,7 @@ EMBYEOF
     sed -i "s#@@EMBY_CERT_PATH@@#$EMBY_CERT_PATH#g" /etc/apache2/sites-available/emby-vhost.conf
     sed -i "s#@@SSL_PROTOCOLS@@#$SSL_PROTOCOLS#g" /etc/apache2/sites-available/emby-vhost.conf
     sed -i "s#@@SSL_CIPHERS@@#$SSL_CIPHERS#g" /etc/apache2/sites-available/emby-vhost.conf
+    sed -i "s#http://emby:8096/#$EMBY_URL/#g" /etc/apache2/sites-available/emby-vhost.conf
 
     # Generate auth protection config for Emby based on AUTHTYPE
     case "$AUTHTYPE" in
@@ -766,6 +767,7 @@ PLEXEOF
     sed -i "s#@@PLEX_CERT_PATH@@#$PLEX_CERT_PATH#g" /etc/apache2/sites-available/plex-vhost.conf
     sed -i "s#@@SSL_PROTOCOLS@@#$SSL_PROTOCOLS#g" /etc/apache2/sites-available/plex-vhost.conf
     sed -i "s#@@SSL_CIPHERS@@#$SSL_CIPHERS#g" /etc/apache2/sites-available/plex-vhost.conf
+    sed -i "s#http://plex:32400/#$PLEX_URL/#g" /etc/apache2/sites-available/plex-vhost.conf
 
     # Generate auth protection config for Plex based on AUTHTYPE
     case "$AUTHTYPE" in
