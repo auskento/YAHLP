@@ -108,10 +108,12 @@ source /etc/apache2/env.conf
 
 echo ""
 echo "=== Setting Global ServerName ==="
-# Set global ServerName to suppress the warning
+# Set global ServerName to suppress the warning (only if DOMAIN is set)
 if ! grep -q "^ServerName" /etc/apache2/apache2.conf; then
-    echo "ServerName $DOMAIN" >> /etc/apache2/apache2.conf
-    echo "Added ServerName: $DOMAIN"
+    if [ ! -z "$DOMAIN" ]; then
+        echo "ServerName $DOMAIN" >> /etc/apache2/apache2.conf
+        echo "Added ServerName: $DOMAIN"
+    fi
 fi
 
 # Update env.conf with modified STYLE (in case basic auth forced it to classic)
