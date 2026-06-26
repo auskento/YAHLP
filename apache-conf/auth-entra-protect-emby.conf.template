@@ -1,0 +1,24 @@
+# Entra ID Authentication Protection for Emby Subdomain
+# Included in emby-vhost.conf when Entra OAuth is enabled
+
+# Main authentication endpoint
+<Location /oauth2>
+    SetHandler oauth2-handler
+</Location>
+
+<Location /oauth2callback>
+    SetHandler oauth2-handler
+</Location>
+
+# Root protection - redirect to OAuth2
+<Location />
+    AuthType openid-connect
+    Require valid-user
+    LogLevel debug
+</Location>
+
+# Pass user info to backend
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Entra"
