@@ -256,7 +256,9 @@ class Component extends DCLogic {
       return;
     }
     this.setState({ activeId: app.id, showWelcome: false });
-    if (this._frame) this._frame.src = app.href;
+    if (this._frame) {
+      this._frame.src = app.href;
+    }
   }
 
   renderVals() {
