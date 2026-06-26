@@ -213,28 +213,51 @@ generate_services_array() {
         IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
         local id=$(echo "$service_key" | tr '[:upper:]' '[:lower:]')
 
-        # MEDIA services always use internal URLs and open as popups
+        # MEDIA services: use DOMAIN in public mode, URL in private mode
         if [ "$category" = "MEDIA" ]; then
-            case "$service_key" in
-                EMBY)
-                    [ -z "$EMBY_URL" ] && continue
-                    href="$EMBY_URL"
-                    ;;
-                PLEX)
-                    [ -z "$PLEX_URL" ] && continue
-                    href="$PLEX_URL"
-                    ;;
-                JELLYFIN)
-                    [ -z "$JELLYFIN_URL" ] && continue
-                    href="$JELLYFIN_URL"
-                    ;;
-                TAUTULLI)
-                    [ -z "$TAUTULLI_URL" ] && continue
-                    href="$TAUTULLI_URL"
-                    ;;
-            esac
+            if [ "$ACCESS_MODE" = "public" ]; then
+                # Public mode: use OAuth-protected subdomains
+                case "$service_key" in
+                    EMBY)
+                        [ -z "$EMBY_DOMAIN" ] && continue
+                        href="https://$EMBY_DOMAIN/"
+                        ;;
+                    PLEX)
+                        [ -z "$PLEX_DOMAIN" ] && continue
+                        href="https://$PLEX_DOMAIN/"
+                        ;;
+                    JELLYFIN)
+                        [ -z "$JELLYFIN_DOMAIN" ] && continue
+                        href="https://$JELLYFIN_DOMAIN/"
+                        ;;
+                    TAUTULLI)
+                        [ -z "$TAUTULLI_URL" ] && continue
+                        href="$TAUTULLI_URL"
+                        ;;
+                esac
+            else
+                # Private mode: use internal URLs
+                case "$service_key" in
+                    EMBY)
+                        [ -z "$EMBY_URL" ] && continue
+                        href="$EMBY_URL"
+                        ;;
+                    PLEX)
+                        [ -z "$PLEX_URL" ] && continue
+                        href="$PLEX_URL"
+                        ;;
+                    JELLYFIN)
+                        [ -z "$JELLYFIN_URL" ] && continue
+                        href="$JELLYFIN_URL"
+                        ;;
+                    TAUTULLI)
+                        [ -z "$TAUTULLI_URL" ] && continue
+                        href="$TAUTULLI_URL"
+                        ;;
+                esac
+            fi
         elif [ "$href" = "SUBDOMAIN" ]; then
-            # Handle subdomain services (Emby/Plex in public mode - but MEDIA always uses URLs above)
+            # Handle other subdomain services (shouldn't reach here for MEDIA)
             if [ "$service_key" = "EMBY" ]; then
                 [ -z "$EMBY_DOMAIN" ] && continue
                 href="https://$EMBY_DOMAIN/"
@@ -565,28 +588,51 @@ generate_dashboard2_services_array() {
             IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
             local id=$(echo "$service_key" | tr '[:upper:]' '[:lower:]')
 
-            # MEDIA services always use internal URLs and open as popups
+            # MEDIA services: use DOMAIN in public mode, URL in private mode
             if [ "$category" = "MEDIA" ]; then
-                case "$service_key" in
-                    EMBY)
-                        [ -z "$EMBY_URL" ] && continue
-                        href="$EMBY_URL"
-                        ;;
-                    PLEX)
-                        [ -z "$PLEX_URL" ] && continue
-                        href="$PLEX_URL"
-                        ;;
-                    JELLYFIN)
-                        [ -z "$JELLYFIN_URL" ] && continue
-                        href="$JELLYFIN_URL"
-                        ;;
-                    TAUTULLI)
-                        [ -z "$TAUTULLI_URL" ] && continue
-                        href="$TAUTULLI_URL"
-                        ;;
-                esac
+                if [ "$ACCESS_MODE" = "public" ]; then
+                    # Public mode: use OAuth-protected subdomains
+                    case "$service_key" in
+                        EMBY)
+                            [ -z "$EMBY_DOMAIN" ] && continue
+                            href="https://$EMBY_DOMAIN/"
+                            ;;
+                        PLEX)
+                            [ -z "$PLEX_DOMAIN" ] && continue
+                            href="https://$PLEX_DOMAIN/"
+                            ;;
+                        JELLYFIN)
+                            [ -z "$JELLYFIN_DOMAIN" ] && continue
+                            href="https://$JELLYFIN_DOMAIN/"
+                            ;;
+                        TAUTULLI)
+                            [ -z "$TAUTULLI_URL" ] && continue
+                            href="$TAUTULLI_URL"
+                            ;;
+                    esac
+                else
+                    # Private mode: use internal URLs
+                    case "$service_key" in
+                        EMBY)
+                            [ -z "$EMBY_URL" ] && continue
+                            href="$EMBY_URL"
+                            ;;
+                        PLEX)
+                            [ -z "$PLEX_URL" ] && continue
+                            href="$PLEX_URL"
+                            ;;
+                        JELLYFIN)
+                            [ -z "$JELLYFIN_URL" ] && continue
+                            href="$JELLYFIN_URL"
+                            ;;
+                        TAUTULLI)
+                            [ -z "$TAUTULLI_URL" ] && continue
+                            href="$TAUTULLI_URL"
+                            ;;
+                    esac
+                fi
             elif [ "$href" = "SUBDOMAIN" ]; then
-                # Handle subdomain services (Emby/Plex - but MEDIA always uses URLs above)
+                # Handle other subdomain services
                 if [ "$service_key" = "EMBY" ]; then
                     [ -z "$EMBY_DOMAIN" ] && continue
                     href="https://$EMBY_DOMAIN/"
