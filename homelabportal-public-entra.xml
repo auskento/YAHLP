@@ -99,11 +99,27 @@
     </Variable>
     <Variable>
       <Name>AUTHTYPE</Name>
-      <Value>basic</Value>
+      <Value>entra</Value>
     </Variable>
     <Variable>
-      <Name>BASIC_AUTH_CREDENTIALS</Name>
-      <Value>user:password</Value>
+      <Name>ENTRA_CLIENT_ID</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>ENTRA_CLIENT_SECRET</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>ENTRA_REDIRECT_URI</Name>
+      <Value>https://yourdomain.com/auth/oauth2/callback</Value>
+    </Variable>
+    <Variable>
+      <Name>ENTRA_PROVIDER_METADATA_URL</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>ENTRA_CRYPTO_PASSPHRASE</Name>
+      <Value></Value>
     </Variable>
     <Variable>
       <Name>ENABLE_SABNZBD</Name>
