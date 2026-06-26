@@ -572,9 +572,9 @@ if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_RED
     echo ""
     echo "=== Generating Emby VirtualHost ==="
 
-    # Extract full domain name from EMBY_DOMAIN (e.g., https://emby.limosani.net.au → emby.limosani.net.au)
-    EMBY_DOMAIN_NAME=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://([^/]+).*$|\1|')
-    EMBY_CERT_DOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
+    # Domain name from EMBY_DOMAIN (should be emby.limosani.net.au format)
+    EMBY_DOMAIN_NAME="$EMBY_DOMAIN"
+    EMBY_CERT_DOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://||' | sed -E 's|[^.]+\.(.+)$|\1|')
 
     # Use subdomain cert if it exists, otherwise use main domain cert
     if [ -f "/etc/letsencrypt/live/$EMBY_DOMAIN_NAME/fullchain.pem" ]; then
@@ -704,9 +704,9 @@ if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_RED
     echo ""
     echo "=== Generating Plex VirtualHost ==="
 
-    # Extract full domain name from PLEX_DOMAIN (e.g., https://plex.limosani.net.au → plex.limosani.net.au)
-    PLEX_DOMAIN_NAME=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://([^/]+).*$|\1|')
-    PLEX_CERT_DOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
+    # Domain name from PLEX_DOMAIN (should be plex.limosani.net.au format)
+    PLEX_DOMAIN_NAME="$PLEX_DOMAIN"
+    PLEX_CERT_DOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://||' | sed -E 's|[^.]+\.(.+)$|\1|')
 
     # Use subdomain cert if it exists, otherwise use main domain cert
     if [ -f "/etc/letsencrypt/live/$PLEX_DOMAIN_NAME/fullchain.pem" ]; then
