@@ -141,7 +141,7 @@ generate_menu_items() {
             # Check if this service should open in a popup (qBittorrent, external links, etc)
             local popup_attr=""
             if [[ "$service_key" == "QBITTORRENT" ]] || [[ "$href" == http* ]]; then
-                popup_attr=" onclick=\"window.open(this.href, '$service_name', 'resizable=yes,status=yes,location=yes,toolbar=yes,menubar=yes,scrollbars=yes'); return false;\""
+                popup_attr=" onclick=\"window.open(this.href, '_blank', 'width=1200,height=800,resizable=yes,status=yes,location=yes,toolbar=yes,menubar=yes,scrollbars=yes'); return false;\""
             else
                 popup_attr=" target='Main'"
             fi
