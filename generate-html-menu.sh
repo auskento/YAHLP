@@ -213,8 +213,8 @@ generate_services_array() {
         IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
         local id=$(echo "$service_key" | tr '[:upper:]' '[:lower:]')
 
-        # Handle private mode: MEDIA services as popups to internal URLs
-        if [ "$ACCESS_MODE" = "private" ] && [ "$category" = "MEDIA" ]; then
+        # MEDIA services always use internal URLs and open as popups
+        if [ "$category" = "MEDIA" ]; then
             case "$service_key" in
                 EMBY)
                     [ -z "$EMBY_URL" ] && continue
@@ -233,24 +233,22 @@ generate_services_array() {
                     href="$TAUTULLI_URL"
                     ;;
             esac
-        else
-            # Handle subdomain services (public mode)
-            if [ "$href" = "SUBDOMAIN" ]; then
-                if [ "$service_key" = "EMBY" ]; then
-                    [ -z "$EMBY_DOMAIN" ] && continue
-                    href="https://$EMBY_DOMAIN/"
-                elif [ "$service_key" = "PLEX" ]; then
-                    [ -z "$PLEX_DOMAIN" ] && continue
-                    href="https://$PLEX_DOMAIN/"
-                fi
+        elif [ "$href" = "SUBDOMAIN" ]; then
+            # Handle subdomain services (Emby/Plex in public mode - but MEDIA always uses URLs above)
+            if [ "$service_key" = "EMBY" ]; then
+                [ -z "$EMBY_DOMAIN" ] && continue
+                href="https://$EMBY_DOMAIN/"
+            elif [ "$service_key" = "PLEX" ]; then
+                [ -z "$PLEX_DOMAIN" ] && continue
+                href="https://$PLEX_DOMAIN/"
             fi
         fi
 
-        # Determine if popup (external link, qBittorrent, or MEDIA in private mode)
+        # Determine if popup (external link, qBittorrent, or MEDIA services)
         local popup="false"
         [[ "$href" == http* ]] && popup="true"
         [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
-        [ "$ACCESS_MODE" = "private" ] && [ "$category" = "MEDIA" ] && popup="true"
+        [ "$category" = "MEDIA" ] && popup="true"
 
         # Add comma between items (with newline for readability)
         if [ "$first" = true ]; then
@@ -567,8 +565,8 @@ generate_dashboard2_services_array() {
             IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
             local id=$(echo "$service_key" | tr '[:upper:]' '[:lower:]')
 
-            # Handle private mode: MEDIA services as popups to internal URLs
-            if [ "$ACCESS_MODE" = "private" ] && [ "$category" = "MEDIA" ]; then
+            # MEDIA services always use internal URLs and open as popups
+            if [ "$category" = "MEDIA" ]; then
                 case "$service_key" in
                     EMBY)
                         [ -z "$EMBY_URL" ] && continue
@@ -587,24 +585,22 @@ generate_dashboard2_services_array() {
                         href="$TAUTULLI_URL"
                         ;;
                 esac
-            else
-                # Handle subdomain services (public mode)
-                if [ "$href" = "SUBDOMAIN" ]; then
-                    if [ "$service_key" = "EMBY" ]; then
-                        [ -z "$EMBY_DOMAIN" ] && continue
-                        href="https://$EMBY_DOMAIN/"
-                    elif [ "$service_key" = "PLEX" ]; then
-                        [ -z "$PLEX_DOMAIN" ] && continue
-                        href="https://$PLEX_DOMAIN/"
-                    fi
+            elif [ "$href" = "SUBDOMAIN" ]; then
+                # Handle subdomain services (Emby/Plex - but MEDIA always uses URLs above)
+                if [ "$service_key" = "EMBY" ]; then
+                    [ -z "$EMBY_DOMAIN" ] && continue
+                    href="https://$EMBY_DOMAIN/"
+                elif [ "$service_key" = "PLEX" ]; then
+                    [ -z "$PLEX_DOMAIN" ] && continue
+                    href="https://$PLEX_DOMAIN/"
                 fi
             fi
 
-            # Determine if popup (external link, qBittorrent, or MEDIA in private mode)
+            # Determine if popup (external link, qBittorrent, or MEDIA services)
             local popup="false"
             [[ "$href" == http* ]] && popup="true"
             [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
-            [ "$ACCESS_MODE" = "private" ] && [ "$category" = "MEDIA" ] && popup="true"
+            [ "$category" = "MEDIA" ] && popup="true"
 
             if [ "$first" = true ]; then
                 first=false
