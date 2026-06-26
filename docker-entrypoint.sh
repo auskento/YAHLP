@@ -872,8 +872,9 @@ if [ "$ACCESS_MODE" = "private" ]; then
     echo "DEBUG: Using IP: '$IP'"
 
     # Use a temporary file to carefully modify the config
-    # Change 443 to 80, remove SSL directives, and remove HTTP->HTTPS redirect
+    # Remove the 80 VirtualHost (ACME challenge only), convert 443 to 80, and remove SSL directives
     sed \
+        -e '/<VirtualHost \*:80>/,/<\/VirtualHost>/d' \
         -e 's/<VirtualHost \*:443>/<VirtualHost *:80>/g' \
         -e '/SSLEngine on/d' \
         -e '/SSLCertificateFile/d' \
