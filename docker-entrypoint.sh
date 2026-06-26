@@ -29,7 +29,6 @@ fi
 # Write environment variables to config file for scripts to source
 cat > /etc/apache2/env.conf << ENVEOF
 ACCESS_MODE="${ACCESS_MODE:-public}"
-PRIVATE_IP="${PRIVATE_IP:-}"
 DOMAIN="${DOMAIN:-example.com}"
 EMAIL="${EMAIL:-admin@example.com}"
 STYLE="${STYLE:-classic}"
@@ -424,13 +423,9 @@ else
     PRIVATE_CERT_DIR="/etc/apache2/certs/local"
     mkdir -p "$PRIVATE_CERT_DIR"
 
-    # If PRIVATE_IP not set, try to detect it
-    if [ -z "$PRIVATE_IP" ]; then
-        PRIVATE_IP=$(hostname -I | awk '{print $1}')
-        echo "Auto-detected PRIVATE_IP: $PRIVATE_IP"
-    else
-        echo "Using provided PRIVATE_IP: $PRIVATE_IP"
-    fi
+    # Use provided IP or auto-detect
+    CERT_IP="${IP:-$(hostname -I | awk '{print $1}')}"
+    echo "Using IP for certificate: $CERT_IP"
 
     # Generate self-signed certificate with IP address in CN and SAN
     if [ ! -f "$PRIVATE_CERT_DIR/fullchain.pem" ]; then
@@ -438,12 +433,12 @@ else
             -newkey rsa:2048 \
             -keyout "$PRIVATE_CERT_DIR/privkey.pem" \
             -out "$PRIVATE_CERT_DIR/fullchain.pem" \
-            -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$PRIVATE_IP" \
-            -addext "subjectAltName=IP:$PRIVATE_IP" \
+            -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$CERT_IP" \
+            -addext "subjectAltName=IP:$CERT_IP" \
             2>/dev/null || true
         echo "✓ Self-signed certificate generated for private mode"
-        echo "  Certificate CN: $PRIVATE_IP"
-        echo "  Certificate SAN: IP:$PRIVATE_IP"
+        echo "  Certificate CN: $CERT_IP"
+        echo "  Certificate SAN: IP:$CERT_IP"
         echo "  Location: $PRIVATE_CERT_DIR"
     fi
 
