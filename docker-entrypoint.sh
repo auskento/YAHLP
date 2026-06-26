@@ -418,32 +418,8 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
     fi
 else
     echo ""
-    echo "=== Certificate Generation Skipped (Private Mode) ==="
-    # For private mode, generate local self-signed certificate with IP address
-    PRIVATE_CERT_DIR="/etc/apache2/certs/local"
-    mkdir -p "$PRIVATE_CERT_DIR"
-
-    # Use provided IP or auto-detect
-    CERT_IP="${IP:-$(hostname -I | awk '{print $1}')}"
-    echo "Using IP for certificate: $CERT_IP"
-
-    # Generate self-signed certificate with IP address in CN and SAN
-    if [ ! -f "$PRIVATE_CERT_DIR/fullchain.pem" ]; then
-        openssl req -x509 -nodes -days 365 \
-            -newkey rsa:2048 \
-            -keyout "$PRIVATE_CERT_DIR/privkey.pem" \
-            -out "$PRIVATE_CERT_DIR/fullchain.pem" \
-            -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$CERT_IP" \
-            -addext "subjectAltName=IP:$CERT_IP" \
-            2>/dev/null || true
-        echo "✓ Self-signed certificate generated for private mode"
-        echo "  Certificate CN: $CERT_IP"
-        echo "  Certificate SAN: IP:$CERT_IP"
-        echo "  Location: $PRIVATE_CERT_DIR"
-    fi
-
-    # Also ensure /etc/letsencrypt/live structure exists for consistency
-    mkdir -p "/etc/letsencrypt/live/$DOMAIN"
+    echo "=== Certificate Generation Skipped (Private Mode - HTTP Only) ==="
+    echo "✓ Private mode uses HTTP only (no SSL)"
 fi
 
 # Request certificates for Emby and Plex subdomains
@@ -885,10 +861,11 @@ if [ "$DOMAIN" != "example.com" ]; then
     sed -i "s/example\.com/$DOMAIN/g" /etc/apache2/sites-available/reverse-proxy.conf
 fi
 
-# Update SSL certificate paths for private mode
+# Disable SSL for private mode
 if [ "$ACCESS_MODE" = "private" ]; then
-    echo "Updating SSL certificates for private mode (local certs)"
-    sed -i "s|/etc/letsencrypt/live/[^/]*/|/etc/apache2/certs/local/|g" /etc/apache2/sites-available/reverse-proxy.conf
+    echo "Disabling SSL for private mode (HTTP only)"
+    # Remove the 443 VirtualHost block (SSL)
+    sed -i '/<VirtualHost \*:443>/,/<\/VirtualHost>/d' /etc/apache2/sites-available/reverse-proxy.conf
 fi
 
 # Setup cron for certificate renewal
