@@ -74,6 +74,10 @@
       <Value>CONTENT,SEARCH,USENET,TORRENTS,MEDIA</Value>
     </Variable>
     <Variable>
+      <Name>SITES_ENABLED</Name>
+      <Value>TPB,FIL,HDB,IPT,1337,YTS,LAT,NYA,PTP,DOG,DRS,NLF,NFW,NGK,PLA,TAB</Value>
+    </Variable>
+    <Variable>
       <Name>DASHBOARD_THEME</Name>
       <Value>dark</Value>
     </Variable>
