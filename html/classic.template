@@ -422,20 +422,41 @@
         serviceLinks.forEach(service => {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000);
-            
-            fetch(service.href, { method: 'GET', signal: controller.signal })
+
+            // Try HEAD first, then GET if HEAD fails
+            fetch(service.href, { method: 'HEAD', signal: controller.signal })
                 .then(response => {
                     clearTimeout(timeoutId);
                     health[service.href] = (response.status >= 200 && response.status < 400) ? 'online' : 'offline';
                 })
                 .catch(() => {
-                    clearTimeout(timeoutId);
-                    health[service.href] = 'offline';
+                    // HEAD failed, try GET
+                    const getController = new AbortController();
+                    const getTimeoutId = setTimeout(() => getController.abort(), 10000);
+
+                    fetch(service.href, { method: 'GET', signal: getController.signal })
+                        .then(response => {
+                            clearTimeout(getTimeoutId);
+                            health[service.href] = (response.status >= 200 && response.status < 400) ? 'online' : 'offline';
+                        })
+                        .catch(() => {
+                            clearTimeout(getTimeoutId);
+                            health[service.href] = 'offline';
+                        })
+                        .finally(() => {
+                            checkCount++;
+                            if (checkCount === serviceLinks.length) {
+                                updateHealthDisplay(health, serviceLinks);
+                            }
+                        });
                 })
                 .finally(() => {
-                    checkCount++;
-                    if (checkCount === serviceLinks.length) {
-                        updateHealthDisplay(health, serviceLinks);
+                    // Only increment if this was the first fetch that succeeded
+                    if (health[service.href]) {
+                        checkCount++;
+                        if (checkCount === serviceLinks.length) {
+                            updateHealthDisplay(health, serviceLinks);
+                        }
                     }
                 });
         });
