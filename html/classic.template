@@ -40,6 +40,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            overflow: hidden;
         }
 
         [data-theme="light"] img {
@@ -56,6 +57,7 @@
             overflow: auto;
             min-height: 120px;
             gap: 30px;
+            flex-shrink: 0;
         }
 
         .header-left {
@@ -162,15 +164,11 @@
         }
         
         .content {
-            position: fixed;
-            top: auto;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            flex: 1;
             background-color: #000;
             border: none;
             width: 100%;
-            height: calc(100% - 150px);
+            overflow: hidden;
         }
         
         .welcome-screen {
@@ -249,8 +247,7 @@
             box-sizing: border-box;
             overflow-x: auto;
             overflow-y: hidden;
-            position: relative;
-            z-index: 10;
+            flex-shrink: 0;
         }
 
         .site-link {
@@ -321,9 +318,8 @@
             }
             
             .content {
-                position: relative;
-                height: auto;
-                min-height: calc(100vh - 120px);
+                flex: 1;
+                overflow: hidden;
             }
             
             .welcome-screen h1 {
