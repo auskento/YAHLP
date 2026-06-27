@@ -244,6 +244,10 @@
             flex-wrap: wrap;
             gap: 12px;
             align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: auto;
+            overflow-y: hidden;
         }
 
         .site-link {
@@ -352,13 +356,14 @@
             </tr>
         </table>
     </div>
-    <div class="sites-bar">
-        @@SITES_ITEMS@@
-    </div>
     <div id="health-status" style="padding:15px 20px;border-top:1px solid #ddd;text-align:center;font-size:12px;color:#666;background:#f9f9f9">
         <span id="health-dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#4caf50;margin-right:6px;box-shadow:0 0 8px #4caf50"></span>
         <span id="health-text">Checking services...</span>
     </div>
+</div>
+
+<div class="sites-bar">
+    @@SITES_ITEMS@@
 </div>
 
 <iframe name="Main" class="content" src="/@@DASHBOARD_LANDING@@" frameborder="0" scrolling="yes">
