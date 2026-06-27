@@ -90,44 +90,6 @@
             color: var(--text-accent);
         }
 
-        .health-indicator {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 11px;
-            color: var(--text-secondary);
-            position: relative;
-            cursor: pointer;
-        }
-
-        .health-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #4caf50;
-            box-shadow: 0 0 4px #4caf50;
-        }
-
-        .health-tooltip {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 8px 12px;
-            margin-top: 8px;
-            font-size: 11px;
-            white-space: nowrap;
-            z-index: 1000;
-            min-width: 150px;
-        }
-
-        .health-tooltip.show {
-            display: block;
-        }
-
         .services-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -256,13 +218,6 @@
     <div class="header-left">
         <img src="@@DASHBOARD_ICON@@" alt="Dashboard">
         <span>@@DASHBOARD_NAME@@</span>
-        <div class="health-indicator" id="health-status">
-            <div class="health-dot" id="health-dot"></div>
-            <span id="health-text">●</span>
-            <div class="health-tooltip" id="health-tooltip">
-                <div id="health-details"></div>
-            </div>
-        </div>
     </div>
     <div class="header-right">
         <button id="theme-toggle" title="Toggle theme">☀️</button>
@@ -325,134 +280,6 @@
             window.open(this.href, '_blank');
         });
     });
-
-    // Service health check for mobile
-    function checkServices() {
-        const serviceLinks = Array.from(document.querySelectorAll('.service-item')).map(el => ({
-            href: el.getAttribute('href'),
-            text: el.textContent.trim()
-        })).filter(s => s.href && s.href.startsWith('/'));
-
-        if (serviceLinks.length === 0) return;
-
-        const health = {};
-        let checkCount = 0;
-
-        serviceLinks.forEach(service => {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-            // Build fetch options with auth if needed (e.g., nzbget)
-            const fetchOptions = { method: 'HEAD', signal: controller.signal };
-            if (service.href.includes('/nzbget')) {
-                const nzbgetUser = '@@NZBGET_USER@@';
-                const nzbgetPass = '@@NZBGET_PASS@@';
-                if (nzbgetUser && nzbgetUser !== '@@NZBGET_USER@@' && nzbgetPass && nzbgetPass !== '@@NZBGET_PASS@@') {
-                    const auth = btoa(nzbgetUser + ':' + nzbgetPass);
-                    fetchOptions.headers = { 'Authorization': 'Basic ' + auth };
-                }
-            }
-
-            // Try HEAD first, then GET if HEAD fails
-            fetch(service.href, fetchOptions)
-                .then(response => {
-                    clearTimeout(timeoutId);
-                    // Mark online if 2xx, 3xx, or auth errors (401, 403)
-                    // Mark offline for 5xx server errors
-                    if (response.status < 400 || response.status === 401 || response.status === 403) {
-                        health[service.href] = 'online';
-                    } else {
-                        health[service.href] = 'offline';
-                    }
-                    checkCount++;
-                    if (checkCount === serviceLinks.length) {
-                        updateHealthDisplay(health, serviceLinks);
-                    }
-                })
-                .catch(() => {
-                    // HEAD failed, try GET
-                    const getController = new AbortController();
-                    const getTimeoutId = setTimeout(() => getController.abort(), 30000);
-
-                    const getOptions = { method: 'GET', signal: getController.signal };
-                    if (service.href.includes('/nzbget')) {
-                        const nzbgetUser = '@@NZBGET_USER@@';
-                        const nzbgetPass = '@@NZBGET_PASS@@';
-                        if (nzbgetUser && nzbgetUser !== '@@NZBGET_USER@@' && nzbgetPass && nzbgetPass !== '@@NZBGET_PASS@@') {
-                            const auth = btoa(nzbgetUser + ':' + nzbgetPass);
-                            getOptions.headers = { 'Authorization': 'Basic ' + auth };
-                        }
-                    }
-
-                    fetch(service.href, getOptions)
-                        .then(response => {
-                            clearTimeout(getTimeoutId);
-                            // Mark online if 2xx, 3xx, or auth errors (401, 403)
-                            // Mark offline for 5xx server errors
-                            if (response.status < 400 || response.status === 401 || response.status === 403) {
-                                health[service.href] = 'online';
-                            } else {
-                                health[service.href] = 'offline';
-                            }
-                        })
-                        .catch(() => {
-                            clearTimeout(getTimeoutId);
-                            // Both requests failed - service is offline
-                            health[service.href] = 'offline';
-                        })
-                        .finally(() => {
-                            checkCount++;
-                            if (checkCount === serviceLinks.length) {
-                                updateHealthDisplay(health, serviceLinks);
-                            }
-                        });
-                });
-        });
-    }
-
-    function updateHealthDisplay(health, services) {
-        const offlineCount = Object.values(health).filter(s => s === 'offline').length;
-        const healthDot = document.getElementById('health-dot');
-        const healthText = document.getElementById('health-text');
-        const healthDetails = document.getElementById('health-details');
-
-        const offlineServices = Object.entries(health)
-            .filter(([_, status]) => status === 'offline')
-            .map(([href, _]) => {
-                const service = services.find(s => s.href === href);
-                return service ? service.text : href;
-            });
-
-        if (offlineCount === 0) {
-            healthDot.style.background = '#4caf50';
-            healthDot.style.boxShadow = '0 0 4px #4caf50';
-            healthText.textContent = '●';
-            healthDetails.textContent = 'All systems operational';
-        } else {
-            healthDot.style.background = '#ff6b6b';
-            healthDot.style.boxShadow = '0 0 4px #ff6b6b';
-            healthText.textContent = '●';
-            healthDetails.innerHTML = '<div style="text-align:left"><strong>Offline:</strong><br>' +
-                offlineServices.map(s => '• ' + s).join('<br>') + '</div>';
-        }
-    }
-
-    checkServices();
-    setInterval(checkServices, 30000);
-
-    // Health status tooltip toggle
-    const healthStatus = document.getElementById('health-status');
-    const healthTooltip = document.getElementById('health-tooltip');
-    if (healthStatus && healthTooltip) {
-        healthStatus.addEventListener('click', () => {
-            healthTooltip.classList.toggle('show');
-        });
-        document.addEventListener('click', (e) => {
-            if (!healthStatus.contains(e.target)) {
-                healthTooltip.classList.remove('show');
-            }
-        });
-    }
 </script>
 
 </body>
