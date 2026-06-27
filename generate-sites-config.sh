@@ -72,12 +72,6 @@ if [ ! -f "$SITES_JSON" ]; then
       "category": "usenet"
     },
     {
-      "code": "CAT",
-      "name": "NZBCat",
-      "url": "https://nzbcat.com",
-      "category": "usenet"
-    },
-    {
       "code": "NFW",
       "name": "NZBFinder.ws",
       "url": "https://nzbfinder.ws",
