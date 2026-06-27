@@ -355,9 +355,12 @@
             @@SITES_ITEMS@@
         </div>
     </div>
-    <div id="health-status" style="padding:15px 20px;border-top:1px solid #ddd;text-align:center;font-size:12px;color:#666;background:#f9f9f9">
+    <div id="health-status" style="padding:15px 20px;border-top:1px solid var(--border-color);text-align:center;font-size:12px;color:var(--text-secondary);background:var(--bg-secondary);position:relative;cursor:pointer">
         <span id="health-dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#4caf50;margin-right:6px;box-shadow:0 0 8px #4caf50"></span>
         <span id="health-text">Checking services...</span>
+        <div id="health-tooltip" style="display:none;position:absolute;bottom:100%;right:0;background:var(--bg-primary);border:1px solid var(--border-color);border-radius:4px;padding:8px 12px;margin-bottom:8px;font-size:11px;white-space:nowrap;z-index:100;min-width:150px">
+            <div id="health-details" style="color:var(--text-secondary)"></div>
+        </div>
     </div>
 </div>
 
@@ -443,21 +446,45 @@
         const onlineCount = services.length - offlineCount;
         const healthText = document.getElementById('health-text');
         const healthDot = document.getElementById('health-dot');
-        
+        const healthDetails = document.getElementById('health-details');
+
+        // Build list of offline services
+        const offlineServices = Object.entries(health)
+            .filter(([_, status]) => status === 'offline')
+            .map(([href, _]) => {
+                const service = services.find(s => s.href === href);
+                return service ? service.text.trim() : href;
+            });
+
         if (offlineCount === 0) {
             healthText.textContent = `All ${services.length} services online`;
             healthDot.style.background = '#4caf50';
             healthDot.style.boxShadow = '0 0 8px #4caf50';
+            healthDetails.textContent = 'All systems operational';
         } else {
             healthText.textContent = `${offlineCount} service${offlineCount > 1 ? 's' : ''} offline`;
             healthDot.style.background = '#ff6b6b';
             healthDot.style.boxShadow = '0 0 8px #ff6b6b';
+            healthDetails.innerHTML = '<div style="text-align:left;margin-top:4px;padding-top:4px;border-top:1px solid var(--border-color)"><strong>Offline:</strong><br>' +
+                offlineServices.map(s => '• ' + s).join('<br>') + '</div>';
         }
     }
     
     // Check services on load and every 30 seconds
     checkServices();
     setInterval(checkServices, 30000);
+
+    // Health status hover tooltip
+    const healthStatus = document.getElementById('health-status');
+    const healthTooltip = document.getElementById('health-tooltip');
+    if (healthStatus && healthTooltip) {
+        healthStatus.addEventListener('mouseenter', () => {
+            healthTooltip.style.display = 'block';
+        });
+        healthStatus.addEventListener('mouseleave', () => {
+            healthTooltip.style.display = 'none';
+        });
+    }
 
     // Hide sites bar if empty (check for child elements, not textContent)
     const sitesBar = document.querySelector('.sites-bar');
