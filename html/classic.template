@@ -406,10 +406,10 @@
     
     // Service health check
     function checkServices() {
-        const serviceLinks = Array.from(document.querySelectorAll('.menu-table a')).map(a => ({
+        const serviceLinks = Array.from(document.querySelectorAll('.menu-item a')).map(a => ({
             href: a.getAttribute('href'),
             text: a.textContent
-        })).filter(s => s.href && s.href.startsWith('/'));
+        })).filter(s => s.href && s.href.startsWith('/') && s.href !== '/');
         
         if (serviceLinks.length === 0) return;
         
