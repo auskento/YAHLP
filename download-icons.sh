@@ -152,4 +152,29 @@ echo ""
 echo "Icon directory contents:"
 ls -lh "$ICONS_DIR"/*.png 2>/dev/null | awk '{print "  " $9 " (" $5 ")"}' || echo "  (no PNG icons)"
 
+# Post-processing: ensure all existing icons are properly sized and centered
+echo ""
+echo "=== Normalizing All Icons to ${TARGET_SIZE} ==="
+if [ -d "$ICONS_DIR" ]; then
+    for icon_file in "$ICONS_DIR"/*.png; do
+        if [ -f "$icon_file" ]; then
+            icon_name=$(basename "$icon_file")
+            # Re-process to ensure consistent sizing and centering
+            if convert "$icon_file" \
+                -resize "$TARGET_SIZE>" \
+                -gravity center \
+                -background none \
+                -extent "$TARGET_SIZE" \
+                "${icon_file}.normalized" 2>/dev/null; then
+                mv "${icon_file}.normalized" "$icon_file"
+                chmod 644 "$icon_file"
+                echo "  ✓ Normalized $icon_name"
+            else
+                rm -f "${icon_file}.normalized"
+            fi
+        fi
+    done
+    echo "✓ All icons normalized to ${TARGET_SIZE}"
+fi
+
 echo ""
