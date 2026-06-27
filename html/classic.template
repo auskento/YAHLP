@@ -229,13 +229,64 @@
         .services-list a:hover {
             text-decoration: underline;
         }
-        
+
         .no-services {
             color: #ff6b6b;
             font-size: 1.2em;
             margin-top: 20px;
         }
-        
+
+        .sites-bar {
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 10px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .site-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .site-link:hover {
+            border-color: var(--text-accent);
+            background: var(--bg-tertiary);
+        }
+
+        .site-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .site-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 1px;
+        }
+
+        .site-code {
+            font-size: 9px;
+            color: var(--text-secondary);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             body {
@@ -300,6 +351,9 @@
                 @@MENU_ITEMS@@
             </tr>
         </table>
+    </div>
+    <div class="sites-bar">
+        @@SITES_ITEMS@@
     </div>
     <div id="health-status" style="padding:15px 20px;border-top:1px solid #ddd;text-align:center;font-size:12px;color:#666;background:#f9f9f9">
         <span id="health-dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#4caf50;margin-right:6px;box-shadow:0 0 8px #4caf50"></span>
@@ -404,6 +458,14 @@
     // Check services on load and every 30 seconds
     checkServices();
     setInterval(checkServices, 30000);
+
+    // Site link handling - open in new window
+    document.querySelectorAll('.site-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.open(this.href, '_blank');
+        });
+    });
 
     // Theme management
     (function() {

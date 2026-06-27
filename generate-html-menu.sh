@@ -649,10 +649,12 @@ generate_all_styles() {
     if [ -f "$CLASSIC_TEMPLATE" ]; then
         local menu_items=$(generate_menu_items)
         local services_list=$(generate_services_list)
+        local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_classic)
         local html_content=$(cat "$CLASSIC_TEMPLATE")
         html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
         html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
+        html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
@@ -668,9 +670,11 @@ generate_all_styles() {
     if [ -f "$MODERN_TEMPLATE" ]; then
         local services_array=$(generate_services_array)
         local dash_order=$(generate_group_order)
+        local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_modern)
         local html_content=$(cat "$MODERN_TEMPLATE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+        html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
@@ -686,9 +690,11 @@ generate_all_styles() {
     # Generate Sleek (always)
     if [ -f "$SLEEK_TEMPLATE" ]; then
         local services_array=$(generate_dashboard2_services_array)
+        local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_sleek)
         local html_content=$(cat "$SLEEK_TEMPLATE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+        html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
@@ -706,9 +712,11 @@ generate_all_styles() {
     # Generate Minimal (always)
     if [ -f "$MINIMAL_TEMPLATE" ]; then
         local services_array=$(generate_dashboard2_services_array)
+        local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_minimal)
         local html_content=$(cat "$MINIMAL_TEMPLATE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+        html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
@@ -721,6 +729,18 @@ generate_all_styles() {
         html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
         html_content="${html_content//@@LOGO_SIZE@@/$LOGO_SIZE}"
         echo "$html_content" > "/var/www/html/minimal.html"
+    fi
+
+    # Generate Mobile (always)
+    if [ -f "$MOBILE_TEMPLATE" ]; then
+        local menu_items=$(generate_menu_items)
+        local sites_items=$(generate_sites_html)
+        local html_content=$(cat "$MOBILE_TEMPLATE")
+        html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
+        html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
+        html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
+        echo "$html_content" > "/var/www/html/mobile.html"
     fi
 }
 
