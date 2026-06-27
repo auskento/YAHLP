@@ -40,15 +40,27 @@ generate_sites_html() {
         name=$(grep -A 2 "\"code\": \"$code\"" "$SITES_JSON" | grep "\"name\"" | sed 's/.*"name": "\(.*\)".*/\1/')
 
         if [ ! -z "$url" ]; then
-            # Check for favicon in sites directory, then in html/sites-icons (pre-cached), then use placeholder
+            # Check for favicon in sites directory with multiple formats
             favicon_url=""
+            favicon_file=""
 
-            # Check primary sites directory (/var/log/apache2/sites/)
-            if [ -f "$SITES_DIR/${code,,}.favicon.ico" ]; then
-                favicon_url="/sites/${code,,}.favicon.ico"
-            # Check html/sites-icons (pre-cached in image)
-            elif [ -f "/var/www/html/sites-icons/${code,,}.favicon.ico" ]; then
-                favicon_url="/sites/${code,,}.favicon.ico"
+            # Check primary sites directory (/var/log/apache2/sites/) - try multiple formats
+            for ext in ico jpg jpeg png svg gif webp; do
+                if [ -f "$SITES_DIR/${code,,}.favicon.$ext" ]; then
+                    favicon_file="$SITES_DIR/${code,,}.favicon.$ext"
+                    favicon_url="/sites/${code,,}.favicon.$ext"
+                    break
+                fi
+            done
+
+            # Check html/sites-icons (pre-cached in image) if not found
+            if [ -z "$favicon_url" ]; then
+                for ext in ico jpg jpeg png svg gif webp; do
+                    if [ -f "/var/www/html/sites-icons/${code,,}.favicon.$ext" ]; then
+                        favicon_url="/sites/${code,,}.favicon.$ext"
+                        break
+                    fi
+                done
             fi
 
             # Use placeholder if no favicon found
