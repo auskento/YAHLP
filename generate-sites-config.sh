@@ -117,20 +117,27 @@ if [ ! -z "$SITES_ENABLED" ]; then
             favicon_url="https://www.google.com/s2/favicons?sz=64&domain=$domain"
 
             if wget -q -O "$SITES_DIR/${code,,}.favicon.ico.tmp" "$favicon_url" 2>/dev/null; then
-                # Resize favicon to consistent 64x64 square using ImageMagick
-                if command -v convert &> /dev/null; then
-                    if convert "$SITES_DIR/${code,,}.favicon.ico.tmp" -resize 64x64 -background transparent -gravity center -extent 64x64 "$SITES_DIR/${code,,}.favicon.ico" 2>/dev/null; then
-                        rm -f "$SITES_DIR/${code,,}.favicon.ico.tmp"
-                        echo "  ✓ Fetched and resized favicon for $code"
+                # Validate that downloaded file is a valid image
+                if file "$SITES_DIR/${code,,}.favicon.ico.tmp" | grep -q "image"; then
+                    # Resize favicon to consistent 64x64 square using ImageMagick
+                    if command -v convert &> /dev/null; then
+                        if convert "$SITES_DIR/${code,,}.favicon.ico.tmp" -resize 64x64 -background transparent -gravity center -extent 64x64 "$SITES_DIR/${code,,}.favicon.ico" 2>/dev/null; then
+                            rm -f "$SITES_DIR/${code,,}.favicon.ico.tmp"
+                            echo "  ✓ Fetched and resized favicon for $code"
+                        else
+                            # Resize failed, don't save
+                            rm -f "$SITES_DIR/${code,,}.favicon.ico.tmp"
+                            echo "  ⚠ Could not resize favicon for $code"
+                        fi
                     else
-                        # Fallback: use original if resize fails
-                        mv "$SITES_DIR/${code,,}.favicon.ico.tmp" "$SITES_DIR/${code,,}.favicon.ico"
-                        echo "  ✓ Fetched favicon for $code (resize failed)"
+                        # No ImageMagick, don't save without resizing
+                        rm -f "$SITES_DIR/${code,,}.favicon.ico.tmp"
+                        echo "  ⚠ ImageMagick not available, skipping favicon for $code"
                     fi
                 else
-                    # No ImageMagick available, use original
-                    mv "$SITES_DIR/${code,,}.favicon.ico.tmp" "$SITES_DIR/${code,,}.favicon.ico"
-                    echo "  ✓ Fetched favicon for $code"
+                    # Not a valid image file, don't save
+                    rm -f "$SITES_DIR/${code,,}.favicon.ico.tmp"
+                    echo "  ⚠ Invalid image file for $code"
                 fi
             else
                 echo "  ⚠ Could not fetch favicon for $code (manual placement allowed)"

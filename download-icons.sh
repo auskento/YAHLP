@@ -159,18 +159,25 @@ if [ -d "$ICONS_DIR" ]; then
     for icon_file in "$ICONS_DIR"/*.png; do
         if [ -f "$icon_file" ]; then
             icon_name=$(basename "$icon_file")
-            # Re-process to ensure consistent sizing and centering
-            if convert "$icon_file" \
-                -resize "$TARGET_SIZE>" \
-                -gravity center \
-                -background none \
-                -extent "$TARGET_SIZE" \
-                "${icon_file}.normalized" 2>/dev/null; then
-                mv "${icon_file}.normalized" "$icon_file"
-                chmod 644 "$icon_file"
-                echo "  ✓ Normalized $icon_name"
+
+            # Validate icon is a valid image
+            if file "$icon_file" | grep -q "image"; then
+                # Re-process to ensure consistent sizing and centering
+                if convert "$icon_file" \
+                    -resize "$TARGET_SIZE>" \
+                    -gravity center \
+                    -background none \
+                    -extent "$TARGET_SIZE" \
+                    "${icon_file}.normalized" 2>/dev/null; then
+                    mv "${icon_file}.normalized" "$icon_file"
+                    chmod 644 "$icon_file"
+                    echo "  ✓ Normalized $icon_name"
+                else
+                    rm -f "${icon_file}.normalized"
+                    echo "  ⚠ Failed to normalize $icon_name (keeping original)"
+                fi
             else
-                rm -f "${icon_file}.normalized"
+                echo "  ⚠ Skipping invalid image file: $icon_name"
             fi
         fi
     done
