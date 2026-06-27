@@ -580,6 +580,18 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ !
 
                 echo "✓ Plex Google OAuth config generated"
             fi
+
+            # Generate Seerr Google OAuth config (if SEERR_DOMAIN is set)
+            if [ ! -z "$SEERR_DOMAIN" ] && [ ! -z "$SEERR_REDIRECT_URI" ]; then
+                SEERR_COOKIE_DOMAIN=$(echo "$SEERR_DOMAIN" | sed 's|^[^.]*\.||')
+
+                cat /etc/apache2/conf-available/oauth2-google.conf \
+                    | sed "s#@@GOOGLE_REDIRECT_URI@@#$SEERR_REDIRECT_URI#g" \
+                    | sed "s#@@COOKIE_DOMAIN@@#$SEERR_COOKIE_DOMAIN#g" \
+                    > /etc/apache2/conf-available/oauth2-google-seerr.conf
+
+                echo "✓ Seerr Google OAuth config generated"
+            fi
             ;;
         entra)
             if [ ! -z "$PLEX_REDIRECT_URI" ]; then
@@ -599,6 +611,22 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ !
                     > /etc/apache2/conf-available/oauth2-entra-plex.conf
 
                 echo "✓ Plex Entra OAuth config generated"
+            fi
+
+            # Generate Seerr Entra OAuth config (if SEERR_DOMAIN is set)
+            if [ ! -z "$SEERR_DOMAIN" ] && [ ! -z "$SEERR_REDIRECT_URI" ]; then
+                SEERR_COOKIE_DOMAIN=$(echo "$SEERR_DOMAIN" | sed 's|^[^.]*\.||')
+
+                cat /etc/apache2/conf-available/oauth2-entra.conf \
+                    | sed "s#@@ENTRA_CLIENT_ID@@#$ENTRA_CLIENT_ID#g" \
+                    | sed "s#@@ENTRA_CLIENT_SECRET@@#$ENTRA_CLIENT_SECRET#g" \
+                    | sed "s#@@ENTRA_REDIRECT_URI@@#$SEERR_REDIRECT_URI#g" \
+                    | sed "s#@@ENTRA_PROVIDER_METADATA_URL@@#$ENTRA_PROVIDER_METADATA_URL#g" \
+                    | sed "s#@@ENTRA_CRYPTO_PASSPHRASE@@#$ENTRA_CRYPTO_PASSPHRASE#g" \
+                    | sed "s#@@COOKIE_DOMAIN@@#$SEERR_COOKIE_DOMAIN#g" \
+                    > /etc/apache2/conf-available/oauth2-entra-seerr.conf
+
+                echo "✓ Seerr Entra OAuth config generated"
             fi
             ;;
     esac
@@ -846,6 +874,30 @@ PLEXAUTHEOF
 
             # Add includes for Google OAuth
             sed -i "/@@INCLUDE_PLEX_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-google-plex.conf\n    Include /etc/apache2/conf-available/auth-google-protect-plex.conf" /etc/apache2/sites-available/plex-vhost.conf
+
+            # Generate Seerr auth protection config (if SEERR_DOMAIN is set)
+            if [ ! -z "$SEERR_DOMAIN" ]; then
+                cat > /etc/apache2/conf-available/auth-google-protect-seerr.conf <<'SEERRAUTHEOF'
+<Location /oauth2>
+    SetHandler oauth2-handler
+</Location>
+<Location /oauth2callback>
+    SetHandler oauth2-handler
+</Location>
+<Location />
+    AuthType openid-connect
+    Require valid-user
+    LogLevel debug
+</Location>
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Google"
+SEERRAUTHEOF
+
+                # Add includes for Google OAuth
+                sed -i "/@@INCLUDE_SEERR_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-google-seerr.conf\n    Include /etc/apache2/conf-available/auth-google-protect-seerr.conf" /etc/apache2/sites-available/seerr-vhost.conf
+            fi
             ;;
         entra)
             # Generate auth protection config
@@ -869,6 +921,30 @@ PLEXAUTHEOF
 
             # Add includes for Entra OAuth
             sed -i "/@@INCLUDE_PLEX_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-entra-plex.conf\n    Include /etc/apache2/conf-available/auth-entra-protect-plex.conf" /etc/apache2/sites-available/plex-vhost.conf
+
+            # Generate Seerr auth protection config (if SEERR_DOMAIN is set)
+            if [ ! -z "$SEERR_DOMAIN" ]; then
+                cat > /etc/apache2/conf-available/auth-entra-protect-seerr.conf <<'SEERRAUTHEOF'
+<Location /oauth2>
+    SetHandler oauth2-handler
+</Location>
+<Location /oauth2callback>
+    SetHandler oauth2-handler
+</Location>
+<Location />
+    AuthType openid-connect
+    Require valid-user
+    LogLevel debug
+</Location>
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Entra"
+SEERRAUTHEOF
+
+                # Add includes for Entra OAuth
+                sed -i "/@@INCLUDE_SEERR_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-entra-seerr.conf\n    Include /etc/apache2/conf-available/auth-entra-protect-seerr.conf" /etc/apache2/sites-available/seerr-vhost.conf
+            fi
             ;;
         basic)
             # Basic auth is handled globally by auth-basic.conf, don't add service-level protection
