@@ -646,98 +646,72 @@ generate_all_styles() {
     if [ -f "$CLASSIC_TEMPLATE" ]; then
         local menu_items=$(generate_menu_items)
         local services_list=$(generate_services_list)
-        local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_classic)
-        local html_content=$(cat "$CLASSIC_TEMPLATE")
-        html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
-        html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
-        html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
-        html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
-        html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
-        if [ -z "$DASHBOARD_LANDING" ]; then
-            html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"|src="about:blank"|')
-        else
-            html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
-        fi
-        echo "$html_content" > "/var/www/html/classic.html"
+        cat "$CLASSIC_TEMPLATE" | \
+            sed "s|@@MENU_ITEMS@@|${menu_items//&/\\&}|g" | \
+            sed "s|@@ENABLED_SERVICES_LIST@@|${services_list//&/\\&}|g" | \
+            sed "s|@@SITES_ITEMS@@|$(generate_sites_html | sed 's|&|\\&|g')|g" | \
+            sed "s|@@STYLE_SWITCHER@@|${style_switcher//&/\\&}|g" | \
+            sed "s|@@DASHBOARD_NAME@@|${DASHBOARD_NAME:-Media Server}|g" | \
+            sed "s|@@DASHBOARD_ICON@@|${DASHBOARD_ICON:-/icons/homelabportal.png}|g" | \
+            sed "s|@@DASHBOARD_LANDING@@|${DASHBOARD_LANDING}|g" > "/var/www/html/classic.html"
     fi
 
     # Generate Modern (always)
     if [ -f "$MODERN_TEMPLATE" ]; then
         local services_array=$(generate_services_array)
         local dash_order=$(generate_group_order)
-        local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_modern)
-        local html_content=$(cat "$MODERN_TEMPLATE")
-        html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
-        html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
-        html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
-        html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
-        html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
-        if [ -z "$DASHBOARD_LANDING" ]; then
-            html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
-        else
-            html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
-        fi
-        echo "$html_content" > "/var/www/html/modern.html"
+        cat "$MODERN_TEMPLATE" | \
+            sed "s|@@SERVICES_ARRAY@@|${services_array//&/\\&}|g" | \
+            sed "s|@@STYLE_SWITCHER@@|${style_switcher//&/\\&}|g" | \
+            sed "s|@@DASHBOARD_NAME@@|${DASHBOARD_NAME:-Media Server}|g" | \
+            sed "s|@@DASHBOARD_ICON@@|${DASHBOARD_ICON:-/icons/homelabportal.png}|g" | \
+            sed "s|@@DASHBOARD_ORDER@@|${dash_order//&/\\&}|g" | \
+            sed "s|@@SITES_ITEMS@@|$(generate_sites_html | sed 's|&|\\&|g')|g" | \
+            sed "s|@@DASHBOARD_LANDING@@|${DASHBOARD_LANDING}|g" > "/var/www/html/modern.html"
     fi
 
     # Generate Sleek (always)
     if [ -f "$SLEEK_TEMPLATE" ]; then
         local services_array=$(generate_dashboard2_services_array)
-        local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_sleek)
-        local html_content=$(cat "$SLEEK_TEMPLATE")
-        html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
-        html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
-        html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
-        html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
-        if [ -z "$DASHBOARD_LANDING" ]; then
-            html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
-        else
-            html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
-        fi
-        html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
-        html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
-        html_content="${html_content//@@LOGO_SIZE@@/$LOGO_SIZE}"
-        echo "$html_content" > "/var/www/html/sleek.html"
+        cat "$SLEEK_TEMPLATE" | \
+            sed "s|@@SERVICES_ARRAY@@|${services_array//&/\\&}|g" | \
+            sed "s|@@STYLE_SWITCHER@@|${style_switcher//&/\\&}|g" | \
+            sed "s|@@DASHBOARD_NAME@@|${DASHBOARD_NAME:-Media Server}|g" | \
+            sed "s|@@DASHBOARD_ICON@@|${DASHBOARD_ICON:-/icons/homelabportal.png}|g" | \
+            sed "s|@@SITES_ITEMS@@|$(generate_sites_html | sed 's|&|\\&|g')|g" | \
+            sed "s|@@DASHBOARD_LANDING@@|${DASHBOARD_LANDING}|g" | \
+            sed "s|@@ICON_SIZE@@|${ICON_SIZE}|g" | \
+            sed "s|@@ICON_GAP@@|${ICON_GAP}|g" | \
+            sed "s|@@LOGO_SIZE@@|${LOGO_SIZE}|g" > "/var/www/html/sleek.html"
     fi
 
     # Generate Minimal (always)
     if [ -f "$MINIMAL_TEMPLATE" ]; then
         local services_array=$(generate_dashboard2_services_array)
-        local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_minimal)
-        local html_content=$(cat "$MINIMAL_TEMPLATE")
-        html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
-        html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
-        html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
-        html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
-        if [ -z "$DASHBOARD_LANDING" ]; then
-            html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
-        else
-            html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
-        fi
-        html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
-        html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
-        html_content="${html_content//@@LOGO_SIZE@@/$LOGO_SIZE}"
-        echo "$html_content" > "/var/www/html/minimal.html"
+        cat "$MINIMAL_TEMPLATE" | \
+            sed "s|@@SERVICES_ARRAY@@|${services_array//&/\\&}|g" | \
+            sed "s|@@STYLE_SWITCHER@@|${style_switcher//&/\\&}|g" | \
+            sed "s|@@DASHBOARD_NAME@@|${DASHBOARD_NAME:-Media Server}|g" | \
+            sed "s|@@DASHBOARD_ICON@@|${DASHBOARD_ICON:-/icons/homelabportal.png}|g" | \
+            sed "s|@@SITES_ITEMS@@|$(generate_sites_html | sed 's|&|\\&|g')|g" | \
+            sed "s|@@DASHBOARD_LANDING@@|${DASHBOARD_LANDING}|g" | \
+            sed "s|@@ICON_SIZE@@|${ICON_SIZE}|g" | \
+            sed "s|@@ICON_GAP@@|${ICON_GAP}|g" | \
+            sed "s|@@LOGO_SIZE@@|${LOGO_SIZE}|g" > "/var/www/html/minimal.html"
     fi
 
     # Generate Mobile (always)
     if [ -f "$MOBILE_TEMPLATE" ]; then
         local menu_items=$(generate_menu_items)
-        local sites_items=$(generate_sites_html)
-        local html_content=$(cat "$MOBILE_TEMPLATE")
-        html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
-        html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
-        html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
-        echo "$html_content" > "/var/www/html/mobile.html"
+        cat "$MOBILE_TEMPLATE" | \
+            sed "s|@@MENU_ITEMS@@|${menu_items//&/\\&}|g" | \
+            sed "s|@@SITES_ITEMS@@|$(generate_sites_html | sed 's|&|\\&|g')|g" | \
+            sed "s|@@DASHBOARD_NAME@@|${DASHBOARD_NAME:-Media Server}|g" | \
+            sed "s|@@DASHBOARD_ICON@@|${DASHBOARD_ICON:-/icons/homelabportal.png}|g" > "/var/www/html/mobile.html"
     fi
 }
 
