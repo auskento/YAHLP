@@ -73,7 +73,13 @@
     <Directory /var/www/html/icons>
         Require all granted
     </Directory>
-    
+
+    # Alias for site favicons (serve directly, don't proxy)
+    Alias /sites /var/log/apache2/sites
+    <Directory /var/log/apache2/sites>
+        Require all granted
+    </Directory>
+
     <Directory /var/www/html>
         Require all granted
     </Directory>
