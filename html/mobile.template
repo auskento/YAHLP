@@ -192,8 +192,7 @@
         }
 
         .site-code {
-            font-size: 9px;
-            color: var(--text-muted);
+            display: none;
         }
 
         iframe {

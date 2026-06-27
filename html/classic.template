@@ -287,8 +287,7 @@
         }
 
         .site-code {
-            font-size: 9px;
-            color: var(--text-secondary);
+            display: none;
         }
 
         /* Responsive */
