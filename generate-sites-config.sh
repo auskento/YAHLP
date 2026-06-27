@@ -116,8 +116,22 @@ if [ ! -z "$SITES_ENABLED" ]; then
             # Try to fetch favicon
             favicon_url="https://www.google.com/s2/favicons?sz=64&domain=$domain"
 
-            if wget -q -O "$SITES_DIR/${code,,}.favicon.ico" "$favicon_url" 2>/dev/null; then
-                echo "  ✓ Fetched favicon for $code"
+            if wget -q -O "$SITES_DIR/${code,,}.favicon.ico.tmp" "$favicon_url" 2>/dev/null; then
+                # Resize favicon to consistent 64x64 square using ImageMagick
+                if command -v convert &> /dev/null; then
+                    if convert "$SITES_DIR/${code,,}.favicon.ico.tmp" -resize 64x64 -background transparent -gravity center -extent 64x64 "$SITES_DIR/${code,,}.favicon.ico" 2>/dev/null; then
+                        rm -f "$SITES_DIR/${code,,}.favicon.ico.tmp"
+                        echo "  ✓ Fetched and resized favicon for $code"
+                    else
+                        # Fallback: use original if resize fails
+                        mv "$SITES_DIR/${code,,}.favicon.ico.tmp" "$SITES_DIR/${code,,}.favicon.ico"
+                        echo "  ✓ Fetched favicon for $code (resize failed)"
+                    fi
+                else
+                    # No ImageMagick available, use original
+                    mv "$SITES_DIR/${code,,}.favicon.ico.tmp" "$SITES_DIR/${code,,}.favicon.ico"
+                    echo "  ✓ Fetched favicon for $code"
+                fi
             else
                 echo "  ⚠ Could not fetch favicon for $code (manual placement allowed)"
             fi
