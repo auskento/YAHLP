@@ -24,9 +24,21 @@ if [ ! -f "$SITES_JSON" ]; then
       "category": "torrent"
     },
     {
-      "code": "RAR",
-      "name": "RARBG",
-      "url": "https://rarbg.to",
+      "code": "FIL",
+      "name": "FileList.io",
+      "url": "https://filelist.io",
+      "category": "torrent"
+    },
+    {
+      "code": "HDB",
+      "name": "HDBits",
+      "url": "https://hdbits.org",
+      "category": "torrent"
+    },
+    {
+      "code": "IPT",
+      "name": "IP Torrents",
+      "url": "https://iptorrents.com",
       "category": "torrent"
     },
     {
@@ -51,6 +63,30 @@ if [ ! -f "$SITES_JSON" ]; then
       "code": "LAT",
       "name": "LimeTorrents",
       "url": "https://www.limetorrents.lol",
+      "category": "torrent"
+    },
+    {
+      "code": "NYA",
+      "name": "Nyaa",
+      "url": "https://nyaa.si",
+      "category": "torrent"
+    },
+    {
+      "code": "PTP",
+      "name": "PassThePopcorn",
+      "url": "https://passthepopcorn.me",
+      "category": "torrent"
+    },
+    {
+      "code": "RSS",
+      "name": "Torrent RSS Feed",
+      "url": "https://torrentrss.org",
+      "category": "torrent"
+    },
+    {
+      "code": "POT",
+      "name": "TorrentPotato",
+      "url": "https://torrentpotato.com",
       "category": "torrent"
     },
     {
