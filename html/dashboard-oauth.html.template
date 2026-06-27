@@ -26,9 +26,7 @@
     <div style="width:1px;height:20px;background:rgba(255,255,255,.1);margin-top:auto"></div>
 
     <div id="health-status" style="text-align:center;font-size:11px;color:#5d6575">
-      <span id="health-dot" style="display:block;width:8px;height:8px;border-radius:50%;background:#2ecd6f;margin:0 auto 6px;box-shadow:0 0 8px #2ecd6f;animation:floatGlow 2.6s ease-in-out infinite"></span>
-      <span id="health-text">Checking...</span>
-    </div>
+      </div>
 
     <div style="width:100%;border-top:1px solid rgba(255,255,255,.1);padding-top:20px;margin-top:20px">
       <div id="user-info" style="text-align:center;font-size:12px;color:#a0aab8;margin-bottom:12px">
