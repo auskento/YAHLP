@@ -40,14 +40,22 @@ generate_sites_html() {
         name=$(grep -A 2 "\"code\": \"$code\"" "$SITES_JSON" | grep "\"name\"" | sed 's/.*"name": "\(.*\)".*/\1/')
 
         if [ ! -z "$url" ]; then
-            # Use favicon if it exists, otherwise use placeholder
-            favicon_file="$SITES_DIR/${code,,}.favicon.ico"
-            if [ -f "$favicon_file" ]; then
+            # Check for favicon in sites directory, then in html/sites-icons (pre-cached), then use placeholder
+            favicon_url=""
+
+            # Check primary sites directory (/var/log/apache2/sites/)
+            if [ -f "$SITES_DIR/${code,,}.favicon.ico" ]; then
                 favicon_url="/sites/${code,,}.favicon.ico"
-            else
-                # Use data URL placeholder if favicon doesn't exist yet
+            # Check html/sites-icons (pre-cached in image)
+            elif [ -f "/var/www/html/sites-icons/${code,,}.favicon.ico" ]; then
+                favicon_url="/sites/${code,,}.favicon.ico"
+            fi
+
+            # Use placeholder if no favicon found
+            if [ -z "$favicon_url" ]; then
                 favicon_url="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect fill='%23666' width='16' height='16'/%3E%3C/svg%3E"
             fi
+
             # Include site (all on one line to avoid bash parameter expansion issues)
             sites_html+="<a href='$url' class='site-link' title='$name' target='_blank'><div class='site-icon'><img src='$favicon_url' alt='$name' /></div></a>"
         fi
