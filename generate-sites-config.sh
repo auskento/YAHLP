@@ -62,7 +62,7 @@ if [ ! -f "$SITES_JSON" ]; then
     {
       "code": "LAT",
       "name": "LimeTorrents",
-      "url": "https://www.limetorrents.lol",
+      "url": "https://limetorrents.cc",
       "category": "torrent"
     },
     {
@@ -81,12 +81,6 @@ if [ ! -f "$SITES_JSON" ]; then
       "code": "RSS",
       "name": "Torrent RSS Feed",
       "url": "https://torrentrss.org",
-      "category": "torrent"
-    },
-    {
-      "code": "POT",
-      "name": "TorrentPotato",
-      "url": "https://torrentpotato.com",
       "category": "torrent"
     },
     {
@@ -134,7 +128,7 @@ if [ ! -f "$SITES_JSON" ]; then
     {
       "code": "TAB",
       "name": "Tabula Rasa",
-      "url": "https://www.tabulanzbz.com",
+      "url": "https://tabula-rasa.pw",
       "category": "usenet"
     },
     {
