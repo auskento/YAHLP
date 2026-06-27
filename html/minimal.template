@@ -252,9 +252,9 @@
   checkServices();
   setInterval(checkServices, 30000);
 
-  // Hide sites sidebar if empty
+  // Hide sites sidebar if empty (check for child elements, not textContent)
   const rightSidebar = document.querySelector('aside:nth-of-type(2)');
-  if (rightSidebar && rightSidebar.textContent.trim() === '') {
+  if (rightSidebar && rightSidebar.children.length === 0) {
     rightSidebar.style.display = 'none';
   }
 

@@ -463,9 +463,9 @@
     checkServices();
     setInterval(checkServices, 30000);
 
-    // Hide sites bar if empty
+    // Hide sites bar if empty (check for child elements, not textContent)
     const sitesBar = document.querySelector('.sites-bar');
-    if (sitesBar && sitesBar.textContent.trim() === '') {
+    if (sitesBar && sitesBar.children.length === 0) {
         sitesBar.style.display = 'none';
     }
 
