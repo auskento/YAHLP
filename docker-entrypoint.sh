@@ -215,10 +215,10 @@ echo ""
 
 # Copy pre-cached favicons from html/sites-icons/ if they exist (don't overwrite existing)
 echo "Copying pre-cached site favicons (skip existing)..."
-if [ -d /var/www/html/sites-icons ] && [ "$(ls -A /var/www/html/sites-icons 2>/dev/null)" ]; then
-    cp -n /var/www/html/sites-icons/* /var/log/apache2/sites/ 2>/dev/null || true
+if [ -d /var/www/html/sites-icons ] && [ -n "$(find /var/www/html/sites-icons -maxdepth 1 -type f 2>/dev/null)" ]; then
+    find /var/www/html/sites-icons -maxdepth 1 -type f -exec cp -n {} /var/log/apache2/sites/ \;
     chmod 644 /var/log/apache2/sites/* 2>/dev/null || true
-    echo "✓ Pre-cached favicons checked"
+    echo "✓ Pre-cached favicons copied"
 else
     echo "✓ No pre-cached favicons found (will fetch on demand)"
 fi
