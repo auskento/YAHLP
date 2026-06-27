@@ -42,21 +42,11 @@ generate_sites_html() {
         name=$(grep -A 2 "\"code\": \"$code\"" "$SITES_JSON" | grep "\"name\"" | sed 's/.*"name": "\(.*\)".*/\1/')
 
         if [ ! -z "$url" ]; then
-            # Check if the site resolves (DNS resolution test)
-            domain=$(echo "$url" | sed 's|https://||' | sed 's|http://||' | sed 's|/.*||')
-
-            # Use timeout to avoid hanging on DNS resolution
-            if timeout 3 getent hosts "$domain" &>/dev/null || timeout 3 ping -c 1 "$domain" &>/dev/null 2>&1; then
-                # Check if favicon exists
-                favicon_file="$SITES_DIR/${code,,}.favicon.ico"
-                if [ -f "$favicon_file" ]; then
-                    favicon_url="/sites/${code,,}.favicon.ico"
-                else
-                    # Fallback - skip if no favicon (site should have been fetched)
-                    continue
-                fi
-
-                # Only include site if it resolved
+            # Check if favicon exists
+            favicon_file="$SITES_DIR/${code,,}.favicon.ico"
+            if [ -f "$favicon_file" ]; then
+                favicon_url="/sites/${code,,}.favicon.ico"
+                # Include site if favicon exists
                 sites_html+="<a href='$url' class='site-link' title='$name' target='_blank'><div class='site-icon'><img src='$favicon_url' alt='$name' /></div></a>"
             fi
         fi
