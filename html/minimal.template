@@ -158,10 +158,7 @@
     object-fit: contain;
   }
   .site-code {
-    font-size: 8px;
-    color: var(--text-secondary);
-    text-align: center;
-    width: 100%;
+    display: none;
   }
 </style>
 
