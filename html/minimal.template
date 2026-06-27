@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <nav id="services-nav" style="display:flex;flex-direction:column;gap:var(--base-gap);align-items:center;overflow-y:auto;flex:1;width:100%;padding-right:4px;transition:gap .3s;max-width:70px">
+    <nav id="services-nav" style="display:flex;flex-direction:column;gap:var(--base-gap);align-items:center;overflow-y:auto;flex:1;width:100%;padding-right:4px;transition:gap .3s;max-width:65px">
       <!-- Services injected here -->
     </nav>
 
@@ -73,7 +73,7 @@
     </div>
   </main>
 
-  <aside style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 15px;flex:none;width:90px;border-left:1px solid var(--border-color);overflow-y:auto;background:var(--bg-primary)">
+  <aside style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 15px;flex:none;width:75px;border-left:1px solid var(--border-color);overflow-y:auto;background:var(--bg-primary)">
     @@SITES_ITEMS@@
   </aside>
 
