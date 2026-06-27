@@ -54,12 +54,6 @@ if [ ! -f "$SITES_JSON" ]; then
       "category": "torrent"
     },
     {
-      "code": "SKY",
-      "name": "Sky Torrents",
-      "url": "https://www.skytorrents.in",
-      "category": "torrent"
-    },
-    {
       "code": "LAT",
       "name": "LimeTorrents",
       "url": "https://limetorrents.cc",
