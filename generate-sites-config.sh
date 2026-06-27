@@ -171,6 +171,8 @@ if [ ! -z "$SITES_ENABLED" ]; then
                     echo "  ⚠ Invalid image file for $code"
                 fi
             else
+                # Remove failed .tmp file
+                rm -f "$SITES_DIR/${code,,}.favicon.ico.tmp"
                 echo "  ⚠ Could not fetch favicon for $code (manual placement allowed)"
             fi
         fi
