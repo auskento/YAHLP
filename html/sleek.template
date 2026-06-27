@@ -238,7 +238,7 @@
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
       // Try HEAD first, then GET if HEAD fails
       fetch(app.href, { method: 'HEAD', signal: controller.signal })
@@ -254,7 +254,7 @@
         .catch(() => {
           // HEAD failed, try GET
           const getController = new AbortController();
-          const getTimeoutId = setTimeout(() => getController.abort(), 10000);
+          const getTimeoutId = setTimeout(() => getController.abort(), 30000);
 
           fetch(app.href, { method: 'GET', signal: getController.signal })
             .then(response => {
