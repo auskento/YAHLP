@@ -475,3 +475,4 @@
   <!-- VOLUMES -->
   <Config Name="Certificates Volume" Target="/etc/letsencrypt" Default="/mnt/user/appdata/apache-reverse-proxy/letsencrypt" Mode="rw" Description="SSL Certificates" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/apache-reverse-proxy/letsencrypt</Config>
   <Config Name="Logs Volume" Target="/var/log/apache2" Default="/mnt/user/appdata/apache-reverse-proxy/logs" Mode="rw" Description="Apache Logs" Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/apache-reverse-proxy/logs</Config></Container>
+
