@@ -41,7 +41,7 @@ services:
       TZ: Australia/Melbourne
       STYLE: modern
       DASHBOARD_NAME: My Homelab
-      DASHBOARD_ICON: /icons/YAHLP.png
+      DASHBOARD_ICON: /icons/yahlp.png
       DASHBOARD_LANDING: radarr
       DASHBOARD_ORDER: CONTENT,SEARCH,USENET,TORRENTS,MEDIA
       AUTHTYPE: basic
@@ -232,7 +232,7 @@ EMAIL=admin@myservices.com
 TZ=Australia/Sydney
 STYLE=modern
 DASHBOARD_NAME=Services Dashboard
-DASHBOARD_ICON=/icons/YAHLP.png
+DASHBOARD_ICON=/icons/yahlp.png
 DASHBOARD_LANDING=radarr
 DASHBOARD_ORDER=USENET,TORRENTS,CONTENT,SEARCH,MEDIA
 AUTHTYPE=basic
