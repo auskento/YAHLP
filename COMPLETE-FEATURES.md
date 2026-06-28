@@ -1,4 +1,4 @@
-# Complete Feature Summary - HomELabPortal (HeLP) v2.1
+# Complete Feature Summary - YAHLP (HeLP) v2.1
 
 ## 🚀 Everything You Have Now
 
@@ -109,7 +109,7 @@ environment:
 environment:
   STYLE: modern
   DASHBOARD_NAME: My Homelab
-  DASHBOARD_ICON: /icons/homelabportal.png
+  DASHBOARD_ICON: /icons/YAHLP.png
   DASHBOARD_LANDING: sonarr/calendar
   DASHBOARD_ORDER: MEDIA,CONTENT,SEARCH,USENET,TORRENTS
   
@@ -395,7 +395,7 @@ openssl rand -base64 24  # For ENTRA_CRYPTO_PASSPHRASE
 
 ---
 
-**You now have HomELabPortal (HeLP) - a production-ready unified media server dashboard with 17 services, flexible authentication, and customizable dashboards!** 🎉
+**You now have YAHLP (HeLP) - a production-ready unified media server dashboard with 17 services, flexible authentication, and customizable dashboards!** 🎉
 
 **Key Capabilities:**
 ✅ 17 services available  
@@ -407,3 +407,4 @@ openssl rand -base64 24  # For ENTRA_CRYPTO_PASSPHRASE
 ✅ Zero manual Apache editing  
 
 **Ready to deploy with HeLP!** 🚀
+

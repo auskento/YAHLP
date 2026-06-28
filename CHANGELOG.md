@@ -1,4 +1,4 @@
-# HomELabPortal (HeLP) - Changelog
+# YAHLP (HeLP) - Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -254,3 +254,4 @@ See the [LICENSE](LICENSE) file for details.
 ---
 
 **[⬆ back to top](#changelog)**
+

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Container version="2">
-  <Name>HomELabPortal - Public (Entra OAuth)</Name>
-  <Repository>auskento/homelabportal:latest</Repository>
+  <Name>YAHLP - Private (Basic Auth)</Name>
+  <Repository>auskento/YAHLP:latest</Repository>
   <Registry>https://hub.docker.com/</Registry>
   <Network>bridge</Network>
   <MyIP/>
   <Shell>bash</Shell>
   <Privileged>false</Privileged>
-  <Support>https://github.com/auskento/HomELabPortal</Support>
-  <Project>https://github.com/auskento/HomELabPortal</Project>
+  <Support>https://github.com/auskento/YAHLP</Support>
+  <Project>https://github.com/auskento/YAHLP</Project>
   <Category>Network:Web</Category>
-  <TemplateURL>https://raw.githubusercontent.com/auskento/HomELabPortal/main/homelabportal-public-basic.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/auskento/HomELabPortal/main/homelabportal-150.png</Icon>
+  <TemplateURL>https://raw.githubusercontent.com/auskento/YAHLP/main/YAHLP-private-basic.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/auskento/YAHLP/main/YAHLP-150.png</Icon>
   <PostArgs/>
   <CloudSync>false</CloudSync>
-  <Description>HomELabPortal - Public Mode with Entra ID (Microsoft) OAuth2 authentication. Full external access with HTTPS via Let's Encrypt, protected by username/password.</Description>
-  <Overview>HomELabPortal - Public Deployment with Basic Auth&#13;&#13;This template is pre-configured for:&#13;- Public mode: External access on HTTPS via Let's Encrypt&#13;- Entra ID (Microsoft) OAuth2 authentication with username/password&#13;- Automatic SSL certificate generation and renewal&#13;&#13;Required settings:&#13;1. DOMAIN: Your domain name (e.g., yourdomain.com)&#13;2. EMAIL: Email for Let's Encrypt certificate notifications&#13;3. BASIC_AUTH_CREDENTIALS: Username and password (format: user:pass)&#13;4. Service URLs: Configure your backend service URLs&#13;&#13;Optional settings:&#13;- STYLE: Dashboard style (classic, modern, sleek, minimal)&#13;- DASHBOARD_NAME, DASHBOARD_ICON, DASHBOARD_LANDING&#13;- EMBY_DOMAIN, PLEX_DOMAIN: For dedicated subdomains&#13;- Service enable/disable flags&#13;&#13;Documentation: https://github.com/auskento/HomELabPortal</Overview>
+  <Description>YAHLP - Private Mode with Basic Authentication. Internal-only deployment with HTTP (no SSL), protected by username/password authentication.</Description>
+  <Overview>YAHLP - Private Deployment with Basic Auth&#13;&#13;This template is pre-configured for:&#13;- Private mode: Internal-only access on HTTP&#13;- Basic authentication with username/password&#13;- No SSL certificates or Let's Encrypt needed&#13;- Direct IP address access (e.g., http://192.168.9.244)&#13;&#13;Required settings:&#13;1. IP: Container IP address on your network&#13;2. BASIC_AUTH_CREDENTIALS: Username and password (format: user:pass)&#13;3. Service URLs: Configure your backend service URLs&#13;&#13;Optional settings:&#13;- STYLE: Dashboard style (classic, modern, sleek, minimal)&#13;- DASHBOARD_NAME, DASHBOARD_ICON, DASHBOARD_LANDING&#13;- Service enable/disable flags&#13;&#13;Documentation: https://github.com/auskento/YAHLP</Overview>
   <Networking>
     <Mode>br0</Mode>
     <Publish>
@@ -23,30 +23,14 @@
         <HostPort>80</HostPort>
         <ContainerPort>80</ContainerPort>
         <Protocol>tcp</Protocol>
-        <Description>HTTP (for Let's Encrypt validation)</Description>
-        <Access>External</Access>
-      </Port>
-      <Port>
-        <HostPort>443</HostPort>
-        <ContainerPort>443</ContainerPort>
-        <Protocol>tcp</Protocol>
-        <Description>HTTPS</Description>
+        <Description>HTTP</Description>
         <Access>External</Access>
       </Port>
     </Publish>
   </Networking>
   <Data>
     <Volume>
-      <HostDir>/mnt/user/appdata/homelabportal-public-entra/letsencrypt</HostDir>
-      <ContainerDir>/etc/letsencrypt</ContainerDir>
-      <Mode>rw</Mode>
-      <Description>SSL Certificates</Description>
-      <Access>rw</Access>
-      <Exclude/>
-      <IsFileShare>false</IsFileShare>
-    </Volume>
-    <Volume>
-      <HostDir>/mnt/user/appdata/homelabportal-public-entra/logs</HostDir>
+      <HostDir>/mnt/user/appdata/YAHLP-private/logs</HostDir>
       <ContainerDir>/var/log/apache2</ContainerDir>
       <Mode>rw</Mode>
       <Description>Apache Logs</Description>
@@ -59,15 +43,11 @@
   <Environment>
     <Variable>
       <Name>ACCESS_MODE</Name>
-      <Value>public</Value>
+      <Value>private</Value>
     </Variable>
     <Variable>
-      <Name>DOMAIN</Name>
-      <Value>yourdomain.com</Value>
-    </Variable>
-    <Variable>
-      <Name>EMAIL</Name>
-      <Value>admin@example.com</Value>
+      <Name>IP</Name>
+      <Value>192.168.9.244</Value>
     </Variable>
     <Variable>
       <Name>TZ</Name>
@@ -75,7 +55,7 @@
     </Variable>
     <Variable>
       <Name>STYLE</Name>
-      <Value>modern</Value>
+      <Value>sleek</Value>
     </Variable>
     <Variable>
       <Name>DASHBOARD_NAME</Name>
@@ -83,7 +63,7 @@
     </Variable>
     <Variable>
       <Name>DASHBOARD_ICON</Name>
-      <Value>/icons/homelabportal.png</Value>
+      <Value>/icons/YAHLP.png</Value>
     </Variable>
     <Variable>
       <Name>DASHBOARD_LANDING</Name>
@@ -103,28 +83,21 @@
     </Variable>
     <Variable>
       <Name>AUTHTYPE</Name>
-      <Value>entra</Value>
+      <Value>basic</Value>
     </Variable>
     <Variable>
-      <Name>ENTRA_CLIENT_ID</Name>
+      <Name>BASIC_AUTH_CREDENTIALS</Name>
+      <Value>user:password</Value>
+    </Variable>
+    <Variable>
+      <Name>DOMAIN</Name>
       <Value></Value>
     </Variable>
     <Variable>
-      <Name>ENTRA_CLIENT_SECRET</Name>
+      <Name>EMAIL</Name>
       <Value></Value>
     </Variable>
-    <Variable>
-      <Name>ENTRA_REDIRECT_URI</Name>
-      <Value>https://yourdomain.com/auth/oauth2/callback</Value>
-    </Variable>
-    <Variable>
-      <Name>ENTRA_PROVIDER_METADATA_URL</Name>
-      <Value></Value>
-    </Variable>
-    <Variable>
-      <Name>ENTRA_CRYPTO_PASSPHRASE</Name>
-      <Value></Value>
-    </Variable>
+    <!-- USENET Services -->
     <Variable>
       <Name>ENABLE_SABNZBD</Name>
       <Value>false</Value>
@@ -157,6 +130,7 @@
       <Name>NZBHYDRA_URL</Name>
       <Value>http://192.168.9.13:5076/nzbhydra</Value>
     </Variable>
+    <!-- TORRENTS Services -->
     <Variable>
       <Name>ENABLE_DELUGE</Name>
       <Value>false</Value>
@@ -181,6 +155,7 @@
       <Name>QBITTORRENT_URL</Name>
       <Value>http://192.168.9.13:8585</Value>
     </Variable>
+    <!-- CONTENT Services -->
     <Variable>
       <Name>ENABLE_RADARR</Name>
       <Value>false</Value>
@@ -213,6 +188,7 @@
       <Name>WHISPARR_URL</Name>
       <Value>http://192.168.9.13:6969</Value>
     </Variable>
+    <!-- SEARCH Services -->
     <Variable>
       <Name>ENABLE_PROWLARR</Name>
       <Value>false</Value>
@@ -237,6 +213,7 @@
       <Name>BAZARR_URL</Name>
       <Value>http://192.168.9.13:6767</Value>
     </Variable>
+    <!-- MEDIA Services -->
     <Variable>
       <Name>ENABLE_EMBY</Name>
       <Value>false</Value>
@@ -246,20 +223,12 @@
       <Value>http://192.168.9.13:8096</Value>
     </Variable>
     <Variable>
-      <Name>EMBY_DOMAIN</Name>
-      <Value></Value>
-    </Variable>
-    <Variable>
       <Name>ENABLE_PLEX</Name>
       <Value>false</Value>
     </Variable>
     <Variable>
       <Name>PLEX_URL</Name>
       <Value>http://192.168.9.13:32400</Value>
-    </Variable>
-    <Variable>
-      <Name>PLEX_DOMAIN</Name>
-      <Value></Value>
     </Variable>
     <Variable>
       <Name>ENABLE_JELLYFIN</Name>
@@ -281,14 +250,18 @@
 
   <Labels/>
 
-  <Config Name="Domain Name" Target="DOMAIN" Default="yourdomain.com" Mode="" Description="Your domain name (REQUIRED for Let's Encrypt)" Type="Variable" Display="always" Required="true" Mask="false"/>
-  <Config Name="Email" Target="EMAIL" Default="admin@example.com" Mode="" Description="Email for Let's Encrypt certificate notifications (REQUIRED)" Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="IP Address" Target="IP" Default="192.168.9.244" Mode="" Description="Container IP address on your network (REQUIRED for private mode)" Type="Variable" Display="always" Required="true" Mask="false"/>
   <Config Name="Timezone" Target="TZ" Default="Australia/Melbourne" Mode="" Description="Timezone" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Dashboard Style" Target="STYLE" Default="modern" Mode="" Description="Dashboard style: classic, modern, sleek, or minimal" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Dashboard Name" Target="DASHBOARD_NAME" Default="Media Server" Mode="" Description="Custom dashboard title" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Dashboard Theme" Target="DASHBOARD_THEME" Default="dark" Mode="" Description="Theme: dark or light" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Dashboard Style" Target="STYLE" Default="sleek" Mode="" Description="Dashboard style: classic, modern, sleek, or minimal" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Dashboard Name" Target="DASHBOARD_NAME" Default="Media Server" Mode="" Description="Custom dashboard title shown in header" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Dashboard Icon" Target="DASHBOARD_ICON" Default="/icons/YAHLP.png" Mode="" Description="Dashboard icon path (place custom icons in html/icons directory)" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Dashboard Landing" Target="DASHBOARD_LANDING" Default="" Mode="" Description="Default iframe page (examples: radarr, sonarr/calendar). Leave blank for welcome screen" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Dashboard Theme" Target="DASHBOARD_THEME" Default="dark" Mode="" Description="Dashboard theme: dark or light" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Dashboard Order" Target="DASHBOARD_ORDER" Default="CONTENT,SEARCH,USENET,TORRENTS,MEDIA" Mode="" Description="Service group display order" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Entra Client ID" Target="BASIC_AUTH_CREDENTIALS" Default="user:password" Mode="" Description="Format: user:pass|user2:pass2" Type="Variable" Display="always" Required="true" Mask="true"/>
+
+  <Config Name="Basic Auth Credentials" Target="BASIC_AUTH_CREDENTIALS" Default="user:password" Mode="" Description="Format: user:pass|user2:pass2 (pipe-separated for multiple users)" Type="Variable" Display="always" Required="true" Mask="true"/>
+
+  <!-- USENET Services -->
   <Config Name="Enable SABnzbd" Target="ENABLE_SABNZBD" Default="false" Mode="" Description="SABnzbd - Usenet Client" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="SABnzbd URL" Target="SABNZBD_URL" Default="http://192.168.9.13:8080/sabnzbd" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Enable NZBGet" Target="ENABLE_NZBGET" Default="false" Mode="" Description="NZBGet - Usenet Downloads" Type="Variable" Display="always" Required="false" Mask="false"/>
@@ -297,12 +270,16 @@
   <Config Name="NZBGet Password" Target="NZBGET_PASS" Default="" Mode="" Description="NZBGet password (optional)" Type="Variable" Display="always" Required="false" Mask="true"/>
   <Config Name="Enable NZBHydra" Target="ENABLE_NZBHYDRA" Default="false" Mode="" Description="NZBHydra - NZB Indexer" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="NZBHydra URL" Target="NZBHYDRA_URL" Default="http://192.168.9.13:5076/nzbhydra" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <!-- TORRENTS Services -->
   <Config Name="Enable Deluge" Target="ENABLE_DELUGE" Default="false" Mode="" Description="Deluge - Torrent Client" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Deluge URL" Target="DELUGE_URL" Default="http://192.168.9.13:8112" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Enable Transmission" Target="ENABLE_TRANSMISSION" Default="false" Mode="" Description="Transmission - Torrent Client" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Transmission URL" Target="TRANSMISSION_URL" Default="http://192.168.9.13:9091" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Enable qBittorrent" Target="ENABLE_QBITTORRENT" Default="false" Mode="" Description="qBittorrent - Torrent Client" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="qBittorrent URL" Target="QBITTORRENT_URL" Default="http://192.168.9.13:8585" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <!-- CONTENT Services -->
   <Config Name="Enable Radarr" Target="ENABLE_RADARR" Default="false" Mode="" Description="Radarr - Movie Automation" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Radarr URL" Target="RADARR_URL" Default="http://192.168.9.13:7878" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Enable Sonarr" Target="ENABLE_SONARR" Default="false" Mode="" Description="Sonarr - TV Show Automation" Type="Variable" Display="always" Required="false" Mask="false"/>
@@ -311,23 +288,26 @@
   <Config Name="Lidarr URL" Target="LIDARR_URL" Default="http://192.168.9.13:8686" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Enable Whisparr" Target="ENABLE_WHISPARR" Default="false" Mode="" Description="Whisparr - Adult Content" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Whisparr URL" Target="WHISPARR_URL" Default="http://192.168.9.13:6969" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <!-- SEARCH Services -->
   <Config Name="Enable Prowlarr" Target="ENABLE_PROWLARR" Default="false" Mode="" Description="Prowlarr - Indexer Manager" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Prowlarr URL" Target="PROWLARR_URL" Default="http://192.168.9.13:9696" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Enable Seerr" Target="ENABLE_SEERR" Default="false" Mode="" Description="Seerr - Request Manager" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Seerr URL" Target="SEERR_URL" Default="http://192.168.9.13:5055" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Enable Bazarr" Target="ENABLE_BAZARR" Default="false" Mode="" Description="Bazarr - Subtitle Management" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Bazarr URL" Target="BAZARR_URL" Default="http://192.168.9.13:6767" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <!-- MEDIA Services -->
   <Config Name="Enable Emby" Target="ENABLE_EMBY" Default="false" Mode="" Description="Emby - Media Streaming" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Emby URL" Target="EMBY_URL" Default="http://192.168.9.13:8096" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Emby Domain" Target="EMBY_DOMAIN" Default="" Mode="" Description="Optional subdomain (e.g., emby.yourdomain.com)" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Enable Plex" Target="ENABLE_PLEX" Default="false" Mode="" Description="Plex - Media Streaming" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Plex URL" Target="PLEX_URL" Default="http://192.168.9.13:32400" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Plex Domain" Target="PLEX_DOMAIN" Default="" Mode="" Description="Optional subdomain (e.g., plex.yourdomain.com)" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Enable Jellyfin" Target="ENABLE_JELLYFIN" Default="false" Mode="" Description="Jellyfin - Media Streaming" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Jellyfin URL" Target="JELLYFIN_URL" Default="http://192.168.9.13:8096" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Enable Tautulli" Target="ENABLE_TAUTULLI" Default="false" Mode="" Description="Tautulli - Analytics" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Tautulli URL" Target="TAUTULLI_URL" Default="http://192.168.9.13:8181" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Certificates Volume" Target="/etc/letsencrypt" Default="/mnt/user/appdata/homelabportal-public-entra/letsencrypt" Mode="rw" Description="SSL Certificates" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/homelabportal-public-entra/letsencrypt</Config>
-  <Config Name="Logs Volume" Target="/var/log/apache2" Default="/mnt/user/appdata/homelabportal-public-entra/logs" Mode="rw" Description="Apache Logs" Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/homelabportal-public-entra/logs</Config>
+
+  <!-- VOLUMES -->
+  <Config Name="Logs Volume" Target="/var/log/apache2" Default="/mnt/user/appdata/YAHLP-private/logs" Mode="rw" Description="Apache Logs" Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/YAHLP-private/logs</Config>
 </Container>
 

@@ -1,4 +1,4 @@
-# HomELabPortal (HeLP) - What's New in v2.1
+# YAHLP (HeLP) - What's New in v2.1
 
 ## ✨ Major Updates
 
@@ -72,7 +72,7 @@ STYLE: modern
 #### Custom Dashboard Names
 ```yaml
 DASHBOARD_NAME: "My Homelab"
-DASHBOARD_ICON: "/icons/homelabportal.png"
+DASHBOARD_ICON: "/icons/YAHLP.png"
 ```
 
 #### Custom Landing Pages
@@ -109,7 +109,7 @@ Update your `.env` file to use new names.
 - ✅ Updated all service configs with proper Location blocks
 
 ### Unraid Template
-- ✅ `homelabportal.xml` - Updated service list, new variables
+- ✅ `YAHLP.xml` - Updated service list, new variables
 
 ### Documentation
 - ✅ `ENVIRONMENT-VARIABLES.md` - Reorganized by category
@@ -253,3 +253,4 @@ NZBGET_PASS: "your_secure_password"
 ---
 
 **Enjoy the improvements!** 🎉
+

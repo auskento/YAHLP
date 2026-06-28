@@ -571,7 +571,7 @@ generate_style_dashboard() {
         html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/YAHLP.png}}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
 
         if [ -z "$DASHBOARD_LANDING" ]; then
@@ -590,7 +590,7 @@ generate_style_dashboard() {
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/YAHLP.png}}"
         html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
 
@@ -629,7 +629,7 @@ generate_style_dashboard() {
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/YAHLP.png}}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
 
         if [ -z "$DASHBOARD_LANDING" ]; then
@@ -676,7 +676,7 @@ generate_all_styles() {
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/YAHLP.png}}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"|src="about:blank"|')
         else
@@ -696,7 +696,7 @@ generate_all_styles() {
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/YAHLP.png}}"
         html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
@@ -716,7 +716,7 @@ generate_all_styles() {
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/YAHLP.png}}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
         else
@@ -738,7 +738,7 @@ generate_all_styles() {
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/YAHLP.png}}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
         else
@@ -758,7 +758,7 @@ generate_all_styles() {
         html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/homelabportal.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/YAHLP.png}}"
         echo "$html_content" > "/var/www/html/mobile.html"
     fi
 }
@@ -779,7 +779,7 @@ generate_react_dashboard() {
 
     # Set dashboard name, icon, and landing page
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
-    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/homelabportal.png}"
+    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/YAHLP.png}"
     local DASHBOARD_LANDING="${DASHBOARD_LANDING:-}"
 
     # Read template and replace placeholders
@@ -988,7 +988,7 @@ generate_dashboard_for_auth() {
 
     # Set dashboard name, icon, and landing page
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
-    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/homelabportal.png}"
+    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/YAHLP.png}"
     local DASHBOARD_LANDING="${DASHBOARD_LANDING:-}"
 
     # Calculate dynamic icon sizes
@@ -1050,7 +1050,7 @@ generate_dashboard3() {
 
     # Set dashboard name, icon, and landing page
     local DASHBOARD_NAME="${DASHBOARD_NAME:-Media Server}"
-    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/homelabportal.png}"
+    local DASHBOARD_ICON="${DASHBOARD_ICON:-/icons/YAHLP.png}"
     local DASHBOARD_LANDING="${DASHBOARD_LANDING:-}"
 
     # Calculate dynamic icon sizes
@@ -1144,6 +1144,7 @@ generate_html() {
 
 # Run generation
 generate_html
+
 
 
 

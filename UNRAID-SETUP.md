@@ -1,8 +1,8 @@
-# HomELabPortal (HeLP) - Unraid Installation Guide
+# YAHLP (HeLP) - Unraid Installation Guide
 
 ## Overview
 
-This is **HomELabPortal (HeLP)** - a unified media server dashboard Docker container designed specifically for Unraid. It does NOT include any media applications - it proxies to your existing containers and services.
+This is **YAHLP (HeLP)** - a unified media server dashboard Docker container designed specifically for Unraid. It does NOT include any media applications - it proxies to your existing containers and services.
 
 ## Features
 
@@ -50,7 +50,7 @@ This is **HomELabPortal (HeLP)** - a unified media server dashboard Docker conta
    ```
 
 2. **Download Template**
-   - Download `homelabportal.xml` from the repository
+   - Download `YAHLP.xml` from the repository
    - Copy to `/boot/config/plugins/dockerManagement/templates-user/` directory
 
 3. **Add Container**
@@ -323,3 +323,4 @@ A: Yes, if using ARM-compatible Docker image.
 **Ready to deploy?** Start with the Unraid template installation above! 🚀
 
 Need help? Check the included documentation or review container logs in Unraid.
+

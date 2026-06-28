@@ -1,8 +1,8 @@
-# HomELabPortal (HeLP) - Unified Media Server Dashboard
+# YAHLP (HeLP) - Unified Media Server Dashboard
 
 ## What You've Got
 
-A complete, production-ready Docker setup for HomELabPortal (HeLP) with:
+A complete, production-ready Docker setup for YAHLP (HeLP) with:
 
 ✅ **Automatic HTTPS** - Let's Encrypt with auto-renewal  
 ✅ **17 Pre-configured Services** - Sonarr, Radarr, Jellyfin, qBittorrent, Bazarr, and more  
@@ -416,3 +416,4 @@ Total: 2-10 minutes depending on issue
 ---
 
 **You've got everything you need. Deploy with confidence!** 🚀
+
