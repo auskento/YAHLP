@@ -16,6 +16,7 @@ echo ""
 # Define icon URLs for each service
 # Format: ICON_URL_SERVICENAME=https://url.to/icon.png
 declare -A ICON_URLS=(
+    [DASHBOARD]="${DASHBOARD_ICON_URL}"
     [SONARR]="${ICON_URL_SONARR}"
     [RADARR]="${ICON_URL_RADARR}"
     [WHISPARR]="${ICON_URL_WHISPARR}"

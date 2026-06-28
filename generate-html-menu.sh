@@ -9,6 +9,12 @@ if [ -f /etc/apache2/env.conf ]; then
     source /etc/apache2/env.conf
 fi
 
+# Determine dashboard icon path - use downloaded version if it exists, otherwise use configured path
+DASHBOARD_ICON_PATH="$DASHBOARD_ICON_PATH"
+if [ -f "/var/www/html/icons/dashboard.png" ]; then
+    DASHBOARD_ICON_PATH="/icons/dashboard.png"
+fi
+
 CLASSIC_TEMPLATE="/var/www/html/classic.template"
 MODERN_TEMPLATE="/var/www/html/modern.template"
 SLEEK_TEMPLATE="/var/www/html/sleek.template"
@@ -600,7 +606,7 @@ generate_style_dashboard() {
         html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/yahlp.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
 
         if [ -z "$DASHBOARD_LANDING" ]; then
@@ -619,7 +625,7 @@ generate_style_dashboard() {
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/yahlp.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
 
@@ -658,7 +664,7 @@ generate_style_dashboard() {
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/yahlp.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
 
         if [ -z "$DASHBOARD_LANDING" ]; then
@@ -705,7 +711,7 @@ generate_all_styles() {
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/yahlp.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"|src="about:blank"|')
         else
@@ -725,7 +731,7 @@ generate_all_styles() {
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/yahlp.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
@@ -745,7 +751,7 @@ generate_all_styles() {
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/yahlp.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
         else
@@ -767,7 +773,7 @@ generate_all_styles() {
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/yahlp.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
         else
@@ -787,7 +793,7 @@ generate_all_styles() {
         html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-        html_content="${html_content//@@DASHBOARD_ICON@@/${DASHBOARD_ICON:-/icons/yahlp.png}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         echo "$html_content" > "/var/www/html/mobile.html"
     fi
 }
