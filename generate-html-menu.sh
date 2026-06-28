@@ -444,6 +444,36 @@ generate_services_array() {
     echo "$array"
 }
 
+# Calculate dynamic icon sizes based on service count
+calculate_icon_sizes() {
+    local service_count=$1
+    local icon_multiplier gap_multiplier logo_multiplier
+
+    if [ "$service_count" -le 5 ]; then
+        icon_multiplier="1.7"
+        gap_multiplier="1.4"
+        logo_multiplier="1.5"
+    elif [ "$service_count" -le 8 ]; then
+        icon_multiplier="1.6"
+        gap_multiplier="1.2"
+        logo_multiplier="1.375"
+    elif [ "$service_count" -le 12 ]; then
+        icon_multiplier="1.5"
+        gap_multiplier="1.0"
+        logo_multiplier="1.25"
+    elif [ "$service_count" -le 15 ]; then
+        icon_multiplier="1.4"
+        gap_multiplier="0.8"
+        logo_multiplier="1.125"
+    else
+        icon_multiplier="1.2"
+        gap_multiplier="0.6"
+        logo_multiplier="1.0"
+    fi
+
+    echo "$icon_multiplier|$gap_multiplier|$logo_multiplier"
+}
+
 # Generate style switcher HTML for classic template
 generate_style_switcher_classic() {
     if [ "$SHOW_STYLE_SWITCHER" = "true" ]; then
@@ -707,7 +737,7 @@ generate_all_styles() {
 
     # Generate Sleek (always)
     if [ -f "$SLEEK_TEMPLATE" ]; then
-        local services_array=$(generate_dashboard2_services_array)
+        local services_array=$(generate_services_array)
         local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_sleek)
         local html_content=$(cat "$SLEEK_TEMPLATE")
@@ -729,7 +759,7 @@ generate_all_styles() {
 
     # Generate Minimal (always)
     if [ -f "$MINIMAL_TEMPLATE" ]; then
-        local services_array=$(generate_dashboard2_services_array)
+        local services_array=$(generate_services_array)
         local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_minimal)
         local html_content=$(cat "$MINIMAL_TEMPLATE")
