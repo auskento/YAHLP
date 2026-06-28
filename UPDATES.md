@@ -72,7 +72,7 @@ STYLE: modern
 #### Custom Dashboard Names
 ```yaml
 DASHBOARD_NAME: "My Homelab"
-DASHBOARD_ICON: "/icons/YAHLP.png"
+DASHBOARD_ICON: "/icons/yahlp.png"
 ```
 
 #### Custom Landing Pages
