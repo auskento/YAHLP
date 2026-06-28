@@ -14,7 +14,7 @@
   <Icon>https://raw.githubusercontent.com/auskento/yahlp/main/yahlp-150.png</Icon>
   <PostArgs/>
   <CloudSync>false</CloudSync>
-  <Description>YAHLP - Yet Another HomeLab Portal. Unified media server dashboard with 17 services, 4 dashboard styles, flexible authentication (None, Basic, Entra ID, Google OAuth), and automatic HTTPS.</Description>
+  <Description>YAHLP - Yet Another HomeLab Portal. Private mode with 17 services, 4 dashboard styles, basic authentication, and no external OAuth required.</Description>
   <Overview>YAHLP (Yet Another HomeLab Portal) - Unified Media Server Dashboard&#13;&#13;A production-ready reverse proxy system for managing 17+ homelab applications with automatic HTTPS, flexible authentication, and customizable dashboards.&#13;&#13;Features:&#13;- Public mode: Automatic HTTPS with Let's Encrypt SSL certificates&#13;- Private mode: Internal-only deployment without certificate generation&#13;- Reverse proxy for 17 different services&#13;- Responsive web dashboard with 4 customizable styles: classic, modern, sleek, minimal&#13;- Light/dark theme toggle with localStorage persistence&#13;- Dashboard customization: custom title, icon, and default landing page&#13;- Four authentication options: None, Basic Auth, Entra ID (Microsoft), or Google OAuth2&#13;- Custom service icons with smart light/dark mode adaptation&#13;- Configurable service category ordering&#13;- Torrent/Usenet site links with favicon caching&#13;&#13;Supported Services (17):&#13;CONTENT: Sonarr, Radarr, Lidarr, Whisparr&#13;SEARCH: Seerr, Prowlarr, Bazarr&#13;USENET: SABnzbd, NZBGet, NZBHydra&#13;TORRENTS: Deluge, Transmission, qBittorrent&#13;MEDIA: Emby, Plex, Jellyfin, Tautulli&#13;&#13;Dashboard Styles:&#13;- Classic: Traditional sidebar menu&#13;- Modern: React-based with full features (recommended)&#13;- Sleek: Compact sidebar with gradient styling&#13;- Minimal: Single-column minimal design&#13;&#13;Documentation: https://github.com/auskento/yahlp</Overview>
   <Networking>
     <Mode>br0</Mode>
@@ -118,42 +118,6 @@
     <Variable>
       <Name>BASIC_AUTH_CREDENTIALS</Name>
       <Value/>
-    </Variable>
-
-    <!-- ENTRA ID / AZURE AD -->
-    <Variable>
-      <Name>ENTRA_CLIENT_ID</Name>
-      <Value/>
-    </Variable>
-    <Variable>
-      <Name>ENTRA_CLIENT_SECRET</Name>
-      <Value/>
-    </Variable>
-    <Variable>
-      <Name>ENTRA_REDIRECT_URI</Name>
-      <Value>https://yourdomain.com/auth/oauth2/callback</Value>
-    </Variable>
-    <Variable>
-      <Name>ENTRA_PROVIDER_METADATA_URL</Name>
-      <Value/>
-    </Variable>
-    <Variable>
-      <Name>ENTRA_CRYPTO_PASSPHRASE</Name>
-      <Value/>
-    </Variable>
-
-    <!-- GOOGLE OAUTH -->
-    <Variable>
-      <Name>GOOGLE_CLIENT_ID</Name>
-      <Value/>
-    </Variable>
-    <Variable>
-      <Name>GOOGLE_CLIENT_SECRET</Name>
-      <Value/>
-    </Variable>
-    <Variable>
-      <Name>GOOGLE_REDIRECT_URI</Name>
-      <Value>https://yourdomain.com</Value>
     </Variable>
 
     <!-- CONTENT SERVICES (Sonarr, Radarr, Lidarr, Whisparr) -->
@@ -438,18 +402,6 @@
   <!-- AUTHENTICATION -->
   <Config Name="Auth Type" Target="AUTHTYPE" Default="none" Mode="" Description="Authentication method: none, basic, entra, or google" Type="Variable" Display="always" Required="true" Mask="false"/>
   <Config Name="Basic Auth Credentials" Target="BASIC_AUTH_CREDENTIALS" Default="" Mode="" Description="Format: user1:pass1|user2:pass2 (for AUTHTYPE=basic only)" Type="Variable" Display="always" Required="false" Mask="true"/>
-
-  <!-- ENTRA ID / MICROSOFT -->
-  <Config Name="Entra Client ID" Target="ENTRA_CLIENT_ID" Default="" Mode="" Description="Azure AD application ID (for AUTHTYPE=entra only)" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Entra Client Secret" Target="ENTRA_CLIENT_SECRET" Default="" Mode="" Description="Azure AD application secret (for AUTHTYPE=entra only)" Type="Variable" Display="always" Required="false" Mask="true"/>
-  <Config Name="Entra Redirect URI" Target="ENTRA_REDIRECT_URI" Default="https://yourdomain.com/auth/oauth2/callback" Mode="" Description="Must match Azure AD configuration (for AUTHTYPE=entra only)" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Entra Provider Metadata URL" Target="ENTRA_PROVIDER_METADATA_URL" Default="" Mode="" Description="https://login.microsoftonline.com/TENANT_ID/v2.0/.well-known/openid-configuration (for AUTHTYPE=entra only)" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Entra Crypto Passphrase" Target="ENTRA_CRYPTO_PASSPHRASE" Default="" Mode="" Description="Session encryption key - auto-generated if blank (for AUTHTYPE=entra only)" Type="Variable" Display="advanced" Required="false" Mask="true"/>
-
-  <!-- GOOGLE OAUTH -->
-  <Config Name="Google Client ID" Target="GOOGLE_CLIENT_ID" Default="" Mode="" Description="From Google Cloud Console (for AUTHTYPE=google only)" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Google Client Secret" Target="GOOGLE_CLIENT_SECRET" Default="" Mode="" Description="From Google Cloud Console (for AUTHTYPE=google only)" Type="Variable" Display="always" Required="false" Mask="true"/>
-  <Config Name="Google Redirect URI" Target="GOOGLE_REDIRECT_URI" Default="https://yourdomain.com" Mode="" Description="Must EXACTLY match Google Cloud Console setting (for AUTHTYPE=google only)" Type="Variable" Display="always" Required="false" Mask="false"/>
 
   <!-- CONTENT SERVICES -->
   <Config Name="[1/17] Enable Sonarr" Target="ENABLE_SONARR" Default="false" Mode="" Description="TV show automation" Type="Variable" Display="always" Required="false" Mask="false"/>
