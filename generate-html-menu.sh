@@ -9,11 +9,46 @@ if [ -f /etc/apache2/env.conf ]; then
     source /etc/apache2/env.conf
 fi
 
-# Determine dashboard icon path - use downloaded version if it exists, otherwise use configured path
-DASHBOARD_ICON_PATH="$DASHBOARD_ICON_PATH"
-if [ -f "/var/www/html/icons/dashboard.png" ]; then
-    DASHBOARD_ICON_PATH="/icons/dashboard.png"
-fi
+# Function to find custom icon (checks for <name>-custom.* with any extension)
+get_icon_path() {
+    local icon_name=$1
+    local default_path=$2
+
+    # Check for custom icon with any extension
+    for custom_icon in "/var/www/html/icons/${icon_name}-custom".*; do
+        if [ -f "$custom_icon" ]; then
+            local ext="${custom_icon##*.}"
+            echo "/icons/${icon_name}-custom.${ext}"
+            return 0
+        fi
+    done
+
+    # Fall back to default path
+    echo "$default_path"
+}
+
+# Function to get service icon path (checks for custom icon first, then default)
+get_service_icon_path() {
+    local service_key=$1
+    local default_icon_path=$2
+
+    local service_path=$(echo "$service_key" | tr '[:upper:]' '[:lower:]')
+
+    # Check for custom icon with any extension
+    for custom_icon in "/var/www/html/icons/${service_path}-custom".*; do
+        if [ -f "$custom_icon" ]; then
+            local ext="${custom_icon##*.}"
+            echo "/icons/${service_path}-custom.${ext}"
+            return 0
+        fi
+    done
+
+    # Fall back to default
+    echo "$default_icon_path"
+}
+
+# Determine dashboard icon path - use custom version if it exists, otherwise use configured path
+DASHBOARD_ICON_PATH=$(get_icon_path "dashboard" "${DASHBOARD_ICON:-/icons/yahlp.png}")
 
 CLASSIC_TEMPLATE="/var/www/html/classic.template"
 MODERN_TEMPLATE="/var/www/html/modern.template"
@@ -236,6 +271,9 @@ generate_menu_items() {
             # Parse service metadata
             IFS='|' read -r category service_name service_desc icon_path href accent <<< "${SERVICES[$service_key]}"
 
+            # Check for custom icon version
+            icon_path=$(get_service_icon_path "$service_key" "$icon_path")
+
             # Handle subdomain services (Emby, Plex, Seerr)
             if [ "$href" = "SUBDOMAIN" ]; then
                 if [ "$service_key" = "EMBY" ]; then
@@ -303,7 +341,10 @@ generate_services_list() {
         
         # Parse service metadata
         IFS='|' read -r category service_name service_desc icon_path href accent <<< "${SERVICES[$service_key]}"
-        
+
+        # Check for custom icon version
+        icon_path=$(get_service_icon_path "$service_key" "$icon_path")
+
         # Handle subdomain services
         if [ "$href" = "SUBDOMAIN" ]; then
             if [ "$service_key" = "EMBY" ]; then

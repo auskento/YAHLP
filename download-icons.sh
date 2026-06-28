@@ -46,35 +46,48 @@ download_and_resize_icon() {
     local service_key=$1
     local icon_url=$2
     local service_name=$(echo "$service_key" | tr '[:lower:]' '[:upper:]')
-    
+
     local service_path=$(service_to_path "$service_key")
     local temp_file="/tmp/${service_path}_icon"
-    local output_file="${ICONS_DIR}/${service_path}.png"
-    
+
     echo "Processing $service_name..."
-    
+
     # Download the icon
     if ! curl -s -L -o "$temp_file" "$icon_url" 2>/dev/null; then
         echo "  ❌ Failed to download from: $icon_url"
         return 1
     fi
-    
+
     # Check if file was downloaded
     if [ ! -f "$temp_file" ] || [ ! -s "$temp_file" ]; then
         echo "  ❌ Downloaded file is empty"
         rm -f "$temp_file"
         return 1
     fi
-    
-    # Get the actual image dimensions to check validity
+
+    # Get the actual image type and extension
     local file_type=$(file "$temp_file" | grep -o "image/[^ ]*" | cut -d'/' -f2 || echo "unknown")
-    
+
     if [ "$file_type" = "unknown" ]; then
         echo "  ❌ Not a valid image file"
         rm -f "$temp_file"
         return 1
     fi
-    
+
+    # Map MIME type to file extension
+    local file_ext="png"
+    case "$file_type" in
+        jpeg) file_ext="jpg" ;;
+        png) file_ext="png" ;;
+        webp) file_ext="webp" ;;
+        svg*) file_ext="svg" ;;
+        gif) file_ext="gif" ;;
+        *) file_ext="png" ;;
+    esac
+
+    # Output file with custom suffix and preserved extension
+    local output_file="${ICONS_DIR}/${service_path}-custom.${file_ext}"
+
     # Resize to 100x100 with padding to maintain aspect ratio
     if ! convert "$temp_file" \
         -resize "$TARGET_SIZE>" \
@@ -86,18 +99,18 @@ download_and_resize_icon() {
         rm -f "$temp_file"
         return 1
     fi
-    
+
     # Set proper permissions
     chmod 644 "$output_file"
-    
+
     # Get file size for info
     local file_size=$(du -h "$output_file" | cut -f1)
-    
+
     echo "  ✓ Downloaded and resized to ${TARGET_SIZE} ($file_size)"
-    
+
     # Clean up temp file
     rm -f "$temp_file"
-    
+
     return 0
 }
 
@@ -110,10 +123,8 @@ for service_key in "${!ICON_URLS[@]}"; do
     icon_url="${ICON_URLS[$service_key]}"
     service_path=$(service_to_path "$service_key")
     service_name=$(echo "$service_key" | tr '[:lower:]' '[:upper:]')
-    output_file="${ICONS_DIR}/${service_path}.png"
-    
-    echo "Processing $service_name..."
-    
+    default_file="${ICONS_DIR}/${service_path}.png"
+
     # Check if custom URL provided
     if [ -n "$icon_url" ]; then
         # Download custom icon
@@ -121,7 +132,7 @@ for service_key in "${!ICON_URLS[@]}"; do
             ((custom_count++))
         else
             # Custom download failed, try to use default
-            if [ -f "$output_file" ]; then
+            if [ -f "$default_file" ]; then
                 echo "  ℹ️  Using default icon (custom download failed)"
                 ((default_count++))
             else
@@ -131,7 +142,7 @@ for service_key in "${!ICON_URLS[@]}"; do
         fi
     else
         # No custom URL provided, check for default bundled PNG
-        if [ -f "$output_file" ]; then
+        if [ -f "$default_file" ]; then
             echo "  ✓ Using default icon"
             ((default_count++))
         else
