@@ -47,8 +47,8 @@ get_service_icon_path() {
     echo "$default_icon_path"
 }
 
-# Determine dashboard icon path - use custom version if it exists, otherwise use configured path
-DASHBOARD_ICON_PATH=$(get_icon_path "dashboard" "${DASHBOARD_ICON:-/icons/yahlp.png}")
+# Determine dashboard icon path - use custom version if it exists, otherwise use default
+DASHBOARD_ICON_PATH=$(get_icon_path "dashboard" "/icons/yahlp.png")
 
 CLASSIC_TEMPLATE="/var/www/html/classic.template"
 MODERN_TEMPLATE="/var/www/html/modern.template"
