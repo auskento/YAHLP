@@ -314,3 +314,4 @@ A: Yes! Remove domain from OAUTH2_ALLOWED_DOMAINS and restart.
 **You now have enterprise-grade authentication protecting your media server!** 🔒
 
 See `OFFICE365-AUTH.md` for the complete setup guide.
+

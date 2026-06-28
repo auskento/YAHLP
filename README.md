@@ -1,4 +1,4 @@
-# YAHLP (HeLP) - Unified Media Server Dashboard
+# YAHLP - Yet Another HomeLab Portal
 
 A production-ready reverse proxy system for managing 17+ homelab applications with automatic HTTPS, flexible authentication, and customizable dashboards.
 
@@ -34,8 +34,8 @@ A production-ready reverse proxy system for managing 17+ homelab applications wi
 ### Step 1: Clone & Configure
 
 ```bash
-git clone https://github.com/auskento/apache-reverse-proxy.git
-cd apache-reverse-proxy
+git clone https://github.com/auskento/yahlp.git
+cd yahlp
 
 # Copy example configuration
 cp .env.example .env
@@ -68,7 +68,7 @@ docker-compose up -d
 
 ```bash
 # Check logs
-docker-compose logs -f apache-reverse-proxy
+docker-compose logs -f yahlp
 
 # Access dashboard
 https://yourdomain.com
@@ -191,7 +191,7 @@ DASHBOARD_ORDER: USENET,TORRENTS,CONTENT,SEARCH,MEDIA
 ## 📁 Project Structure
 
 ```
-apache-reverse-proxy/
+yahlp/
 ├── 📚 Documentation
 │   ├── README.md                      # This file
 │   ├── ENVIRONMENT-VARIABLES.md       # All variables explained
@@ -335,13 +335,13 @@ docker-compose exec apache-reverse-proxy cat /etc/apache2/sites-available/revers
 
 ```bash
 # Apache error logs
-docker-compose logs -f apache-reverse-proxy | grep error
+docker-compose logs -f yahlp | grep error
 
 # Service health check logs
-docker-compose logs -f apache-reverse-proxy | grep -E "(502|503|FAIL)"
+docker-compose logs -f yahlp | grep -E "(502|503|FAIL)"
 
 # Auth logs
-docker-compose logs -f apache-reverse-proxy | grep -i auth
+docker-compose logs -f yahlp | grep -i auth
 ```
 
 ### Test Configuration Syntax
@@ -447,7 +447,7 @@ ENABLE_JELLYFIN: "true"
 
 ---
 
-## 🆘 Need Help?
+## 🆘 Need YAHLP?
 
 ### Configuration Issues
 → Check **ENVIRONMENT-VARIABLES.md**
@@ -461,14 +461,14 @@ ENABLE_JELLYFIN: "true"
 ### General Questions
 → Start with **QUICKSTART.md**
 
-### Docker/Technical Help
+### Docker/Technical YAHLP
 → Check container logs: `docker-compose logs apache-reverse-proxy`
 
 ---
 
-## 📦 Version Info - YAHLP (HeLP)
+## 📦 Version Info - YAHLP (Yet Another HomeLab Portal)
 
-- **Project**: YAHLP (HeLP) - Unified Media Server Dashboard
+- **Project**: YAHLP (Yet Another HomeLab Portal) - Unified Media Server Dashboard
 - **Current Version**: 2.1.0
 - **Release Date**: 2026-06-25
 - **Services**: 17 total
@@ -485,7 +485,7 @@ MIT License - See LICENSE file for details
 
 ---
 
-## 🚀 Getting Started with HeLP
+## 🚀 Getting Started with YAHLP
 
 1. **Read**: [QUICKSTART.md](QUICKSTART.md) (5 min)
 2. **Configure**: Edit `.env` with your settings
@@ -493,5 +493,7 @@ MIT License - See LICENSE file for details
 4. **Access**: `https://yourdomain.com`
 5. **Troubleshoot**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md) if needed
 
-**You're ready to deploy YAHLP (HeLP)!** 🎉
+**You're ready to deploy YAHLP (Yet Another HomeLab Portal)!** 🎉
+
+
 

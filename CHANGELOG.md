@@ -1,4 +1,4 @@
-# YAHLP (HeLP) - Changelog
+# YAHLP (Yet Another HomeLab Portal) - Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -254,4 +254,5 @@ See the [LICENSE](LICENSE) file for details.
 ---
 
 **[⬆ back to top](#changelog)**
+
 

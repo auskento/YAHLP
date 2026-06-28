@@ -1,4 +1,4 @@
-# Deploying YAHLP (HeLP) on Unraid
+# Deploying YAHLP - Yet Another HomeLab Portal on Unraid
 
 Complete guide for installing and configuring YAHLP via Unraid web UI.
 
@@ -38,7 +38,7 @@ You need to get the `YAHLP.xml` file to your Unraid server.
 mkdir -p /boot/config/plugins/dockerManagement/templates-user
 
 # Copy template from extracted zip
-cp /path/to/apache-reverse-proxy/unraid/YAHLP.xml \
+cp /path/to/yahlp/unraid/YAHLP.xml \
    /boot/config/plugins/dockerManagement/templates-user/
 ```
 
@@ -67,7 +67,7 @@ cp /path/to/apache-reverse-proxy/unraid/YAHLP.xml \
 
 ### Step 3: Select Template
 
-1. Look for **"apache-reverse-proxy"** in the dropdown or search
+1. Look for **"yahlp"** in the dropdown or search
 2. If not visible, click refresh or search for it
 3. The template should load automatically
 
@@ -76,7 +76,7 @@ cp /path/to/apache-reverse-proxy/unraid/YAHLP.xml \
 ### Step 4: Configure Basic Settings
 
 #### Container Name
-Leave default: `auskentos-apache-reverse-proxy`
+Leave default: `auskentos-yahlp`
 (or change if you prefer)
 
 #### Repository (Image)
@@ -168,14 +168,14 @@ You need TWO volumes:
 **Volume 1: SSL Certificates**
 ```
 Container Path: /etc/letsencrypt
-Host Path: /mnt/user/appdata/apache-reverse-proxy/letsencrypt
+Host Path: /mnt/user/appdata/yahlp/letsencrypt
 Access Mode: Read/Write
 ```
 
 **Volume 2: Logs**
 ```
 Container Path: /var/log/apache2
-Host Path: /mnt/user/appdata/apache-reverse-proxy/logs
+Host Path: /mnt/user/appdata/yahlp/logs
 Access Mode: Read/Write
 ```
 
@@ -217,7 +217,7 @@ The container will:
 5. Start Apache
 
 **Check the logs:**
-- Docker tab → auskentos-apache-reverse-proxy → Logs
+- Docker tab → auskentos-yahlp → Logs
 - Look for "Apache started successfully"
 
 ---
@@ -249,7 +249,7 @@ https://your-domain.com/jellyfin
 ### Container won't start?
 
 **Check logs:**
-- Docker → auskentos-apache-reverse-proxy → Logs
+- Docker → auskentos-yahlp → Logs
 - Look for error messages
 
 **Common issues:**
@@ -263,14 +263,14 @@ https://your-domain.com/jellyfin
 1. DNS resolves: Open browser, check DNS
 2. Ports 80/443 are open in firewall
 3. Domain is correct in DOMAIN field
-4. Certificate exists: `ls /mnt/user/appdata/apache-reverse-proxy/letsencrypt/`
+4. Certificate exists: `ls /mnt/user/appdata/yahlp/letsencrypt/`
 
 ### Certificate errors?
 
 **Check certificate status:**
 ```bash
 # Via Unraid Console
-cd /mnt/user/appdata/apache-reverse-proxy/letsencrypt/live/
+cd /mnt/user/appdata/yahlp/letsencrypt/live/
 ls -la
 ```
 
@@ -278,7 +278,7 @@ Should show certificate files for your domain.
 
 **Renew certificate:**
 ```bash
-docker exec auskentos-apache-reverse-proxy \
+docker exec auskentos-yahlp \
   certbot renew --dry-run
 ```
 
@@ -288,7 +288,7 @@ docker exec auskentos-apache-reverse-proxy \
 
 ### Change Services
 
-1. Docker → auskentos-apache-reverse-proxy → Settings
+1. Docker → auskentos-yahlp → Settings
 2. Edit Environment Variable (e.g., set ENABLE_RADARR to true)
 3. Click Apply
 4. Container restarts with new settings
@@ -302,11 +302,11 @@ docker exec auskentos-apache-reverse-proxy \
 
 ### View Live Logs
 
-Docker → auskentos-apache-reverse-proxy → Logs (WebUI)
+Docker → auskentos-yahlp → Logs (WebUI)
 
 Or via console:
 ```bash
-docker logs -f auskentos-apache-reverse-proxy
+docker logs -f auskentos-yahlp
 ```
 
 ---
@@ -315,16 +315,16 @@ docker logs -f auskentos-apache-reverse-proxy
 
 All files stored in:
 ```
-/mnt/user/appdata/apache-reverse-proxy/
+/mnt/user/appdata/yahlp/
 ```
 
 ### Important Folders
 
 | Path | Purpose |
 |------|---------|
-| `/mnt/user/appdata/apache-reverse-proxy/letsencrypt/` | SSL certificates |
-| `/mnt/user/appdata/apache-reverse-proxy/logs/` | Apache logs |
-| `/mnt/user/appdata/apache-reverse-proxy/html/` | Dashboard and icons |
+| `/mnt/user/appdata/yahlp/letsencrypt/` | SSL certificates |
+| `/mnt/user/appdata/yahlp/logs/` | Apache logs |
+| `/mnt/user/appdata/yahlp/html/` | Dashboard and icons |
 
 ---
 
@@ -362,7 +362,7 @@ No changes needed - proxy is efficient regardless.
 
 Your data is in:
 ```
-/mnt/user/appdata/apache-reverse-proxy/
+/mnt/user/appdata/yahlp/
 ```
 
 **Backup regularly:**
@@ -376,18 +376,18 @@ Your data is in:
 
 If you want to remove:
 
-1. Docker → auskentos-apache-reverse-proxy → Remove icon
-2. Optionally delete: `/mnt/user/appdata/apache-reverse-proxy/`
+1. Docker → auskentos-yahlp → Remove icon
+2. Optionally delete: `/mnt/user/appdata/yahlp/`
 
 That's it!
 
 ---
 
-## Getting Help
+## Getting YAHLP
 
 **Check logs first:**
 ```bash
-docker logs auskentos-apache-reverse-proxy | tail -50
+docker logs auskentos-yahlp | tail -50
 ```
 
 **Common error messages:**
@@ -414,17 +414,17 @@ docker logs auskentos-apache-reverse-proxy | tail -50
 docker ps | grep apache
 
 # View logs
-docker logs auskentos-apache-reverse-proxy
+docker logs auskentos-yahlp
 
 # Restart container
-docker restart auskentos-apache-reverse-proxy
+docker restart auskentos-yahlp
 
 # Renew SSL certificates
-docker exec auskentos-apache-reverse-proxy \
+docker exec auskentos-yahlp \
   certbot renew --dry-run
 
 # View Apache config
-docker exec auskentos-apache-reverse-proxy \
+docker exec auskentos-yahlp \
   cat /etc/apache2/sites-enabled/reverse-proxy.conf
 ```
 
@@ -433,4 +433,6 @@ docker exec auskentos-apache-reverse-proxy \
 **That's everything you need to run Apache Reverse Proxy on Unraid!** 🚀
 
 For more info, see the full documentation in this package.
+
+
 

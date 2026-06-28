@@ -326,3 +326,4 @@ Menu will automatically include the new service!
 ---
 
 **The dashboard menu is fully dynamic and automatically reflects your configuration!** 🎨
+

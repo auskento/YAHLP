@@ -1,4 +1,4 @@
-# Complete Feature Summary - YAHLP (HeLP) v2.1
+# Complete Feature Summary - YAHLP (Yet Another HomeLab Portal) v2.1
 
 ## 🚀 Everything You Have Now
 
@@ -379,7 +379,7 @@ openssl rand -base64 24  # For ENTRA_CRYPTO_PASSPHRASE
 
 ---
 
-## 🆘 Getting Help
+## 🆘 Getting YAHLP
 
 **Configuration questions?**
 → See `ENVIRONMENT-VARIABLES.md`
@@ -395,7 +395,7 @@ openssl rand -base64 24  # For ENTRA_CRYPTO_PASSPHRASE
 
 ---
 
-**You now have YAHLP (HeLP) - a production-ready unified media server dashboard with 17 services, flexible authentication, and customizable dashboards!** 🎉
+**You now have YAHLP (Yet Another HomeLab Portal) - a production-ready unified media server dashboard with 17 services, flexible authentication, and customizable dashboards!** 🎉
 
 **Key Capabilities:**
 ✅ 17 services available  
@@ -406,5 +406,6 @@ openssl rand -base64 24  # For ENTRA_CRYPTO_PASSPHRASE
 ✅ Easy configuration  
 ✅ Zero manual Apache editing  
 
-**Ready to deploy with HeLP!** 🚀
+**Ready to deploy with YAHLP!** 🚀
+
 

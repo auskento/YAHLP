@@ -386,3 +386,4 @@ For support or issues, check Apache error logs:
 docker logs <container-id>
 docker exec <container-id> tail -f /var/log/apache2/error.log
 ```
+

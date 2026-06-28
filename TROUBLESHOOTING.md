@@ -366,7 +366,7 @@ docker-compose restart apache-reverse-proxy
 docker-compose logs -f apache-reverse-proxy
 ```
 
-## Get Help
+## Get YAHLP
 
 **When reporting issues, include:**
 
@@ -388,3 +388,4 @@ docker-compose exec apache-reverse-proxy apache2ctl configtest && \
 echo "=== Generated Config ===" && \
 docker-compose exec apache-reverse-proxy head -50 /etc/apache2/sites-available/reverse-proxy.conf
 ```
+

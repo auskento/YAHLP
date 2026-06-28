@@ -411,3 +411,4 @@ Then visit `https://yourdomain.com` and see your custom icons in the menu!
 ---
 
 **Your dashboard menu now supports professional app icons!** 🎨✨
+
