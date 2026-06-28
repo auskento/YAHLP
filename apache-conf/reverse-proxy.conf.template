@@ -58,7 +58,7 @@
     
     # Static content serving
     DocumentRoot /var/www/html
-    DirectoryIndex index.html dashboard.html
+    DirectoryIndex index.html
     
     # Rewrite rules for mobile detection and STYLE preference
     RewriteEngine On
@@ -67,11 +67,6 @@
     RewriteCond %{REQUEST_URI} ^/?$
     RewriteCond %{HTTP_USER_AGENT} (android|iphone|ipod|blackberry|iemobile|opera.mini|webos|windows.phone|mobile.safari|mobi) [NC]
     RewriteRule ^.*$ /mobile.html [L]
-
-    # If STYLE is modern and requesting root, serve dashboard.html
-    RewriteCond %{REQUEST_URI} ^/?$
-    RewriteCond %{ENV:STYLE} modern
-    RewriteRule ^.*$ /dashboard.html [L]
     
     # Alias for icons (serve directly, don't proxy)
     Alias /icons /var/www/html/icons
