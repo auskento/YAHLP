@@ -448,7 +448,7 @@ generate_services_array() {
 generate_style_switcher_classic() {
     if [ "$SHOW_STYLE_SWITCHER" = "true" ]; then
         echo '<div class="style-switcher" style="display:flex;gap:6px;justify-content:center;align-items:center">
-                <a href="/" style="text-decoration:none;color:#4a9eff">Classic</a>
+                <a href="/classic.html" style="text-decoration:none;color:#4a9eff">Classic</a>
                 <span style="color:#5d6575">|</span>
                 <a href="/modern.html" style="text-decoration:none;color:#4a9eff">Modern</a>
                 <span style="color:#5d6575">|</span>
@@ -531,7 +531,7 @@ generate_style_switcher_minimal() {
 # Generate dashboard based on DASH_STYLE
 generate_style_dashboard() {
     local DASH_STYLE="${DASH_STYLE:-classic}"
-    local OUTPUT_FILE="/var/www/html/index.html"
+    local OUTPUT_FILE="/var/www/html/${DASH_STYLE}.html"
     local TEMPLATE_FILE
 
     # Map style to template
@@ -560,7 +560,7 @@ generate_style_dashboard() {
     fi
 
     # For classic style, generate menu items and services list
-    if [ "$STYLE" = "classic" ]; then
+    if [ "$DASH_STYLE" = "classic" ]; then
         local menu_items=$(generate_menu_items)
         local services_list=$(generate_services_list)
         local style_switcher=$(generate_style_switcher_classic)
@@ -580,7 +580,7 @@ generate_style_dashboard() {
         fi
 
         echo "$html_content" > "$OUTPUT_FILE"
-    elif [ "$STYLE" = "modern" ]; then
+    elif [ "$DASH_STYLE" = "modern" ]; then
         # Modern dashboard uses React with full services array (with categories)
         local services_array=$(generate_services_array)
         local dash_order=$(generate_group_order)
@@ -618,7 +618,7 @@ generate_style_dashboard() {
 
         # Determine which style switcher to use
         local style_switcher
-        if [ "$STYLE" = "sleek" ]; then
+        if [ "$DASH_STYLE" = "sleek" ]; then
             style_switcher=$(generate_style_switcher_sleek)
         else
             style_switcher=$(generate_style_switcher_minimal)
@@ -777,31 +777,23 @@ generate_html() {
         fi
     done
 
-    # For public mode with basic auth only, generate single index.html to avoid repeated auth prompts
-    # For private mode or OAuth (google, entra), generate all styles since they don't have re-auth issues
-    if [ "$ACCESS_MODE" = "public" ] && [ "$AUTHTYPE" = "basic" ]; then
-        # Public + basic auth: only generate index.html to prevent repeated auth prompts
-        SHOW_STYLE_SWITCHER="false"
-        generate_style_dashboard
-        echo ""
-        echo "✓ Dashboard generated (basic auth: single menu) with $count enabled service(s)"
-        echo ""
-        echo "  /index.html"
-    else
-        # Private mode or OAuth modes: generate all style variants for menu switching
-        SHOW_STYLE_SWITCHER="true"
-        generate_style_dashboard
-        generate_all_styles
-        echo ""
-        echo "✓ Dashboards generated with $count enabled service(s)"
-        echo ""
-        echo "Available dashboards:"
-        echo "  /index.html (primary: $DASH_STYLE)"
-        echo "  /classic.html"
-        echo "  /modern.html"
-        echo "  /sleek.html"
-        echo "  /minimal.html"
-    fi
+    # Always show style switcher
+    SHOW_STYLE_SWITCHER="true"
+
+    # Generate all style variants
+    generate_all_styles
+
+    echo ""
+    echo "✓ Dashboards generated with $count enabled service(s)"
+    echo ""
+    echo "Available dashboards (Apache DirectoryIndex = $DASH_STYLE.html):"
+    echo "  /classic.html"
+    echo "  /modern.html"
+    echo "  /sleek.html"
+    echo "  /minimal.html"
+    echo "  /mobile.html"
+    echo ""
+    echo "Primary: /$DASH_STYLE.html (via DirectoryIndex)"
 }
 
 # Run generation
