@@ -48,19 +48,19 @@
     ProxyTimeout 300
     Timeout 300
     
-    # Set STYLE environment variable for rewrite rules
-    SetEnv STYLE @@STYLE@@
-    
+    # Set DASH_STYLE environment variable for rewrite rules
+    SetEnv DASH_STYLE @@DASH_STYLE@@
+
     # Request limit settings (needed for Plex and other large requests)
     LimitRequestFieldSize 32768
     LimitRequestFields 100
     LimitRequestLine 32768
-    
+
     # Static content serving
     DocumentRoot /var/www/html
     DirectoryIndex index.html
-    
-    # Rewrite rules for mobile detection and STYLE preference
+
+    # Rewrite rules for mobile detection
     RewriteEngine On
 
     # Detect mobile User-Agents and serve mobile.html for root requests

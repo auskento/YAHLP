@@ -33,7 +33,7 @@ chmod 777 /var/log/apache2/sites || {
 if [ -f /etc/apache2/dashboard.conf ]; then
     echo "Loading persistent dashboard configuration..."
     source /etc/apache2/dashboard.conf
-    echo "DEBUG: Loaded STYLE=$STYLE, DASHBOARD_LANDING=$DASHBOARD_LANDING"
+    echo "DEBUG: Loaded DASH_STYLE=$DASH_STYLE, DASHBOARD_LANDING=$DASHBOARD_LANDING"
 fi
 
 # Write environment variables to config file for scripts to source
@@ -42,7 +42,7 @@ cat > /etc/apache2/env.conf << ENVEOF
 ACCESS_MODE="${ACCESS_MODE:-public}"
 DOMAIN="${DOMAIN}"
 EMAIL="${EMAIL}"
-STYLE="${STYLE:-classic}"
+DASH_STYLE="${DASH_STYLE:-classic}"
 DASHBOARD_THEME="${DASHBOARD_THEME:-dark}"
 ENABLE_SONARR="${ENABLE_SONARR:-false}"
 ENABLE_RADARR="${ENABLE_RADARR:-false}"
@@ -133,8 +133,8 @@ if ! grep -q "^ServerName" /etc/apache2/apache2.conf; then
     fi
 fi
 
-# Update env.conf with modified STYLE (in case basic auth forced it to classic)
-sed -i "s/^STYLE=.*/STYLE=\"${STYLE}\"/" /etc/apache2/env.conf
+# Update env.conf with modified DASH_STYLE (in case basic auth forced it to classic)
+sed -i "s/^DASH_STYLE=.*/DASH_STYLE=\"${DASH_STYLE}\"/" /etc/apache2/env.conf
 
 # Configuration - clean up ACCESS_MODE if it was set
 ACCESS_MODE=$(echo "${ACCESS_MODE}" | tr '[:upper:]' '[:lower:]' | sed "s/'//g" | sed 's/"//g' | xargs)
@@ -182,7 +182,7 @@ fi
 
 echo ""
 echo "=== Apache Setup ==="
-echo "Style: $STYLE (Auth: $AUTHTYPE)"
+echo "Style: $DASH_STYLE (Auth: $AUTHTYPE)"
 
 # Update env.conf with cleared values for private mode
 if [ "$ACCESS_MODE" = "private" ]; then
@@ -237,7 +237,7 @@ fi
 echo ""
 /usr/local/bin/generate-sites-config.sh
 
-# Generate HTML dashboard based on enabled services and STYLE
+# Generate HTML dashboard based on enabled services and DASH_STYLE
 echo ""
 echo "Generating dashboard menu based on enabled services..."
 /usr/local/bin/generate-html-menu.sh
@@ -270,8 +270,8 @@ echo "DEBUG: AUTHTYPE='${AUTHTYPE}'"
 
 # Force classic style for basic auth (basic auth doesn't support modern dashboards)
 if [ "$AUTHTYPE" = "basic" ]; then
-    STYLE="classic"
-    echo "INFO: Basic auth requires STYLE=classic (modern dashboards require session management)"
+    DASH_STYLE="classic"
+    echo "INFO: Basic auth requires DASH_STYLE=classic (modern dashboards require session management)"
 fi
 
 # Authentication Setup - Mutually Exclusive
