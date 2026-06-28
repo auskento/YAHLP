@@ -8,6 +8,11 @@ on:
       - main
     paths:
       - 'Dockerfile'
+      - 'docker-entrypoint.sh'
+      - 'generate-html-menu.sh'
+      - 'generate-sites-config.sh'
+      - 'apache-conf/**'
+      - 'html/**'
       - '.github/workflows/publish-ghcr.yml'
 
 jobs:
