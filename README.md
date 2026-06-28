@@ -1,4 +1,4 @@
-# HomELabPortal (HeLP) - Unified Media Server Dashboard
+# YAHLP (HeLP) - Unified Media Server Dashboard
 
 A production-ready reverse proxy system for managing 17+ homelab applications with automatic HTTPS, flexible authentication, and customizable dashboards.
 
@@ -157,7 +157,7 @@ STYLE: minimal     # Single-column design
 
 ```yaml
 DASHBOARD_NAME: "My Homelab"
-DASHBOARD_ICON: "/icons/homelabportal.png"
+DASHBOARD_ICON: "/icons/YAHLP.png"
 ```
 
 ### Custom Landing Page
@@ -466,9 +466,9 @@ ENABLE_JELLYFIN: "true"
 
 ---
 
-## 📦 Version Info - HomELabPortal (HeLP)
+## 📦 Version Info - YAHLP (HeLP)
 
-- **Project**: HomELabPortal (HeLP) - Unified Media Server Dashboard
+- **Project**: YAHLP (HeLP) - Unified Media Server Dashboard
 - **Current Version**: 2.1.0
 - **Release Date**: 2026-06-25
 - **Services**: 17 total
@@ -493,4 +493,5 @@ MIT License - See LICENSE file for details
 4. **Access**: `https://yourdomain.com`
 5. **Troubleshoot**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md) if needed
 
-**You're ready to deploy HomELabPortal (HeLP)!** 🎉
+**You're ready to deploy YAHLP (HeLP)!** 🎉
+

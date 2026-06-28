@@ -41,7 +41,7 @@ services:
       TZ: Australia/Melbourne
       STYLE: modern
       DASHBOARD_NAME: My Homelab
-      DASHBOARD_ICON: /icons/homelabportal.png
+      DASHBOARD_ICON: /icons/YAHLP.png
       DASHBOARD_LANDING: radarr
       DASHBOARD_ORDER: CONTENT,SEARCH,USENET,TORRENTS,MEDIA
       AUTHTYPE: basic
@@ -232,7 +232,7 @@ EMAIL=admin@myservices.com
 TZ=Australia/Sydney
 STYLE=modern
 DASHBOARD_NAME=Services Dashboard
-DASHBOARD_ICON=/icons/homelabportal.png
+DASHBOARD_ICON=/icons/YAHLP.png
 DASHBOARD_LANDING=radarr
 DASHBOARD_ORDER=USENET,TORRENTS,CONTENT,SEARCH,MEDIA
 AUTHTYPE=basic
@@ -376,7 +376,7 @@ docker run -d \
 ### Manual Template Installation
 1. Navigate to Unraid Dashboard → Docker
 2. Add Container → Template URL
-3. Enter: `https://raw.githubusercontent.com/auskento/apache-reverse-proxy/main/homelabportal.xml`
+3. Enter: `https://raw.githubusercontent.com/auskento/apache-reverse-proxy/main/YAHLP.xml`
 4. Fill in required fields (DOMAIN, EMAIL, authentication)
 5. Configure services
 6. Create
@@ -421,3 +421,4 @@ docker exec apache-reverse-proxy curl -I http://localhost/health
 - For private deployments, only ports accessible on local network are needed
 - Custom icons must be accessible via HTTP/HTTPS URL
 - Dashboard styles can be changed at any time without rebuilding
+

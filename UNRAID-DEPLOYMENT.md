@@ -1,6 +1,6 @@
-# Deploying HomELabPortal (HeLP) on Unraid
+# Deploying YAHLP (HeLP) on Unraid
 
-Complete guide for installing and configuring HomELabPortal via Unraid web UI.
+Complete guide for installing and configuring YAHLP via Unraid web UI.
 
 ---
 
@@ -8,7 +8,7 @@ Complete guide for installing and configuring HomELabPortal via Unraid web UI.
 
 1. **Copy template to Unraid:**
    ```bash
-   cp unraid/homelabportal.xml \
+   cp unraid/YAHLP.xml \
       /boot/config/plugins/dockerManagement/templates-user/
    ```
 
@@ -29,7 +29,7 @@ Complete guide for installing and configuring HomELabPortal via Unraid web UI.
 
 ### Step 1: Copy Template to Unraid
 
-You need to get the `homelabportal.xml` file to your Unraid server.
+You need to get the `YAHLP.xml` file to your Unraid server.
 
 #### Option A: Using SSH/Terminal
 
@@ -38,7 +38,7 @@ You need to get the `homelabportal.xml` file to your Unraid server.
 mkdir -p /boot/config/plugins/dockerManagement/templates-user
 
 # Copy template from extracted zip
-cp /path/to/apache-reverse-proxy/unraid/homelabportal.xml \
+cp /path/to/apache-reverse-proxy/unraid/YAHLP.xml \
    /boot/config/plugins/dockerManagement/templates-user/
 ```
 
@@ -49,7 +49,7 @@ cp /path/to/apache-reverse-proxy/unraid/homelabportal.xml \
 3. Share → Boot
 4. Navigate to: `boot/config/plugins/dockerManagement/templates-user/`
 5. Create folder if doesn't exist
-6. Upload `homelabportal.xml`
+6. Upload `YAHLP.xml`
 
 ---
 
@@ -433,3 +433,4 @@ docker exec auskentos-apache-reverse-proxy \
 **That's everything you need to run Apache Reverse Proxy on Unraid!** 🚀
 
 For more info, see the full documentation in this package.
+

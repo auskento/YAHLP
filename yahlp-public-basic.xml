@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Container version="2">
-  <Name>HomELabPortal - Public (Google OAuth)</Name>
-  <Repository>auskento/homelabportal:latest</Repository>
+  <Name>YAHLP - Public (Basic Auth)</Name>
+  <Repository>auskento/YAHLP:latest</Repository>
   <Registry>https://hub.docker.com/</Registry>
   <Network>bridge</Network>
   <MyIP/>
   <Shell>bash</Shell>
   <Privileged>false</Privileged>
-  <Support>https://github.com/auskento/HomELabPortal</Support>
-  <Project>https://github.com/auskento/HomELabPortal</Project>
+  <Support>https://github.com/auskento/YAHLP</Support>
+  <Project>https://github.com/auskento/YAHLP</Project>
   <Category>Network:Web</Category>
-  <TemplateURL>https://raw.githubusercontent.com/auskento/HomELabPortal/main/homelabportal-public-basic.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/auskento/HomELabPortal/main/homelabportal-150.png</Icon>
+  <TemplateURL>https://raw.githubusercontent.com/auskento/YAHLP/main/YAHLP-public-basic.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/auskento/YAHLP/main/YAHLP-150.png</Icon>
   <PostArgs/>
   <CloudSync>false</CloudSync>
-  <Description>HomELabPortal - Public Mode with Google OAuth2 authentication. Full external access with HTTPS via Let's Encrypt, protected by username/password.</Description>
-  <Overview>HomELabPortal - Public Deployment with Basic Auth&#13;&#13;This template is pre-configured for:&#13;- Public mode: External access on HTTPS via Let's Encrypt&#13;- Google OAuth2 authentication with username/password&#13;- Automatic SSL certificate generation and renewal&#13;&#13;Required settings:&#13;1. DOMAIN: Your domain name (e.g., yourdomain.com)&#13;2. EMAIL: Email for Let's Encrypt certificate notifications&#13;3. BASIC_AUTH_CREDENTIALS: Username and password (format: user:pass)&#13;4. Service URLs: Configure your backend service URLs&#13;&#13;Optional settings:&#13;- STYLE: Dashboard style (classic, modern, sleek, minimal)&#13;- DASHBOARD_NAME, DASHBOARD_ICON, DASHBOARD_LANDING&#13;- EMBY_DOMAIN, PLEX_DOMAIN: For dedicated subdomains&#13;- Service enable/disable flags&#13;&#13;Documentation: https://github.com/auskento/HomELabPortal</Overview>
+  <Description>YAHLP - Public Mode with Basic Authentication. Full external access with HTTPS via Let's Encrypt, protected by username/password.</Description>
+  <Overview>YAHLP - Public Deployment with Basic Auth&#13;&#13;This template is pre-configured for:&#13;- Public mode: External access on HTTPS via Let's Encrypt&#13;- Basic authentication with username/password&#13;- Automatic SSL certificate generation and renewal&#13;&#13;Required settings:&#13;1. DOMAIN: Your domain name (e.g., yourdomain.com)&#13;2. EMAIL: Email for Let's Encrypt certificate notifications&#13;3. BASIC_AUTH_CREDENTIALS: Username and password (format: user:pass)&#13;4. Service URLs: Configure your backend service URLs&#13;&#13;Optional settings:&#13;- STYLE: Dashboard style (classic, modern, sleek, minimal)&#13;- DASHBOARD_NAME, DASHBOARD_ICON, DASHBOARD_LANDING&#13;- EMBY_DOMAIN, PLEX_DOMAIN: For dedicated subdomains&#13;- Service enable/disable flags&#13;&#13;Documentation: https://github.com/auskento/YAHLP</Overview>
   <Networking>
     <Mode>br0</Mode>
     <Publish>
@@ -37,7 +37,7 @@
   </Networking>
   <Data>
     <Volume>
-      <HostDir>/mnt/user/appdata/homelabportal-public-google/letsencrypt</HostDir>
+      <HostDir>/mnt/user/appdata/YAHLP-public/letsencrypt</HostDir>
       <ContainerDir>/etc/letsencrypt</ContainerDir>
       <Mode>rw</Mode>
       <Description>SSL Certificates</Description>
@@ -46,7 +46,7 @@
       <IsFileShare>false</IsFileShare>
     </Volume>
     <Volume>
-      <HostDir>/mnt/user/appdata/homelabportal-public-google/logs</HostDir>
+      <HostDir>/mnt/user/appdata/YAHLP-public/logs</HostDir>
       <ContainerDir>/var/log/apache2</ContainerDir>
       <Mode>rw</Mode>
       <Description>Apache Logs</Description>
@@ -83,7 +83,7 @@
     </Variable>
     <Variable>
       <Name>DASHBOARD_ICON</Name>
-      <Value>/icons/homelabportal.png</Value>
+      <Value>/icons/YAHLP.png</Value>
     </Variable>
     <Variable>
       <Name>DASHBOARD_LANDING</Name>
@@ -311,7 +311,7 @@
   <Config Name="Jellyfin URL" Target="JELLYFIN_URL" Default="http://192.168.9.13:8096" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Enable Tautulli" Target="ENABLE_TAUTULLI" Default="false" Mode="" Description="Tautulli - Analytics" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Tautulli URL" Target="TAUTULLI_URL" Default="http://192.168.9.13:8181" Mode="" Description="Backend URL" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Certificates Volume" Target="/etc/letsencrypt" Default="/mnt/user/appdata/homelabportal-public-google/letsencrypt" Mode="rw" Description="SSL Certificates" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/homelabportal-public-google/letsencrypt</Config>
-  <Config Name="Logs Volume" Target="/var/log/apache2" Default="/mnt/user/appdata/homelabportal-public-google/logs" Mode="rw" Description="Apache Logs" Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/homelabportal-public-google/logs</Config>
+  <Config Name="Certificates Volume" Target="/etc/letsencrypt" Default="/mnt/user/appdata/YAHLP-public/letsencrypt" Mode="rw" Description="SSL Certificates" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/YAHLP-public/letsencrypt</Config>
+  <Config Name="Logs Volume" Target="/var/log/apache2" Default="/mnt/user/appdata/YAHLP-public/logs" Mode="rw" Description="Apache Logs" Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/YAHLP-public/logs</Config>
 </Container>
 
