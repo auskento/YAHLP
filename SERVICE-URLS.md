@@ -379,3 +379,4 @@ ENABLE_JELLYFIN: "true"
 ---
 
 **See ENVIRONMENT-VARIABLES.md for complete variable reference**
+

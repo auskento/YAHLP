@@ -1,8 +1,8 @@
-# YAHLP (HeLP) - Unraid Installation Guide
+# YAHLP - Yet Another HomeLab Portal - Unraid Installation Guide
 
 ## Overview
 
-This is **YAHLP (HeLP)** - a unified media server dashboard Docker container designed specifically for Unraid. It does NOT include any media applications - it proxies to your existing containers and services.
+This is **YAHLP (Yet Another HomeLab Portal)** - a unified media server dashboard Docker container designed specifically for Unraid. It does NOT include any media applications - it proxies to your existing containers and services.
 
 ## Features
 
@@ -34,7 +34,7 @@ This is **YAHLP (HeLP)** - a unified media server dashboard Docker container des
 
 2. **Add Container**
    - Click `Add Container`
-   - Search for `apache-reverse-proxy`
+   - Search for `yahlp`
    - Select it from the template
    - Fill in required fields:
      - `DOMAIN`: Your domain (e.g., `media.example.com`)
@@ -45,8 +45,8 @@ This is **YAHLP (HeLP)** - a unified media server dashboard Docker container des
 
 1. **Create Directories**
    ```bash
-   mkdir -p /mnt/user/appdata/apache-reverse-proxy/{letsencrypt,logs,html}
-   chmod -R 755 /mnt/user/appdata/apache-reverse-proxy
+   mkdir -p /mnt/user/appdata/yahlp/{letsencrypt,logs,html}
+   chmod -R 755 /mnt/user/appdata/yahlp
    ```
 
 2. **Download Template**
@@ -322,5 +322,6 @@ A: Yes, if using ARM-compatible Docker image.
 
 **Ready to deploy?** Start with the Unraid template installation above! 🚀
 
-Need help? Check the included documentation or review container logs in Unraid.
+Need YAHLP? Check the included documentation or review container logs in Unraid.
+
 

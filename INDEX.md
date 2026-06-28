@@ -1,8 +1,8 @@
-# YAHLP (HeLP) - Unified Media Server Dashboard
+# YAHLP (Yet Another HomeLab Portal) - Unified Media Server Dashboard
 
 ## What You've Got
 
-A complete, production-ready Docker setup for YAHLP (HeLP) with:
+A complete, production-ready Docker setup for YAHLP (Yet Another HomeLab Portal) with:
 
 ✅ **Automatic HTTPS** - Let's Encrypt with auto-renewal  
 ✅ **17 Pre-configured Services** - Sonarr, Radarr, Jellyfin, qBittorrent, Bazarr, and more  
@@ -358,7 +358,7 @@ Total: 2-10 minutes depending on issue
 - 🌐 **Only expose 80/443** - Keep service ports internal
 - 📊 **Monitor with logs** - `docker-compose logs -f`
 
-## Getting Help
+## Getting YAHLP
 
 **If something doesn't work:**
 
@@ -416,4 +416,5 @@ Total: 2-10 minutes depending on issue
 ---
 
 **You've got everything you need. Deploy with confidence!** 🚀
+
 

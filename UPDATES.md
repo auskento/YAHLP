@@ -1,4 +1,4 @@
-# YAHLP (HeLP) - What's New in v2.1
+# YAHLP (Yet Another HomeLab Portal) - What's New in v2.1
 
 ## ✨ Major Updates
 
@@ -239,7 +239,7 @@ NZBGET_PASS: "your_secure_password"
 
 ---
 
-## 🆘 Need Help?
+## 🆘 Need YAHLP?
 
 **Variable questions?**
 → See `ENVIRONMENT-VARIABLES.md`
@@ -253,4 +253,5 @@ NZBGET_PASS: "your_secure_password"
 ---
 
 **Enjoy the improvements!** 🎉
+
 

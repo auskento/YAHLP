@@ -422,3 +422,4 @@ docker exec apache-reverse-proxy curl -I http://localhost/health
 - Custom icons must be accessible via HTTP/HTTPS URL
 - Dashboard styles can be changed at any time without rebuilding
 
+

@@ -1,4 +1,4 @@
-# Contributing to YAHLP (HeLP)
+# Contributing to YAHLP (Yet Another HomeLab Portal)
 
 Thank you for your interest in contributing! This document provides guidelines for contributing to YAHLP - Unified Media Server Dashboard.
 
@@ -377,7 +377,7 @@ Any other relevant information.
 
 - Be respectful and inclusive
 - Provide constructive feedback
-- Help others when you can
+- YAHLP others when you can
 - Report security issues privately (security@example.com)
 - No spam or self-promotion
 
@@ -399,4 +399,5 @@ Contributors are recognized in:
 - GitHub contributors page
 
 Thank you for contributing! 🙏
+
 
