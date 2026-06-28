@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Container version="2">
   <Name>YAHLP - Public (Entra OAuth)</Name>
-  <Repository>auskento/YAHLP:latest</Repository>
+  <Repository>auskento/yahlp:latest</Repository>
   <Registry>https://hub.docker.com/</Registry>
   <Network>bridge</Network>
   <MyIP/>
@@ -330,6 +330,8 @@
   <Config Name="Certificates Volume" Target="/etc/letsencrypt" Default="/mnt/user/appdata/YAHLP-public-entra/letsencrypt" Mode="rw" Description="SSL Certificates" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/YAHLP-public-entra/letsencrypt</Config>
   <Config Name="Logs Volume" Target="/var/log/apache2" Default="/mnt/user/appdata/YAHLP-public-entra/logs" Mode="rw" Description="Apache Logs" Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/YAHLP-public-entra/logs</Config>
 </Container>
+
+
 
 
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Container version="2">
   <Name>YAHLP - Private (Basic Auth)</Name>
-  <Repository>auskento/YAHLP:latest</Repository>
+  <Repository>auskento/yahlp:latest</Repository>
   <Registry>https://hub.docker.com/</Registry>
   <Network>bridge</Network>
   <MyIP/>
@@ -310,5 +310,7 @@
   <!-- VOLUMES -->
   <Config Name="Logs Volume" Target="/var/log/apache2" Default="/mnt/user/appdata/YAHLP-private/logs" Mode="rw" Description="Apache Logs" Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/YAHLP-private/logs</Config>
 </Container>
+
+
 
 
