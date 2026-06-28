@@ -106,7 +106,7 @@
 
     <!-- SITES/LINKS -->
     <Variable>
-      <Name>SITES_ENABLED</Name>
+      <Name>SITES_ENABLED=
       <Value>TPB,FIL,HDB,IPT,1337,YTS,LAT,NYA,PTP,DOG,DRS,NLF,NFW,NGK,PLA,TAB</Value>
     </Variable>
 
@@ -397,7 +397,7 @@
   <Config Name="Dashboard Order" Target="DASHBOARD_ORDER" Default="CONTENT,SEARCH,USENET,TORRENTS,MEDIA" Mode="" Description="Service category order (comma-separated: CONTENT, SEARCH, USENET, TORRENTS, MEDIA)" Type="Variable" Display="always" Required="false" Mask="false"/>
 
   <!-- SITES/LINKS -->
-  <Config Name="Sites Enabled" Target="SITES_ENABLED" Default="TPB,FIL,HDB,IPT,1337,YTS,LAT,NYA,PTP,DOG,DRS,NLF,NFW,NGK,PLA,TAB" Mode="" Description="Comma-separated 3-letter site codes. Torrent: TPB,FIL,HDB,IPT,1337,YTS,LAT,NYA,PTP | Usenet: DOG,DRS,NLF,NFW,NGK,PLA,TAB" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Sites Enabled" Target="SITES_ENABLED=
 
   <!-- AUTHENTICATION -->
   <Config Name="Auth Type" Target="AUTHTYPE" Default="none" Mode="" Description="Authentication method: none, basic, entra, or google" Type="Variable" Display="always" Required="true" Mask="false"/>
