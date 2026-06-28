@@ -58,7 +58,7 @@
 
     # Static content serving
     DocumentRoot /var/www/html
-    DirectoryIndex index.html
+    DirectoryIndex @@DASH_STYLE@@.html mobile.html
 
     # Rewrite rules for mobile detection
     RewriteEngine On
