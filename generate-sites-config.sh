@@ -74,7 +74,7 @@ if [ ! -f "$SITES_JSON" ]; then
     {
       "code": "DOG",
       "name": "DOGnzb",
-      "url": "https://dognzb.cr",
+      "url": "https://dognzb.cr/browse",
       "category": "usenet"
     },
     {
