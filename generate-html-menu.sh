@@ -528,14 +528,14 @@ generate_style_switcher_minimal() {
     fi
 }
 
-# Generate dashboard based on STYLE
+# Generate dashboard based on DASH_STYLE
 generate_style_dashboard() {
-    local STYLE="${STYLE:-classic}"
+    local DASH_STYLE="${DASH_STYLE:-classic}"
     local OUTPUT_FILE="/var/www/html/index.html"
     local TEMPLATE_FILE
 
     # Map style to template
-    case "$STYLE" in
+    case "$DASH_STYLE" in
         classic)
             TEMPLATE_FILE="$CLASSIC_TEMPLATE"
             ;;
@@ -549,7 +549,7 @@ generate_style_dashboard() {
             TEMPLATE_FILE="$MINIMAL_TEMPLATE"
             ;;
         *)
-            echo "ERROR: Invalid STYLE: $STYLE"
+            echo "ERROR: Invalid DASH_STYLE: $DASH_STYLE"
             return 1
             ;;
     esac
@@ -644,12 +644,12 @@ generate_style_dashboard() {
         echo "$html_content" > "$OUTPUT_FILE"
     fi
 
-    echo "✓ Dashboard generated: $STYLE → $OUTPUT_FILE"
+    echo "✓ Dashboard generated: $DASH_STYLE → $OUTPUT_FILE"
 }
 
 # Generate all dashboard styles for style switching
 generate_all_styles() {
-    local STYLE="${STYLE:-classic}"
+    local DASH_STYLE="${DASH_STYLE:-classic}"
     local service_count=0
     for service_key in "${SERVICE_ORDER[@]}"; do
         local enable_var="ENABLE_${service_key}"
@@ -765,7 +765,7 @@ generate_all_styles() {
 
 # Main generation function
 generate_html() {
-    echo "Generating dashboards for STYLE=$STYLE..."
+    echo "Generating dashboards for DASH_STYLE=$DASH_STYLE..."
     echo ""
 
     # Count enabled services
@@ -796,7 +796,7 @@ generate_html() {
         echo "✓ Dashboards generated with $count enabled service(s)"
         echo ""
         echo "Available dashboards:"
-        echo "  /index.html (primary: $STYLE)"
+        echo "  /index.html (primary: $DASH_STYLE)"
         echo "  /classic.html"
         echo "  /modern.html"
         echo "  /sleek.html"
