@@ -103,26 +103,17 @@ if (typeof window !== 'undefined' && window.parent && window.parent !== window) 
     </div>
 
     <nav style="flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 16px 22px 16px">
-      <sc-for list="{{ groups }}" as="group">
-        <div style="margin-top:18px">
-          <div style="display:flex;align-items:center;gap:9px;padding:0 10px 9px 10px">
-            <span style="font-size:11px;font-weight:600;letter-spacing:.16em;color:var(--text-secondary)">{{ group.label }}</span>
-            <span style="flex:1;height:1px;background:var(--border-color)"></span>
-            <span style="font-size:11px;color:var(--text-dim);font-variant-numeric:tabular-nums">{{ group.count }}</span>
-          </div>
-          <sc-for list="{{ group.items }}" as="app">
-            <button onClick="{{ app.open }}" style="{{ app.style }}" style-hover="{{ app.hoverStyle }}">
-              <span style="width:46px;height:46px;flex:none;border-radius:12px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 1px var(--border-color)">
-                {{ app.iconEl }}
-              </span>
-              <span style="flex:1;min-width:0;text-align:left">
-                <span style="display:block;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:var(--text-light)">{{ app.name }}</span>
-                <span style="display:block;font-size:12.5px;color:var(--text-muted);margin-top:1px">{{ app.desc }}</span>
-              </span>
-              <span style="{{ app.dotStyle }}"></span>
-            </button>
-          </sc-for>
-        </div>
+      <sc-for list="{{ groups[0].items }}" as="app">
+        <button onClick="{{ app.open }}" style="{{ app.style }}" style-hover="{{ app.hoverStyle }}">
+          <span style="width:46px;height:46px;flex:none;border-radius:12px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 1px var(--border-color)">
+            {{ app.iconEl }}
+          </span>
+          <span style="flex:1;min-width:0;text-align:left">
+            <span style="display:block;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:var(--text-light)">{{ app.name }}</span>
+            <span style="display:block;font-size:12.5px;color:var(--text-muted);margin-top:1px">{{ app.desc }}</span>
+          </span>
+          <span style="{{ app.dotStyle }}"></span>
+        </button>
       </sc-for>
     </nav>
 
@@ -274,8 +265,6 @@ class Component extends DCLogic {
       @@SERVICES_ARRAY@@
     ];
 
-    const codeToCat = { SAB: 'USENET', GET: 'USENET', HYD: 'USENET', TRA: 'TORRENTS', QBI: 'TORRENTS', DEL: 'TORRENTS', SON: 'CONTENT', RAD: 'CONTENT', LID: 'CONTENT', WHI: 'CONTENT', PRO: 'SEARCH', SEE: 'SEARCH', BAZ: 'SEARCH', JEL: 'MEDIA', EMB: 'MEDIA', PLX: 'MEDIA', TAU: 'MEDIA', MNT: 'MEDIA' };
-    const labels = { USENET: 'USENET', TORRENTS: 'TORRENTS', CONTENT: 'CONTENT', SEARCH: 'SEARCH', MEDIA: 'MEDIA' };
     const orderCodes = @@DASHBOARD_ORDER@@;
 
     const mk = (app) => {
@@ -290,14 +279,8 @@ class Component extends DCLogic {
       };
     };
 
-    const orderedApps = orderCodes.map(code => raw.find(a => a.id === code.toLowerCase())).filter(a => a);
-    const groupMap = {};
-    orderedApps.forEach(app => {
-      const cat = app.cat;
-      if (!groupMap[cat]) groupMap[cat] = [];
-      groupMap[cat].push(mk(app));
-    });
-    const groups = Object.entries(labels).map(([cat, label]) => ({ label, cat, items: groupMap[cat] || [] })).filter(g => g.items.length > 0);
+    const items = orderCodes.map(code => raw.find(a => a.id === code.toLowerCase())).filter(a => a).map(mk);
+    const groups = [{ items }];
     
     // Calculate health status
     const health = this.state.serviceHealth;
