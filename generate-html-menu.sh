@@ -505,10 +505,10 @@ generate_services_array() {
         fi
 
         # Add service object with correct accent color
-        array+="{ cat: '$category', id: '$id', name: '$name', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
+        array+="{ id: '$id', name: '$name', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
     done
 
-    echo "$array"
+    echo "[$array]"
 }
 
 # Calculate dynamic icon sizes based on service count
