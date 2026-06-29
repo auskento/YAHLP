@@ -245,37 +245,13 @@ declare -A CATEGORY_LABEL=(
 generate_group_order() {
     local dash_order="${DASHBOARD_ORDER:-SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT}"
     local items=()
-    local seen=()
 
-    # Split by comma and convert service codes to categories
+    # Split by comma and pass service codes as-is (no conversion)
     IFS=',' read -ra codes <<< "$dash_order"
 
     for code in "${codes[@]}"; do
         code=$(echo "$code" | xargs | tr '[:lower:]' '[:upper:]')
-
-        # Get service key from code
-        if [[ -n "${SERVICE_CODE_MAP[$code]}" ]]; then
-            local service_key="${SERVICE_CODE_MAP[$code]}"
-
-            # Get category from service metadata
-            IFS='|' read -r category _ _ _ _ _ <<< "${SERVICES[$service_key]}"
-
-            # Add category if not already added
-            if [ ! -z "$category" ]; then
-                local already_seen=false
-                for s in "${seen[@]}"; do
-                    if [ "$s" = "$category" ]; then
-                        already_seen=true
-                        break
-                    fi
-                done
-
-                if [ "$already_seen" = false ]; then
-                    items+=("'$category'")
-                    seen+=("$category")
-                fi
-            fi
-        fi
+        items+=("'$code'")
     done
 
     # Join array with commas and output as JavaScript array literal

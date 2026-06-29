@@ -274,8 +274,9 @@ class Component extends DCLogic {
       @@SERVICES_ARRAY@@
     ];
 
+    const codeToCat = { SAB: 'USENET', GET: 'USENET', HYD: 'USENET', TRA: 'TORRENTS', QBI: 'TORRENTS', DEL: 'TORRENTS', SON: 'CONTENT', RAD: 'CONTENT', LID: 'CONTENT', WHI: 'CONTENT', PRO: 'SEARCH', SEE: 'SEARCH', BAZ: 'SEARCH', JEL: 'MEDIA', EMB: 'MEDIA', PLX: 'MEDIA', TAU: 'MEDIA', MNT: 'MEDIA' };
     const labels = { USENET: 'USENET', TORRENTS: 'TORRENTS', CONTENT: 'CONTENT', SEARCH: 'SEARCH', MEDIA: 'MEDIA' };
-    const order = @@DASHBOARD_ORDER@@;
+    const orderCodes = @@DASHBOARD_ORDER@@;
 
     const mk = (app) => {
       const active = this.state.activeId === app.id;
@@ -289,10 +290,14 @@ class Component extends DCLogic {
       };
     };
 
-    const groups = order.map((cat) => {
-      const items = raw.filter((a) => a.cat === cat).map(mk);
-      return { label: labels[cat], count: items.length, items };
-    }).filter(g => g.items.length > 0);
+    const orderedApps = orderCodes.map(code => raw.find(a => a.id === code.toLowerCase())).filter(a => a);
+    const groupMap = {};
+    orderedApps.forEach(app => {
+      const cat = app.cat;
+      if (!groupMap[cat]) groupMap[cat] = [];
+      groupMap[cat].push(mk(app));
+    });
+    const groups = Object.entries(labels).map(([cat, label]) => ({ label, cat, items: groupMap[cat] || [] })).filter(g => g.items.length > 0);
     
     // Calculate health status
     const health = this.state.serviceHealth;
