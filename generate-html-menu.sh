@@ -243,36 +243,38 @@ declare -A CATEGORY_LABEL=(
 
 # Generate group order from DASHBOARD_ORDER variable (service codes version)
 generate_group_order() {
-    local dash_order="${DASHBOARD_ORDER:-SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU}"
+    local dash_order="${DASHBOARD_ORDER:-SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT}"
     local items=()
+    local seen=()
 
-    # Split by comma and convert service codes to readable names
+    # Split by comma and convert service codes to categories
     IFS=',' read -ra codes <<< "$dash_order"
-    declare -A code_names=(
-        [SAB]="SABnzbd"
-        [GET]="NZBGet"
-        [HYD]="NZBHydra"
-        [TRA]="Transmission"
-        [QBI]="qBittorrent"
-        [DEL]="Deluge"
-        [SON]="Sonarr"
-        [RAD]="Radarr"
-        [LID]="Lidarr"
-        [WHI]="Whisparr"
-        [PRO]="Prowlarr"
-        [SEE]="Seerr"
-        [BAZ]="Bazarr"
-        [JEL]="Jellyfin"
-        [EMB]="Emby"
-        [PLX]="Plex"
-        [TAU]="Tautulli"
-    )
 
     for code in "${codes[@]}"; do
         code=$(echo "$code" | xargs | tr '[:lower:]' '[:upper:]')
-        local name="${code_names[$code]}"
-        if [ ! -z "$name" ]; then
-            items+=("'$name'")
+
+        # Get service key from code
+        if [[ -n "${SERVICE_CODE_MAP[$code]}" ]]; then
+            local service_key="${SERVICE_CODE_MAP[$code]}"
+
+            # Get category from service metadata
+            IFS='|' read -r category _ _ _ _ _ <<< "${SERVICES[$service_key]}"
+
+            # Add category if not already added
+            if [ ! -z "$category" ]; then
+                local already_seen=false
+                for s in "${seen[@]}"; do
+                    if [ "$s" = "$category" ]; then
+                        already_seen=true
+                        break
+                    fi
+                done
+
+                if [ "$already_seen" = false ]; then
+                    items+=("'$category'")
+                    seen+=("$category")
+                fi
+            fi
         fi
     done
 

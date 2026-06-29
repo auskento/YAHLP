@@ -274,7 +274,7 @@ class Component extends DCLogic {
       @@SERVICES_ARRAY@@
     ];
 
-    const labels = { MEDIA: 'MEDIA', DOWNLOADS: 'DOWNLOADS', INFRA: 'INDEXERS & INFRA' };
+    const labels = { USENET: 'USENET', TORRENTS: 'TORRENTS', CONTENT: 'CONTENT', SEARCH: 'SEARCH', MEDIA: 'MEDIA' };
     const order = @@DASHBOARD_ORDER@@;
 
     const mk = (app) => {
