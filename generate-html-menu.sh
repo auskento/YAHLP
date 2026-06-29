@@ -577,11 +577,11 @@ generate_style_switcher_modern() {
         <span style="color:var(--text-tertiary)">|</span>
         <a href="/minimal.html" style="color:var(--text-link);text-decoration:none;transition:color 0.2s">Minimal</a>
         <span style="color:var(--text-tertiary)">|</span>
-        <button id="theme-toggle-modern" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0;color:var(--text-link);transition:color 0.2s" title="Toggle theme">☀️</button>
+        <button id="theme-toggle-modern" style="background:transparent;border:none;cursor:pointer;font-size:14px;padding:4px 8px;color:var(--text-link);transition:all 0.2s;border-radius:4px" title="Toggle theme">☀️</button>
       </div>'
     else
         echo '<div style="font-size:11px;text-align:center;padding:8px 0;border-top:1px solid var(--border-color);display:flex;gap:6px;justify-content:center;flex-wrap:wrap;align-items:center">
-        <button id="theme-toggle-modern" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0;color:var(--text-link);transition:color 0.2s" title="Toggle theme">☀️</button>
+        <button id="theme-toggle-modern" style="background:transparent;border:none;cursor:pointer;font-size:14px;padding:4px 8px;color:var(--text-link);transition:all 0.2s;border-radius:4px" title="Toggle theme">☀️</button>
       </div>'
     fi
 }
