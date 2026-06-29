@@ -456,12 +456,13 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
     if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
         echo ""
         echo "=== Obtaining Let's Encrypt Certificate ==="
+        echo "Checking for existing main domain certificate at: /etc/letsencrypt/live/$DOMAIN/fullchain.pem"
 
         # Ensure directory exists
         mkdir -p "/etc/letsencrypt/live/$DOMAIN"
 
         # Obtain certificate using standalone method
-        echo "Requesting certificate from Let's Encrypt for $DOMAIN..."
+        echo "Requesting certificate from Let's Encrypt for main domain: $DOMAIN..."
         certbot certonly \
             --standalone \
             --preferred-challenges http \
@@ -471,7 +472,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
             --non-interactive \
             -d "$DOMAIN" \
             || {
-                echo "Certbot failed. Generating self-signed certificate as fallback..."
+                echo "⚠ Certbot failed. Generating self-signed certificate as fallback..."
 
                 # Ensure directory exists
                 mkdir -p "/etc/letsencrypt/live/$DOMAIN"
@@ -484,11 +485,11 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
                     -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$DOMAIN" \
                     2>/dev/null || true
 
-                echo "Self-signed certificate generated"
+                echo "✓ Self-signed certificate generated for $DOMAIN"
             }
     else
         echo ""
-        echo "Certificate found for $DOMAIN"
+        echo "✓ Certificate already exists for main domain: $DOMAIN"
     fi
 else
     echo ""
@@ -500,21 +501,40 @@ fi
 if [ "$SKIP_CERT_GENERATION" = "false" ]; then
     if [ ! -z "$EMBY_DOMAIN" ] && [ "${ENABLE_EMBY}" = "true" ]; then
         EMBY_CERT_DOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
+        echo "Checking Emby certificate existence..."
         if [ ! -f "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" ]; then
             echo "Requesting certificate for Emby subdomain: $EMBY_DOMAIN"
             certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive -d "$EMBY_DOMAIN" 2>/dev/null || {
-                echo "Certbot failed for Emby subdomain, using main domain certificate"
+                echo "⚠ Certbot failed for Emby subdomain, using main domain certificate"
             }
+        else
+            echo "✓ Emby certificate already exists"
         fi
     fi
 
     if [ ! -z "$PLEX_DOMAIN" ] && [ "${ENABLE_PLEX}" = "true" ]; then
         PLEX_CERT_DOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
+        echo "Checking Plex certificate existence..."
         if [ ! -f "/etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$PLEX_DOMAIN/fullchain.pem" ]; then
             echo "Requesting certificate for Plex subdomain: $PLEX_DOMAIN"
             certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive -d "$PLEX_DOMAIN" 2>/dev/null || {
-                echo "Certbot failed for Plex subdomain, using main domain certificate"
+                echo "⚠ Certbot failed for Plex subdomain, using main domain certificate"
             }
+        else
+            echo "✓ Plex certificate already exists"
+        fi
+    fi
+
+    if [ ! -z "$SEERR_DOMAIN" ] && [ "${ENABLE_SEERR}" = "true" ]; then
+        SEERR_CERT_DOMAIN=$(echo "$SEERR_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
+        echo "Checking Seerr certificate existence..."
+        if [ ! -f "/etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$SEERR_DOMAIN/fullchain.pem" ]; then
+            echo "Requesting certificate for Seerr subdomain: $SEERR_DOMAIN"
+            certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive -d "$SEERR_DOMAIN" 2>/dev/null || {
+                echo "⚠ Certbot failed for Seerr subdomain, using main domain certificate"
+            }
+        else
+            echo "✓ Seerr certificate already exists"
         fi
     fi
 fi
@@ -666,14 +686,22 @@ if [ "$ACCESS_MODE" = "public" ] && [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EM
     EMBY_DOMAIN_NAME="$EMBY_DOMAIN"
     EMBY_CERT_DOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://||' | sed -E 's|[^.]+\.(.+)$|\1|')
 
+    echo "Emby domain: $EMBY_DOMAIN"
+    echo "Checking certificate paths..."
+
     # Use subdomain cert if it exists, otherwise use main domain cert
     if [ -f "/etc/letsencrypt/live/$EMBY_DOMAIN_NAME/fullchain.pem" ]; then
         EMBY_CERT_PATH="$EMBY_DOMAIN_NAME"
+        echo "✓ Found certificate for EMBY_DOMAIN: /etc/letsencrypt/live/$EMBY_DOMAIN_NAME/fullchain.pem"
     elif [ -f "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" ]; then
         EMBY_CERT_PATH="$EMBY_CERT_DOMAIN"
+        echo "✓ Found certificate for EMBY_CERT_DOMAIN: /etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem"
     else
         EMBY_CERT_PATH="$DOMAIN"
+        echo "⚠ Using fallback main domain certificate: /etc/letsencrypt/live/$DOMAIN/fullchain.pem"
     fi
+
+    echo "Certificate path to be used: $EMBY_CERT_PATH"
 
     # Generate Emby VirtualHost config
     cat > /etc/apache2/sites-available/emby-vhost.conf <<'EMBYEOF'
@@ -806,14 +834,22 @@ if [ "$ACCESS_MODE" = "public" ] && [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PL
     PLEX_DOMAIN_NAME="$PLEX_DOMAIN"
     PLEX_CERT_DOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://||' | sed -E 's|[^.]+\.(.+)$|\1|')
 
+    echo "Plex domain: $PLEX_DOMAIN"
+    echo "Checking certificate paths..."
+
     # Use subdomain cert if it exists, otherwise use main domain cert
     if [ -f "/etc/letsencrypt/live/$PLEX_DOMAIN_NAME/fullchain.pem" ]; then
         PLEX_CERT_PATH="$PLEX_DOMAIN_NAME"
+        echo "✓ Found certificate for PLEX_DOMAIN: /etc/letsencrypt/live/$PLEX_DOMAIN_NAME/fullchain.pem"
     elif [ -f "/etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem" ]; then
         PLEX_CERT_PATH="$PLEX_CERT_DOMAIN"
+        echo "✓ Found certificate for PLEX_CERT_DOMAIN: /etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem"
     else
         PLEX_CERT_PATH="$DOMAIN"
+        echo "⚠ Using fallback main domain certificate: /etc/letsencrypt/live/$DOMAIN/fullchain.pem"
     fi
+
+    echo "Certificate path to be used: $PLEX_CERT_PATH"
 
     # Generate Plex VirtualHost config
     cat > /etc/apache2/sites-available/plex-vhost.conf <<'PLEXEOF'
@@ -981,9 +1017,31 @@ fi
 
 # Configure Seerr subdomain VirtualHost (if SEERR_DOMAIN is set)
 if [ ! -z "$SEERR_DOMAIN" ]; then
-    SEERR_DOMAIN_NAME=$(echo "$SEERR_DOMAIN" | cut -d'.' -f1)
-    SEERR_CERT_PATH=$(echo "$SEERR_DOMAIN" | sed 's/\./-/g')
-    echo "Configuring Seerr VirtualHost for $SEERR_DOMAIN..."
+    echo ""
+    echo "=== Generating Seerr VirtualHost ==="
+
+    SEERR_DOMAIN_NAME="$SEERR_DOMAIN"
+    SEERR_CERT_DOMAIN=$(echo "$SEERR_DOMAIN" | sed -E 's|^https?://||' | sed -E 's|[^.]+\.(.+)$|\1|')
+
+    echo "Seerr domain: $SEERR_DOMAIN"
+    echo "Checking certificate paths..."
+
+    # Certificate path fallback logic
+    # First try: /etc/letsencrypt/live/$SEERR_DOMAIN/fullchain.pem
+    if [ -f "/etc/letsencrypt/live/$SEERR_DOMAIN_NAME/fullchain.pem" ]; then
+        SEERR_CERT_PATH="$SEERR_DOMAIN_NAME"
+        echo "✓ Found certificate for SEERR_DOMAIN: /etc/letsencrypt/live/$SEERR_DOMAIN_NAME/fullchain.pem"
+    # Second try: /etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem (extracted base domain)
+    elif [ -f "/etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem" ]; then
+        SEERR_CERT_PATH="$SEERR_CERT_DOMAIN"
+        echo "✓ Found certificate for SEERR_CERT_DOMAIN: /etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem"
+    # Fallback: /etc/letsencrypt/live/$DOMAIN/fullchain.pem (main domain cert)
+    else
+        SEERR_CERT_PATH="$DOMAIN"
+        echo "⚠ Using fallback main domain certificate: /etc/letsencrypt/live/$DOMAIN/fullchain.pem"
+    fi
+
+    echo "Certificate path to be used: $SEERR_CERT_PATH"
 
     cat > /etc/apache2/sites-available/seerr-vhost.conf <<'SEERRCEOF'
 <VirtualHost *:80>
@@ -991,6 +1049,10 @@ if [ ! -z "$SEERR_DOMAIN" ]; then
     RewriteEngine On
     RewriteCond %{HTTPS} off
     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    DocumentRoot /var/www/letsencrypt
+    <Directory /var/www/letsencrypt>
+        Require all granted
+    </Directory>
 </VirtualHost>
 
 <VirtualHost *:443>
@@ -1015,10 +1077,17 @@ if [ ! -z "$SEERR_DOMAIN" ]; then
     Timeout 300
 
     @@INCLUDE_SEERR_OAUTH@@
+
+    ErrorDocument 502 /error-pages/502.html
+    ErrorDocument 503 /error-pages/503.html
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+    LogLevel warn
 </VirtualHost>
 SEERRCEOF
 
-    sed -i "s#@@SEERR_DOMAIN_NAME@@#$SEERR_DOMAIN#g" /etc/apache2/sites-available/seerr-vhost.conf
+    sed -i "s#@@SEERR_DOMAIN_NAME@@#$SEERR_DOMAIN_NAME#g" /etc/apache2/sites-available/seerr-vhost.conf
     sed -i "s#@@SEERR_CERT_PATH@@#$SEERR_CERT_PATH#g" /etc/apache2/sites-available/seerr-vhost.conf
     sed -i "s#@@SSL_PROTOCOLS@@#$SSL_PROTOCOLS#g" /etc/apache2/sites-available/seerr-vhost.conf
     sed -i "s#@@SSL_CIPHERS@@#$SSL_CIPHERS#g" /etc/apache2/sites-available/seerr-vhost.conf
