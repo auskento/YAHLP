@@ -610,16 +610,12 @@ generate_style_switcher_sleek() {
 # Generate style switcher HTML for minimal template
 generate_style_switcher_minimal() {
     if [ "$SHOW_STYLE_SWITCHER" = "true" ]; then
-        echo '<div style="font-size:9px;text-align:center;padding:8px 0;border-top:1px solid rgba(255,255,255,.1);display:flex;gap:4px;justify-content:center;flex-wrap:wrap;width:100%;align-items:center">
+        echo '<div style="font-size:9px;text-align:center;padding:8px 0;border-top:1px solid rgba(255,255,255,.1);display:grid;grid-template-columns:1fr 1fr;gap:4px;width:100%;align-items:center;justify-items:center">
       <a href="/classic.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Classic</a>
-      <span style="color:#5d6575">|</span>
       <a href="/modern.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Modern</a>
-      <span style="color:#5d6575">|</span>
       <a href="/sleek.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Sleek</a>
-      <span style="color:#5d6575">|</span>
       <a href="/minimal.html" style="color:#4a9eff;text-decoration:none;transition:color 0.2s">Minimal</a>
-      <span style="color:#5d6575">|</span>
-      <button id="theme-toggle-minimal" style="background:none;border:none;cursor:pointer;font-size:12px;padding:0;color:#4a9eff;transition:color 0.2s" title="Toggle theme">☀️</button>
+      <button id="theme-toggle-minimal" style="background:none;border:none;cursor:pointer;font-size:12px;padding:0;color:#4a9eff;transition:color 0.2s;grid-column:1/-1" title="Toggle theme">☀️</button>
     </div>'
     else
         echo '<div style="font-size:9px;text-align:center;padding:8px 0;border-top:1px solid rgba(255,255,255,.1);display:flex;gap:4px;justify-content:center;flex-wrap:wrap;width:100%;align-items:center">
