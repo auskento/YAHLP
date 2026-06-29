@@ -209,6 +209,27 @@ declare -a SERVICE_ORDER=(
     "EMBY" "PLEX" "JELLYFIN" "TAUTULLI"
 )
 
+# Service code to service key mapping
+declare -A SERVICE_CODE_MAP=(
+    [SAB]="SABNZBD"
+    [GET]="NZBGET"
+    [HYD]="NZBHYDRA"
+    [TRA]="TRANSMISSION"
+    [QBI]="QBITTORRENT"
+    [DEL]="DELUGE"
+    [SON]="SONARR"
+    [RAD]="RADARR"
+    [LID]="LIDARR"
+    [WHI]="WHISPARR"
+    [PRO]="PROWLARR"
+    [SEE]="SEERR"
+    [BAZ]="BAZARR"
+    [JEL]="JELLYFIN"
+    [EMB]="EMBY"
+    [PLX]="PLEX"
+    [TAU]="TAUTULLI"
+)
+
 # Category labels
 declare -A CATEGORY_LABEL=(
     [USENET]="USENET"
@@ -218,19 +239,39 @@ declare -A CATEGORY_LABEL=(
     [MEDIA]="MEDIA"
 )
 
-# Generate group order from DASHBOARD_ORDER variable
+# Generate group order from DASHBOARD_ORDER variable (service codes version)
 generate_group_order() {
-    local dash_order="${DASHBOARD_ORDER:-CONTENT,SEARCH,USENET,TORRENTS,MEDIA}"
+    local dash_order="${DASHBOARD_ORDER:-SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU}"
     local items=()
 
-    # Split by comma and convert to uppercase
-    IFS=',' read -ra groups <<< "$dash_order"
-    for group in "${groups[@]}"; do
-        # Trim whitespace
-        group=$(echo "$group" | xargs)
-        # Convert to uppercase for category matching
-        local cat_upper=$(echo "$group" | tr '[:lower:]' '[:upper:]')
-        items+=("'$cat_upper'")
+    # Split by comma and convert service codes to readable names
+    IFS=',' read -ra codes <<< "$dash_order"
+    declare -A code_names=(
+        [SAB]="SABnzbd"
+        [GET]="NZBGet"
+        [HYD]="NZBHydra"
+        [TRA]="Transmission"
+        [QBI]="qBittorrent"
+        [DEL]="Deluge"
+        [SON]="Sonarr"
+        [RAD]="Radarr"
+        [LID]="Lidarr"
+        [WHI]="Whisparr"
+        [PRO]="Prowlarr"
+        [SEE]="Seerr"
+        [BAZ]="Bazarr"
+        [JEL]="Jellyfin"
+        [EMB]="Emby"
+        [PLX]="Plex"
+        [TAU]="Tautulli"
+    )
+
+    for code in "${codes[@]}"; do
+        code=$(echo "$code" | xargs | tr '[:lower:]' '[:upper:]')
+        local name="${code_names[$code]}"
+        if [ ! -z "$name" ]; then
+            items+=("'$name'")
+        fi
     done
 
     # Join array with commas and output as JavaScript array literal
@@ -238,88 +279,84 @@ generate_group_order() {
     echo "[${items[*]}]"
 }
 
-# Generate menu items HTML respecting DASHBOARD_ORDER
+# Generate menu items HTML respecting DASHBOARD_ORDER (supports both service codes and category names)
 generate_menu_items() {
     local menu_html=""
 
-    # Parse DASHBOARD_ORDER to get group ordering
-    local dash_order="${DASHBOARD_ORDER:-CONTENT,SEARCH,USENET,TORRENTS,MEDIA}"
-    IFS=',' read -ra group_order <<< "$dash_order"
+    # Parse DASHBOARD_ORDER - defaults to service codes format
+    local dash_order="${DASHBOARD_ORDER:-SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU}"
+    IFS=',' read -ra order_items <<< "$dash_order"
 
-    # Convert group names to uppercase for matching
-    for i in "${!group_order[@]}"; do
-        group_order[$i]=$(echo "${group_order[$i]}" | xargs | tr '[:lower:]' '[:upper:]')
-    done
+    # Process each item in DASHBOARD_ORDER
+    for order_item in "${order_items[@]}"; do
+        order_item=$(echo "$order_item" | xargs | tr '[:lower:]' '[:upper:]')
+        local service_key=""
 
-    # Process services in DASHBOARD_ORDER group order
-    for group in "${group_order[@]}"; do
-        for service_key in "${SERVICE_ORDER[@]}"; do
-            # Get service category
-            IFS='|' read -r category rest <<< "${SERVICES[$service_key]}"
+        # Check if this is a service code (3 letters) or category name
+        if [ ${#order_item} -eq 3 ] && [[ -n "${SERVICE_CODE_MAP[$order_item]}" ]]; then
+            # Using 3-letter service code
+            service_key="${SERVICE_CODE_MAP[$order_item]}"
+        else
+            # Category name - skip, we're now using service codes
+            continue
+        fi
 
-            # Skip if not in current group
-            [ "$category" != "$group" ] && continue
+        # Check if service is enabled
+        local enable_var="ENABLE_${service_key}"
+        local is_enabled="${!enable_var}"
 
-            # Check if service is enabled
-            local enable_var="ENABLE_${service_key}"
-            local is_enabled="${!enable_var}"
+        if [ "$is_enabled" != "true" ]; then
+            continue
+        fi
 
-            if [ "$is_enabled" != "true" ]; then
-                continue
-            fi
+        # Parse service metadata
+        IFS='|' read -r category service_name service_desc icon_path href accent <<< "${SERVICES[$service_key]}"
 
-            # Parse service metadata
-            IFS='|' read -r category service_name service_desc icon_path href accent <<< "${SERVICES[$service_key]}"
+        # Check for custom icon version
+        icon_path=$(get_service_icon_path "$service_key" "$icon_path")
 
-            # Check for custom icon version
-            icon_path=$(get_service_icon_path "$service_key" "$icon_path")
-
-            # Handle subdomain services (Emby, Plex, Seerr)
-            if [ "$href" = "SUBDOMAIN" ]; then
-                if [ "$service_key" = "EMBY" ]; then
-                    # Use subdomain in public mode if defined, otherwise use internal URL
-                    if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$EMBY_DOMAIN" ]; then
-                        href="https://$EMBY_DOMAIN/"
-                    else
-                        if [ -z "$EMBY_URL" ]; then
-                            continue
-                        fi
-                        href="$EMBY_URL"
+        # Handle subdomain services (Emby, Plex, Seerr)
+        if [ "$href" = "SUBDOMAIN" ]; then
+            if [ "$service_key" = "EMBY" ]; then
+                if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$EMBY_DOMAIN" ]; then
+                    href="https://$EMBY_DOMAIN/"
+                else
+                    if [ -z "$EMBY_URL" ]; then
+                        continue
                     fi
-                elif [ "$service_key" = "PLEX" ]; then
-                    # Use subdomain in public mode if defined, otherwise use internal URL
-                    if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$PLEX_DOMAIN" ]; then
-                        href="https://$PLEX_DOMAIN/"
-                    else
-                        if [ -z "$PLEX_URL" ]; then
-                            continue
-                        fi
-                        href="$PLEX_URL"
+                    href="$EMBY_URL"
+                fi
+            elif [ "$service_key" = "PLEX" ]; then
+                if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$PLEX_DOMAIN" ]; then
+                    href="https://$PLEX_DOMAIN/"
+                else
+                    if [ -z "$PLEX_URL" ]; then
+                        continue
                     fi
-                elif [ "$service_key" = "SEERR" ]; then
-                    # Use subdomain in public mode if defined, otherwise use internal URL
-                    if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$SEERR_DOMAIN" ]; then
-                        href="https://$SEERR_DOMAIN/"
-                    else
-                        if [ -z "$SEERR_URL" ]; then
-                            continue
-                        fi
-                        href="$SEERR_URL"
+                    href="$PLEX_URL"
+                fi
+            elif [ "$service_key" = "SEERR" ]; then
+                if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$SEERR_DOMAIN" ]; then
+                    href="https://$SEERR_DOMAIN/"
+                else
+                    if [ -z "$SEERR_URL" ]; then
+                        continue
                     fi
+                    href="$SEERR_URL"
                 fi
             fi
+        fi
 
-            # Check if this service should open in a popup (qBittorrent, external links, etc)
-            local popup_attr=""
-            if [[ "$service_key" == "QBITTORRENT" ]] || [[ "$href" == http* ]]; then
-                popup_attr=" onclick=\"window.open(this.href, 'popup_' + Date.now(), 'width=1200,height=800,resizable=yes,status=yes,location=yes,toolbar=yes,menubar=yes,scrollbars=yes'); return false;\""
-            else
-                popup_attr=" target='Main'"
-            fi
+        # Check if this service should open in a popup
+        local popup_attr=""
+        if [[ "$service_key" == "QBITTORRENT" ]] || [[ "$href" == http* ]]; then
+            popup_attr=" onclick=\"window.open(this.href, 'popup_' + Date.now(), 'width=1200,height=800,resizable=yes,status=yes,location=yes,toolbar=yes,menubar=yes,scrollbars=yes'); return false;\""
+        else
+            popup_attr=" target='Main'"
+        fi
 
-            # Add menu item - NO label span!
-            menu_html+="<td class='menu-item'><a href='$href'$popup_attr title='$service_name'><img src='$icon_path' alt='$service_name' /></a></td>"
-        done
+        # Add menu item
+        menu_html+="<td class='menu-item'><a href='$href'$popup_attr title='$service_name'><img src='$icon_path' alt='$service_name' /></a></td>"
     done
 
     echo "$menu_html"
