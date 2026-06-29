@@ -1055,8 +1055,8 @@ if [ ! -z "$SEERR_DOMAIN" ]; then
 
     # Proxy settings
     ProxyPreserveHost On
-    ProxyPass / http://seerr:5055/
-    ProxyPassReverse / http://seerr:5055/
+    ProxyPass / @@SEERR_URL@@/
+    ProxyPassReverse / @@SEERR_URL@@/
 
     Timeout 300
 
@@ -1073,6 +1073,7 @@ SEERRCEOF
 
     sed -i "s#@@SEERR_DOMAIN_NAME@@#$SEERR_DOMAIN_NAME#g" /etc/apache2/sites-available/seerr-vhost.conf
     sed -i "s#@@SEERR_CERT_PATH@@#$SEERR_CERT_PATH#g" /etc/apache2/sites-available/seerr-vhost.conf
+    sed -i "s#@@SEERR_URL@@#$SEERR_URL#g" /etc/apache2/sites-available/seerr-vhost.conf
     sed -i "s#@@SSL_PROTOCOLS@@#$SSL_PROTOCOLS#g" /etc/apache2/sites-available/seerr-vhost.conf
     sed -i "s#@@SSL_CIPHERS@@#$SSL_CIPHERS#g" /etc/apache2/sites-available/seerr-vhost.conf
 
