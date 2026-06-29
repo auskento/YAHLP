@@ -419,6 +419,9 @@ generate_services_array() {
         IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
         local id=$(echo "$service_key" | tr '[:upper:]' '[:lower:]')
 
+        # Check for custom icon version
+        icon=$(get_service_icon_path "$service_key" "$icon")
+
         # MEDIA services: use DOMAIN in public mode, URL in private mode
         if [ "$category" = "MEDIA" ]; then
             if [ "$ACCESS_MODE" = "public" ]; then
