@@ -5,7 +5,7 @@
 A complete, production-ready Docker setup for YAHLP (Yet Another HomeLab Portal) with:
 
 ✅ **Automatic HTTPS** - Let's Encrypt with auto-renewal  
-✅ **17 Pre-configured Services** - Sonarr, Radarr, Jellyfin, qBittorrent, Bazarr, and more  
+✅ **18 Pre-configured Services** - Sonarr, Radarr, Jellyfin, qBittorrent, Bazarr, Maintainerr, and more  
 ✅ **Flexible Authentication** - None, Basic, Entra ID, or Google OAuth  
 ✅ **4 Dashboard Themes** - Modern, Classic, Sleek, or Minimal  
 ✅ **Custom Service Ordering** - Reorder categories without config changes  
@@ -122,7 +122,7 @@ Add/remove services → Just restart → No manual config editing
 
 **→ See `README.md` - "Production Deployment" section**
 
-## Available Services (14 Options)
+## Available Services (18 Total)
 
 ### Media Server Managers (*arr)
 - **Sonarr** - TV show automation at `/sonarr`
@@ -134,17 +134,21 @@ Add/remove services → Just restart → No manual config editing
 - **Overseerr** - Request manager at `/overseerr`
 
 ### Media Centers
-- **Jellyfin** - Open-source streaming at `/jellyfin`
-- **Emby** - Emby streaming at `/emby`
-- **Plex** - Plex streaming at `/plex`
-- **Tautulli** - Plex monitoring at `/tautulli`
+- **Jellyfin** (JEL) - Open-source streaming at `/jellyfin`
+- **Emby** (EMB) - Emby streaming at `/emby`
+- **Plex** (PLX) - Plex streaming at `/plex`
+- **Tautulli** (TAU) - Plex monitoring at `/tautulli`
+- **Maintainerr** (MNT) ⭐ NEW - Media maintenance at `/maintainerr`
 
 ### Torrent Clients
-- **Transmission** - Torrent client at `/transmission`
-- **qBittorrent** - Advanced torrent at `/qbittorrent`
+- **Transmission** (TRA) - Torrent client at `/transmission`
+- **qBittorrent** (QBI) - Advanced torrent at `/qbittorrent`
+- **Deluge** (DEL) - Torrent client at `/deluge`
 
-### Custom
-- **Custom Backend** - Any service at custom path
+### Usenet Clients
+- **SABnzbd** (SAB) - Usenet client at `/sabnzbd`
+- **NZBGet** (GET) - Usenet client at `/nzbget`
+- **NZBHydra** (HYD) - NZB indexer at `/nzbhydra`
 
 All configured with WebSocket support where needed!
 

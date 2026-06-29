@@ -117,7 +117,32 @@ For `ACCESS_MODE=public`, these **must** be set:
 
 ---
 
-## Service Configuration (16 Services)
+## Service Configuration (18 Services)
+
+### Service Codes Reference
+
+All services use 3-letter codes for dashboard configuration. The `DASHBOARD_ORDER` variable accepts these codes:
+
+| Code | Service | Category |
+|------|---------|----------|
+| SAB | SABnzbd | USENET |
+| GET | NZBGet | USENET |
+| HYD | NZBHydra | USENET |
+| TRA | Transmission | TORRENTS |
+| QBI | qBittorrent | TORRENTS |
+| DEL | Deluge | TORRENTS |
+| SON | Sonarr | CONTENT |
+| RAD | Radarr | CONTENT |
+| LID | Lidarr | CONTENT |
+| WHI | Whisparr | CONTENT |
+| PRO | Prowlarr | SEARCH |
+| SEE | Seerr | SEARCH |
+| BAZ | Bazarr | SEARCH |
+| JEL | Jellyfin | MEDIA |
+| EMB | Emby | MEDIA |
+| PLX | Plex | MEDIA |
+| TAU | Tautulli | MEDIA |
+| MNT | Maintainerr | MEDIA |
 
 ### Enable/Disable Services
 
@@ -125,39 +150,40 @@ For each service, use `ENABLE_*` variables (grouped by DASHBOARD_ORDER category)
 
 **USENET Category:**
 ```
-ENABLE_SABNZBD=true/false
-ENABLE_NZBGET=true/false
-ENABLE_NZBHYDRA=true/false
+ENABLE_SABNZBD=true/false       # SAB
+ENABLE_NZBGET=true/false        # GET
+ENABLE_NZBHYDRA=true/false      # HYD
 ```
 
 **TORRENTS Category:**
 ```
-ENABLE_DELUGE=true/false
-ENABLE_TRANSMISSION=true/false
-ENABLE_QBITTORRENT=true/false
+ENABLE_DELUGE=true/false        # DEL
+ENABLE_TRANSMISSION=true/false  # TRA
+ENABLE_QBITTORRENT=true/false   # QBI
 ```
 
 **CONTENT Category:**
 ```
-ENABLE_SONARR=true/false
-ENABLE_RADARR=true/false
-ENABLE_LIDARR=true/false
-ENABLE_WHISPARR=true/false
+ENABLE_SONARR=true/false        # SON
+ENABLE_RADARR=true/false        # RAD
+ENABLE_LIDARR=true/false        # LID
+ENABLE_WHISPARR=true/false      # WHI
 ```
 
 **SEARCH Category:**
 ```
-ENABLE_SEERR=true/false
-ENABLE_PROWLARR=true/false
-ENABLE_BAZARR=true/false
+ENABLE_SEERR=true/false         # SEE
+ENABLE_PROWLARR=true/false      # PRO
+ENABLE_BAZARR=true/false        # BAZ
 ```
 
 **MEDIA Category:**
 ```
-ENABLE_EMBY=true/false
-ENABLE_PLEX=true/false
-ENABLE_JELLYFIN=true/false
-ENABLE_TAUTULLI=true/false
+ENABLE_EMBY=true/false          # EMB
+ENABLE_PLEX=true/false          # PLX
+ENABLE_JELLYFIN=true/false      # JEL
+ENABLE_TAUTULLI=true/false      # TAU
+ENABLE_MAINTAINERR=true/false   # MNT
 ```
 
 **Type:** Boolean (`true` or `false`)  
@@ -205,6 +231,7 @@ EMBY_URL=http://emby:8096
 PLEX_URL=http://plex:32400
 JELLYFIN_URL=http://jellyfin:8096
 TAUTULLI_URL=http://tautulli:8181
+MAINTAINERR_URL=http://maintainerr:6246
 ```
 
 **Type:** URL  
@@ -255,6 +282,7 @@ ICON_URL_EMBY=
 ICON_URL_PLEX=
 ICON_URL_JELLYFIN=
 ICON_URL_TAUTULLI=
+ICON_URL_MAINTAINERR=
 ```
 
 **Type:** URL  

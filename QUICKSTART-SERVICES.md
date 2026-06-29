@@ -19,34 +19,37 @@ Make sure you have:
 cd /path/to/project
 ```
 
-## Step 3: Choose Your Services
+## Step 3: Choose Your Services (18 Available)
 
-Before starting, decide which services you want to proxy. Common combinations:
+Before starting, decide which services you want to proxy. All services use 3-letter codes (e.g., SAB, GET, HYD, TRA, QBI, DEL, SON, RAD, LID, WHI, PRO, SEE, BAZ, JEL, EMB, PLX, TAU, MNT).
+
+Common combinations:
 
 ### TV/Movie Automation Setup
 ```yaml
-ENABLE_SONARR: "true"      # TV shows
-ENABLE_RADARR: "true"      # Movies
-ENABLE_PROWLARR: "true"    # Indexer management
-ENABLE_SEERR: "true"       # Request management
-ENABLE_BAZARR: "true"      # Subtitle management
-ENABLE_QBITTORRENT: "true" # Torrents
+ENABLE_SONARR: "true"      # TV shows (SON)
+ENABLE_RADARR: "true"      # Movies (RAD)
+ENABLE_PROWLARR: "true"    # Indexer management (PRO)
+ENABLE_SEERR: "true"       # Request management (SEE)
+ENABLE_BAZARR: "true"      # Subtitle management (BAZ)
+ENABLE_QBITTORRENT: "true" # Torrents (QBI)
 ```
 
 ### Complete Media Server Setup
 ```yaml
-ENABLE_SONARR: "true"
-ENABLE_RADARR: "true"
-ENABLE_JELLYFIN: "true"    # Media playback
-ENABLE_SEERR: "true"
-ENABLE_BAZARR: "true"
-ENABLE_QBITTORRENT: "true"
+ENABLE_SONARR: "true"       # TV shows (SON)
+ENABLE_RADARR: "true"       # Movies (RAD)
+ENABLE_JELLYFIN: "true"     # Media playback (JEL)
+ENABLE_SEERR: "true"        # Requests (SEE)
+ENABLE_BAZARR: "true"       # Subtitles (BAZ)
+ENABLE_QBITTORRENT: "true"  # Torrents (QBI)
+ENABLE_MAINTAINERR: "true"  # Maintenance (MNT) ⭐ NEW
 ```
 
 ### Minimal Setup (Just TV/Movie)
 ```yaml
-ENABLE_SONARR: "true"
-ENABLE_RADARR: "true"
+ENABLE_SONARR: "true"  # SON
+ENABLE_RADARR: "true"  # RAD
 # Everything else disabled (default)
 ```
 
