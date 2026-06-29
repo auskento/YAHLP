@@ -219,7 +219,6 @@ class Component extends DCLogic {
     ];
 
     const orderCodes = @@DASHBOARD_ORDER@@;
-    const codeToId = @@CODE_TO_ID@@;
 
     const mk = (app) => {
       const active = this.state.activeId === app.id;
@@ -233,7 +232,7 @@ class Component extends DCLogic {
       };
     };
 
-    const items = orderCodes.map(code => raw.find(a => a.id === codeToId[code])).filter(a => a).map(mk);
+    const items = orderCodes.map(code => raw.find(a => a.id === code)).filter(a => a).map(mk);
     const groups = [{ items }];
 
     return {

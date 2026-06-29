@@ -259,21 +259,6 @@ generate_group_order() {
     echo "[${items[*]}]"
 }
 
-# Generate service code to service ID mapping for template
-generate_code_to_id_map() {
-    local map_entries=()
-
-    for code in "${!SERVICE_CODE_MAP[@]}"; do
-        local service_key="${SERVICE_CODE_MAP[$code]}"
-        local service_id=$(echo "$service_key" | tr '[:upper:]' '[:lower:]')
-        map_entries+=("'$code': '$service_id'")
-    done
-
-    # Sort by code and output as JavaScript object
-    local IFS=', '
-    echo "{ $(echo "${map_entries[*]}" | tr ' ' '\n' | sort | tr '\n' ',' | sed 's/,$//') }"
-}
-
 # Generate menu items HTML respecting DASHBOARD_ORDER (supports both service codes and category names)
 generate_menu_items() {
     local menu_html=""
@@ -432,7 +417,15 @@ generate_services_array() {
 
         # Parse service metadata (format: category|name|desc|icon|href|accent)
         IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
-        local id=$(echo "$service_key" | tr '[:upper:]' '[:lower:]')
+
+        # Find the 3-letter code for this service key
+        local id=""
+        for code in "${!SERVICE_CODE_MAP[@]}"; do
+            if [ "${SERVICE_CODE_MAP[$code]}" = "$service_key" ]; then
+                id="$code"
+                break
+            fi
+        done
 
         # Check for custom icon version
         icon=$(get_service_icon_path "$service_key" "$icon")
@@ -800,12 +793,10 @@ generate_all_styles() {
     if [ -f "$MODERN_TEMPLATE" ]; then
         local services_array=$(generate_services_array)
         local dash_order=$(generate_group_order)
-        local code_to_id=$(generate_code_to_id_map)
         local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_modern)
         local html_content=$(cat "$MODERN_TEMPLATE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
-        html_content="${html_content//@@CODE_TO_ID@@/$code_to_id}"
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
