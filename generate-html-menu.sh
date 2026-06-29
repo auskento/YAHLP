@@ -147,6 +147,7 @@ declare -A SERVICES=(
     [PLEX]="MEDIA|Plex|Streaming|/icons/plex.png|SUBDOMAIN|#e5a00d"
     [JELLYFIN]="MEDIA|Jellyfin|Streaming|/icons/jellyfin.png|/jellyfin/|#00a4dc"
     [TAUTULLI]="MEDIA|Tautulli|Analytics|/icons/tautulli.png|/tautulli/|#4a9eff"
+    [MAINTAINERR]="MEDIA|Maintainerr|Media maintenance|/icons/maintainerr.png|/maintainerr/|#1e90ff"
 )
 
 # Substitute service landing page variables
@@ -206,7 +207,7 @@ declare -a SERVICE_ORDER=(
     # SEARCH
     "SEERR" "PROWLARR" "BAZARR"
     # MEDIA
-    "EMBY" "PLEX" "JELLYFIN" "TAUTULLI"
+    "EMBY" "PLEX" "JELLYFIN" "TAUTULLI" "MAINTAINERR"
 )
 
 # Service code to service key mapping
@@ -228,6 +229,7 @@ declare -A SERVICE_CODE_MAP=(
     [EMB]="EMBY"
     [PLX]="PLEX"
     [TAU]="TAUTULLI"
+    [MNT]="MAINTAINERR"
 )
 
 # Category labels
