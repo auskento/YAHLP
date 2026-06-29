@@ -38,7 +38,6 @@ RUN mkdir -p /var/www/html/error-pages \
     && mkdir -p /etc/letsencrypt \
     && mkdir -p /etc/letsencrypt/live \
     && mkdir -p /var/log/apache2 \
-    && mkdir -p /var/log/apache2/reverse-proxy-debug \
     && mkdir -p /var/log/apache2/sites \
     && chmod -R 777 /etc/letsencrypt \
     && chmod 777 /etc/letsencrypt/live \
@@ -66,9 +65,9 @@ COPY apache-conf/auth-basic.conf /etc/apache2/conf-available/
 COPY apache-conf/services/ /etc/apache2/sites-available/services/
 
 # Copy configuration generator scripts
-COPY generate-config.sh generate-html-menu.sh download-icons.sh generate-sites-config.sh generate-emby-virtualhost.sh generate-plex-virtualhost.sh apache-log-rotator.sh /usr/local/bin/
+COPY generate-config.sh generate-html-menu.sh download-icons.sh generate-sites-config.sh generate-emby-virtualhost.sh generate-plex-virtualhost.sh /usr/local/bin/
 COPY support.js /usr/local/bin/
-RUN chmod +x /usr/local/bin/generate-config.sh /usr/local/bin/generate-html-menu.sh /usr/local/bin/download-icons.sh /usr/local/bin/generate-sites-config.sh /usr/local/bin/generate-emby-virtualhost.sh /usr/local/bin/generate-plex-virtualhost.sh /usr/local/bin/apache-log-rotator.sh
+RUN chmod +x /usr/local/bin/generate-config.sh /usr/local/bin/generate-html-menu.sh /usr/local/bin/download-icons.sh /usr/local/bin/generate-sites-config.sh /usr/local/bin/generate-emby-virtualhost.sh /usr/local/bin/generate-plex-virtualhost.sh
 
 # Copy icon download script
 COPY download-icons.sh /usr/local/bin/
