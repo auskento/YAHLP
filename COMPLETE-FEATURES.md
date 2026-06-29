@@ -1,13 +1,14 @@
-# Complete Feature Summary - YAHLP (Yet Another HomeLab Portal) v2.1
+# Complete Feature Summary - YAHLP (Yet Another HomeLab Portal) v2.2
 
 ## 🚀 Everything You Have Now
 
-Your Apache reverse proxy system includes **17 pre-configured services** organized into 5 categories with flexible authentication and customizable dashboard styling.
+Your Apache reverse proxy system includes **18 pre-configured services** organized into 5 categories with flexible authentication, customizable dashboard styling, and 3-digit service codes for easy configuration.
 
 ### Core Features
 
 #### 1️⃣ Modular Service Management
-- **17 pre-configured services** - Enable/disable with environment variables
+- **18 pre-configured services** - Enable/disable with environment variables
+- **3-digit service codes** - SAB, GET, HYD, TRA, QBI, DEL, SON, RAD, LID, WHI, PRO, SEE, BAZ, JEL, EMB, PLX, TAU, MNT
 - **5 service categories** - CONTENT, SEARCH, USENET, TORRENTS, MEDIA
 - Zero manual Apache config editing
 - Auto-generates Apache configuration on startup
@@ -26,7 +27,7 @@ Your Apache reverse proxy system includes **17 pre-configured services** organiz
 
 ---
 
-## 📋 Supported Services (17 Total)
+## 📋 Supported Services (18 Total)
 
 ### CONTENT Category (Media Automation)
 - **Sonarr** - TV show automation
@@ -54,6 +55,7 @@ Your Apache reverse proxy system includes **17 pre-configured services** organiz
 - **Emby** - Premium media server
 - **Plex** - Commercial media server
 - **Tautulli** - Plex analytics
+- **Maintainerr** - Media library maintenance ⭐ NEW
 
 ---
 

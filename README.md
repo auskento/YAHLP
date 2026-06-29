@@ -6,12 +6,12 @@ A production-ready reverse proxy system for managing 17+ homelab applications wi
 
 ## ⭐ Key Features
 
-### Services (17 Total)
-- **CONTENT**: Sonarr, Radarr, Lidarr, Whisparr
-- **SEARCH**: Seerr, Prowlarr, Bazarr ⭐ NEW
-- **USENET**: SABnzbd, NZBGet, NZBHydra
-- **TORRENTS**: Transmission, qBittorrent, Deluge
-- **MEDIA**: Jellyfin, Emby, Plex, Tautulli
+### Services (18 Total)
+- **CONTENT**: Sonarr (SON), Radarr (RAD), Lidarr (LID), Whisparr (WHI)
+- **SEARCH**: Seerr (SEE), Prowlarr (PRO), Bazarr (BAZ)
+- **USENET**: SABnzbd (SAB), NZBGet (GET), NZBHydra (HYD)
+- **TORRENTS**: Transmission (TRA), qBittorrent (QBI), Deluge (DEL)
+- **MEDIA**: Jellyfin (JEL), Emby (EMB), Plex (PLX), Tautulli (TAU), Maintainerr (MNT) ⭐ NEW
 
 ### Core Capabilities
 - ✅ **HTTPS/TLS** - Automatic via Let's Encrypt
@@ -79,6 +79,33 @@ https://yourdomain.com/radarr
 https://yourdomain.com/jellyfin
 https://yourdomain.com/bazarr
 ```
+
+---
+
+## 📋 Service Codes Reference
+
+All services use 3-letter codes for dashboard ordering and configuration:
+
+| Code | Service | Category | Port |
+|------|---------|----------|------|
+| **SAB** | SABnzbd | USENET | 8080 |
+| **GET** | NZBGet | USENET | 6789 |
+| **HYD** | NZBHydra | USENET | 5076 |
+| **TRA** | Transmission | TORRENTS | 6969 |
+| **QBI** | qBittorrent | TORRENTS | 8080 |
+| **DEL** | Deluge | TORRENTS | 8112 |
+| **SON** | Sonarr | CONTENT | 8989 |
+| **RAD** | Radarr | CONTENT | 7878 |
+| **LID** | Lidarr | CONTENT | 8686 |
+| **WHI** | Whisparr | CONTENT | 6969 |
+| **PRO** | Prowlarr | SEARCH | 9696 |
+| **SEE** | Seerr | SEARCH | 5055 |
+| **BAZ** | Bazarr | SEARCH | 6767 |
+| **JEL** | Jellyfin | MEDIA | 8096 |
+| **EMB** | Emby | MEDIA | 8096 |
+| **PLX** | Plex | MEDIA | 32400 |
+| **TAU** | Tautulli | MEDIA | 8181 |
+| **MNT** | Maintainerr | MEDIA | 6246 |
 
 ---
 
@@ -310,7 +337,7 @@ Available services:
 - `ENABLE_PROWLARR`, `ENABLE_SEERR`, `ENABLE_BAZARR`
 - `ENABLE_SABNZBD`, `ENABLE_NZBGET`, `ENABLE_NZBHYDRA`
 - `ENABLE_TRANSMISSION`, `ENABLE_QBITTORRENT`, `ENABLE_DELUGE`
-- `ENABLE_JELLYFIN`, `ENABLE_EMBY`, `ENABLE_PLEX`, `ENABLE_TAUTULLI`
+- `ENABLE_JELLYFIN`, `ENABLE_EMBY`, `ENABLE_PLEX`, `ENABLE_TAUTULLI`, `ENABLE_MAINTAINERR`
 
 **See ENVIRONMENT-VARIABLES.md for complete reference**
 
@@ -469,9 +496,9 @@ ENABLE_JELLYFIN: "true"
 ## 📦 Version Info - YAHLP (Yet Another HomeLab Portal)
 
 - **Project**: YAHLP (Yet Another HomeLab Portal) - Unified Media Server Dashboard
-- **Current Version**: 2.1.0
-- **Release Date**: 2026-06-25
-- **Services**: 17 total
+- **Current Version**: 2.2.0
+- **Release Date**: 2026-06-29
+- **Services**: 18 total (added Maintainerr)
 - **Categories**: 5 (CONTENT, SEARCH, USENET, TORRENTS, MEDIA)
 - **Docker Image**: Apache 2.4 + Certbot + mod_proxy
 

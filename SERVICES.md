@@ -28,7 +28,34 @@ environment:
   ENABLE_QBITTORRENT: "false"  # /qbittorrent - qBittorrent client
 ```
 
-## Available Services
+## Available Services (18 Total)
+
+### Service Codes Reference
+
+All services use 3-letter codes for dashboard configuration:
+
+| Code | Service | Category | Port |
+|------|---------|----------|------|
+| **SAB** | SABnzbd | USENET | 8080 |
+| **GET** | NZBGet | USENET | 6789 |
+| **HYD** | NZBHydra | USENET | 5076 |
+| **TRA** | Transmission | TORRENTS | 6969 |
+| **QBI** | qBittorrent | TORRENTS | 8080 |
+| **DEL** | Deluge | TORRENTS | 8112 |
+| **SON** | Sonarr | CONTENT | 8989 |
+| **RAD** | Radarr | CONTENT | 7878 |
+| **LID** | Lidarr | CONTENT | 8686 |
+| **WHI** | Whisparr | CONTENT | 6969 |
+| **PRO** | Prowlarr | SEARCH | 9696 |
+| **SEE** | Seerr | SEARCH | 5055 |
+| **BAZ** | Bazarr | SEARCH | 6767 |
+| **JEL** | Jellyfin | MEDIA | 8096 |
+| **EMB** | Emby | MEDIA | 8096 |
+| **PLX** | Plex | MEDIA | 32400 |
+| **TAU** | Tautulli | MEDIA | 8181 |
+| **MNT** | Maintainerr | MEDIA | 6246 |
+
+---
 
 ### Media Server Managers (*arr Applications)
 
@@ -181,6 +208,32 @@ whisparr:
   - Plex monitoring and stats
   - User activity tracking
   - Notifications
+
+#### Maintainerr - Media Server Maintenance ⭐ NEW
+- **URL Path**: `/maintainerr`
+- **Port**: 6246
+- **Enable**: `ENABLE_MAINTAINERR=true`
+- **Category**: MEDIA
+- **Service Code**: MNT
+- **Features**:
+  - Automated media library maintenance
+  - Collection management and organization
+  - Metadata updates and cleanup
+  - Multi-server support
+  - Library health monitoring
+
+**docker-compose example**:
+```yaml
+maintainerr:
+  image: lscr.io/linuxserver/maintainerr:latest
+  container_name: maintainerr
+  environment:
+    - TZ=Australia/Melbourne
+  volumes:
+    - /path/to/maintainerr/config:/config
+  ports:
+    - "6246:6246"
+```
 
 ### Torrent Clients
 
