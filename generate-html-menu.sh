@@ -451,10 +451,6 @@ generate_services_array() {
                             href="$PLEX_URL"
                         fi
                         ;;
-                    TAUTULLI)
-                        [ -z "$TAUTULLI_URL" ] && continue
-                        href="$TAUTULLI_URL"
-                        ;;
                 esac
             else
                 # Private mode: use internal URLs
@@ -466,10 +462,6 @@ generate_services_array() {
                     PLEX)
                         [ -z "$PLEX_URL" ] && continue
                         href="$PLEX_URL"
-                        ;;
-                    TAUTULLI)
-                        [ -z "$TAUTULLI_URL" ] && continue
-                        href="$TAUTULLI_URL"
                         ;;
                 esac
             fi
