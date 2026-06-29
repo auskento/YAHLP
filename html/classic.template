@@ -407,14 +407,11 @@
         sitesBar.style.display = 'none';
     }
 
-    // Site link handling - open in iframe
+    // Site link handling - open in new window
     document.querySelectorAll('.site-link').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            const iframe = document.querySelector('iframe[name="Main"]');
-            if (iframe) {
-                iframe.src = this.href;
-            }
+            window.open(this.href, '_blank');
         });
     });
 
