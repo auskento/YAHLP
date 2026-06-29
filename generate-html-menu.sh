@@ -153,7 +153,7 @@ declare -A SERVICES=(
 # If DASHBOARD_LANDING is set, sync the corresponding service landing page
 if [ ! -z "$DASHBOARD_LANDING" ]; then
     # Extract service name from DASHBOARD_LANDING (first path component)
-    local service_name=$(echo "$DASHBOARD_LANDING" | sed 's|^/||' | cut -d'/' -f1)
+    service_name=$(echo "$DASHBOARD_LANDING" | sed 's|^/||' | cut -d'/' -f1)
 
     case "$service_name" in
         sonarr)

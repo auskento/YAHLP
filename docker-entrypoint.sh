@@ -919,9 +919,6 @@ RequestHeader set X-Remote-Name %{OIDC_name}e
 RequestHeader set X-Remote-ID %{OIDC_sub}e
 RequestHeader set X-Auth-Method "Google"
 SEERRAUTHEOF
-
-                # Add includes for Google OAuth
-                sed -i "/@@INCLUDE_SEERR_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-google-seerr.conf\n    Include /etc/apache2/conf-available/auth-google-protect-seerr.conf" /etc/apache2/sites-available/seerr-vhost.conf
             fi
             ;;
         entra)
@@ -966,9 +963,6 @@ RequestHeader set X-Remote-Name %{OIDC_name}e
 RequestHeader set X-Remote-ID %{OIDC_sub}e
 RequestHeader set X-Auth-Method "Entra"
 SEERRAUTHEOF
-
-                # Add includes for Entra OAuth
-                sed -i "/@@INCLUDE_SEERR_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-entra-seerr.conf\n    Include /etc/apache2/conf-available/auth-entra-protect-seerr.conf" /etc/apache2/sites-available/seerr-vhost.conf
             fi
             ;;
         basic)
