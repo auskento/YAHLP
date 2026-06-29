@@ -8,16 +8,6 @@ mkdir -p /etc/letsencrypt/live 2>/dev/null || true
 chmod 777 /etc/letsencrypt/live 2>/dev/null || true
 chmod -R 777 /var/log/apache2 2>/dev/null || true
 
-# Ensure debug log directory exists and has proper permissions
-mkdir -p /var/log/apache2/reverse-proxy-debug || {
-    echo "ERROR: Failed to create /var/log/apache2/reverse-proxy-debug directory"
-    exit 1
-}
-chmod 777 /var/log/apache2/reverse-proxy-debug || {
-    echo "ERROR: Failed to set permissions on /var/log/apache2/reverse-proxy-debug"
-    exit 1
-}
-
 # Ensure sites directory exists and has proper permissions
 mkdir -p /var/log/apache2/sites || {
     echo "ERROR: Failed to create /var/log/apache2/sites directory"
@@ -33,7 +23,6 @@ chmod 777 /var/log/apache2/sites || {
 if [ -f /etc/apache2/dashboard.conf ]; then
     echo "Loading persistent dashboard configuration..."
     source /etc/apache2/dashboard.conf
-    echo "DEBUG: Loaded DASH_STYLE=$DASH_STYLE, DASHBOARD_LANDING=$DASHBOARD_LANDING"
 fi
 
 # Write environment variables to config file for scripts to source
@@ -113,11 +102,7 @@ APACHE_LOG_LEVEL="${APACHE_LOG_LEVEL:-warn}"
 ENVEOF
 
 echo ""
-echo "=== Environment Configuration ==="
-cat /etc/apache2/env.conf
-echo "DEBUG: Checking ENABLE_BASIC_AUTH in env.conf:"
-grep "ENABLE_BASIC_AUTH" /etc/apache2/env.conf || echo "DEBUG: ENABLE_BASIC_AUTH not found in env.conf!"
-echo "=================================="
+echo "=== Environment Configuration Loaded ==="
 echo ""
 
 # Source env.conf to load defaults for variables not set in environment
@@ -266,7 +251,6 @@ fi
 
 # Normalize AUTHTYPE value (handle case and quotes)
 AUTHTYPE=$(echo "${AUTHTYPE}" | tr '[:upper:]' '[:lower:]' | sed "s/'//g" | sed 's/"//g' | xargs)
-echo "DEBUG: AUTHTYPE='${AUTHTYPE}'"
 
 # Force classic style for basic auth (basic auth doesn't support modern dashboards)
 if [ "$AUTHTYPE" = "basic" ]; then
@@ -777,7 +761,6 @@ EMBYEOF
 <Location />
     AuthType openid-connect
     Require valid-user
-    LogLevel debug
 </Location>
 RequestHeader set X-Remote-User %{OIDC_email}e
 RequestHeader set X-Remote-Name %{OIDC_name}e
@@ -800,7 +783,6 @@ EMBYAUTHEOF
 <Location />
     AuthType openid-connect
     Require valid-user
-    LogLevel debug
 </Location>
 RequestHeader set X-Remote-User %{OIDC_email}e
 RequestHeader set X-Remote-Name %{OIDC_name}e
@@ -925,7 +907,6 @@ PLEXEOF
 <Location />
     AuthType openid-connect
     Require valid-user
-    LogLevel debug
 </Location>
 RequestHeader set X-Remote-User %{OIDC_email}e
 RequestHeader set X-Remote-Name %{OIDC_name}e
@@ -948,7 +929,6 @@ PLEXAUTHEOF
 <Location />
     AuthType openid-connect
     Require valid-user
-    LogLevel debug
 </Location>
 RequestHeader set X-Remote-User %{OIDC_email}e
 RequestHeader set X-Remote-Name %{OIDC_name}e
@@ -969,7 +949,6 @@ SEERRAUTHEOF
 <Location />
     AuthType openid-connect
     Require valid-user
-    LogLevel debug
 </Location>
 RequestHeader set X-Remote-User %{OIDC_email}e
 RequestHeader set X-Remote-Name %{OIDC_name}e
@@ -992,7 +971,6 @@ PLEXAUTHEOF
 <Location />
     AuthType openid-connect
     Require valid-user
-    LogLevel debug
 </Location>
 RequestHeader set X-Remote-User %{OIDC_email}e
 RequestHeader set X-Remote-Name %{OIDC_name}e
@@ -1118,7 +1096,6 @@ if [ "$ACCESS_MODE" = "private" ]; then
 
     # Normalize IP variable
     IP=$(echo "$IP" | xargs)
-    echo "DEBUG: Using IP: '$IP'"
 
     # Use a temporary file to carefully modify the config
     # Remove the 80 VirtualHost (ACME challenge only), convert 443 to 80, and remove SSL directives
@@ -1145,10 +1122,6 @@ if [ "$ACCESS_MODE" = "private" ]; then
         /etc/apache2/sites-available/reverse-proxy.conf > /tmp/reverse-proxy.tmp
 
     mv /tmp/reverse-proxy.tmp /etc/apache2/sites-available/reverse-proxy.conf
-
-    # Show the ServerName line for debugging
-    echo "DEBUG: Generated ServerName line:"
-    grep -n "ServerName" /etc/apache2/sites-available/reverse-proxy.conf | head -1
 else
     echo "Configuring for public mode (HTTPS)"
     sed -i "s|@@DOMAIN@@|$DOMAIN|g" /etc/apache2/sites-available/reverse-proxy.conf
@@ -1177,14 +1150,6 @@ apache2ctl configtest || {
 }
 
 echo "=== Starting Apache ==="
-
-# Debug logging - save generated files
-DEBUG_DIR="/var/log/apache2/reverse-proxy-debug/$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$DEBUG_DIR"
-cp /etc/apache2/env.conf "$DEBUG_DIR/" 2>/dev/null || true
-cp /etc/apache2/sites-available/reverse-proxy.conf "$DEBUG_DIR/" 2>/dev/null || true
-cp /etc/apache2/sites-enabled/reverse-proxy.conf "$DEBUG_DIR/" 2>/dev/null || true
-echo "Debug files saved to: $DEBUG_DIR"
 
 # Trap signals to gracefully shut down cron and Apache
 trap 'echo "Shutting down..."; service cron stop 2>/dev/null; kill ${APACHE_PID} 2>/dev/null; wait ${APACHE_PID} 2>/dev/null; exit 0' SIGTERM SIGINT
