@@ -511,7 +511,7 @@ generate_services_array() {
         array+="{ id: '$id', name: '$name', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
     done
 
-    echo "$array"
+    echo "[$array]"
 }
 
 # Calculate dynamic icon sizes based on service count

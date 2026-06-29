@@ -214,9 +214,7 @@ class Component extends DCLogic {
     const clock = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const today = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
 
-    const raw = [
-      @@SERVICES_ARRAY@@
-    ];
+    const raw = @@SERVICES_ARRAY@@;
 
     const orderCodes = @@DASHBOARD_ORDER@@;
 
