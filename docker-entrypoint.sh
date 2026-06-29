@@ -206,6 +206,10 @@ if [ ! -z "$JELLYFIN_URL" ]; then
     sed -i "s|@@JELLYFIN_URL_WS@@|$JELLYFIN_URL_WS|g" /etc/apache2/sites-available/services/jellyfin.conf
 fi
 
+if [ ! -z "$MAINTAINERR_URL" ]; then
+    sed -i "s|@@MAINTAINERR_URL@@|$MAINTAINERR_URL|g" /etc/apache2/sites-available/services/maintainerr.conf
+fi
+
 # Download and resize app icons from provided URLs
 echo ""
 /usr/local/bin/download-icons.sh
