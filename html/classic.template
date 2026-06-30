@@ -167,7 +167,7 @@
         
         .content {
             flex: 1;
-            background-color: #000;
+            background-color: @@DASHBOARD_COLOR@@;
             border: none;
             width: 100%;
             overflow: hidden;
