@@ -1,4 +1,4 @@
-# YAHLP - Claude Documentation
+# YAHLP Architecture & Development Guide
 
 ## Project Overview
 
@@ -13,7 +13,7 @@
 ## Architecture Overview
 
 ### Core Stack
-- **Base**: Alpine Linux + Apache 2.4
+- **Base**: Debian 13 slim + Apache 2.4
 - **HTTPS**: Let's Encrypt (Certbot) with automatic daily renewal
 - **Reverse Proxy**: Apache mod_proxy + mod_ssl
 - **Dashboards**: 4 themes (Modern, Classic, Sleek, Minimal) + Mobile
