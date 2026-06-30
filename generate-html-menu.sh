@@ -873,8 +873,17 @@ generate_html() {
         fi
     done
 
-    # Always show style switcher
-    SHOW_STYLE_SWITCHER="true"
+    # Parse DASH_STYLE for optional :only suffix
+    # Format: "classic", "modern", "sleek", "minimal", or "classic:only", "modern:only", etc.
+    if [[ "$DASH_STYLE" == *":only"* ]]; then
+        # Extract base style (remove :only suffix)
+        DASH_STYLE="${DASH_STYLE%:only}"
+        SHOW_STYLE_SWITCHER="false"
+        echo "Style locked to: $DASH_STYLE (style switcher disabled)"
+    else
+        # Default: show style switcher
+        SHOW_STYLE_SWITCHER="true"
+    fi
 
     # Generate all style variants
     generate_all_styles
