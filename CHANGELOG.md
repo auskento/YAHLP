@@ -7,6 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.0] - 2026-06-30
+
+### Production Ready Release 🎉
+
+A complete, production-ready reverse proxy and dashboard system for 18 homelab services.
+
+### Added
+- **Maintainerr Service** ⭐ NEW
+  - Service health monitoring and dashboard
+  - Total services now: 18
+
+- **Advanced Dashboard Features**
+  - Per-template icon sizing (Classic, Sleek, Minimal, Mobile with different multipliers)
+  - DASHBOARD_COLOR customization (6-digit hex codes)
+  - DASHBOARD_THEME toggle (dark/light mode)
+  - DASH_STYLE :only suffix to lock theme and disable switcher
+  - Modern template sidebar uses DASHBOARD_COLOR gradients
+  - Empty sites bar auto-hides in all templates
+
+- **Icon Sizing System**
+  - Dynamic responsive icon sizing prevents horizontal scrollbars
+  - Per-template optimization:
+    - Classic: Compact (0.65× for 18+ services)
+    - Sleek: Larger (0.85× for 18+ services)
+    - Minimal: Larger (0.8× for 18+ services)
+    - Mobile: Compact (0.65× for 18+ services)
+
+- **Let's Encrypt Enhancements**
+  - TEST mode for dry-run certificate testing
+  - Improved certificate generation for public deployments
+
+- **Documentation Updates**
+  - Renamed CLAUDE.md → ARCHITECTURE.md
+  - Comprehensive SERVICE-CONFIGURATION.md for all 18 services
+  - Authentication setup with subdomain redirect URI warnings
+  - All old "Apache Reverse Proxy" references updated to "YAHLP"
+  - Debian 13 slim base image documented
+
+### Fixed
+- Classic template icon clipping issues (converted to CSS variables with object-fit)
+- Icon sizing consistency across all templates
+- Modern template sites sidebar now properly hides when empty
+- NZBGet authentication with proper base64 encoding and headers
+- SEERR configuration no longer requires private mode restriction
+- DirectoryIndex properly strips :only suffix from DASH_STYLE
+
+### Improved
+- Overall documentation accuracy and completeness
+- Sample .env.example with all new features documented
+- Clean branding: removed all legacy "Apache Reverse Proxy" references
+- Per-service configuration guides for all 18 applications
+- Better responsive design for templates at various service counts
+
+---
+
 ## [Unreleased]
 
 ### Planned
