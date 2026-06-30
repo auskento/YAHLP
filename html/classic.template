@@ -14,6 +14,12 @@
             --text-accent: #4a9eff;
             --border-color: #444;
             --border-accent: rgba(74, 158, 255, 0.3);
+            --icon-multiplier: @@ICON_SIZE@@;
+            --gap-multiplier: @@ICON_GAP@@;
+            --logo-multiplier: @@LOGO_SIZE@@;
+            --base-icon-width: calc(120px * var(--icon-multiplier));
+            --base-icon-height: calc(100px * var(--icon-multiplier));
+            --menu-gap: calc(8px * var(--gap-multiplier));
         }
 
         [data-theme="light"] {
@@ -49,71 +55,82 @@
         
         .header {
             background-color: var(--bg-secondary);
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-bottom: 2px solid var(--border-color);
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: space-between;
             overflow: hidden;
             min-height: auto;
-            gap: 15px;
+            gap: 10px;
             flex-shrink: 0;
-            flex-wrap: wrap;
+            width: 100%;
         }
 
         .header-left {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
+            gap: 8px;
+            flex-shrink: 1;
+            min-width: 0;
         }
 
         .header-branding {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
+            flex-shrink: 1;
+            min-width: 0;
+        }
+
+        .header-branding img {
+            width: calc(28px * var(--logo-multiplier));
+            height: calc(28px * var(--logo-multiplier));
+            flex-shrink: 0;
         }
 
         .datetime-box {
-            flex-shrink: 0;
+            flex-shrink: 1;
             background-color: rgba(74, 158, 255, 0.08);
             border: 1px solid rgba(74, 158, 255, 0.2);
-            border-radius: 8px;
-            padding: 8px 12px;
+            border-radius: 6px;
+            padding: 6px 10px;
             text-align: center;
             min-width: auto;
+            font-size: 13px;
         }
 
         .datetime-box .time {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
             font-variant-numeric: tabular-nums;
             color: #4a9eff;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
             font-family: 'Courier New', monospace;
         }
 
         .datetime-box .date {
-            font-size: 10px;
+            font-size: 9px;
             color: #888;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
         .datetime-box .style-switcher {
-            margin-top: 8px;
-            padding-top: 6px;
-            border-top: 1px solid rgba(74, 158, 255, 0.2);
-            font-size: 9px;
+            margin-top: 4px;
+            padding-top: 3px;
+            border-top: 1px solid rgba(74, 158, 255, 0.15);
+            font-size: 8px;
         }
-        
+
         .datetime-box .style-switcher a {
             color: #4a9eff;
             text-decoration: none;
             transition: all 0.2s;
+            padding: 0 2px;
         }
-        
+
         .datetime-box .style-switcher a:hover {
             color: #6bb3ff;
             text-decoration: underline;
@@ -125,18 +142,10 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             min-width: 0;
             overflow: hidden;
-        }
-        
-        :root {
-            --icon-multiplier: @@ICON_SIZE@@;
-            --gap-multiplier: @@ICON_GAP@@;
-            --logo-multiplier: @@LOGO_SIZE@@;
-            --base-icon-width: calc(120px * var(--icon-multiplier));
-            --base-icon-height: calc(100px * var(--icon-multiplier));
-            --menu-gap: calc(8px * var(--gap-multiplier));
+            width: 100%;
         }
 
         .menu-table {
@@ -145,6 +154,7 @@
             justify-content: center;
             flex-wrap: wrap;
             gap: var(--menu-gap);
+            width: 100%;
             max-width: 100%;
             overflow: hidden;
         }
