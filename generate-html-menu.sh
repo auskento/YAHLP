@@ -535,14 +535,18 @@ calculate_icon_sizes() {
         icon_multiplier="1.1"
         gap_multiplier="0.8"
         logo_multiplier="1.125"
-    elif [ "$service_count" -le 16 ]; then
-        icon_multiplier="0.95"
+    elif [ "$service_count" -le 15 ]; then
+        icon_multiplier="0.9"
         gap_multiplier="0.65"
         logo_multiplier="0.95"
-    else
-        icon_multiplier="0.8"
+    elif [ "$service_count" -le 17 ]; then
+        icon_multiplier="0.75"
         gap_multiplier="0.5"
-        logo_multiplier="0.8"
+        logo_multiplier="0.85"
+    else
+        icon_multiplier="0.65"
+        gap_multiplier="0.4"
+        logo_multiplier="0.75"
     fi
 
     echo "$icon_multiplier|$gap_multiplier|$logo_multiplier"
