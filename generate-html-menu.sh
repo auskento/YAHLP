@@ -538,7 +538,7 @@ calculate_icon_sizes() {
     else
         icon_multiplier="1.2"
         gap_multiplier="0.6"
-        logo_multiplier="1.0"
+        logo_multiplier="0.8"
     fi
 
     echo "$icon_multiplier|$gap_multiplier|$logo_multiplier"
