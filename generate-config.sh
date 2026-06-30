@@ -161,7 +161,7 @@ esac
 if [ -n "$NZBGET_USER" ] && [ -n "$NZBGET_PASS" ]; then
     # Base64 encode the username:password
     AUTH_BASIC=$(echo -n "$NZBGET_USER:$NZBGET_PASS" | base64)
-    NZBGET_AUTH_HEADER_LINE="    RequestHeader set Authorization \"Basic $AUTH_BASIC\""
+    NZBGET_AUTH_HEADER_LINE="    RequestHeader set Authorization 'Basic $AUTH_BASIC'"
     echo "NZBGet authentication header configured"
 
     # Update nzbget.conf with auth header
