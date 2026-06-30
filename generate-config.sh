@@ -258,7 +258,9 @@ CONFIG="${CONFIG//@@INCLUDE_BASIC_AUTH@@/$BASIC_AUTH_INCLUDE}"
 
 # Replace DASH_STYLE for DirectoryIndex
 DASH_STYLE="${DASH_STYLE:-classic}"
-CONFIG="${CONFIG//@@DASH_STYLE@@/$DASH_STYLE}"
+# Strip :only suffix if present for DirectoryIndex filename
+DASH_STYLE_BASE="${DASH_STYLE%:only}"
+CONFIG="${CONFIG//@@DASH_STYLE@@/$DASH_STYLE_BASE}"
 
 # Write output file
 echo "$CONFIG" > "$OUTPUT_FILE"
