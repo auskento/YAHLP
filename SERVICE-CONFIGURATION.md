@@ -16,7 +16,7 @@ Minimal setup for each service to work with YAHLP reverse proxy. This covers **O
 | **Lidarr** | LID | `/lidarr` | None | `ENABLE_LIDARR=true` |
 | **Whisparr** | WHI | `/whisparr` | None | `ENABLE_WHISPARR=true` |
 | **Prowlarr** | PRO | `/prowlarr` | None | `ENABLE_PROWLARR=true` |
-| **Seerr** | SEE | `/seerr` | Private mode only | `ENABLE_SEERR=true` |
+| **Seerr** | SEE | `/seerr` | None | `ENABLE_SEERR=true` |
 | **Bazarr** | BAZ | `/bazarr` | None | `ENABLE_BAZARR=true` |
 | **SABnzbd** | SAB | `/sabnzbd` | None | `ENABLE_SABNZBD=true` |
 | **NZBGet** | GET | No URL Base needed | Base64 auth via YAHLP | `ENABLE_NZBGET=true` |
@@ -93,13 +93,6 @@ Minimal setup for each service to work with YAHLP reverse proxy. This covers **O
 
 ### Seerr (SEE)
 **YAHLP Setting**: `Settings → General → URL Base` = `/seerr`
-
-⚠️ **Important**: Seerr requires **PRIVATE MODE** in YAHLP
-```yaml
-ACCESS_MODE: private
-```
-
-Seerr has its own OAuth flow for Plex - YAHLP private mode prevents additional auth layers from interfering.
 
 1. Navigate to **Settings → General**
 2. Find **Base URL**
@@ -266,7 +259,6 @@ Access via: `https://yourdomain.com/maintainerr`
 - **Emby**: No URL Base setting
 - **Maintainerr**: Set Docker environment variable `BASE_PATH=/maintainerr`
 
-**Seerr**: Requires `ACCESS_MODE=private` in YAHLP
 
 ---
 
