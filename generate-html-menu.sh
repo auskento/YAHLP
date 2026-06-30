@@ -517,36 +517,77 @@ generate_services_array() {
 # Calculate dynamic icon sizes based on service count
 calculate_icon_sizes() {
     local service_count=$1
+    local template_type=${2:-classic}  # Default to classic if not specified
     local icon_multiplier gap_multiplier logo_multiplier
 
-    if [ "$service_count" -le 5 ]; then
-        icon_multiplier="1.7"
-        gap_multiplier="1.4"
-        logo_multiplier="1.5"
-    elif [ "$service_count" -le 8 ]; then
-        icon_multiplier="1.5"
-        gap_multiplier="1.2"
-        logo_multiplier="1.375"
-    elif [ "$service_count" -le 10 ]; then
-        icon_multiplier="1.3"
-        gap_multiplier="1.0"
-        logo_multiplier="1.25"
-    elif [ "$service_count" -le 13 ]; then
-        icon_multiplier="1.1"
-        gap_multiplier="0.8"
-        logo_multiplier="1.125"
-    elif [ "$service_count" -le 15 ]; then
-        icon_multiplier="0.9"
-        gap_multiplier="0.65"
-        logo_multiplier="0.95"
-    elif [ "$service_count" -le 17 ]; then
-        icon_multiplier="0.75"
-        gap_multiplier="0.5"
-        logo_multiplier="0.85"
-    else
-        icon_multiplier="0.65"
-        gap_multiplier="0.4"
-        logo_multiplier="0.75"
+    # CLASSIC: Horizontal menu row - needs compact sizing
+    if [ "$template_type" = "classic" ]; then
+        if [ "$service_count" -le 5 ]; then
+            icon_multiplier="1.7"; gap_multiplier="1.4"; logo_multiplier="1.5"
+        elif [ "$service_count" -le 8 ]; then
+            icon_multiplier="1.5"; gap_multiplier="1.2"; logo_multiplier="1.375"
+        elif [ "$service_count" -le 10 ]; then
+            icon_multiplier="1.3"; gap_multiplier="1.0"; logo_multiplier="1.25"
+        elif [ "$service_count" -le 13 ]; then
+            icon_multiplier="1.1"; gap_multiplier="0.8"; logo_multiplier="1.125"
+        elif [ "$service_count" -le 15 ]; then
+            icon_multiplier="0.9"; gap_multiplier="0.65"; logo_multiplier="0.95"
+        elif [ "$service_count" -le 17 ]; then
+            icon_multiplier="0.75"; gap_multiplier="0.5"; logo_multiplier="0.85"
+        else
+            icon_multiplier="0.65"; gap_multiplier="0.4"; logo_multiplier="0.75"
+        fi
+    # SLEEK: 2-column grid - can be bigger
+    elif [ "$template_type" = "sleek" ]; then
+        if [ "$service_count" -le 5 ]; then
+            icon_multiplier="2.0"; gap_multiplier="1.5"; logo_multiplier="1.5"
+        elif [ "$service_count" -le 8 ]; then
+            icon_multiplier="1.8"; gap_multiplier="1.3"; logo_multiplier="1.375"
+        elif [ "$service_count" -le 10 ]; then
+            icon_multiplier="1.6"; gap_multiplier="1.1"; logo_multiplier="1.25"
+        elif [ "$service_count" -le 13 ]; then
+            icon_multiplier="1.4"; gap_multiplier="0.9"; logo_multiplier="1.125"
+        elif [ "$service_count" -le 15 ]; then
+            icon_multiplier="1.2"; gap_multiplier="0.75"; logo_multiplier="0.95"
+        elif [ "$service_count" -le 17 ]; then
+            icon_multiplier="1.0"; gap_multiplier="0.6"; logo_multiplier="0.85"
+        else
+            icon_multiplier="0.85"; gap_multiplier="0.5"; logo_multiplier="0.75"
+        fi
+    # MINIMAL: Single column - can be bigger
+    elif [ "$template_type" = "minimal" ]; then
+        if [ "$service_count" -le 5 ]; then
+            icon_multiplier="1.9"; gap_multiplier="1.5"; logo_multiplier="1.5"
+        elif [ "$service_count" -le 8 ]; then
+            icon_multiplier="1.7"; gap_multiplier="1.3"; logo_multiplier="1.375"
+        elif [ "$service_count" -le 10 ]; then
+            icon_multiplier="1.5"; gap_multiplier="1.1"; logo_multiplier="1.25"
+        elif [ "$service_count" -le 13 ]; then
+            icon_multiplier="1.3"; gap_multiplier="0.9"; logo_multiplier="1.125"
+        elif [ "$service_count" -le 15 ]; then
+            icon_multiplier="1.1"; gap_multiplier="0.75"; logo_multiplier="0.95"
+        elif [ "$service_count" -le 17 ]; then
+            icon_multiplier="0.95"; gap_multiplier="0.6"; logo_multiplier="0.85"
+        else
+            icon_multiplier="0.8"; gap_multiplier="0.5"; logo_multiplier="0.75"
+        fi
+    # MOBILE: Grid layout - compact for mobile screens
+    elif [ "$template_type" = "mobile" ]; then
+        if [ "$service_count" -le 5 ]; then
+            icon_multiplier="1.5"; gap_multiplier="1.3"; logo_multiplier="1.5"
+        elif [ "$service_count" -le 8 ]; then
+            icon_multiplier="1.3"; gap_multiplier="1.1"; logo_multiplier="1.375"
+        elif [ "$service_count" -le 10 ]; then
+            icon_multiplier="1.1"; gap_multiplier="0.9"; logo_multiplier="1.25"
+        elif [ "$service_count" -le 13 ]; then
+            icon_multiplier="0.95"; gap_multiplier="0.8"; logo_multiplier="1.125"
+        elif [ "$service_count" -le 15 ]; then
+            icon_multiplier="0.85"; gap_multiplier="0.7"; logo_multiplier="0.95"
+        elif [ "$service_count" -le 17 ]; then
+            icon_multiplier="0.75"; gap_multiplier="0.6"; logo_multiplier="0.85"
+        else
+            icon_multiplier="0.65"; gap_multiplier="0.5"; logo_multiplier="0.75"
+        fi
     fi
 
     echo "$icon_multiplier|$gap_multiplier|$logo_multiplier"
@@ -782,16 +823,13 @@ generate_all_styles() {
         fi
     done
 
-    local sizes=$(calculate_icon_sizes "$service_count")
-    local ICON_SIZE=$(echo "$sizes" | cut -d'|' -f1)
-    local ICON_GAP=$(echo "$sizes" | cut -d'|' -f2)
-    local LOGO_SIZE=$(echo "$sizes" | cut -d'|' -f3)
-
-    # Debug output: show sizes being used
-    echo "📊 Icon Sizing: $service_count services → icon_multiplier=$ICON_SIZE, gap_multiplier=$ICON_GAP, logo_multiplier=$LOGO_SIZE"
-
     # Generate Classic (always)
     if [ -f "$CLASSIC_TEMPLATE" ]; then
+        local sizes=$(calculate_icon_sizes "$service_count" "classic")
+        local ICON_SIZE=$(echo "$sizes" | cut -d'|' -f1)
+        local ICON_GAP=$(echo "$sizes" | cut -d'|' -f2)
+        local LOGO_SIZE=$(echo "$sizes" | cut -d'|' -f3)
+        echo "📊 Classic: $service_count services → icon_multiplier=$ICON_SIZE, gap_multiplier=$ICON_GAP, logo_multiplier=$LOGO_SIZE"
         local menu_items=$(generate_menu_items)
         local services_list=$(generate_services_list)
         local sites_items=$(generate_sites_html)
@@ -838,6 +876,12 @@ generate_all_styles() {
 
     # Generate Sleek (always)
     if [ -f "$SLEEK_TEMPLATE" ]; then
+        local sizes=$(calculate_icon_sizes "$service_count" "sleek")
+        local ICON_SIZE=$(echo "$sizes" | cut -d'|' -f1)
+        local ICON_GAP=$(echo "$sizes" | cut -d'|' -f2)
+        local LOGO_SIZE=$(echo "$sizes" | cut -d'|' -f3)
+        echo "📊 Sleek: $service_count services → icon_multiplier=$ICON_SIZE, gap_multiplier=$ICON_GAP, logo_multiplier=$LOGO_SIZE"
+
         local services_array=$(generate_services_array)
         local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_sleek)
@@ -862,6 +906,12 @@ generate_all_styles() {
 
     # Generate Minimal (always)
     if [ -f "$MINIMAL_TEMPLATE" ]; then
+        local sizes=$(calculate_icon_sizes "$service_count" "minimal")
+        local ICON_SIZE=$(echo "$sizes" | cut -d'|' -f1)
+        local ICON_GAP=$(echo "$sizes" | cut -d'|' -f2)
+        local LOGO_SIZE=$(echo "$sizes" | cut -d'|' -f3)
+        echo "📊 Minimal: $service_count services → icon_multiplier=$ICON_SIZE, gap_multiplier=$ICON_GAP, logo_multiplier=$LOGO_SIZE"
+
         local services_array=$(generate_services_array)
         local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_minimal)
@@ -898,10 +948,11 @@ generate_all_styles() {
             fi
         done
 
-        local sizes=$(calculate_icon_sizes "$service_count")
+        local sizes=$(calculate_icon_sizes "$service_count" "mobile")
         local ICON_SIZE=$(echo "$sizes" | cut -d'|' -f1)
         local ICON_GAP=$(echo "$sizes" | cut -d'|' -f2)
         local LOGO_SIZE=$(echo "$sizes" | cut -d'|' -f3)
+        echo "📊 Mobile: $service_count services → icon_multiplier=$ICON_SIZE, gap_multiplier=$ICON_GAP, logo_multiplier=$LOGO_SIZE"
 
         local html_content=$(cat "$MOBILE_TEMPLATE")
         html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
