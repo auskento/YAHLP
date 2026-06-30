@@ -60,7 +60,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            overflow: hidden;
+            flex-wrap: wrap;
             min-height: auto;
             gap: 10px;
             flex-shrink: 0;
@@ -144,7 +144,6 @@
             align-items: center;
             gap: 4px;
             min-width: 0;
-            overflow: hidden;
             width: 100%;
         }
 
@@ -156,7 +155,6 @@
             gap: var(--menu-gap);
             width: 100%;
             max-width: 100%;
-            overflow: hidden;
         }
 
         .menu-item {
@@ -176,10 +174,11 @@
         }
 
         .menu-item img {
-            max-width: var(--base-icon-width);
-            max-height: var(--base-icon-height);
+            width: var(--base-icon-width);
+            height: var(--base-icon-height);
             border: none;
             display: block;
+            object-fit: contain;
         }
         
         .menu-item .label {
