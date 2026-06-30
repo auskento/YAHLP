@@ -25,8 +25,14 @@ if [ -f /etc/apache2/dashboard.conf ]; then
     source /etc/apache2/dashboard.conf
 fi
 
+# Determine deployment mode early to clear DOMAIN/EMAIL before writing env.conf
+if [ "$ACCESS_MODE" = "private" ]; then
+    DOMAIN=""
+    EMAIL=""
+fi
+
 # Write environment variables to config file for scripts to source
-# Note: DOMAIN and EMAIL are cleared in private mode after ACCESS_MODE check
+# Note: DOMAIN and EMAIL are cleared for private mode before this step
 cat > /etc/apache2/env.conf << ENVEOF
 ACCESS_MODE="${ACCESS_MODE:-public}"
 DOMAIN="${DOMAIN}"
@@ -151,10 +157,6 @@ if [ "$ACCESS_MODE" = "private" ]; then
         exit 1
     fi
 
-    # Clear domain and email in private mode - not needed
-    DOMAIN=""
-    EMAIL=""
-
     echo "IP: $IP (private mode)"
 elif [ "$ACCESS_MODE" = "public" ]; then
     echo "✓ Public mode - Full features enabled"
@@ -177,11 +179,8 @@ echo "Generating Apache configuration with enabled services..."
     /etc/apache2/sites-available/reverse-proxy.conf.template \
     /etc/apache2/sites-available/reverse-proxy.conf
 
-# Update env.conf with cleared values for private mode (after generate-config.sh)
+# For private mode, update service configs with IP-based URLs
 if [ "$ACCESS_MODE" = "private" ]; then
-    sed -i "s|^DOMAIN=.*|DOMAIN=\"\"|" /etc/apache2/env.conf
-    sed -i "s|^EMAIL=.*|EMAIL=\"\"|" /etc/apache2/env.conf
-
     IP=$(echo "$IP" | xargs)
     echo "Updating service configs for private mode (IP: $IP)..."
     # Replace https://example.com with http://IP in all service config files
@@ -1116,10 +1115,6 @@ if [ "$ACCESS_MODE" = "private" ]; then
         -e '/Header always set X-Content-Type-Options/d' \
         -e '/Header always set X-Frame-Options/d' \
         -e '/Header always set X-XSS-Protection/d' \
-        -e '/# Redirect HTTP to HTTPS/d' \
-        -e '/RewriteEngine On/d' \
-        -e '/RewriteCond %{HTTPS}/d' \
-        -e '/RewriteRule.*https/d' \
         -e '/ServerAlias www\./d' \
         -e "s|ServerName @@DOMAIN@@|ServerName $IP|g" \
         -e "s|ServerName example.com|ServerName $IP|g" \
