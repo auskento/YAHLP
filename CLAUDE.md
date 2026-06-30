@@ -101,14 +101,20 @@ if [ "$TEST" = "true" ]; then
     DRY_RUN_FLAG="--dry-run"
 fi
 
-# Private mode: skip certificates and OAuth
+# Private mode: skip certificates, HTTP-only, IP-based access
 if [ "$ACCESS_MODE" = "private" ]; then
-    # Skip Seerr OAuth, skip certificate generation
-    # Only HTTP available
+    # Skip certificate generation
+    # Services accessed via IP address (e.g., http://192.168.1.100/sonarr)
+    # No OAuth, HTTPS, or domain-based access
 else
-    # Public mode: certificates + OAuth
+    # Public mode: HTTPS certificates, domain-based access
+    # OAuth available (Entra ID, Google)
 fi
 ```
+
+**Key Difference**: 
+- **Private Mode**: Access via IP address only (e.g., `http://192.168.1.100/sonarr`)
+- **Public Mode**: Access via domain name (e.g., `https://yourdomain.com/sonarr`)
 
 ### 3. Certificate Generation
 
