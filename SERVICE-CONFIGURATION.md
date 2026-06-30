@@ -28,7 +28,7 @@ Minimal setup for each service to work with YAHLP reverse proxy. This covers **O
 | **Emby** | EMB | `/emby` | None | `ENABLE_EMBY=true` |
 | **Plex** | PLX | `/plex` | None | `ENABLE_PLEX=true` |
 | **Tautulli** | TAU | `/tautulli` | None | `ENABLE_TAUTULLI=true` |
-| **Maintainerr** | MNT | No URL Base needed | None | `ENABLE_MAINTAINERR=true` |
+| **Maintainerr** | MNT | No URL Base needed | `BASE_PATH=/maintainerr` env var | `ENABLE_MAINTAINERR=true` |
 
 ---
 
@@ -242,9 +242,24 @@ Access via: `https://yourdomain.com/plex`
 ---
 
 ### Maintainerr (MNT)
-**YAHLP Setting**: No URL Base configuration needed
+**YAHLP Setting**: Docker environment variable `BASE_PATH` = `/maintainerr`
 
-Maintainerr has no URL Base setting. Access via: `https://yourdomain.com/maintainerr`
+Maintainerr requires the Base Path to be set via Docker environment variable:
+
+1. In `docker-compose.yml` (Maintainerr service), set:
+   ```yaml
+   environment:
+     BASE_PATH: /maintainerr
+   ```
+
+2. Or if running standalone, set environment variable:
+   ```bash
+   export BASE_PATH=/maintainerr
+   ```
+
+3. Restart Maintainerr container
+
+Access via: `https://yourdomain.com/maintainerr`
 
 ---
 
@@ -259,7 +274,7 @@ Maintainerr has no URL Base setting. Access via: `https://yourdomain.com/maintai
 - **Deluge**: No URL Base needed
 - **Transmission**: Edit `settings.json` → `rpc-url`
 - **Plex**: Optional (works either way)
-- **Maintainerr**: No URL Base setting
+- **Maintainerr**: Set Docker environment variable `BASE_PATH=/maintainerr`
 
 **Seerr**: Requires `ACCESS_MODE=private` in YAHLP
 
