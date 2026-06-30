@@ -107,6 +107,7 @@ SITES_ENABLED="${SITES_ENABLED:-}"
 SSL_PROTOCOLS="${SSL_PROTOCOLS:-all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1}"
 SSL_CIPHERS="${SSL_CIPHERS:-HIGH:!aNULL:!MD5}"
 APACHE_LOG_LEVEL="${APACHE_LOG_LEVEL:-warn}"
+TEST="${TEST:-false}"
 ENVEOF
 
 echo ""
@@ -167,6 +168,17 @@ else
     echo "ERROR: Invalid ACCESS_MODE: $ACCESS_MODE"
     echo "Valid options: private, public"
     exit 1
+fi
+
+echo ""
+echo "=== Test Mode Configuration ==="
+# Setup dry-run flag for certbot if TEST mode is enabled
+DRY_RUN_FLAG=""
+if [ "$TEST" = "true" ]; then
+    DRY_RUN_FLAG="--dry-run"
+    echo "⚠ TEST mode enabled - using --dry-run with Let's Encrypt (no certificates will be issued)"
+else
+    echo "✓ Production mode - certificates will be issued"
 fi
 
 echo ""
@@ -456,6 +468,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
             --agree-tos \
             --no-eff-email \
             --non-interactive \
+            $DRY_RUN_FLAG \
             -d "$DOMAIN" \
             || {
                 echo "⚠ Certbot failed. Generating self-signed certificate as fallback..."
@@ -490,7 +503,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
         echo "Checking Emby certificate existence..."
         if [ ! -f "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" ]; then
             echo "Requesting certificate for Emby subdomain: $EMBY_DOMAIN"
-            certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive -d "$EMBY_DOMAIN" 2>/dev/null || {
+            certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive $DRY_RUN_FLAG -d "$EMBY_DOMAIN" 2>/dev/null || {
                 echo "⚠ Certbot failed for Emby subdomain, using main domain certificate"
             }
         else
@@ -503,7 +516,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
         echo "Checking Plex certificate existence..."
         if [ ! -f "/etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$PLEX_DOMAIN/fullchain.pem" ]; then
             echo "Requesting certificate for Plex subdomain: $PLEX_DOMAIN"
-            certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive -d "$PLEX_DOMAIN" 2>/dev/null || {
+            certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive $DRY_RUN_FLAG -d "$PLEX_DOMAIN" 2>/dev/null || {
                 echo "⚠ Certbot failed for Plex subdomain, using main domain certificate"
             }
         else
@@ -516,7 +529,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
         echo "Checking Seerr certificate existence..."
         if [ ! -f "/etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$SEERR_DOMAIN/fullchain.pem" ]; then
             echo "Requesting certificate for Seerr subdomain: $SEERR_DOMAIN"
-            certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive -d "$SEERR_DOMAIN" 2>/dev/null || {
+            certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive $DRY_RUN_FLAG -d "$SEERR_DOMAIN" 2>/dev/null || {
                 echo "⚠ Certbot failed for Seerr subdomain, using main domain certificate"
             }
         else
