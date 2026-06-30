@@ -866,11 +866,29 @@ generate_all_styles() {
     if [ -f "$MOBILE_TEMPLATE" ]; then
         local menu_items=$(generate_menu_items)
         local sites_items=$(generate_sites_html)
+
+        # Calculate dynamic icon sizes based on service count for mobile
+        local service_count=0
+        for service_key in "${SERVICE_ORDER[@]}"; do
+            local enable_var="ENABLE_${service_key}"
+            if [ "${!enable_var}" = "true" ]; then
+                ((service_count++))
+            fi
+        done
+
+        local sizes=$(calculate_icon_sizes "$service_count")
+        local ICON_SIZE=$(echo "$sizes" | cut -d'|' -f1)
+        local ICON_GAP=$(echo "$sizes" | cut -d'|' -f2)
+        local LOGO_SIZE=$(echo "$sizes" | cut -d'|' -f3)
+
         local html_content=$(cat "$MOBILE_TEMPLATE")
         html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
+        html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
+        html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
+        html_content="${html_content//@@LOGO_SIZE@@/$LOGO_SIZE}"
         echo "$html_content" > "/var/www/html/mobile.html"
     fi
 }
