@@ -25,8 +25,8 @@ Minimal setup for each service to work with YAHLP reverse proxy. This covers **O
 | **qBittorrent** | QBI | No URL Base needed | None | `ENABLE_QBITTORRENT=true` |
 | **Deluge** | DEL | No URL Base needed | None | `ENABLE_DELUGE=true` |
 | **Jellyfin** | JEL | `/jellyfin` | None | `ENABLE_JELLYFIN=true` |
-| **Emby** | EMB | `/emby` | None | `ENABLE_EMBY=true` |
-| **Plex** | PLX | `/plex` | None | `ENABLE_PLEX=true` |
+| **Emby** | EMB | No URL Base setting | None | `ENABLE_EMBY=true` |
+| **Plex** | PLX | No URL Base setting | None | `ENABLE_PLEX=true` |
 | **Tautulli** | TAU | `/tautulli` | None | `ENABLE_TAUTULLI=true` |
 | **Maintainerr** | MNT | No URL Base needed | `BASE_PATH=/maintainerr` env var | `ENABLE_MAINTAINERR=true` |
 
@@ -207,27 +207,16 @@ Access via: `https://yourdomain.com/deluge`
 ---
 
 ### Emby (EMB)
-**YAHLP Setting**: `Settings → Server → Base URL` = `/emby`
+**YAHLP Setting**: No URL Base configuration needed
 
-1. Navigate to **Settings → Server**
-2. Find **Base URL** 
-3. Set to: `/emby`
-4. Click **Save**
-5. Restart Emby
+Emby does not have a URL Base setting. Access via: `https://yourdomain.com/emby`
 
 ---
 
 ### Plex (PLX)
-**YAHLP Setting**: `Settings → Remote Access → External URL (optional)`
+**YAHLP Setting**: No URL Base configuration needed
 
-Set in Plex (optional, not required for YAHLP):
-```
-External URL: https://yourdomain.com/plex
-```
-
-Or leave blank - Plex can operate without explicit URL Base setting.
-
-Access via: `https://yourdomain.com/plex`
+Plex does not have a URL Base setting. Access via: `https://yourdomain.com/plex`
 
 ---
 
@@ -270,10 +259,11 @@ Access via: `https://yourdomain.com/maintainerr`
 
 **Exceptions**:
 - **NZBGet**: Handled by YAHLP (credentials in `.env`)
-- **qBittorrent**: No URL Base needed
-- **Deluge**: No URL Base needed
+- **qBittorrent**: No URL Base setting
+- **Deluge**: No URL Base setting
 - **Transmission**: Edit `settings.json` → `rpc-url`
-- **Plex**: Optional (works either way)
+- **Plex**: No URL Base setting
+- **Emby**: No URL Base setting
 - **Maintainerr**: Set Docker environment variable `BASE_PATH=/maintainerr`
 
 **Seerr**: Requires `ACCESS_MODE=private` in YAHLP
