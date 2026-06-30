@@ -311,7 +311,7 @@ Your Domain (DNS)
    ↓
 Port 80/443 on your server
    ↓
-Apache Reverse Proxy (Docker)
+YAHLP (Docker)
    ├→ SSL/TLS (Let's Encrypt)
    ├→ Config Generator (reads environment variables)
    └→ Routes traffic to enabled services

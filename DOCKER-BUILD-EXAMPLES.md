@@ -1,6 +1,6 @@
 # Docker Build Examples
 
-This document provides practical examples of building and running the Apache Reverse Proxy container with different configurations.
+This document provides practical examples of building and running the YAHLP container with different configurations.
 
 ## Building the Image
 

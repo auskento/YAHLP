@@ -1,6 +1,6 @@
 # Environment Variables Reference
 
-Complete reference guide for all environment variables supported by the Apache Reverse Proxy.
+Complete reference guide for all environment variables supported by YAHLP.
 
 ## Deployment Mode
 
