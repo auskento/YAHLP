@@ -42,7 +42,7 @@ YAHLP v1.0.0 is the initial stable release, providing a complete solution for ma
 ### Advanced Features
 - **Minimal Defaults**: All services disabled by default—enable only what you need
 - **Environment Variables**: 60+ configuration options for complete customization
-- **Apache Reverse Proxy**: High-performance routing and load balancing
+- **YAHLP Engine**: High-performance reverse proxy routing and load balancing
 - **Docker Native**: Full Docker support with proper volume mounting
 
 ## 🚀 Getting Started

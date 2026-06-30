@@ -1,6 +1,6 @@
 # Authentication Setup Guide
 
-The Apache Reverse Proxy supports three mutually exclusive authentication methods: **Basic Auth**, **Entra ID (Microsoft)**, and **Google OAuth**. Choose one based on your security and user management needs.
+YAHLP supports three mutually exclusive authentication methods: **Basic Auth**, **Entra ID (Microsoft)**, and **Google OAuth**. Choose one based on your security and user management needs.
 
 ## Quick Comparison
 
@@ -76,7 +76,7 @@ ENTRA_PROVIDER_METADATA_URL=https://login.microsoftonline.com/YOUR_TENANT_ID/v2.
 1. Go to [Azure Portal](https://portal.azure.com)
 2. Navigate to **Azure Active Directory → App registrations → New registration**
 3. Fill in:
-   - **Name**: "Apache Reverse Proxy"
+   - **Name**: "YAHLP"
    - **Supported account types**: "Accounts in this organizational directory only"
    - **Redirect URI**: `https://transfers.limosani.au/auth/oauth2/callback`
 4. Click **Register**

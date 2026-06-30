@@ -430,7 +430,7 @@ docker exec auskentos-yahlp \
 
 ---
 
-**That's everything you need to run Apache Reverse Proxy on Unraid!** 🚀
+**That's everything you need to run YAHLP on Unraid!** 🚀
 
 For more info, see the full documentation in this package.
 
