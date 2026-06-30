@@ -262,10 +262,13 @@ class Component extends DCLogic {
     }
   });
 
-  // Hide sites sidebar if empty
+  // Hide sites sidebar if empty (check for actual site-link elements)
   const sitesSidebar = document.querySelector('aside:last-of-type');
-  if (sitesSidebar && sitesSidebar.textContent.trim() === '') {
-    sitesSidebar.style.display = 'none';
+  if (sitesSidebar) {
+    const siteLinks = sitesSidebar.querySelectorAll('.site-link');
+    if (siteLinks.length === 0) {
+      sitesSidebar.style.display = 'none';
+    }
   }
 
   // Site link handling - open in new window
