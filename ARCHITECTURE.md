@@ -127,8 +127,11 @@ fi
 ### 4. Dashboard Customization
 
 **Dynamic Icon Sizing** (generate-html-menu.sh, `calculate_icon_sizes()` function):
-- Reduces icon size based on enabled service count (prevents horizontal scroll)
-- Logo multiplier: 1.0 (1-15 services) → 0.8 (16+ services)
+- Per-template sizing: Each template (classic, sleek, minimal, mobile) has optimized multipliers
+- Classic: Compact sizing (horizontal row) - 0.65× for 18+ services
+- Sleek: Larger sizing (2-column grid) - 0.85× for 18+ services
+- Minimal: Larger sizing (single column) - 0.8× for 18+ services
+- Mobile: Compact sizing (mobile grid) - 0.65× for 18+ services
 
 **Theme System**:
 - 4 themes + mobile variant
