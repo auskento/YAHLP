@@ -1,8 +1,8 @@
-# Complete Feature Summary - YAHLP (Yet Another HomeLab Portal) v2.2
+# Complete Feature Summary - YAHLP (Yet Another HomeLab Portal) v1.0.0
 
 ## 🚀 Everything You Have Now
 
-Your Apache reverse proxy system includes **18 pre-configured services** organized into 5 categories with flexible authentication, customizable dashboard styling, and 3-digit service codes for easy configuration.
+YAHLP includes **18 pre-configured services** organized into 5 categories with flexible authentication, customizable dashboard styling, and 3-digit service codes for easy configuration.
 
 ### Core Features
 
