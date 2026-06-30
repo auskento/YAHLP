@@ -661,6 +661,20 @@ generate_style_dashboard() {
         local services_list=$(generate_services_list)
         local style_switcher=$(generate_style_switcher_classic)
 
+        # Calculate dynamic icon sizes based on service count for classic
+        local service_count=0
+        for service_key in "${SERVICE_ORDER[@]}"; do
+            local enable_var="ENABLE_${service_key}"
+            if [ "${!enable_var}" = "true" ]; then
+                ((service_count++))
+            fi
+        done
+
+        local sizes=$(calculate_icon_sizes "$service_count")
+        local ICON_SIZE=$(echo "$sizes" | cut -d'|' -f1)
+        local ICON_GAP=$(echo "$sizes" | cut -d'|' -f2)
+        local LOGO_SIZE=$(echo "$sizes" | cut -d'|' -f3)
+
         local html_content=$(cat "$TEMPLATE_FILE")
         html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
         html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
@@ -668,6 +682,9 @@ generate_style_dashboard() {
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
+        html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
+        html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
+        html_content="${html_content//@@LOGO_SIZE@@/$LOGO_SIZE}"
 
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"|src="about:blank"|')
