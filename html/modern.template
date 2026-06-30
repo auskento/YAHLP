@@ -262,15 +262,6 @@ class Component extends DCLogic {
     }
   });
 
-  // Hide sites sidebar if empty (check for actual site-link elements)
-  const sitesSidebar = document.querySelector('aside:last-of-type');
-  if (sitesSidebar) {
-    const siteLinks = sitesSidebar.querySelectorAll('.site-link');
-    if (siteLinks.length === 0) {
-      sitesSidebar.style.display = 'none';
-    }
-  }
-
   // Site link handling - open in new window
   document.querySelectorAll('.site-link').forEach(link => {
     link.addEventListener('click', function(e) {
@@ -278,6 +269,18 @@ class Component extends DCLogic {
       window.open(this.href, '_blank');
     });
   });
+
+  // Hide sites sidebar if empty - check after DOM is ready
+  setTimeout(() => {
+    const sitesSidebar = document.querySelector('aside:last-of-type');
+    if (sitesSidebar) {
+      const siteLinksContainer = sitesSidebar.querySelector('div');
+      // Check if the container is empty (no child elements except whitespace)
+      if (!siteLinksContainer || siteLinksContainer.children.length === 0) {
+        sitesSidebar.style.display = 'none';
+      }
+    }
+  }, 100);
 </script>
 </body>
 </html>
