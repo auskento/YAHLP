@@ -7,7 +7,7 @@
     <style>
         :root {
             --bg-primary: #000;
-            --bg-secondary: #1a1a1a;
+            --bg-secondary: @@DASHBOARD_COLOR@@;
             --bg-tertiary: rgba(74, 158, 255, 0.1);
             --text-primary: #fff;
             --text-secondary: #888;

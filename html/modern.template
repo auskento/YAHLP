@@ -29,7 +29,7 @@ if (typeof window !== 'undefined' && window.parent && window.parent !== window) 
 <style>
   :root {
     --bg-primary: #08090c;
-    --bg-secondary: rgba(20, 23, 30, 0.72);
+    --bg-secondary: @@DASHBOARD_COLOR@@;
     --bg-tertiary: rgba(255, 255, 255, 0.05);
     --bg-gradient-start: rgba(20, 23, 30, 0.72);
     --bg-gradient-end: rgba(12, 14, 19, 0.72);
