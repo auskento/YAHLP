@@ -1,6 +1,6 @@
 # YAHLP - Yet Another HomeLab Portal
 
-A production-ready reverse proxy system for managing 17+ homelab applications with automatic HTTPS, flexible authentication, and customizable dashboards.
+A production-ready reverse proxy system for managing 18 homelab applications with automatic HTTPS, flexible authentication, and customizable dashboards.
 
 **Perfect for:** Sonarr, Radarr, Jellyfin, Plex, qBittorrent, Bazarr, and more!
 
