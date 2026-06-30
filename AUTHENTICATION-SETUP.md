@@ -108,6 +108,19 @@ ENTRA_PROVIDER_METADATA_URL=https://login.microsoftonline.com/YOUR_TENANT_ID/v2.
 
 Optional: Restrict to specific domains or users. Not configured by default.
 
+### ⚠️ Important: Subdomain Configuration
+
+If you configured service-specific subdomains in `.env` (e.g., `SEERR_DOMAIN`, `EMBY_DOMAIN`, `PLEX_DOMAIN`), you **must add them to the Redirect URI list** in Entra ID:
+
+1. Go back to your Entra application
+2. **Authentication → Platform configurations → Web**
+3. Under **Redirect URIs**, add each subdomain callback:
+   - `https://yourdomain.com/auth/oauth2/callback` (main YAHLP)
+   - `https://seerr.yourdomain.com/oauth2callback` (if SEERR_DOMAIN configured)
+   - `https://emby.yourdomain.com/oauth2callback` (if EMBY_DOMAIN configured)
+   - `https://plex.yourdomain.com/oauth2callback` (if PLEX_DOMAIN configured)
+4. Click **Save**
+
 ---
 
 ## 3. Google OAuth 2.0
@@ -172,6 +185,19 @@ If using Google Workspace, add to OAuth screen configuration:
 - ✅ User info display (name, email)
 - ✅ Google Workspace integration
 - Uses dashboard with embedded iframes (keeps sidebar visible)
+
+### ⚠️ Important: Subdomain Configuration
+
+If you configured service-specific subdomains in `.env` (e.g., `SEERR_DOMAIN`, `EMBY_DOMAIN`, `PLEX_DOMAIN`), you **must add them to the Authorized redirect URIs** in Google Cloud Console:
+
+1. Go to **Google Cloud Console → APIs & Services → Credentials**
+2. Click your OAuth 2.0 Client ID (Web application)
+3. Under **Authorized redirect URIs**, add each subdomain:
+   - `https://yourdomain.com` (main YAHLP)
+   - `https://seerr.yourdomain.com/` (if SEERR_DOMAIN configured)
+   - `https://emby.yourdomain.com/` (if EMBY_DOMAIN configured)
+   - `https://plex.yourdomain.com/` (if PLEX_DOMAIN configured)
+4. Click **Save**
 
 ---
 
