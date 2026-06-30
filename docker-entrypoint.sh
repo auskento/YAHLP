@@ -486,7 +486,7 @@ fi
 
 # Request certificates for Emby and Plex subdomains
 if [ "$SKIP_CERT_GENERATION" = "false" ]; then
-    if [ ! -z "$EMBY_DOMAIN" ] && [ "${ENABLE_EMBY}" = "true" ]; then
+    if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$EMBY_DOMAIN" ] && [ "${ENABLE_EMBY}" = "true" ]; then
         EMBY_CERT_DOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
         echo "Checking Emby certificate existence..."
         if [ ! -f "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" ]; then
@@ -499,7 +499,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
         fi
     fi
 
-    if [ ! -z "$PLEX_DOMAIN" ] && [ "${ENABLE_PLEX}" = "true" ]; then
+    if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$PLEX_DOMAIN" ] && [ "${ENABLE_PLEX}" = "true" ]; then
         PLEX_CERT_DOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
         echo "Checking Plex certificate existence..."
         if [ ! -f "/etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$PLEX_DOMAIN/fullchain.pem" ]; then
@@ -512,7 +512,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
         fi
     fi
 
-    if [ ! -z "$SEERR_DOMAIN" ] && [ "${ENABLE_SEERR}" = "true" ]; then
+    if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$SEERR_DOMAIN" ] && [ "${ENABLE_SEERR}" = "true" ]; then
         SEERR_CERT_DOMAIN=$(echo "$SEERR_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
         echo "Checking Seerr certificate existence..."
         if [ ! -f "/etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$SEERR_DOMAIN/fullchain.pem" ]; then
@@ -581,8 +581,8 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ !
     esac
 fi
 
-# Handle Plex subdomain with separate OAuth if enabled (only for OAuth auth types)
-if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
+# Handle Plex subdomain with separate OAuth if enabled (only for OAuth auth types, public mode only)
+if [ "$ACCESS_MODE" = "public" ] && [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
     echo ""
     echo "=== Plex Subdomain OAuth Setup ==="
     echo "Plex domain: $PLEX_DOMAIN"
