@@ -171,20 +171,17 @@ echo ""
 echo "=== Apache Setup ==="
 echo "Style: $DASH_STYLE (Auth: $AUTHTYPE)"
 
-# Update env.conf with cleared values for private mode
-if [ "$ACCESS_MODE" = "private" ]; then
-    sed -i "s|^DOMAIN=.*|DOMAIN=\"\"|" /etc/apache2/env.conf
-    sed -i "s|^EMAIL=.*|EMAIL=\"\"|" /etc/apache2/env.conf
-fi
-
 # Generate Apache configuration from template based on environment variables
 echo "Generating Apache configuration with enabled services..."
 /usr/local/bin/generate-config.sh \
     /etc/apache2/sites-available/reverse-proxy.conf.template \
     /etc/apache2/sites-available/reverse-proxy.conf
 
-# In private mode, update service configs to use IP address instead of domain
+# Update env.conf with cleared values for private mode (after generate-config.sh)
 if [ "$ACCESS_MODE" = "private" ]; then
+    sed -i "s|^DOMAIN=.*|DOMAIN=\"\"|" /etc/apache2/env.conf
+    sed -i "s|^EMAIL=.*|EMAIL=\"\"|" /etc/apache2/env.conf
+
     IP=$(echo "$IP" | xargs)
     echo "Updating service configs for private mode (IP: $IP)..."
     # Replace https://example.com with http://IP in all service config files
@@ -999,8 +996,8 @@ SEERRAUTHEOF
     echo "✓ Plex VirtualHost enabled"
 fi
 
-# Configure Seerr subdomain VirtualHost (if SEERR_DOMAIN is set)
-if [ ! -z "$SEERR_DOMAIN" ]; then
+# Configure Seerr subdomain VirtualHost (if SEERR_DOMAIN is set and in public mode)
+if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$SEERR_DOMAIN" ]; then
     echo ""
     echo "=== Generating Seerr VirtualHost ==="
 
