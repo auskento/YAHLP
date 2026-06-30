@@ -524,20 +524,24 @@ calculate_icon_sizes() {
         gap_multiplier="1.4"
         logo_multiplier="1.5"
     elif [ "$service_count" -le 8 ]; then
-        icon_multiplier="1.6"
+        icon_multiplier="1.5"
         gap_multiplier="1.2"
         logo_multiplier="1.375"
-    elif [ "$service_count" -le 12 ]; then
-        icon_multiplier="1.5"
+    elif [ "$service_count" -le 10 ]; then
+        icon_multiplier="1.3"
         gap_multiplier="1.0"
         logo_multiplier="1.25"
-    elif [ "$service_count" -le 15 ]; then
-        icon_multiplier="1.4"
+    elif [ "$service_count" -le 13 ]; then
+        icon_multiplier="1.1"
         gap_multiplier="0.8"
         logo_multiplier="1.125"
+    elif [ "$service_count" -le 16 ]; then
+        icon_multiplier="0.95"
+        gap_multiplier="0.65"
+        logo_multiplier="0.95"
     else
-        icon_multiplier="1.2"
-        gap_multiplier="0.6"
+        icon_multiplier="0.8"
+        gap_multiplier="0.5"
         logo_multiplier="0.8"
     fi
 
@@ -778,6 +782,9 @@ generate_all_styles() {
     local ICON_SIZE=$(echo "$sizes" | cut -d'|' -f1)
     local ICON_GAP=$(echo "$sizes" | cut -d'|' -f2)
     local LOGO_SIZE=$(echo "$sizes" | cut -d'|' -f3)
+
+    # Debug output: show sizes being used
+    echo "📊 Icon Sizing: $service_count services → icon_multiplier=$ICON_SIZE, gap_multiplier=$ICON_GAP, logo_multiplier=$LOGO_SIZE"
 
     # Generate Classic (always)
     if [ -f "$CLASSIC_TEMPLATE" ]; then

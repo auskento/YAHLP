@@ -49,15 +49,16 @@
         
         .header {
             background-color: var(--bg-secondary);
-            padding: 15px 20px;
+            padding: 10px 15px;
             border-bottom: 2px solid var(--border-color);
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            overflow: auto;
-            min-height: 120px;
-            gap: 30px;
+            overflow: hidden;
+            min-height: auto;
+            gap: 15px;
             flex-shrink: 0;
+            flex-wrap: wrap;
         }
 
         .header-left {
@@ -124,35 +125,49 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
+            min-width: 0;
+            overflow: hidden;
         }
         
+        :root {
+            --icon-multiplier: @@ICON_SIZE@@;
+            --gap-multiplier: @@ICON_GAP@@;
+            --logo-multiplier: @@LOGO_SIZE@@;
+            --base-icon-width: calc(120px * var(--icon-multiplier));
+            --base-icon-height: calc(100px * var(--icon-multiplier));
+            --menu-gap: calc(8px * var(--gap-multiplier));
+        }
+
         .menu-table {
             border-collapse: collapse;
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: var(--menu-gap);
+            max-width: 100%;
+            overflow: hidden;
         }
-        
+
         .menu-item {
             text-align: center;
             flex: 0 1 auto;
+            min-width: 0;
         }
-        
+
         .menu-item a {
             display: inline-block;
             text-decoration: none;
             transition: transform 0.3s;
         }
-        
+
         .menu-item a:hover {
             transform: scale(1.15);
         }
-        
+
         .menu-item img {
-            max-width: 120px;
-            max-height: 100px;
+            max-width: var(--base-icon-width);
+            max-height: var(--base-icon-height);
             border: none;
             display: block;
         }
@@ -239,13 +254,14 @@
         .sites-bar {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 8px;
             align-items: center;
             justify-content: center;
-            padding: 0 20px;
-            overflow-x: auto;
-            overflow-y: hidden;
+            padding: 0 10px;
+            overflow: hidden;
             flex-shrink: 0;
+            width: 100%;
+            max-width: 100%;
         }
 
         .site-link {
