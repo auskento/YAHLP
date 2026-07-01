@@ -335,7 +335,7 @@ class Component extends DCLogic {
   }
 
   checkProxyHealth() {
-    fetch('http://localhost:3000/health')
+    fetch(`http://${window.location.hostname}:3000/health`)
       .then(r => r.json())
       .then(data => {
         if (data?.services) {
@@ -410,7 +410,7 @@ class Component extends DCLogic {
   }
 
   fetchMediaServerStats(service, app) {
-    const proxyBase = `http://localhost:3000/proxy`;
+    const proxyBase = `http://${window.location.hostname}:3000/proxy`;
     let url;
 
     if (service === 'jellyfin') {
@@ -461,7 +461,7 @@ class Component extends DCLogic {
   }
 
   fetchArrStats(service, app) {
-    const proxyBase = `http://localhost:3000/proxy`;
+    const proxyBase = `http://${window.location.hostname}:3000/proxy`;
     const endpoints = {
       'sonarr': 'api/v3/queue',
       'radarr': 'api/v3/queue',
@@ -512,7 +512,7 @@ class Component extends DCLogic {
   }
 
   fetchDownloadStats(service, app) {
-    const proxyBase = `http://localhost:3000/proxy`;
+    const proxyBase = `http://${window.location.hostname}:3000/proxy`;
     let fetchPromise;
     let url = '';
 
@@ -745,7 +745,7 @@ class Component extends DCLogic {
   }
 
   fetchUtilityStats(service, app) {
-    const proxyBase = `http://localhost:3000/proxy`;
+    const proxyBase = `http://${window.location.hostname}:3000/proxy`;
     let url, fetchPromise;
 
     if (service === 'nzbhydra') {
