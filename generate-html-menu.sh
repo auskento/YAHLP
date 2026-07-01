@@ -52,6 +52,7 @@ DASHBOARD_ICON_PATH=$(get_icon_path "dashboard" "/icons/yahlp.png")
 
 CLASSIC_TEMPLATE="/var/www/html/classic.template"
 MODERN_TEMPLATE="/var/www/html/modern.template"
+MODERN_API_TEMPLATE="/var/www/html/modern-api.template"
 SLEEK_TEMPLATE="/var/www/html/sleek.template"
 MINIMAL_TEMPLATE="/var/www/html/minimal.template"
 MOBILE_TEMPLATE="/var/www/html/mobile.template"
@@ -687,6 +688,9 @@ generate_style_dashboard() {
         modern)
             TEMPLATE_FILE="$MODERN_TEMPLATE"
             ;;
+        api)
+            TEMPLATE_FILE="$MODERN_API_TEMPLATE"
+            ;;
         sleek)
             TEMPLATE_FILE="$SLEEK_TEMPLATE"
             ;;
@@ -750,6 +754,29 @@ generate_style_dashboard() {
         local style_switcher=$(generate_style_switcher_modern)
         local html_content=$(cat "$TEMPLATE_FILE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+        html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
+        html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
+        html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
+        html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
+        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
+
+        if [ -z "$DASHBOARD_LANDING" ]; then
+            html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
+        else
+            html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
+        fi
+
+        echo "$html_content" > "$OUTPUT_FILE"
+    elif [ "$DASH_STYLE" = "api" ]; then
+        # Modern API dashboard with real-time service data
+        local services_array=$(generate_services_array)
+        local dash_order=$(generate_group_order)
+        local sites_items=$(generate_sites_html)
+        local style_switcher=$(generate_style_switcher_modern)
+        local html_content=$(cat "$TEMPLATE_FILE")
+        html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+        html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
@@ -872,6 +899,29 @@ generate_all_styles() {
             html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
         fi
         echo "$html_content" > "/var/www/html/modern.html"
+    fi
+
+    # Generate Modern API (if available - test/development)
+    if [ -f "$MODERN_API_TEMPLATE" ]; then
+        local services_array=$(generate_services_array)
+        local dash_order=$(generate_group_order)
+        local sites_items=$(generate_sites_html)
+        local style_switcher=$(generate_style_switcher_modern)
+        local html_content=$(cat "$MODERN_API_TEMPLATE")
+        html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+        html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
+        html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
+        html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
+        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
+        html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
+        html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
+        if [ -z "$DASHBOARD_LANDING" ]; then
+            html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
+        else
+            html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
+        fi
+        echo "$html_content" > "/var/www/html/api.html"
     fi
 
     # Generate Sleek (always)
@@ -1004,6 +1054,7 @@ generate_html() {
     echo "Available dashboards (Apache DirectoryIndex = $DASH_STYLE.html):"
     echo "  /classic.html"
     echo "  /modern.html"
+    echo "  /api.html (Real-time API dashboard - test/development)"
     echo "  /sleek.html"
     echo "  /minimal.html"
     echo "  /mobile.html"
