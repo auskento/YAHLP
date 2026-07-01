@@ -615,15 +615,16 @@ class Component extends DCLogic {
         });
     } else if (service === 'deluge') {
       const password = apiKey;
-      const loginUrl = `${baseUrl}/auth/login`;
+      const jsonUrl = `${baseUrl}/json`;
       console.log(`[API] Fetching ${service}: authenticating...`);
-      fetchPromise = fetch(loginUrl, {
+      const loginPayload = { method: 'auth.login', params: [password], id: 1 };
+      fetchPromise = fetch(jsonUrl, {
         mode: 'cors',
         redirect: 'follow',
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ username: 'localclient', password: password })
+        body: JSON.stringify(loginPayload)
       })
         .then(r => {
           if (!r.ok) {
@@ -633,17 +634,19 @@ class Component extends DCLogic {
           return r.json();
         })
         .then(authData => {
-          if (!authData || authData.error) {
+          if (!authData?.result) {
             console.error(`[API] ${service} auth failed:`, authData?.error);
             return null;
           }
-          const torrentsUrl = `${baseUrl}/api/torrents`;
-          console.log(`[API] Fetching ${service}: ${torrentsUrl}`);
-          return fetch(torrentsUrl, {
+          console.log(`[API] ${service}: auth success, fetching torrents...`);
+          const torrentsPayload = { method: 'core.get_torrents_status', params: [[], ['state']], id: 2 };
+          return fetch(jsonUrl, {
             mode: 'cors',
             redirect: 'follow',
-            method: 'GET',
-            credentials: 'include'
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(torrentsPayload)
           });
         })
         .then(r => {
@@ -654,13 +657,13 @@ class Component extends DCLogic {
           return r.json();
         })
         .then(data => {
-          if (!data || !data.result) {
+          if (!data?.result) {
             console.error(`[API] ${service} Invalid response format`);
             return null;
           }
-          const torrents = Array.isArray(data.result) ? data.result : [];
+          const torrents = Object.values(data.result || {});
           const downloading = torrents.filter(t =>
-            t.state && ['Downloading', 'Allocating', 'Queued'].includes(t.state)
+            t.state && ['Downloading', 'Allocating'].includes(t.state)
           ).length;
           return { torrents, downloading };
         });
