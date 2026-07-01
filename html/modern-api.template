@@ -360,7 +360,9 @@ class Component extends DCLogic {
     const codeToService = {
       'JEL': 'jellyfin', 'PLX': 'plex', 'EMB': 'emby',
       'SON': 'sonarr', 'RAD': 'radarr', 'LID': 'lidarr', 'WHI': 'whisparr',
-      'QBI': 'qbittorrent', 'TRA': 'transmission', 'GET': 'nzbget', 'SAB': 'sabnzbd'
+      'QBI': 'qbittorrent', 'TRA': 'transmission', 'GET': 'nzbget', 'SAB': 'sabnzbd',
+      'HYD': 'nzbhydra', 'DEL': 'deluge', 'SEE': 'seerr', 'PRO': 'prowlarr',
+      'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
     };
 
     const service = codeToService[app.id];
