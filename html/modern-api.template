@@ -326,6 +326,13 @@ class Component extends DCLogic {
         enabledServices: stats.length,
         apiStatus: stats.length > 0 ? 'Live' : 'No APIs configured'
       });
+    }).catch(err => {
+      console.error('[API] Fatal error in fetchServiceStats:', err);
+      this.setState({
+        serviceStats: [],
+        enabledServices: 0,
+        apiStatus: 'Error fetching API data'
+      });
     });
   }
 
