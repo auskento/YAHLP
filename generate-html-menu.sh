@@ -920,7 +920,7 @@ generate_all_styles() {
         [ ! -z "$WHISPARR_API_KEY" ] && api_keys_script+="localStorage.setItem('WHISPARR_API_KEY', '${WHISPARR_API_KEY}');"
         [ ! -z "$QBITTORRENT_API_KEY" ] && api_keys_script+="localStorage.setItem('QBITTORRENT_API_KEY', '${QBITTORRENT_API_KEY}');"
         [ ! -z "$TRANSMISSION_API_KEY" ] && api_keys_script+="localStorage.setItem('TRANSMISSION_API_KEY', '${TRANSMISSION_API_KEY}');"
-        [ ! -z "$NZBGET_API_KEY" ] && api_keys_script+="localStorage.setItem('NZBGET_API_KEY', '${NZBGET_API_KEY}');"
+        [ ! -z "$NZBGET_PASSWORD" ] && api_keys_script+="localStorage.setItem('NZBGET_API_KEY', '${NZBGET_PASSWORD}');"
         [ ! -z "$SABNZBD_API_KEY" ] && api_keys_script+="localStorage.setItem('SABNZBD_API_KEY', '${SABNZBD_API_KEY}');"
         [ ! -z "$DELUGE_PASSWORD" ] && api_keys_script+="localStorage.setItem('DELUGE_API_KEY', '${DELUGE_PASSWORD}');"
         [ ! -z "$NZBHYDRA_API_KEY" ] && api_keys_script+="localStorage.setItem('NZBHYDRA_API_KEY', '${NZBHYDRA_API_KEY}');"

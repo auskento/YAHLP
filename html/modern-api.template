@@ -542,14 +542,20 @@ class Component extends DCLogic {
           return { queue, downloading: queue.length };
         });
     } else if (service === 'nzbget') {
+      const username = 'nzbget';
+      const password = apiKey;
+      const auth = btoa(`${username}:${password}`);
       url = `${baseUrl}/jsonrpc`;
       console.log(`[API] Fetching ${service}: ${url}`);
-      const payload = { jsonrpc: '2.0', method: 'listgroups', params: [], id: 1 };
+      const payload = { version: '1.1', method: 'status', params: [], id: 1 };
       fetchPromise = fetch(url, {
         mode: 'cors',
         redirect: 'follow',
         method: 'POST',
-        headers: { 'X-Api-Key': apiKey, 'Content-Type': 'application/json' },
+        headers: {
+          'Authorization': `Basic ${auth}`,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(payload)
       })
         .then(r => {
@@ -560,8 +566,10 @@ class Component extends DCLogic {
           return r.json();
         })
         .then(data => {
-          const queue = data.result || [];
-          return { queue, downloading: queue.length };
+          const result = data.result || {};
+          const downloading = result.ArticlesDownloading || 0;
+          const remaining = result.RemainingSizeMB || 0;
+          return { downloading, remaining };
         });
     } else if (service === 'transmission') {
       url = `${baseUrl}/rpc`;
@@ -671,6 +679,21 @@ class Component extends DCLogic {
             stats: [
               { label: 'Active Torrents', value: `${data.downloading}` },
               { label: 'Total', value: `${data.torrents.length}` }
+            ],
+            iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
+            open: () => this.navigate(app)
+          };
+        } else if (service === 'nzbget') {
+          console.log(`[API] ${service} success:`, { downloading: data.downloading, remaining: data.remaining });
+          return {
+            ...app,
+            status: 'Online',
+            statusColor: 'var(--status-success)',
+            statusBg: 'rgba(16, 185, 129, 0.1)',
+            statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
+            stats: [
+              { label: 'Downloading', value: `${data.downloading}` },
+              { label: 'Remaining (MB)', value: `${data.remaining}` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
