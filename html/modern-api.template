@@ -375,7 +375,7 @@ class Component extends DCLogic {
     if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(service)) {
       return this.fetchArrStats(service, app);
     }
-    if (['qbittorrent', 'transmission', 'nzbget', 'sabnzbd'].includes(service)) {
+    if (['qbittorrent', 'sabnzbd'].includes(service)) {
       return this.fetchDownloadStats(service, app);
     }
     return Promise.resolve(null);
