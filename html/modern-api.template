@@ -393,17 +393,28 @@ class Component extends DCLogic {
       return Promise.resolve(null);
     }
 
-    const endpoints = {
-      'jellyfin': 'api/sessions',
-      'plex': 'api/sessions.json',
-      'emby': 'emby/Sessions'
-    };
-
     const baseUrl = app.href.endsWith('/') ? app.href.slice(0, -1) : app.href;
-    const url = `${baseUrl}/${endpoints[service]}?api_key=${apiKey}`;
-    console.log(`[API] Fetching ${service}: ${url}`);
+    let url, fetchOptions;
 
-    return fetch(url, { mode: 'cors', redirect: 'follow' })
+    if (service === 'jellyfin') {
+      url = `${baseUrl}/Sessions`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      fetchOptions = {
+        mode: 'cors',
+        redirect: 'follow',
+        headers: { 'Authorization': `MediaBrowser Token="${apiKey}"` }
+      };
+    } else if (service === 'plex') {
+      url = `${baseUrl}/api/sessions.json?api_key=${apiKey}`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      fetchOptions = { mode: 'cors', redirect: 'follow' };
+    } else {
+      url = `${baseUrl}/emby/Sessions?api_key=${apiKey}`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      fetchOptions = { mode: 'cors', redirect: 'follow' };
+    }
+
+    return fetch(url, fetchOptions)
       .then(r => {
         if (!r.ok) {
           console.error(`[API] ${service} HTTP ${r.status}`);
