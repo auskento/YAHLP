@@ -765,7 +765,7 @@ class Component extends DCLogic {
           return { pending, approved };
         });
     } else if (service === 'bazarr') {
-      url = `${baseUrl}/api/system/health`;
+      url = `${baseUrl}/api/subtitles/missing`;
       console.log(`[API] Fetching ${service}: ${url}`);
       fetchPromise = fetch(url, {
         mode: 'cors',
@@ -779,8 +779,21 @@ class Component extends DCLogic {
           return r.json();
         })
         .then(data => {
-          const issues = Array.isArray(data) ? data.filter(h => h.status !== 'healthy').length : 0;
-          return { issues };
+          const missing = data?.data?.length || 0;
+          return { missing };
+        })
+        .then(data => {
+          if (!data) return null;
+          const providersUrl = `${baseUrl}/api/providers`;
+          return fetch(providersUrl, {
+            mode: 'cors',
+            headers: { 'X-Api-Key': apiKey }
+          })
+            .then(r => r.ok ? r.json() : null)
+            .then(providerData => ({
+              missing: data.missing,
+              providers: providerData?.data?.length || 0
+            }));
         });
     } else if (service === 'tautulli') {
       url = `${baseUrl}/api/v2/?apikey=${apiKey}&cmd=get_activity`;
@@ -869,7 +882,7 @@ class Component extends DCLogic {
             open: () => this.navigate(app)
           };
         } else if (service === 'bazarr') {
-          console.log(`[API] ${service} success:`, { issues: data.issues });
+          console.log(`[API] ${service} success:`, { missing: data.missing, providers: data.providers });
           return {
             ...app,
             status: 'Online',
@@ -877,7 +890,8 @@ class Component extends DCLogic {
             statusBg: 'rgba(16, 185, 129, 0.1)',
             statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
             stats: [
-              { label: 'Health Issues', value: `${data.issues}` }
+              { label: 'Missing Subtitles', value: `${data.missing}` },
+              { label: 'Providers', value: `${data.providers}` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
