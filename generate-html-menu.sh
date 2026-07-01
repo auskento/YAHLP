@@ -907,6 +907,24 @@ generate_all_styles() {
         local dash_order=$(generate_group_order)
         local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_modern)
+
+        # Generate API keys initialization script
+        local api_keys_script="<script>"
+        api_keys_script+="if (typeof window !== 'undefined') {"
+        [ ! -z "$JELLYFIN_API_KEY" ] && api_keys_script+="localStorage.setItem('JELLYFIN_API_KEY', '${JELLYFIN_API_KEY}');"
+        [ ! -z "$PLEX_API_KEY" ] && api_keys_script+="localStorage.setItem('PLEX_API_KEY', '${PLEX_API_KEY}');"
+        [ ! -z "$EMBY_API_KEY" ] && api_keys_script+="localStorage.setItem('EMBY_API_KEY', '${EMBY_API_KEY}');"
+        [ ! -z "$SONARR_API_KEY" ] && api_keys_script+="localStorage.setItem('SONARR_API_KEY', '${SONARR_API_KEY}');"
+        [ ! -z "$RADARR_API_KEY" ] && api_keys_script+="localStorage.setItem('RADARR_API_KEY', '${RADARR_API_KEY}');"
+        [ ! -z "$LIDARR_API_KEY" ] && api_keys_script+="localStorage.setItem('LIDARR_API_KEY', '${LIDARR_API_KEY}');"
+        [ ! -z "$WHISPARR_API_KEY" ] && api_keys_script+="localStorage.setItem('WHISPARR_API_KEY', '${WHISPARR_API_KEY}');"
+        [ ! -z "$QBITTORRENT_API_KEY" ] && api_keys_script+="localStorage.setItem('QBITTORRENT_API_KEY', '${QBITTORRENT_API_KEY}');"
+        [ ! -z "$TRANSMISSION_API_KEY" ] && api_keys_script+="localStorage.setItem('TRANSMISSION_API_KEY', '${TRANSMISSION_API_KEY}');"
+        [ ! -z "$NZBGET_API_KEY" ] && api_keys_script+="localStorage.setItem('NZBGET_API_KEY', '${NZBGET_API_KEY}');"
+        [ ! -z "$SABNZBD_API_KEY" ] && api_keys_script+="localStorage.setItem('SABNZBD_API_KEY', '${SABNZBD_API_KEY}');"
+        api_keys_script+="}"
+        api_keys_script+="</script>"
+
         local html_content=$(cat "$MODERN_API_TEMPLATE")
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
@@ -916,6 +934,8 @@ generate_all_styles() {
         html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
         html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
+        # Insert API keys script before closing body tag
+        html_content="${html_content//'</body>'/$api_keys_script'</body>'}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
         else
