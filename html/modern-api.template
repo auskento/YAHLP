@@ -445,7 +445,7 @@ class Component extends DCLogic {
       'sonarr': 'api/v3/queue',
       'radarr': 'api/v3/queue',
       'lidarr': 'api/v1/queue',
-      'whisparr': 'api/v1/queue'
+      'whisparr': 'api/v3/queue'
     };
 
     const baseUrl = app.href.endsWith('/') ? app.href.slice(0, -1) : app.href;
