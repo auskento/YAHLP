@@ -423,10 +423,16 @@ class Component extends DCLogic {
     };
 
     const baseUrl = app.href.endsWith('/') ? app.href.slice(0, -1) : app.href;
-    const url = `${baseUrl}/${endpoints[service]}?api_key=${apiKey}`;
+    const url = `${baseUrl}/${endpoints[service]}`;
     console.log(`[API] Fetching ${service}: ${url}`);
 
-    return fetch(url, { mode: 'cors', redirect: 'follow' })
+    return fetch(url, {
+      mode: 'cors',
+      redirect: 'follow',
+      headers: {
+        'X-Api-Key': apiKey
+      }
+    })
       .then(r => r.json())
       .then(data => {
         const queue = Array.isArray(data) ? data : data.records || [];
