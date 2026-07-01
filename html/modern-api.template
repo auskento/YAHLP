@@ -810,11 +810,11 @@ class Component extends DCLogic {
           return { pending, approved };
         });
     } else if (service === 'bazarr') {
-      url = `${baseUrl}/api/subtitles/missing`;
+      url = `${baseUrl}/api/system/status`;
       console.log(`[API] Fetching ${service}: ${url}`);
       fetchPromise = fetch(url, {
         mode: 'cors',
-        headers: { 'X-Api-Key': apiKey }
+        headers: { 'X-API-KEY': apiKey }
       })
         .then(r => {
           if (!r.ok) {
@@ -824,21 +824,12 @@ class Component extends DCLogic {
           return r.json();
         })
         .then(data => {
-          const missing = data?.data?.length || 0;
-          return { missing };
-        })
-        .then(data => {
-          if (!data) return null;
-          const providersUrl = `${baseUrl}/api/providers`;
-          return fetch(providersUrl, {
-            mode: 'cors',
-            headers: { 'X-Api-Key': apiKey }
-          })
-            .then(r => r.ok ? r.json() : null)
-            .then(providerData => ({
-              missing: data.missing,
-              providers: providerData?.data?.length || 0
-            }));
+          const status = data?.status || {};
+          const missingSeries = status.missing_subtitles?.series || 0;
+          const missingMovies = status.missing_subtitles?.movies || 0;
+          const missing = missingSeries + missingMovies;
+          const health = Array.isArray(data?.health) ? data.health.filter(h => h.type !== 'info').length : 0;
+          return { missing, health };
         });
     } else if (service === 'tautulli') {
       url = `${baseUrl}/api/v2/?apikey=${apiKey}&cmd=get_activity`;
@@ -927,7 +918,7 @@ class Component extends DCLogic {
             open: () => this.navigate(app)
           };
         } else if (service === 'bazarr') {
-          console.log(`[API] ${service} success:`, { missing: data.missing, providers: data.providers });
+          console.log(`[API] ${service} success:`, { missing: data.missing, health: data.health });
           return {
             ...app,
             status: 'Online',
@@ -936,7 +927,7 @@ class Component extends DCLogic {
             statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
             stats: [
               { label: 'Missing Subtitles', value: `${data.missing}` },
-              { label: 'Providers', value: `${data.providers}` }
+              { label: 'Health Issues', value: `${data.health}` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
