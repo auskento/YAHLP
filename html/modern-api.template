@@ -532,89 +532,6 @@ class Component extends DCLogic {
           const seeding = torrents.filter(t => t.state.includes('up')).length;
           return { torrents, active, seeding };
         });
-    } else if (service === 'sabnzbd') {
-      url = `${proxyBase}/sabnzbd/api?mode=queue&output=json`;
-      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
-      fetchPromise = fetch(url, { mode: 'cors', redirect: 'follow' })
-        .then(r => {
-          if (!r.ok) {
-            console.error(`[API] ${service} HTTP ${r.status}`);
-            return null;
-          }
-          return r.json();
-        })
-        .then(data => {
-          const queue = data.queue.slots || [];
-          return { queue, downloading: queue.length };
-        });
-    } else if (service === 'nzbget') {
-      url = `${proxyBase}/nzbget/jsonrpc`;
-      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
-      const payload = { version: '1.1', method: 'status', params: [], id: 1 };
-      fetchPromise = fetch(url, {
-        mode: 'cors',
-        redirect: 'follow',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      })
-        .then(r => {
-          if (!r.ok) {
-            console.error(`[API] ${service} HTTP ${r.status}`);
-            return null;
-          }
-          return r.json();
-        })
-        .then(data => {
-          const result = data.result || {};
-          const downloading = result.ArticlesDownloading || 0;
-          const remaining = result.RemainingSizeMB || 0;
-          return { downloading, remaining };
-        });
-    } else if (service === 'transmission') {
-      url = `${proxyBase}/transmission/rpc`;
-      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
-      const payload = { method: 'session-stats' };
-      fetchPromise = fetch(url, {
-        mode: 'cors',
-        redirect: 'follow',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-        .then(r => {
-          if (r.status === 409) {
-            const sessionId = r.headers.get('X-Transmission-Session-Id');
-            if (sessionId) {
-              console.log(`[API] ${service} got session ID, retrying...`);
-              return fetch(url, {
-                mode: 'cors',
-                redirect: 'follow',
-                method: 'POST',
-                headers: {
-                  'X-Transmission-Session-Id': sessionId,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-              }).then(r2 => r2.json());
-            }
-            return null;
-          }
-          if (!r.ok) {
-            console.error(`[API] ${service} HTTP ${r.status}`);
-            return null;
-          }
-          return r.json();
-        })
-        .then(data => {
-          if (!data?.arguments) return null;
-          const args = data.arguments;
-          const activeTorrents = args.activeTorrentCount || 0;
-          const pausedTorrents = args.pausedTorrentCount || 0;
-          return { activeTorrents, pausedTorrents };
-        });
     } else if (service === 'deluge') {
       const jsonUrl = `${proxyBase}/deluge/json`;
       console.log(`[API] Fetching ${service}: authenticating... (via proxy)`);
@@ -685,36 +602,6 @@ class Component extends DCLogic {
               { label: 'Active Downloads', value: `${data.active}` },
               { label: 'Seeding', value: `${data.seeding}` },
               { label: 'Total', value: `${data.torrents.length}` }
-            ],
-            iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
-            open: () => this.navigate(app)
-          };
-        } else if (service === 'transmission') {
-          console.log(`[API] ${service} success:`, { active: data.activeTorrents, paused: data.pausedTorrents });
-          return {
-            ...app,
-            status: 'Online',
-            statusColor: 'var(--status-success)',
-            statusBg: 'rgba(16, 185, 129, 0.1)',
-            statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
-            stats: [
-              { label: 'Active', value: `${data.activeTorrents}` },
-              { label: 'Paused', value: `${data.pausedTorrents}` }
-            ],
-            iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
-            open: () => this.navigate(app)
-          };
-        } else if (service === 'nzbget') {
-          console.log(`[API] ${service} success:`, { downloading: data.downloading, remaining: data.remaining });
-          return {
-            ...app,
-            status: 'Online',
-            statusColor: 'var(--status-success)',
-            statusBg: 'rgba(16, 185, 129, 0.1)',
-            statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
-            stats: [
-              { label: 'Downloading', value: `${data.downloading}` },
-              { label: 'Remaining (MB)', value: `${data.remaining}` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)

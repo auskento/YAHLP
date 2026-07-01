@@ -18,9 +18,6 @@ const services = {
   'lidarr': { url: process.env.LIDARR_URL, key: process.env.LIDARR_API_KEY, authType: 'header' },
   'whisparr': { url: process.env.WHISPARR_URL, key: process.env.WHISPARR_API_KEY, authType: 'header' },
   'qbittorrent': { url: process.env.QBITTORRENT_URL, key: process.env.QBITTORRENT_API_KEY, authType: 'query' },
-  'transmission': { url: process.env.TRANSMISSION_URL, key: process.env.TRANSMISSION_PASSWORD, authType: 'transmission' },
-  'sabnzbd': { url: process.env.SABNZBD_URL, key: process.env.SABNZBD_API_KEY, authType: 'query' },
-  'nzbget': { url: process.env.NZBGET_URL, key: process.env.NZBGET_PASS, authType: 'nzbget' },
   'deluge': { url: process.env.DELUGE_URL, key: process.env.DELUGE_PASSWORD, authType: 'deluge' },
   'nzbhydra': { url: process.env.NZBHYDRA_URL, key: process.env.NZBHYDRA_API_KEY, authType: 'header' },
   'prowlarr': { url: process.env.PROWLARR_URL, key: process.env.PROWLARR_API_KEY, authType: 'header' },
@@ -72,12 +69,8 @@ app.all('/proxy/:service/*', async (req, res) => {
       case 'bazarr':
         headers['X-API-KEY'] = config.key;
         break;
-      case 'transmission':
-        headers['X-Transmission-Session-Id'] = config.key;
-        break;
-      case 'nzbget':
       case 'deluge':
-        // These use JSON-RPC in request body, auth handled specially
+        // JSON-RPC in request body, auth handled specially
         if (req.method === 'POST' && req.body) {
           body = JSON.stringify(req.body);
         }
@@ -98,21 +91,13 @@ app.all('/proxy/:service/*', async (req, res) => {
 
     const response = await fetch(url, fetchOptions);
 
-    if (!response.ok && response.status !== 409) {
+    if (!response.ok) {
       console.error(`[PROXY] ${service} HTTP ${response.status}`);
       return res.status(response.status).json({ error: `${service} returned ${response.status}` });
     }
 
     const contentType = response.headers.get('content-type');
     const data = contentType?.includes('application/json') ? await response.json() : await response.text();
-
-    // For Transmission 409, pass through session ID
-    if (response.status === 409) {
-      const sessionId = response.headers.get('X-Transmission-Session-Id');
-      if (sessionId) {
-        res.set('X-Transmission-Session-Id', sessionId);
-      }
-    }
 
     console.log(`[PROXY] ${service} success`);
     res.json(data);
