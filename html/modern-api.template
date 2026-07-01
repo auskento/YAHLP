@@ -323,14 +323,37 @@ class Component extends DCLogic {
     activeId: null,
     showWelcome: true,
     serviceStats: [],
-    apiStatus: 'Configured',
+    apiStatus: 'Checking...',
     enabledServices: 0
   };
 
   componentDidMount() {
     this._t = setInterval(() => this.setState({ now: new Date() }), 1000);
+    this.checkProxyHealth();
     this.fetchServiceStats();
     this._statsInterval = setInterval(() => this.fetchServiceStats(), 30000); // Refresh every 30s
+  }
+
+  checkProxyHealth() {
+    fetch('http://localhost:3000/health')
+      .then(r => r.json())
+      .then(data => {
+        if (data?.services) {
+          const configured = Object.values(data.services).filter(s => s.configured).length;
+          this.setState({
+            apiStatus: 'Connected',
+            enabledServices: configured
+          });
+          console.log(`[API] Proxy health: ${configured} services configured`);
+        }
+      })
+      .catch(err => {
+        this.setState({
+          apiStatus: 'Proxy offline',
+          enabledServices: 0
+        });
+        console.log('[API] Proxy not accessible:', err.message);
+      });
   }
 
   fetchServiceStats() {
