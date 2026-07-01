@@ -2,14 +2,13 @@
 
 ## 🚀 Everything You Have Now
 
-YAHLP includes **18 pre-configured services** organized into 5 categories with flexible authentication, customizable dashboard styling, and 3-digit service codes for easy configuration.
+YAHLP includes **18 pre-configured services** with flexible authentication, customizable dashboard styling, and 3-digit service codes for easy configuration.
 
 ### Core Features
 
 #### 1️⃣ Modular Service Management
 - **18 pre-configured services** - Enable/disable with environment variables
 - **3-digit service codes** - SAB, GET, HYD, TRA, QBI, DEL, SON, RAD, LID, WHI, PRO, SEE, BAZ, JEL, EMB, PLX, TAU, MNT
-- **5 service categories** - CONTENT, SEARCH, USENET, TORRENTS, MEDIA
 - Zero manual Apache config editing
 - Auto-generates Apache configuration on startup
 
@@ -21,7 +20,6 @@ YAHLP includes **18 pre-configured services** organized into 5 categories with f
 
 #### 3️⃣ Flexible Dashboard Styling
 - **4 dashboard themes** - modern, classic, sleek, minimal
-- **Custom service ordering** - Reorder categories via DASHBOARD_ORDER
 - **Landing page customization** - Set default service on startup
 - **Dynamic menu generation** - Built-in, no volume mounts needed
 
@@ -29,33 +27,24 @@ YAHLP includes **18 pre-configured services** organized into 5 categories with f
 
 ## 📋 Supported Services (18 Total)
 
-### CONTENT Category (Media Automation)
-- **Sonarr** - TV show automation
-- **Radarr** - Movie automation
-- **Lidarr** - Music automation
-- **Whisparr** - Adult content automation
-
-### SEARCH Category (Discovery & Subtitles)
-- **Prowlarr** - Indexer manager
-- **Seerr** - Request management
 - **Bazarr** - Subtitle management ⭐ NEW
-
-### USENET Category (Usenet Downloads)
-- **SABnzbd** - Usenet client
+- **Deluge** - Torrent client
+- **Emby** - Premium media server
+- **Jellyfin** - Open-source media server
+- **Lidarr** - Music automation
+- **Maintainerr** - Media library maintenance ⭐ NEW
 - **NZBGet** - Usenet client with auth support
 - **NZBHydra** - NZB indexer
-
-### TORRENTS Category (Torrent Downloads)
-- **Transmission** - Lightweight torrent client
-- **qBittorrent** - Advanced torrent client
-- **Deluge** - Torrent client
-
-### MEDIA Category (Streaming Servers)
-- **Jellyfin** - Open-source media server
-- **Emby** - Premium media server
 - **Plex** - Commercial media server
+- **Prowlarr** - Indexer manager
+- **qBittorrent** - Advanced torrent client
+- **Radarr** - Movie automation
+- **SABnzbd** - Usenet client
+- **Seerr** - Request management
+- **Sonarr** - TV show automation
 - **Tautulli** - Plex analytics
-- **Maintainerr** - Media library maintenance ⭐ NEW
+- **Transmission** - Lightweight torrent client
+- **Whisparr** - Adult content automation
 
 ---
 
@@ -106,19 +95,7 @@ environment:
   # Services same as above...
 ```
 
-### Example 4: Custom Dashboard Order
-```yaml
-environment:
-  STYLE: modern
-  DASHBOARD_NAME: My Homelab
-  DASHBOARD_ICON: /icons/yahlp.png
-  DASHBOARD_LANDING: sonarr/calendar
-  DASHBOARD_ORDER: MEDIA,CONTENT,SEARCH,USENET,TORRENTS
-  
-  # Now displays in custom order!
-```
-
-### Example 5: Complete Setup with NZBGet Auth
+### Example 4: Complete Setup with NZBGet Auth
 ```yaml
 environment:
   DOMAIN: transfers.example.com
@@ -175,7 +152,7 @@ Service Processes Request
 apache-reverse-proxy/
 ├── 📚 Documentation
 │   ├── ENVIRONMENT-VARIABLES.md     ← All variables explained
-│   ├── SERVICES.md                  ← 17 services explained
+│   ├── SERVICES.md                  ← 18 services explained
 │   ├── SERVICE-URLS.md              ← Backend URL configuration
 │   ├── AUTHENTICATION-SETUP.md      ← Auth methods explained
 │   ├── QUICKSTART.md                ← Quick start guide
@@ -216,29 +193,27 @@ apache-reverse-proxy/
 
 ---
 
-## ✨ Key Improvements in v2.1
+## ✨ Key Features in v1.0.0
 
-### New Services
-- ✅ Bazarr - Automatic subtitle downloads
-- ✅ NZBGet - Usenet client with authentication
-- ✅ NZBHydra - NZB indexer
+### Service Management
+- ✅ 18 pre-configured services
+- ✅ 3-digit service codes for easy configuration
+- ✅ Enable/disable services independently
+- ✅ Custom service ordering via DASHBOARD_ORDER
 
-### Better Organization
-- ✅ Service categories (CONTENT, SEARCH, USENET, TORRENTS, MEDIA)
-- ✅ Customizable category ordering
-- ✅ Clear naming conventions (DASHBOARD_LANDING, DASHBOARD_ORDER)
-
-### Enhanced Authentication
+### Authentication
 - ✅ Multiple auth methods available
 - ✅ Basic Auth for simple deployments
 - ✅ Entra ID for enterprise environments
 - ✅ Google OAuth for personal use
 
-### Dashboard Flexibility
+### Dashboard Features
 - ✅ 4 theme options (modern, classic, sleek, minimal)
 - ✅ Custom landing pages
-- ✅ Reorderable service categories
+- ✅ Custom service ordering
 - ✅ Dynamic menu generation (no volume mounts needed)
+- ✅ Per-template responsive icon sizing
+- ✅ Dashboard color customization
 
 ---
 
@@ -259,8 +234,8 @@ apache-reverse-proxy/
 ### With Custom Dashboard
 - [ ] Set STYLE (modern, classic, sleek, or minimal)
 - [ ] Set DASHBOARD_NAME and DASHBOARD_ICON
-- [ ] Set DASHBOARD_LANDING (optional)
-- [ ] Set DASHBOARD_ORDER (optional)
+- [ ] Set DASHBOARD_LANDING (optional - default service to load)
+- [ ] Set DASHBOARD_ORDER (optional - customize service display order)
 - [ ] `docker-compose up -d`
 
 ### Production Ready
@@ -288,7 +263,7 @@ apache-reverse-proxy/
 
 | Feature | Available | Required | Configurable |
 |---------|-----------|----------|--------------|
-| Services (17) | ✅ | No | ENABLE_* variables |
+| Services (18) | ✅ | No | ENABLE_* variables |
 | HTTPS | ✅ | No | Automatic |
 | Authentication | ✅ | No | AUTHTYPE variable |
 | Dashboard themes | ✅ | No | STYLE variable |
@@ -397,10 +372,10 @@ openssl rand -base64 24  # For ENTRA_CRYPTO_PASSPHRASE
 
 ---
 
-**You now have YAHLP (Yet Another HomeLab Portal) - a production-ready unified media server dashboard with 17 services, flexible authentication, and customizable dashboards!** 🎉
+**You now have YAHLP (Yet Another HomeLab Portal) - a production-ready unified media server dashboard with 18 services, flexible authentication, and customizable dashboards!** 🎉
 
 **Key Capabilities:**
-✅ 17 services available  
+✅ 18 services available  
 ✅ 4 authentication methods  
 ✅ 4 dashboard themes  
 ✅ Custom service ordering  

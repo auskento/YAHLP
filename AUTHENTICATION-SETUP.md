@@ -147,7 +147,7 @@ GOOGLE_REDIRECT_URI=https://transfers.limosani.au
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
 2. Click **Select a Project → New Project**
-3. Name: "Apache Reverse Proxy"
+3. Name: "YAHLP"
 4. Click **Create**
 
 #### 2. Enable OAuth 2.0 API
@@ -155,7 +155,7 @@ GOOGLE_REDIRECT_URI=https://transfers.limosani.au
 1. **APIs & Services → OAuth consent screen**
 2. Select **External** (for any Google account)
 3. Fill in app details:
-   - **App name**: "Apache Reverse Proxy"
+   - **App name**: "YAHLP"
    - **User support email**: your-email@example.com
    - **Developer contact**: your-email@example.com
 4. Click **Save & Continue**
