@@ -188,6 +188,11 @@ if (typeof window !== 'undefined' && window.parent && window.parent !== window) 
   .site-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;overflow:hidden;background:var(--bg-primary)}
   .site-icon img{width:100%;height:100%;object-fit:contain;padding:2px}
   .site-code{display:none}
+
+  nav > div:hover .service-tooltip {
+    opacity: 1;
+    pointer-events: auto;
+  }
 </style>
 </helmet>
 
@@ -209,16 +214,29 @@ if (typeof window !== 'undefined' && window.parent && window.parent !== window) 
 
     <nav style="flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 16px 22px 16px">
       <sc-for list="{{ groups[0].items }}" as="app">
-        <button onClick="{{ app.open }}" style="{{ app.style }}" style-hover="{{ app.hoverStyle }}">
-          <span style="width:46px;height:46px;flex:none;border-radius:12px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 1px var(--border-color)">
-            {{ app.iconEl }}
-          </span>
-          <span style="flex:1;min-width:0;text-align:left">
-            <span style="display:block;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:var(--text-light)">{{ app.name }}</span>
-            <span style="display:block;font-size:12.5px;color:var(--text-muted);margin-top:1px">{{ app.desc }}</span>
-          </span>
-          <span style="{{ app.dotStyle }}"></span>
-        </button>
+        <div style="position:relative;margin-top:6px" title="{{ app.tooltip }}">
+          <button onClick="{{ app.open }}" style="{{ app.style }}" style-hover="{{ app.hoverStyle }}">
+            <span style="width:46px;height:46px;flex:none;border-radius:12px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 1px var(--border-color)">
+              {{ app.iconEl }}
+            </span>
+            <span style="flex:1;min-width:0;text-align:left">
+              <span style="display:block;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:var(--text-light)">{{ app.name }}</span>
+              <span style="display:block;font-size:12.5px;color:var(--text-muted);margin-top:1px">{{ app.desc }}</span>
+            </span>
+            <span style="{{ app.dotStyle }}"></span>
+          </button>
+          <div style="position:absolute;left:100%;top:0;margin-left:10px;pointer-events:none;opacity:0;transition:opacity 0.2s;min-width:200px" class="service-tooltip">
+            <div style="background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;padding:10px;font-size:11px;color:var(--text-secondary);line-height:1.5">
+              <div style="font-weight:600;color:var(--text-light);margin-bottom:6px">{{ app.name }}</div>
+              <sc-for list="{{ app.apiStats }}" as="stat">
+                <div style="display:flex;justify-content:space-between;gap:8px">
+                  <span>{{ stat.label }}:</span>
+                  <span style="font-weight:600;color:var(--text-accent)">{{ stat.value }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
       </sc-for>
     </nav>
 
@@ -575,6 +593,11 @@ class Component extends DCLogic {
 
     const mk = (app) => {
       const active = this.state.activeId === app.id;
+      // Find corresponding service stats for this app
+      const serviceStats = this.state.serviceStats.find(s => s.id === app.id);
+      const apiStats = serviceStats ? serviceStats.stats : [];
+      const tooltip = serviceStats ? `${app.name}: ${apiStats.map(s => `${s.label} ${s.value}`).join(' | ')}` : app.name;
+
       return {
         ...app,
         open: () => this.navigate(app),
@@ -582,6 +605,8 @@ class Component extends DCLogic {
         style: `display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;border:0;border-radius:14px;padding:11px 12px;margin-top:6px;font-family:inherit;transition:background .16s,box-shadow .16s,transform .12s;background:${active ? 'rgba(255,255,255,.08)' : 'transparent'};box-shadow:${active ? `inset 0 0 0 1px ${app.accent}55, 0 6px 22px -8px ${app.accent}66` : 'inset 0 0 0 1px transparent'}`,
         hoverStyle: `background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px ${app.accent}40;transform:translateX(2px)`,
         dotStyle: `width:8px;height:8px;flex:none;border-radius:50%;background:${app.accent};box-shadow:0 0 9px ${app.accent};opacity:${active ? 1 : .65}`,
+        apiStats: apiStats,
+        tooltip: tooltip,
       };
     };
 
