@@ -521,21 +521,6 @@ class Component extends DCLogic {
           const seeding = torrents.filter(t => t.state.includes('up')).length;
           return { torrents, active, seeding };
         });
-    } else if (service === 'nzbget') {
-      url = `${baseUrl}/api/listgroups?apikey=${apiKey}`;
-      console.log(`[API] Fetching ${service}: ${url}`);
-      fetchPromise = fetch(url, { mode: 'cors', redirect: 'follow' })
-        .then(r => {
-          if (!r.ok) {
-            console.error(`[API] ${service} HTTP ${r.status}`);
-            return null;
-          }
-          return r.json();
-        })
-        .then(data => {
-          const queue = data.result || [];
-          return { queue, downloading: queue.length };
-        });
     } else if (service === 'sabnzbd') {
       url = `${baseUrl}/api?mode=queue&output=json&apikey=${apiKey}`;
       console.log(`[API] Fetching ${service}: ${url}`);
