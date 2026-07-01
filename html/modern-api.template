@@ -533,7 +533,7 @@ class Component extends DCLogic {
           return { torrents, active, seeding };
         });
     } else if (service === 'sabnzbd') {
-      const sabnzbdUrl = localStorage.getItem('SABNZBD_URL') || 'http://sabnzbd:8080';
+      const sabnzbdUrl = localStorage.getItem('SABNZBD_URL') || `http://${window.location.hostname}:8080`;
       const sabnzbdKey = localStorage.getItem('SABNZBD_API_KEY') || '';
       url = `${sabnzbdUrl}/api?mode=queue&output=json&apikey=${encodeURIComponent(sabnzbdKey)}`;
       console.log(`[API] Fetching ${service}: ${url} (direct)`);
@@ -550,7 +550,7 @@ class Component extends DCLogic {
           return { queue, downloading: queue.length };
         });
     } else if (service === 'nzbget') {
-      const nzbgetUrl = localStorage.getItem('NZBGET_URL') || 'http://nzbget:6789';
+      const nzbgetUrl = localStorage.getItem('NZBGET_URL') || `http://${window.location.hostname}:6789`;
       const nzbgetPass = localStorage.getItem('NZBGET_PASS') || '';
       url = `${nzbgetUrl}/jsonrpc`;
       console.log(`[API] Fetching ${service}: ${url} (direct)`);
@@ -580,7 +580,7 @@ class Component extends DCLogic {
           return { downloading, remaining };
         });
     } else if (service === 'transmission') {
-      const transmissionUrl = localStorage.getItem('TRANSMISSION_URL') || 'http://transmission:9091';
+      const transmissionUrl = localStorage.getItem('TRANSMISSION_URL') || `http://${window.location.hostname}:9091`;
       const transmissionPass = localStorage.getItem('TRANSMISSION_PASSWORD') || '';
       url = `${transmissionUrl}/rpc`;
       console.log(`[API] Fetching ${service}: ${url} (direct)`);
