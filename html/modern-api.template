@@ -317,8 +317,10 @@ class Component extends DCLogic {
 
   fetchServiceStats() {
     const raw = @@SERVICES_ARRAY@@;
+    console.log('[API] Starting stats fetch for', raw.length, 'services');
     Promise.all(raw.map(app => this.fetchAppStats(app))).then(results => {
       const stats = results.filter(s => s);
+      console.log('[API] Fetch complete:', stats.length, 'services returned data');
       this.setState({
         serviceStats: stats,
         enabledServices: stats.length,
@@ -343,7 +345,10 @@ class Component extends DCLogic {
 
   fetchMediaServerStats(service, app) {
     const apiKey = localStorage.getItem(`${service.toUpperCase()}_API_KEY`);
-    if (!apiKey) return Promise.resolve(null);
+    if (!apiKey) {
+      console.log(`[API] ${service} - No API key found`);
+      return Promise.resolve(null);
+    }
 
     const endpoints = {
       'jellyfin': '/api/sessions',
@@ -351,13 +356,17 @@ class Component extends DCLogic {
       'emby': '/emby/Sessions'
     };
 
-    return fetch(`${app.href}${endpoints[service]}?api_key=${apiKey}`, { mode: 'cors' })
+    const url = `${app.href}${endpoints[service]}?api_key=${apiKey}`;
+    console.log(`[API] Fetching ${service}: ${url}`);
+
+    return fetch(url, { mode: 'cors' })
       .then(r => r.json())
       .then(data => {
         const sessions = Array.isArray(data) ? data : data.MediaSessions || [];
         const playing = sessions.filter(s => s.PlayState && s.PlayState.IsPaused === false).length;
         const paused = sessions.filter(s => s.PlayState && s.PlayState.IsPaused === true).length;
 
+        console.log(`[API] ${service} success:`, { playing, paused, total: sessions.length });
         return {
           ...app,
           status: 'Online',
@@ -373,12 +382,18 @@ class Component extends DCLogic {
           open: () => this.navigate(app)
         };
       })
-      .catch(() => null);
+      .catch(err => {
+        console.error(`[API] ${service} error:`, err);
+        return null;
+      });
   }
 
   fetchArrStats(service, app) {
     const apiKey = localStorage.getItem(`${service.toUpperCase()}_API_KEY`);
-    if (!apiKey) return Promise.resolve(null);
+    if (!apiKey) {
+      console.log(`[API] ${service} - No API key found`);
+      return Promise.resolve(null);
+    }
 
     const endpoints = {
       'sonarr': '/api/v3/queue',
@@ -387,13 +402,17 @@ class Component extends DCLogic {
       'whisparr': '/api/v1/queue'
     };
 
-    return fetch(`${app.href}${endpoints[service]}?api_key=${apiKey}`, { mode: 'cors' })
+    const url = `${app.href}${endpoints[service]}?api_key=${apiKey}`;
+    console.log(`[API] Fetching ${service}: ${url}`);
+
+    return fetch(url, { mode: 'cors' })
       .then(r => r.json())
       .then(data => {
         const queue = Array.isArray(data) ? data : data.records || [];
         const downloading = queue.filter(i => i.status === 'Downloading').length;
         const completed = queue.filter(i => i.status === 'Completed').length;
 
+        console.log(`[API] ${service} success:`, { total: queue.length, downloading, completed });
         return {
           ...app,
           status: 'Online',
@@ -409,17 +428,26 @@ class Component extends DCLogic {
           open: () => this.navigate(app)
         };
       })
-      .catch(() => null);
+      .catch(err => {
+        console.error(`[API] ${service} error:`, err);
+        return null;
+      });
   }
 
   fetchDownloadStats(service, app) {
     const apiKey = localStorage.getItem(`${service.toUpperCase()}_API_KEY`);
-    if (!apiKey) return Promise.resolve(null);
+    if (!apiKey) {
+      console.log(`[API] ${service} - No API key found`);
+      return Promise.resolve(null);
+    }
 
     let fetchPromise;
+    let url = '';
 
     if (service === 'qbittorrent') {
-      fetchPromise = fetch(`${app.href}/api/v2/torrents/info?api_key=${apiKey}`, { mode: 'cors' })
+      url = `${app.href}/api/v2/torrents/info?api_key=${apiKey}`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      fetchPromise = fetch(url, { mode: 'cors' })
         .then(r => r.json())
         .then(torrents => {
           const active = torrents.filter(t => t.state.includes('dl')).length;
@@ -427,14 +455,18 @@ class Component extends DCLogic {
           return { torrents, active, seeding };
         });
     } else if (service === 'nzbget') {
-      fetchPromise = fetch(`${app.href}/api/listgroups?apikey=${apiKey}`, { mode: 'cors' })
+      url = `${app.href}/api/listgroups?apikey=${apiKey}`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      fetchPromise = fetch(url, { mode: 'cors' })
         .then(r => r.json())
         .then(data => {
           const queue = data.result || [];
           return { queue, downloading: queue.length };
         });
     } else if (service === 'sabnzbd') {
-      fetchPromise = fetch(`${app.href}/api?mode=queue&output=json&apikey=${apiKey}`, { mode: 'cors' })
+      url = `${app.href}/api?mode=queue&output=json&apikey=${apiKey}`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      fetchPromise = fetch(url, { mode: 'cors' })
         .then(r => r.json())
         .then(data => {
           const queue = data.queue.slots || [];
@@ -447,6 +479,7 @@ class Component extends DCLogic {
     return fetchPromise
       .then(data => {
         if (service === 'qbittorrent') {
+          console.log(`[API] ${service} success:`, { active: data.active, seeding: data.seeding });
           return {
             ...app,
             status: 'Online',
@@ -462,6 +495,7 @@ class Component extends DCLogic {
             open: () => this.navigate(app)
           };
         } else {
+          console.log(`[API] ${service} success:`, { items: data.downloading });
           return {
             ...app,
             status: 'Online',
@@ -477,7 +511,10 @@ class Component extends DCLogic {
           };
         }
       })
-      .catch(() => null);
+      .catch(err => {
+        console.error(`[API] ${service} error:`, err);
+        return null;
+      });
   }
 
   componentWillUnmount() {
