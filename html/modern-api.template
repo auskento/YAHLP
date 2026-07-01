@@ -624,7 +624,6 @@ class Component extends DCLogic {
         redirect: 'follow',
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(loginPayload)
       })
         .then(r => {
@@ -646,7 +645,6 @@ class Component extends DCLogic {
             redirect: 'follow',
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
             body: JSON.stringify(torrentsPayload)
           });
         })
