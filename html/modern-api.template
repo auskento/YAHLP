@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@@DASHBOARD_NAME@@ - API Dashboard</title>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/react-dom.production.min.js"></script>
+<script src="support.js"></script>
+<script>
+window.getCoordinates = function() { return { x: 0, y: 0, width: 0, height: 0 }; };
+window.ClientData = window.ClientData || {};
+window.ClientData.update = function() {};
+if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+  try {
+    window.parent.getCoordinates = window.parent.getCoordinates || function() { return { x: 0, y: 0, width: 0, height: 0 }; };
+    window.parent.ClientData = window.parent.ClientData || {};
+    window.parent.ClientData.update = window.parent.ClientData.update || function() {};
+  } catch(e) {}
+}
+</script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #08090c;
+    --bg-secondary: @@DASHBOARD_COLOR@@;
+    --bg-tertiary: rgba(255, 255, 255, 0.05);
+    --bg-gradient-start: rgba(20, 23, 30, 0.72);
+    --bg-gradient-end: rgba(12, 14, 19, 0.72);
+    --text-primary: #e9ecf2;
+    --text-secondary: #8b93a3;
+    --text-tertiary: #5d6575;
+    --text-accent: #cdd3dd;
+    --text-bright: #f4f6fa;
+    --text-light: #eef1f6;
+    --text-muted: #828b9c;
+    --text-dim: #4b5263;
+    --text-link: #4a9eff;
+    --border-color: rgba(255, 255, 255, 0.06);
+    --border-light: rgba(255, 255, 255, 0.07);
+    --border-hover: rgba(255, 255, 255, 0.09);
+    --status-success: #10b981;
+    --status-warning: #f59e0b;
+    --status-error: #ef4444;
+    --status-info: #3b82f6;
+  }
+
+  [data-theme="light"] {
+    --bg-primary: #f5f5f7;
+    --bg-secondary: rgba(245, 245, 247, 0.95);
+    --bg-tertiary: rgba(0, 0, 0, 0.05);
+    --bg-gradient-start: rgba(250, 250, 252, 0.95);
+    --bg-gradient-end: rgba(240, 240, 242, 0.95);
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b7280;
+    --text-tertiary: #9ca3af;
+    --text-accent: #374151;
+    --text-bright: #000000;
+    --text-light: #1f2937;
+    --text-muted: #6b7280;
+    --text-dim: #9ca3af;
+    --text-link: #0066cc;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --border-light: rgba(0, 0, 0, 0.1);
+    --border-hover: rgba(0, 0, 0, 0.15);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--bg-primary);overflow:hidden}
+  [data-theme="light"] img{filter:invert(0.85) hue-rotate(180deg) brightness(0.95)}
+  ::-webkit-scrollbar{width:9px}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:9px}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.16)}
+  [data-theme="light"] ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12)}
+  [data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.18)}
+
+  .service-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .service-card:hover {
+    background: var(--bg-secondary);
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .service-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .service-card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .service-card-icon img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+
+  .service-card-title {
+    font-weight: 600;
+    color: var(--text-light);
+    font-size: 14px;
+  }
+
+  .service-card-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: auto;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .status-dot.online {
+    background: var(--status-success);
+    box-shadow: 0 0 8px var(--status-success);
+  }
+
+  .status-dot.offline {
+    background: var(--status-error);
+  }
+
+  .status-dot.loading {
+    background: var(--status-info);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .api-stat {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .api-stat-value {
+    font-weight: 600;
+    color: var(--text-accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .site-link{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;border-radius:9px;text-decoration:none;color:inherit;background:var(--bg-tertiary);border:1px solid var(--border-color);transition:all 0.2s;cursor:pointer}
+  .site-link:hover{background:var(--bg-secondary);border-color:var(--border-hover)}
+  .site-link:active{transform:scale(0.95)}
+  .site-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;overflow:hidden;background:var(--bg-primary)}
+  .site-icon img{width:100%;height:100%;object-fit:contain;padding:2px}
+  .site-code{display:none}
+</style>
+</helmet>
+
+<div style="display:flex;height:100vh;width:100vw;font-family:'Inter',system-ui,sans-serif;color:var(--text-primary);background:radial-gradient(1200px 700px at 18% -10%,rgba(58,160,224,.10),transparent 60%),radial-gradient(900px 600px at 100% 110%,rgba(46,205,111,.07),transparent 55%),var(--bg-primary);overflow:hidden">
+
+  <aside style="width:320px;flex:none;height:100%;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--bg-secondary),rgba(12,14,19,0.95));backdrop-filter:blur(18px);border-right:1px solid var(--border-light)">
+
+    <div style="padding:26px 26px 20px 26px;border-bottom:1px solid var(--border-color)">
+      <a href="/" style="display:flex;align-items:center;gap:11px;margin-bottom:22px;text-decoration:none;cursor:pointer">
+        <img src="@@DASHBOARD_ICON@@" alt="Dashboard" style="width:34px;height:34px;border-radius:9px;object-fit:contain;box-shadow:0 4px 16px rgba(58,160,224,.4)">
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:.14em;font-size:13px;color:var(--text-accent)">@@DASHBOARD_NAME@@</div>
+      </a>
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:25px;line-height:1.15;letter-spacing:-.01em;color:var(--text-bright)">{{ greeting }}</div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-top:7px">
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:15px;color:var(--text-secondary);font-variant-numeric:tabular-nums">{{ clock }}</div>
+        <div style="font-size:13px;color:var(--text-tertiary)">{{ today }}</div>
+      </div>
+    </div>
+
+    <nav style="flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 16px 22px 16px">
+      <sc-for list="{{ groups[0].items }}" as="app">
+        <button onClick="{{ app.open }}" style="{{ app.style }}" style-hover="{{ app.hoverStyle }}">
+          <span style="width:46px;height:46px;flex:none;border-radius:12px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 1px var(--border-color)">
+            {{ app.iconEl }}
+          </span>
+          <span style="flex:1;min-width:0;text-align:left">
+            <span style="display:block;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:var(--text-light)">{{ app.name }}</span>
+            <span style="display:block;font-size:12.5px;color:var(--text-muted);margin-top:1px">{{ app.desc }}</span>
+          </span>
+          <span style="{{ app.dotStyle }}"></span>
+        </button>
+      </sc-for>
+    </nav>
+
+    <div style="padding:14px 26px;border-top:1px solid var(--border-color)">
+      @@STYLE_SWITCHER@@
+    </div>
+  </aside>
+
+  <main style="flex:1;min-width:0;position:relative;display:flex;flex-direction:column">
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:24px">
+      <div style="max-width:1200px;margin:0 auto">
+        <div style="margin-bottom:24px">
+          <h1 style="margin:0;font-size:28px;font-weight:600;color:var(--text-bright)">Service Status</h1>
+          <p style="margin:6px 0 0 0;color:var(--text-secondary);font-size:14px">Real-time data from your services</p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px">
+          <sc-for list="{{ serviceStats }}" as="service">
+            <div class="service-card" onclick="{{ service.open }}">
+              <div class="service-card-header">
+                <div class="service-card-icon">
+                  {{ service.iconEl }}
+                </div>
+                <div class="service-card-title">{{ service.name }}</div>
+                <div class="service-card-status" style="background:{{ service.statusBg }};color:{{ service.statusColor }}">
+                  <span class="status-dot" style="background:{{ service.statusColor }};{{ service.statusDotGlow }}"></span>
+                  {{ service.status }}
+                </div>
+              </div>
+
+              <sc-for list="{{ service.stats }}" as="stat">
+                <div class="api-stat">
+                  <span>{{ stat.label }}:</span>
+                  <span class="api-stat-value">{{ stat.value }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border-color)">
+          <p style="color:var(--text-tertiary);font-size:12px">
+            💡 <strong>API Status:</strong> {{ apiStatus }} — API keys configured for {{ enabledServices }} services
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <iframe name="Main" ref="{{ frameRef }}" title="App" src="/@@DASHBOARD_LANDING@@" style="display:none;position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg-primary)"></iframe>
+
+    <sc-if value="{{ showWelcome }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;background:radial-gradient(900px 600px at 50% 30%,rgba(58,160,224,.08),transparent 60%),#0b0d11">
+        <a href="/" style="display:flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer">
+          <img src="@@DASHBOARD_ICON@@" alt="Dashboard" style="width:80px;height:80px;margin-bottom:26px;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(58,160,224,.3))">
+        </a>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:27px;color:#f4f6fa;letter-spacing:-.01em">API Dashboard</div>
+        <div style="font-size:15px;color:#828b9c;margin-top:10px;max-width:420px;line-height:1.6">
+          Real-time service monitoring. Configure API keys to display:
+          <ul style="text-align:left;margin:12px 0;font-size:14px;color:#8b93a3">
+            <li><strong>Media Servers:</strong> Currently playing users (Jellyfin, Plex, Emby)</li>
+            <li><strong>*arr Services:</strong> Recent downloads queue (Sonarr, Radarr, Lidarr, Whisparr)</li>
+            <li><strong>Download Clients:</strong> Active downloads (qBittorrent, NZBGet, SABnzbd)</li>
+          </ul>
+          <div style="margin-top:12px;padding:10px;background:rgba(255,255,255,.05);border-radius:6px;font-size:13px">
+            Set <code style="background:rgba(0,0,0,.2);padding:2px 6px;border-radius:3px">SERVICE_API_KEY</code> in environment variables (e.g. <code style="background:rgba(0,0,0,.2);padding:2px 6px;border-radius:3px">SONARR_API_KEY</code>)
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+
+  <aside style="width:120px;flex:none;height:100%;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--bg-secondary),rgba(12,14,19,0.95));backdrop-filter:blur(18px);border-left:1px solid var(--border-light);overflow-y:auto;overflow-x:hidden;padding:16px 8px">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      @@SITES_ITEMS@@
+    </div>
+  </aside>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    now: new Date(),
+    activeId: null,
+    showWelcome: true,
+    serviceStats: [],
+    apiStatus: 'Configured',
+    enabledServices: 0
+  };
+
+  componentDidMount() {
+    this._t = setInterval(() => this.setState({ now: new Date() }), 1000);
+    this.fetchServiceStats();
+    this._statsInterval = setInterval(() => this.fetchServiceStats(), 30000); // Refresh every 30s
+  }
+
+  fetchServiceStats() {
+    const raw = @@SERVICES_ARRAY@@;
+    Promise.all(raw.map(app => this.fetchAppStats(app))).then(results => {
+      const stats = results.filter(s => s);
+      this.setState({
+        serviceStats: stats,
+        enabledServices: stats.length,
+        apiStatus: stats.length > 0 ? 'Live' : 'No APIs configured'
+      });
+    });
+  }
+
+  fetchAppStats(app) {
+    const key = app.id.toLowerCase();
+    if (['jellyfin', 'plex', 'emby'].includes(key)) {
+      return this.fetchMediaServerStats(key, app);
+    }
+    if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(key)) {
+      return this.fetchArrStats(key, app);
+    }
+    if (['qbittorrent', 'transmission', 'nzbget', 'sabnzbd'].includes(key)) {
+      return this.fetchDownloadStats(key, app);
+    }
+    return Promise.resolve(null);
+  }
+
+  fetchMediaServerStats(service, app) {
+    const apiKey = localStorage.getItem(`${service.toUpperCase()}_API_KEY`);
+    if (!apiKey) return Promise.resolve(null);
+
+    const endpoints = {
+      'jellyfin': '/api/sessions',
+      'plex': '/api/sessions.json',
+      'emby': '/emby/Sessions'
+    };
+
+    return fetch(`${app.href}${endpoints[service]}?api_key=${apiKey}`, { mode: 'cors' })
+      .then(r => r.json())
+      .then(data => {
+        const sessions = Array.isArray(data) ? data : data.MediaSessions || [];
+        const playing = sessions.filter(s => s.PlayState && s.PlayState.IsPaused === false).length;
+        const paused = sessions.filter(s => s.PlayState && s.PlayState.IsPaused === true).length;
+
+        return {
+          ...app,
+          status: 'Online',
+          statusColor: 'var(--status-success)',
+          statusBg: 'rgba(16, 185, 129, 0.1)',
+          statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
+          stats: [
+            { label: 'Currently Playing', value: `${playing} user${playing !== 1 ? 's' : ''}` },
+            ...(paused > 0 ? [{ label: 'Paused', value: `${paused}` }] : []),
+            { label: 'Total Sessions', value: sessions.length }
+          ],
+          iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
+          open: () => this.navigate(app)
+        };
+      })
+      .catch(() => null);
+  }
+
+  fetchArrStats(service, app) {
+    const apiKey = localStorage.getItem(`${service.toUpperCase()}_API_KEY`);
+    if (!apiKey) return Promise.resolve(null);
+
+    const endpoints = {
+      'sonarr': '/api/v3/queue',
+      'radarr': '/api/v3/queue',
+      'lidarr': '/api/v1/queue',
+      'whisparr': '/api/v1/queue'
+    };
+
+    return fetch(`${app.href}${endpoints[service]}?api_key=${apiKey}`, { mode: 'cors' })
+      .then(r => r.json())
+      .then(data => {
+        const queue = Array.isArray(data) ? data : data.records || [];
+        const downloading = queue.filter(i => i.status === 'Downloading').length;
+        const completed = queue.filter(i => i.status === 'Completed').length;
+
+        return {
+          ...app,
+          status: 'Online',
+          statusColor: 'var(--status-success)',
+          statusBg: 'rgba(16, 185, 129, 0.1)',
+          statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
+          stats: [
+            { label: 'Queue', value: `${queue.length} item${queue.length !== 1 ? 's' : ''}` },
+            { label: 'Downloading', value: `${downloading}` },
+            { label: 'Completed', value: `${completed}` }
+          ],
+          iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
+          open: () => this.navigate(app)
+        };
+      })
+      .catch(() => null);
+  }
+
+  fetchDownloadStats(service, app) {
+    const apiKey = localStorage.getItem(`${service.toUpperCase()}_API_KEY`);
+    if (!apiKey) return Promise.resolve(null);
+
+    let fetchPromise;
+
+    if (service === 'qbittorrent') {
+      fetchPromise = fetch(`${app.href}/api/v2/torrents/info?api_key=${apiKey}`, { mode: 'cors' })
+        .then(r => r.json())
+        .then(torrents => {
+          const active = torrents.filter(t => t.state.includes('dl')).length;
+          const seeding = torrents.filter(t => t.state.includes('up')).length;
+          return { torrents, active, seeding };
+        });
+    } else if (service === 'nzbget') {
+      fetchPromise = fetch(`${app.href}/api/listgroups?apikey=${apiKey}`, { mode: 'cors' })
+        .then(r => r.json())
+        .then(data => {
+          const queue = data.result || [];
+          return { queue, downloading: queue.length };
+        });
+    } else if (service === 'sabnzbd') {
+      fetchPromise = fetch(`${app.href}/api?mode=queue&output=json&apikey=${apiKey}`, { mode: 'cors' })
+        .then(r => r.json())
+        .then(data => {
+          const queue = data.queue.slots || [];
+          return { queue, downloading: queue.length };
+        });
+    } else {
+      return Promise.resolve(null);
+    }
+
+    return fetchPromise
+      .then(data => {
+        if (service === 'qbittorrent') {
+          return {
+            ...app,
+            status: 'Online',
+            statusColor: 'var(--status-success)',
+            statusBg: 'rgba(16, 185, 129, 0.1)',
+            statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
+            stats: [
+              { label: 'Active Downloads', value: `${data.active}` },
+              { label: 'Seeding', value: `${data.seeding}` },
+              { label: 'Total', value: `${data.torrents.length}` }
+            ],
+            iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
+            open: () => this.navigate(app)
+          };
+        } else {
+          return {
+            ...app,
+            status: 'Online',
+            statusColor: 'var(--status-success)',
+            statusBg: 'rgba(16, 185, 129, 0.1)',
+            statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
+            stats: [
+              { label: 'Queue Items', value: `${data.downloading}` },
+              { label: 'Status', value: 'Active' }
+            ],
+            iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
+            open: () => this.navigate(app)
+          };
+        }
+      })
+      .catch(() => null);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._t);
+    clearInterval(this._statsInterval);
+  }
+
+  navigate(app) {
+    if (app.popup) {
+      window.open(app.href, app.name, 'resizable=no,status=no,location=no,toolbar=no,menubar=no,scrollbars=no');
+      return;
+    }
+    this.setState({ activeId: app.id, showWelcome: false });
+    if (this._frame) {
+      this._frame.style.display = 'block';
+      this._frame.src = app.href;
+    }
+  }
+
+  renderVals() {
+    const now = this.state.now;
+    const h = now.getHours();
+    const greeting = h < 5 ? 'Burning the midnight oil' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+    const clock = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const today = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+
+    const raw = @@SERVICES_ARRAY@@;
+    const orderCodes = @@DASHBOARD_ORDER@@;
+
+    const mk = (app) => {
+      const active = this.state.activeId === app.id;
+      return {
+        ...app,
+        open: () => this.navigate(app),
+        iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 34, height: 34, objectFit: 'contain' } }),
+        style: `display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;border:0;border-radius:14px;padding:11px 12px;margin-top:6px;font-family:inherit;transition:background .16s,box-shadow .16s,transform .12s;background:${active ? 'rgba(255,255,255,.08)' : 'transparent'};box-shadow:${active ? `inset 0 0 0 1px ${app.accent}55, 0 6px 22px -8px ${app.accent}66` : 'inset 0 0 0 1px transparent'}`,
+        hoverStyle: `background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px ${app.accent}40;transform:translateX(2px)`,
+        dotStyle: `width:8px;height:8px;flex:none;border-radius:50%;background:${app.accent};box-shadow:0 0 9px ${app.accent};opacity:${active ? 1 : .65}`,
+      };
+    };
+
+    const items = orderCodes.map(code => raw.find(a => a.id === code)).filter(a => a).map(mk);
+    const groups = [{ items }];
+
+    return {
+      greeting, clock, today, groups,
+      showWelcome: this.state.showWelcome,
+      frameRef: (el) => { this._frame = el; },
+      serviceStats: this.state.serviceStats,
+      apiStatus: this.state.apiStatus,
+      enabledServices: this.state.enabledServices
+    };
+  }
+}
+</script>
+<script>
+  // Theme management
+  (function() {
+    const themeValue = '@@DASHBOARD_THEME@@';
+    const defaultTheme = (themeValue && themeValue !== '@@DASHBOARD_THEME@@') ? themeValue : 'dark';
+    const savedTheme = localStorage.getItem('theme') || defaultTheme;
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    window.switchTheme = function(theme) {
+      localStorage.setItem('theme', theme);
+      document.documentElement.setAttribute('data-theme', theme);
+    };
+  })();
+
+  // Setup iframe on page load
+  window.addEventListener('load', function() {
+    try {
+      const landing = '@@DASHBOARD_LANDING@@';
+      if (landing && landing !== '@@DASHBOARD_LANDING@@') {
+        const frame = document.querySelector('iframe[name="Main"]');
+        if (frame) {
+          frame.src = landing;
+          frame.style.display = 'block';
+        }
+      }
+    } catch(e) {}
+  });
+</script>
+</body>
+</html>
