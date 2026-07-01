@@ -399,8 +399,15 @@ class Component extends DCLogic {
     console.log(`[API] Fetching ${service}: ${url}`);
 
     return fetch(url, { mode: 'cors', redirect: 'follow' })
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) {
+          console.error(`[API] ${service} HTTP ${r.status}`);
+          return null;
+        }
+        return r.json();
+      })
       .then(data => {
+        if (!data) return null;
         const sessions = Array.isArray(data) ? data : data.MediaSessions || [];
         const playing = sessions.filter(s => s.PlayState && s.PlayState.IsPaused === false).length;
         const paused = sessions.filter(s => s.PlayState && s.PlayState.IsPaused === true).length;
@@ -452,8 +459,15 @@ class Component extends DCLogic {
         'X-Api-Key': apiKey
       }
     })
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) {
+          console.error(`[API] ${service} HTTP ${r.status}`);
+          return null;
+        }
+        return r.json();
+      })
       .then(data => {
+        if (!data) return null;
         const queue = Array.isArray(data) ? data : data.records || [];
         const downloading = queue.filter(i => i.status === 'Downloading').length;
         const completed = queue.filter(i => i.status === 'Completed').length;
@@ -495,7 +509,13 @@ class Component extends DCLogic {
       url = `${baseUrl}/api/v2/torrents/info?api_key=${apiKey}`;
       console.log(`[API] Fetching ${service}: ${url}`);
       fetchPromise = fetch(url, { mode: 'cors', redirect: 'follow' })
-        .then(r => r.json())
+        .then(r => {
+          if (!r.ok) {
+            console.error(`[API] ${service} HTTP ${r.status}`);
+            return null;
+          }
+          return r.json();
+        })
         .then(torrents => {
           const active = torrents.filter(t => t.state.includes('dl')).length;
           const seeding = torrents.filter(t => t.state.includes('up')).length;
@@ -505,7 +525,13 @@ class Component extends DCLogic {
       url = `${baseUrl}/api/listgroups?apikey=${apiKey}`;
       console.log(`[API] Fetching ${service}: ${url}`);
       fetchPromise = fetch(url, { mode: 'cors', redirect: 'follow' })
-        .then(r => r.json())
+        .then(r => {
+          if (!r.ok) {
+            console.error(`[API] ${service} HTTP ${r.status}`);
+            return null;
+          }
+          return r.json();
+        })
         .then(data => {
           const queue = data.result || [];
           return { queue, downloading: queue.length };
@@ -514,7 +540,13 @@ class Component extends DCLogic {
       url = `${baseUrl}/api?mode=queue&output=json&apikey=${apiKey}`;
       console.log(`[API] Fetching ${service}: ${url}`);
       fetchPromise = fetch(url, { mode: 'cors', redirect: 'follow' })
-        .then(r => r.json())
+        .then(r => {
+          if (!r.ok) {
+            console.error(`[API] ${service} HTTP ${r.status}`);
+            return null;
+          }
+          return r.json();
+        })
         .then(data => {
           const queue = data.queue.slots || [];
           return { queue, downloading: queue.length };
@@ -525,6 +557,7 @@ class Component extends DCLogic {
 
     return fetchPromise
       .then(data => {
+        if (!data) return null;
         if (service === 'qbittorrent') {
           console.log(`[API] ${service} success:`, { active: data.active, seeding: data.seeding });
           return {
