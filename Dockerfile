@@ -67,7 +67,7 @@ COPY apache-conf/auth-basic.conf /etc/apache2/conf-available/
 COPY apache-conf/services/ /etc/apache2/sites-available/services/
 
 # Copy proxy files and install dependencies
-COPY package.json package-lock.json /opt/proxy/
+COPY package.json /opt/proxy/
 WORKDIR /opt/proxy
 RUN npm install --production
 
