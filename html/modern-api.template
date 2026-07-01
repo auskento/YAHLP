@@ -330,15 +330,27 @@ class Component extends DCLogic {
   }
 
   fetchAppStats(app) {
-    const key = app.id.toLowerCase();
-    if (['jellyfin', 'plex', 'emby'].includes(key)) {
-      return this.fetchMediaServerStats(key, app);
+    // Map service codes to service names
+    const codeToService = {
+      'JEL': 'jellyfin', 'PLX': 'plex', 'EMB': 'emby',
+      'SON': 'sonarr', 'RAD': 'radarr', 'LID': 'lidarr', 'WHI': 'whisparr',
+      'QBI': 'qbittorrent', 'TRA': 'transmission', 'GET': 'nzbget', 'SAB': 'sabnzbd'
+    };
+
+    const service = codeToService[app.id];
+    if (!service) {
+      console.log(`[API] ${app.id} - No service mapping found`);
+      return Promise.resolve(null);
     }
-    if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(key)) {
-      return this.fetchArrStats(key, app);
+
+    if (['jellyfin', 'plex', 'emby'].includes(service)) {
+      return this.fetchMediaServerStats(service, app);
     }
-    if (['qbittorrent', 'transmission', 'nzbget', 'sabnzbd'].includes(key)) {
-      return this.fetchDownloadStats(key, app);
+    if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(service)) {
+      return this.fetchArrStats(service, app);
+    }
+    if (['qbittorrent', 'transmission', 'nzbget', 'sabnzbd'].includes(service)) {
+      return this.fetchDownloadStats(service, app);
     }
     return Promise.resolve(null);
   }
