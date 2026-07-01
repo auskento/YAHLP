@@ -3,7 +3,7 @@ FROM debian:13-slim
 # Set timezone to Melbourne
 ENV TZ=Australia/Melbourne
 
-# Install Apache, Certbot, and dependencies
+# Install Apache, Certbot, Node.js, and dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apache2 \
     certbot \
@@ -17,6 +17,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     file \
     tzdata \
     libapache2-mod-auth-openidc \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
 # Enable necessary Apache modules for reverse proxy, SSL, and authentication
@@ -64,6 +66,14 @@ COPY apache-conf/auth-google-protect.conf /etc/apache2/conf-available/
 COPY apache-conf/auth-basic.conf /etc/apache2/conf-available/
 COPY apache-conf/services/ /etc/apache2/sites-available/services/
 
+# Copy proxy files and install dependencies
+COPY package.json package-lock.json /opt/proxy/
+WORKDIR /opt/proxy
+RUN npm install --production
+
+# Copy proxy application
+COPY proxy.js /opt/proxy/
+
 # Copy configuration generator scripts
 COPY generate-config.sh generate-html-menu.sh download-icons.sh generate-sites-config.sh generate-emby-virtualhost.sh generate-plex-virtualhost.sh /usr/local/bin/
 COPY support.js /usr/local/bin/
@@ -86,7 +96,7 @@ COPY cert-renewal-cron /etc/cron.d/certbot-renewal
 RUN chmod 0644 /etc/cron.d/certbot-renewal
 
 # Expose ports
-EXPOSE 80 443
+EXPOSE 80 443 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
