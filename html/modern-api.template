@@ -584,28 +584,47 @@ class Component extends DCLogic {
           return { torrents, downloading };
         });
     } else if (service === 'deluge') {
-      url = `${baseUrl}/api/torrents`;
-      console.log(`[API] Fetching ${service}: ${url}`);
-      fetchPromise = fetch(url, {
+      const password = apiKey;
+      const loginUrl = `${baseUrl}/auth/login`;
+      console.log(`[API] Fetching ${service}: authenticating...`);
+      fetchPromise = fetch(loginUrl, {
         mode: 'cors',
         redirect: 'follow',
-        method: 'GET',
-        headers: {
-          'X-Deluge-RPC-Version': '1',
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ username: 'localclient', password: password })
       })
         .then(r => {
           if (!r.ok) {
-            console.error(`[API] ${service} HTTP ${r.status}`);
+            console.error(`[API] ${service} auth HTTP ${r.status}`);
+            return null;
+          }
+          return r.json();
+        })
+        .then(authData => {
+          if (!authData || authData.error) {
+            console.error(`[API] ${service} auth failed:`, authData?.error);
+            return null;
+          }
+          const torrentsUrl = `${baseUrl}/api/torrents`;
+          console.log(`[API] Fetching ${service}: ${torrentsUrl}`);
+          return fetch(torrentsUrl, {
+            mode: 'cors',
+            redirect: 'follow',
+            method: 'GET',
+            credentials: 'include'
+          });
+        })
+        .then(r => {
+          if (!r || !r.ok) {
+            console.error(`[API] ${service} torrents HTTP ${r?.status}`);
             return null;
           }
           return r.json();
         })
         .then(data => {
-          if (!data.result) {
+          if (!data || !data.result) {
             console.error(`[API] ${service} Invalid response format`);
             return null;
           }
