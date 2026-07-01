@@ -134,7 +134,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🔀 API Proxy server listening on port ${PORT}`);
   console.log(`   All requests: http://localhost:${PORT}/proxy/:service/:path`);
   console.log(`   Health check: http://localhost:${PORT}/health`);
