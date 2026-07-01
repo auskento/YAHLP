@@ -380,6 +380,9 @@ class Component extends DCLogic {
     if (['qbittorrent', 'sabnzbd', 'nzbget', 'transmission', 'deluge'].includes(service)) {
       return this.fetchDownloadStats(service, app);
     }
+    if (['nzbhydra', 'prowlarr', 'seerr', 'bazarr', 'tautulli', 'maintainerr'].includes(service)) {
+      return this.fetchUtilityStats(service, app);
+    }
     return Promise.resolve(null);
   }
 
@@ -683,6 +686,226 @@ class Component extends DCLogic {
             stats: [
               { label: 'Active Items', value: `${data.downloading}` },
               { label: 'Status', value: 'Active' }
+            ],
+            iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
+            open: () => this.navigate(app)
+          };
+        }
+      })
+      .catch(err => {
+        console.error(`[API] ${service} error:`, err);
+        return null;
+      });
+  }
+
+  fetchUtilityStats(service, app) {
+    const apiKey = localStorage.getItem(`${service.toUpperCase()}_API_KEY`);
+    if (!apiKey) {
+      console.log(`[API] ${service} - No API key found`);
+      return Promise.resolve(null);
+    }
+
+    const baseUrl = app.href.replace(/\/$/, '');
+    let url, fetchPromise;
+
+    if (service === 'nzbhydra') {
+      url = `${baseUrl}/api/stats`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      fetchPromise = fetch(url, {
+        mode: 'cors',
+        headers: { 'X-Api-Key': apiKey }
+      })
+        .then(r => {
+          if (!r.ok) {
+            console.error(`[API] ${service} HTTP ${r.status}`);
+            return null;
+          }
+          return r.json();
+        })
+        .then(data => {
+          const searches = data?.numberOfSearches || 0;
+          const indexers = data?.numberOfIndexers || 0;
+          return { searches, indexers };
+        });
+    } else if (service === 'prowlarr') {
+      url = `${baseUrl}/api/v1/health`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      fetchPromise = fetch(url, {
+        mode: 'cors',
+        headers: { 'X-Api-Key': apiKey }
+      })
+        .then(r => {
+          if (!r.ok) {
+            console.error(`[API] ${service} HTTP ${r.status}`);
+            return null;
+          }
+          return r.json();
+        })
+        .then(data => {
+          const issues = Array.isArray(data) ? data.length : 0;
+          return { issues };
+        });
+    } else if (service === 'seerr') {
+      url = `${baseUrl}/api/v1/request/count`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      fetchPromise = fetch(url, {
+        mode: 'cors',
+        headers: { 'X-Api-Key': apiKey }
+      })
+        .then(r => {
+          if (!r.ok) {
+            console.error(`[API] ${service} HTTP ${r.status}`);
+            return null;
+          }
+          return r.json();
+        })
+        .then(data => {
+          const pending = data?.pending || 0;
+          const approved = data?.approved || 0;
+          return { pending, approved };
+        });
+    } else if (service === 'bazarr') {
+      url = `${baseUrl}/api/system/health`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      fetchPromise = fetch(url, {
+        mode: 'cors',
+        headers: { 'X-Api-Key': apiKey }
+      })
+        .then(r => {
+          if (!r.ok) {
+            console.error(`[API] ${service} HTTP ${r.status}`);
+            return null;
+          }
+          return r.json();
+        })
+        .then(data => {
+          const issues = Array.isArray(data) ? data.filter(h => h.status !== 'healthy').length : 0;
+          return { issues };
+        });
+    } else if (service === 'tautulli') {
+      url = `${baseUrl}/api/v2/?apikey=${apiKey}&cmd=get_activity`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      fetchPromise = fetch(url, {
+        mode: 'cors'
+      })
+        .then(r => {
+          if (!r.ok) {
+            console.error(`[API] ${service} HTTP ${r.status}`);
+            return null;
+          }
+          return r.json();
+        })
+        .then(data => {
+          const playing = data?.response?.data?.sessions || 0;
+          return { playing };
+        });
+    } else if (service === 'maintainerr') {
+      url = `${baseUrl}/api/rules`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      fetchPromise = fetch(url, {
+        mode: 'cors',
+        headers: { 'X-Api-Key': apiKey }
+      })
+        .then(r => {
+          if (!r.ok) {
+            console.error(`[API] ${service} HTTP ${r.status}`);
+            return null;
+          }
+          return r.json();
+        })
+        .then(data => {
+          const rules = Array.isArray(data) ? data.length : 0;
+          return { rules };
+        });
+    } else {
+      return Promise.resolve(null);
+    }
+
+    return fetchPromise
+      .then(data => {
+        if (!data) return null;
+        if (service === 'nzbhydra') {
+          console.log(`[API] ${service} success:`, { searches: data.searches, indexers: data.indexers });
+          return {
+            ...app,
+            status: 'Online',
+            statusColor: 'var(--status-success)',
+            statusBg: 'rgba(16, 185, 129, 0.1)',
+            statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
+            stats: [
+              { label: 'Searches', value: `${data.searches}` },
+              { label: 'Indexers', value: `${data.indexers}` }
+            ],
+            iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
+            open: () => this.navigate(app)
+          };
+        } else if (service === 'prowlarr') {
+          console.log(`[API] ${service} success:`, { issues: data.issues });
+          return {
+            ...app,
+            status: 'Online',
+            statusColor: 'var(--status-success)',
+            statusBg: 'rgba(16, 185, 129, 0.1)',
+            statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
+            stats: [
+              { label: 'Health Issues', value: `${data.issues}` }
+            ],
+            iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
+            open: () => this.navigate(app)
+          };
+        } else if (service === 'seerr') {
+          console.log(`[API] ${service} success:`, { pending: data.pending, approved: data.approved });
+          return {
+            ...app,
+            status: 'Online',
+            statusColor: 'var(--status-success)',
+            statusBg: 'rgba(16, 185, 129, 0.1)',
+            statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
+            stats: [
+              { label: 'Pending', value: `${data.pending}` },
+              { label: 'Approved', value: `${data.approved}` }
+            ],
+            iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
+            open: () => this.navigate(app)
+          };
+        } else if (service === 'bazarr') {
+          console.log(`[API] ${service} success:`, { issues: data.issues });
+          return {
+            ...app,
+            status: 'Online',
+            statusColor: 'var(--status-success)',
+            statusBg: 'rgba(16, 185, 129, 0.1)',
+            statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
+            stats: [
+              { label: 'Health Issues', value: `${data.issues}` }
+            ],
+            iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
+            open: () => this.navigate(app)
+          };
+        } else if (service === 'tautulli') {
+          console.log(`[API] ${service} success:`, { playing: data.playing });
+          return {
+            ...app,
+            status: 'Online',
+            statusColor: 'var(--status-success)',
+            statusBg: 'rgba(16, 185, 129, 0.1)',
+            statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
+            stats: [
+              { label: 'Now Playing', value: `${data.playing}` }
+            ],
+            iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
+            open: () => this.navigate(app)
+          };
+        } else if (service === 'maintainerr') {
+          console.log(`[API] ${service} success:`, { rules: data.rules });
+          return {
+            ...app,
+            status: 'Online',
+            statusColor: 'var(--status-success)',
+            statusBg: 'rgba(16, 185, 129, 0.1)',
+            statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
+            stats: [
+              { label: 'Rules', value: `${data.rules}` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)

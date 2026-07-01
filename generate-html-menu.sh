@@ -923,6 +923,12 @@ generate_all_styles() {
         [ ! -z "$NZBGET_API_KEY" ] && api_keys_script+="localStorage.setItem('NZBGET_API_KEY', '${NZBGET_API_KEY}');"
         [ ! -z "$SABNZBD_API_KEY" ] && api_keys_script+="localStorage.setItem('SABNZBD_API_KEY', '${SABNZBD_API_KEY}');"
         [ ! -z "$DELUGE_PASSWORD" ] && api_keys_script+="localStorage.setItem('DELUGE_API_KEY', '${DELUGE_PASSWORD}');"
+        [ ! -z "$NZBHYDRA_API_KEY" ] && api_keys_script+="localStorage.setItem('NZBHYDRA_API_KEY', '${NZBHYDRA_API_KEY}');"
+        [ ! -z "$PROWLARR_API_KEY" ] && api_keys_script+="localStorage.setItem('PROWLARR_API_KEY', '${PROWLARR_API_KEY}');"
+        [ ! -z "$SEERR_API_KEY" ] && api_keys_script+="localStorage.setItem('SEERR_API_KEY', '${SEERR_API_KEY}');"
+        [ ! -z "$BAZARR_API_KEY" ] && api_keys_script+="localStorage.setItem('BAZARR_API_KEY', '${BAZARR_API_KEY}');"
+        [ ! -z "$TAUTULLI_API_KEY" ] && api_keys_script+="localStorage.setItem('TAUTULLI_API_KEY', '${TAUTULLI_API_KEY}');"
+        [ ! -z "$MAINTAINERR_API_KEY" ] && api_keys_script+="localStorage.setItem('MAINTAINERR_API_KEY', '${MAINTAINERR_API_KEY}');"
         api_keys_script+="}"
         api_keys_script+="</script>"
 
