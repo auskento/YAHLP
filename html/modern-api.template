@@ -375,7 +375,7 @@ class Component extends DCLogic {
     if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(service)) {
       return this.fetchArrStats(service, app);
     }
-    if (['qbittorrent', 'sabnzbd'].includes(service)) {
+    if (['qbittorrent', 'sabnzbd', 'nzbget', 'transmission', 'deluge'].includes(service)) {
       return this.fetchDownloadStats(service, app);
     }
     return Promise.resolve(null);
@@ -536,6 +536,73 @@ class Component extends DCLogic {
           const queue = data.queue.slots || [];
           return { queue, downloading: queue.length };
         });
+    } else if (service === 'nzbget') {
+      url = `${baseUrl}/jsonrpc`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      const payload = { jsonrpc: '2.0', method: 'listgroups', params: [], id: 1 };
+      fetchPromise = fetch(url, {
+        mode: 'cors',
+        redirect: 'follow',
+        method: 'POST',
+        headers: { 'X-Api-Key': apiKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(r => {
+          if (!r.ok) {
+            console.error(`[API] ${service} HTTP ${r.status}`);
+            return null;
+          }
+          return r.json();
+        })
+        .then(data => {
+          const queue = data.result || [];
+          return { queue, downloading: queue.length };
+        });
+    } else if (service === 'transmission') {
+      url = `${baseUrl}/rpc`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      const payload = { method: 'torrent-get', arguments: { fields: ['status'] } };
+      fetchPromise = fetch(url, {
+        mode: 'cors',
+        redirect: 'follow',
+        method: 'POST',
+        headers: { 'X-Transmission-RPC-Session': apiKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(r => {
+          if (!r.ok && r.status !== 409) {
+            console.error(`[API] ${service} HTTP ${r.status}`);
+            return null;
+          }
+          return r.json();
+        })
+        .then(data => {
+          const torrents = data.arguments?.torrents || [];
+          const downloading = torrents.filter(t => [0, 1, 3, 4, 6].includes(t.status)).length;
+          return { torrents, downloading };
+        });
+    } else if (service === 'deluge') {
+      url = `${baseUrl}/json`;
+      console.log(`[API] Fetching ${service}: ${url}`);
+      const payload = { method: 'core.get_torrents_status', params: [[], ['state']] };
+      fetchPromise = fetch(url, {
+        mode: 'cors',
+        redirect: 'follow',
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(r => {
+          if (!r.ok) {
+            console.error(`[API] ${service} HTTP ${r.status}`);
+            return null;
+          }
+          return r.json();
+        })
+        .then(data => {
+          const torrents = data.result ? Object.values(data.result) : [];
+          return { torrents, downloading: torrents.length };
+        });
     } else {
       return Promise.resolve(null);
     }
@@ -559,6 +626,21 @@ class Component extends DCLogic {
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
           };
+        } else if (service === 'transmission') {
+          console.log(`[API] ${service} success:`, { downloading: data.downloading });
+          return {
+            ...app,
+            status: 'Online',
+            statusColor: 'var(--status-success)',
+            statusBg: 'rgba(16, 185, 129, 0.1)',
+            statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
+            stats: [
+              { label: 'Active Torrents', value: `${data.downloading}` },
+              { label: 'Total', value: `${data.torrents.length}` }
+            ],
+            iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
+            open: () => this.navigate(app)
+          };
         } else {
           console.log(`[API] ${service} success:`, { items: data.downloading });
           return {
@@ -568,7 +650,7 @@ class Component extends DCLogic {
             statusBg: 'rgba(16, 185, 129, 0.1)',
             statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
             stats: [
-              { label: 'Queue Items', value: `${data.downloading}` },
+              { label: 'Active Items', value: `${data.downloading}` },
               { label: 'Status', value: 'Active' }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
