@@ -405,8 +405,8 @@ class Component extends DCLogic {
         headers: { 'Authorization': `MediaBrowser Token="${apiKey}"` }
       };
     } else if (service === 'plex') {
-      url = `${baseUrl}/api/sessions.json?api_key=${apiKey}`;
-      console.log(`[API] Fetching ${service}: ${url}`);
+      url = `http://localhost:3000/proxy/plex/sessions`;
+      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
       fetchOptions = { mode: 'cors', redirect: 'follow' };
     } else {
       url = `${baseUrl}/emby/Sessions?api_key=${apiKey}`;
@@ -802,11 +802,10 @@ class Component extends DCLogic {
           return { issues };
         });
     } else if (service === 'seerr') {
-      url = `${baseUrl}/api/v1/request/count`;
-      console.log(`[API] Fetching ${service}: ${url}`);
+      url = `http://localhost:3000/proxy/seerr/request/count`;
+      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
       fetchPromise = fetch(url, {
-        mode: 'cors',
-        headers: { 'X-Api-Key': apiKey }
+        mode: 'cors'
       })
         .then(r => {
           if (!r.ok) {
