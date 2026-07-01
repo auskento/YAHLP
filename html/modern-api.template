@@ -533,8 +533,10 @@ class Component extends DCLogic {
           return { torrents, active, seeding };
         });
     } else if (service === 'sabnzbd') {
-      url = `${proxyBase}/sabnzbd/api?mode=queue&output=json`;
-      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
+      const sabnzbdUrl = localStorage.getItem('SABNZBD_URL') || 'http://sabnzbd:8080';
+      const sabnzbdKey = localStorage.getItem('SABNZBD_API_KEY') || '';
+      url = `${sabnzbdUrl}/api?mode=queue&output=json&apikey=${encodeURIComponent(sabnzbdKey)}`;
+      console.log(`[API] Fetching ${service}: ${url} (direct)`);
       fetchPromise = fetch(url, { mode: 'cors', redirect: 'follow' })
         .then(r => {
           if (!r.ok) {
@@ -548,15 +550,19 @@ class Component extends DCLogic {
           return { queue, downloading: queue.length };
         });
     } else if (service === 'nzbget') {
-      url = `${proxyBase}/nzbget/jsonrpc`;
-      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
+      const nzbgetUrl = localStorage.getItem('NZBGET_URL') || 'http://nzbget:6789';
+      const nzbgetPass = localStorage.getItem('NZBGET_PASS') || '';
+      url = `${nzbgetUrl}/jsonrpc`;
+      console.log(`[API] Fetching ${service}: ${url} (direct)`);
       const payload = { version: '1.1', method: 'status', params: [], id: 1 };
+      const basicAuth = 'nzbget:' + nzbgetPass;
       fetchPromise = fetch(url, {
         mode: 'cors',
         redirect: 'follow',
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic ' + btoa(basicAuth)
         },
         body: JSON.stringify(payload)
       })
@@ -574,14 +580,20 @@ class Component extends DCLogic {
           return { downloading, remaining };
         });
     } else if (service === 'transmission') {
-      url = `${proxyBase}/transmission/rpc`;
-      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
+      const transmissionUrl = localStorage.getItem('TRANSMISSION_URL') || 'http://transmission:9091';
+      const transmissionPass = localStorage.getItem('TRANSMISSION_PASSWORD') || '';
+      url = `${transmissionUrl}/rpc`;
+      console.log(`[API] Fetching ${service}: ${url} (direct)`);
       const payload = { method: 'session-stats' };
+      const basicAuth = 'transmission:' + transmissionPass;
       fetchPromise = fetch(url, {
         mode: 'cors',
         redirect: 'follow',
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic ' + btoa(basicAuth)
+        },
         body: JSON.stringify(payload)
       })
         .then(r => {
@@ -595,7 +607,8 @@ class Component extends DCLogic {
                 method: 'POST',
                 headers: {
                   'X-Transmission-Session-Id': sessionId,
-                  'Content-Type': 'application/json'
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Basic ' + btoa(basicAuth)
                 },
                 body: JSON.stringify(payload)
               }).then(r2 => r2.json());
