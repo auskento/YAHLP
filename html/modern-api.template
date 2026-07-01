@@ -363,12 +363,13 @@ class Component extends DCLogic {
     }
 
     const endpoints = {
-      'jellyfin': '/api/sessions',
-      'plex': '/api/sessions.json',
-      'emby': '/emby/Sessions'
+      'jellyfin': 'api/sessions',
+      'plex': 'api/sessions.json',
+      'emby': 'emby/Sessions'
     };
 
-    const url = `${app.href}${endpoints[service]}?api_key=${apiKey}`;
+    const baseUrl = app.href.endsWith('/') ? app.href.slice(0, -1) : app.href;
+    const url = `${baseUrl}/${endpoints[service]}?api_key=${apiKey}`;
     console.log(`[API] Fetching ${service}: ${url}`);
 
     return fetch(url, { mode: 'cors' })
@@ -408,13 +409,14 @@ class Component extends DCLogic {
     }
 
     const endpoints = {
-      'sonarr': '/api/v3/queue',
-      'radarr': '/api/v3/queue',
-      'lidarr': '/api/v1/queue',
-      'whisparr': '/api/v1/queue'
+      'sonarr': 'api/v3/queue',
+      'radarr': 'api/v3/queue',
+      'lidarr': 'api/v1/queue',
+      'whisparr': 'api/v1/queue'
     };
 
-    const url = `${app.href}${endpoints[service]}?api_key=${apiKey}`;
+    const baseUrl = app.href.endsWith('/') ? app.href.slice(0, -1) : app.href;
+    const url = `${baseUrl}/${endpoints[service]}?api_key=${apiKey}`;
     console.log(`[API] Fetching ${service}: ${url}`);
 
     return fetch(url, { mode: 'cors' })
@@ -455,9 +457,10 @@ class Component extends DCLogic {
 
     let fetchPromise;
     let url = '';
+    const baseUrl = app.href.endsWith('/') ? app.href.slice(0, -1) : app.href;
 
     if (service === 'qbittorrent') {
-      url = `${app.href}/api/v2/torrents/info?api_key=${apiKey}`;
+      url = `${baseUrl}/api/v2/torrents/info?api_key=${apiKey}`;
       console.log(`[API] Fetching ${service}: ${url}`);
       fetchPromise = fetch(url, { mode: 'cors' })
         .then(r => r.json())
@@ -467,7 +470,7 @@ class Component extends DCLogic {
           return { torrents, active, seeding };
         });
     } else if (service === 'nzbget') {
-      url = `${app.href}/api/listgroups?apikey=${apiKey}`;
+      url = `${baseUrl}/api/listgroups?apikey=${apiKey}`;
       console.log(`[API] Fetching ${service}: ${url}`);
       fetchPromise = fetch(url, { mode: 'cors' })
         .then(r => r.json())
@@ -476,7 +479,7 @@ class Component extends DCLogic {
           return { queue, downloading: queue.length };
         });
     } else if (service === 'sabnzbd') {
-      url = `${app.href}/api?mode=queue&output=json&apikey=${apiKey}`;
+      url = `${baseUrl}/api?mode=queue&output=json&apikey=${apiKey}`;
       console.log(`[API] Fetching ${service}: ${url}`);
       fetchPromise = fetch(url, { mode: 'cors' })
         .then(r => r.json())
