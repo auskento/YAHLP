@@ -501,7 +501,7 @@ class Component extends DCLogic {
 
   fetchDownloadStats(service, app) {
     const apiKey = localStorage.getItem(`${service.toUpperCase()}_API_KEY`);
-    if (!apiKey) {
+    if (!apiKey && service !== 'transmission') {
       console.log(`[API] ${service} - No API key found`);
       return Promise.resolve(null);
     }
@@ -572,27 +572,46 @@ class Component extends DCLogic {
           return { downloading, remaining };
         });
     } else if (service === 'transmission') {
-      url = `${baseUrl}/rpc`;
+      url = `${baseUrl}/transmission/rpc`;
       console.log(`[API] Fetching ${service}: ${url}`);
-      const payload = { method: 'torrent-get', arguments: { fields: ['status'] } };
+      const payload = { method: 'session-stats' };
       fetchPromise = fetch(url, {
         mode: 'cors',
         redirect: 'follow',
         method: 'POST',
-        headers: { 'X-Transmission-RPC-Session': apiKey, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
         .then(r => {
-          if (!r.ok && r.status !== 409) {
+          if (r.status === 409) {
+            const sessionId = r.headers.get('X-Transmission-Session-Id');
+            if (sessionId) {
+              console.log(`[API] ${service} got session ID, retrying...`);
+              return fetch(url, {
+                mode: 'cors',
+                redirect: 'follow',
+                method: 'POST',
+                headers: {
+                  'X-Transmission-Session-Id': sessionId,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+              }).then(r2 => r2.json());
+            }
+            return null;
+          }
+          if (!r.ok) {
             console.error(`[API] ${service} HTTP ${r.status}`);
             return null;
           }
           return r.json();
         })
         .then(data => {
-          const torrents = data.arguments?.torrents || [];
-          const downloading = torrents.filter(t => [0, 1, 3, 4, 6].includes(t.status)).length;
-          return { torrents, downloading };
+          if (!data?.arguments) return null;
+          const args = data.arguments;
+          const activeTorrents = args.activeTorrentCount || 0;
+          const pausedTorrents = args.pausedTorrentCount || 0;
+          return { activeTorrents, pausedTorrents };
         });
     } else if (service === 'deluge') {
       const password = apiKey;
@@ -669,7 +688,7 @@ class Component extends DCLogic {
             open: () => this.navigate(app)
           };
         } else if (service === 'transmission') {
-          console.log(`[API] ${service} success:`, { downloading: data.downloading });
+          console.log(`[API] ${service} success:`, { active: data.activeTorrents, paused: data.pausedTorrents });
           return {
             ...app,
             status: 'Online',
@@ -677,8 +696,8 @@ class Component extends DCLogic {
             statusBg: 'rgba(16, 185, 129, 0.1)',
             statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
             stats: [
-              { label: 'Active Torrents', value: `${data.downloading}` },
-              { label: 'Total', value: `${data.torrents.length}` }
+              { label: 'Active', value: `${data.activeTorrents}` },
+              { label: 'Paused', value: `${data.pausedTorrents}` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
