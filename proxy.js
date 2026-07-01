@@ -1,12 +1,14 @@
 const express = require('express');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const cors = require('cors');
+const NodeCache = require('node-cache');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PROXY_PORT || 3000;
+const cache = new NodeCache({ stdTTL: 30, checkperiod: 10 });
 
 // Service URL and key configuration
 const services = {
@@ -30,94 +32,318 @@ const services = {
   'maintainerr': { url: process.env.MAINTAINERR_URL, key: process.env.MAINTAINERR_API_KEY, authType: 'header' }
 };
 
-// Generic proxy endpoint for any service
-app.all('/proxy/:service/*', async (req, res) => {
+// Generic request helper
+async function makeRequest(serviceKey, endpoint, options = {}) {
+  const config = services[serviceKey];
+  if (!config.url || !config.key) {
+    throw new Error(`Service ${serviceKey} not configured`);
+  }
+
+  const url = `${config.url}${endpoint}`;
+  const headers = { 'Content-Type': 'application/json' };
+  let finalUrl = url;
+
+  // Apply authentication based on service type
+  switch (config.authType) {
+    case 'header':
+      headers['X-Api-Key'] = config.key;
+      break;
+    case 'query':
+      finalUrl += `${endpoint.includes('?') ? '&' : '?'}api_key=${encodeURIComponent(config.key)}`;
+      break;
+    case 'plex':
+      finalUrl += `${endpoint.includes('?') ? '&' : '?'}X-Plex-Token=${encodeURIComponent(config.key)}`;
+      break;
+    case 'mediabrowser':
+      headers['Authorization'] = `MediaBrowser Token="${config.key}"`;
+      break;
+    case 'bazarr':
+      headers['X-API-KEY'] = config.key;
+      break;
+    case 'transmission':
+      headers['X-Transmission-Session-Id'] = config.key;
+      break;
+  }
+
+  const response = await fetch(finalUrl, { ...options, headers });
+
+  if (!response.ok) {
+    throw new Error(`${serviceKey} HTTP ${response.status}`);
+  }
+
+  const contentType = response.headers.get('content-type');
+  return contentType?.includes('application/json') ? await response.json() : await response.text();
+}
+
+// Plex endpoints
+app.get('/api/plex/server', async (req, res) => {
   try {
-    const service = req.params.service;
-    const path = req.params[0];
-    const query = new URLSearchParams(req.query).toString();
+    const cached = cache.get('plex-server');
+    if (cached) return res.json(cached);
 
-    if (!services[service]) {
-      return res.status(404).json({ error: `Unknown service: ${service}` });
-    }
-
-    const config = services[service];
-    if (!config.url || !config.key) {
-      return res.status(400).json({ error: `Service ${service} not configured` });
-    }
-
-    let url = `${config.url}/${path}`;
-    let headers = { 'Content-Type': 'application/json' };
-    let body = undefined;
-
-    // Add query string if present
-    if (query) url += `?${query}`;
-
-    // Apply authentication based on service type
-    switch (config.authType) {
-      case 'header':
-        headers['X-Api-Key'] = config.key;
-        break;
-      case 'query':
-        url += query ? '&' : '?';
-        url += `api_key=${encodeURIComponent(config.key)}`;
-        break;
-      case 'plex':
-        url += query ? '&' : '?';
-        url += `X-Plex-Token=${encodeURIComponent(config.key)}`;
-        break;
-      case 'mediabrowser':
-        headers['Authorization'] = `MediaBrowser Token="${config.key}"`;
-        break;
-      case 'bazarr':
-        headers['X-API-KEY'] = config.key;
-        break;
-      case 'transmission':
-        headers['X-Transmission-Session-Id'] = config.key;
-        break;
-      case 'nzbget':
-      case 'deluge':
-        // These use JSON-RPC in request body, auth handled specially
-        if (req.method === 'POST' && req.body) {
-          body = JSON.stringify(req.body);
-        }
-        break;
-    }
-
-    console.log(`[PROXY] ${req.method} ${service}: ${path}`);
-
-    const fetchOptions = {
-      method: req.method,
-      headers,
-      redirect: 'follow'
-    };
-
-    if (req.method !== 'GET' && req.body) {
-      fetchOptions.body = body || JSON.stringify(req.body);
-    }
-
-    const response = await fetch(url, fetchOptions);
-
-    if (!response.ok && response.status !== 409) {
-      console.error(`[PROXY] ${service} HTTP ${response.status}`);
-      return res.status(response.status).json({ error: `${service} returned ${response.status}` });
-    }
-
-    const contentType = response.headers.get('content-type');
-    const data = contentType?.includes('application/json') ? await response.json() : await response.text();
-
-    // For Transmission 409, pass through session ID
-    if (response.status === 409) {
-      const sessionId = response.headers.get('X-Transmission-Session-Id');
-      if (sessionId) {
-        res.set('X-Transmission-Session-Id', sessionId);
-      }
-    }
-
-    console.log(`[PROXY] ${service} success`);
+    const data = await makeRequest('plex', '/identity');
+    cache.set('plex-server', data);
     res.json(data);
   } catch (err) {
-    console.error('[PROXY] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Seerr endpoints
+app.get('/api/seerr/status', async (req, res) => {
+  try {
+    const cached = cache.get('seerr-status');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('seerr', '/api/v1/status');
+    cache.set('seerr-status', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Tautulli endpoints
+app.get('/api/tautulli/status', async (req, res) => {
+  try {
+    const cached = cache.get('tautulli-status');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('tautulli', '/api/v2?cmd=status');
+    cache.set('tautulli-status', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Bazarr endpoints
+app.get('/api/bazarr/status', async (req, res) => {
+  try {
+    const cached = cache.get('bazarr-status');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('bazarr', '/api/status');
+    cache.set('bazarr-status', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Prowlarr endpoints
+app.get('/api/prowlarr/health', async (req, res) => {
+  try {
+    const cached = cache.get('prowlarr-health');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('prowlarr', '/api/v1/health');
+    cache.set('prowlarr-health', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// NZBHydra endpoints
+app.get('/api/nzbhydra/status', async (req, res) => {
+  try {
+    const cached = cache.get('nzbhydra-status');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('nzbhydra', '/api/stats');
+    cache.set('nzbhydra-status', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Sonarr endpoints
+app.get('/api/sonarr/queue', async (req, res) => {
+  try {
+    const cached = cache.get('sonarr-queue');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('sonarr', '/api/v3/queue');
+    cache.set('sonarr-queue', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Radarr endpoints
+app.get('/api/radarr/queue', async (req, res) => {
+  try {
+    const cached = cache.get('radarr-queue');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('radarr', '/api/v3/queue');
+    cache.set('radarr-queue', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Lidarr endpoints
+app.get('/api/lidarr/queue', async (req, res) => {
+  try {
+    const cached = cache.get('lidarr-queue');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('lidarr', '/api/v1/queue');
+    cache.set('lidarr-queue', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Whisparr endpoints
+app.get('/api/whisparr/queue', async (req, res) => {
+  try {
+    const cached = cache.get('whisparr-queue');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('whisparr', '/api/v3/queue');
+    cache.set('whisparr-queue', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// qBittorrent endpoints
+app.get('/api/qbittorrent/stats', async (req, res) => {
+  try {
+    const cached = cache.get('qbittorrent-stats');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('qbittorrent', '/api/v2/server/preferences');
+    cache.set('qbittorrent-stats', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Transmission endpoints
+app.post('/api/transmission/stats', async (req, res) => {
+  try {
+    const cached = cache.get('transmission-stats');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('transmission', '/transmission/rpc', {
+      method: 'POST',
+      body: JSON.stringify({
+        method: 'session-get',
+        arguments: {}
+      })
+    });
+    cache.set('transmission-stats', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// SABnzbd endpoints
+app.get('/api/sabnzbd/stats', async (req, res) => {
+  try {
+    const cached = cache.get('sabnzbd-stats');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('sabnzbd', '/api?mode=queue&output=json');
+    cache.set('sabnzbd-stats', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// NZBGet endpoints
+app.post('/api/nzbget/stats', async (req, res) => {
+  try {
+    const cached = cache.get('nzbget-stats');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('nzbget', '/jsonrpc', {
+      method: 'POST',
+      body: JSON.stringify({
+        version: '1.1',
+        method: 'status',
+        params: [],
+        id: 1
+      })
+    });
+    cache.set('nzbget-stats', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Deluge endpoints
+app.post('/api/deluge/stats', async (req, res) => {
+  try {
+    const cached = cache.get('deluge-stats');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('deluge', '/json', {
+      method: 'POST',
+      body: JSON.stringify({
+        method: 'core.get_free_space',
+        params: ['/'],
+        id: 1
+      })
+    });
+    cache.set('deluge-stats', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Jellyfin endpoints
+app.get('/api/jellyfin/info', async (req, res) => {
+  try {
+    const cached = cache.get('jellyfin-info');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('jellyfin', '/System/Info');
+    cache.set('jellyfin-info', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Emby endpoints
+app.get('/api/emby/info', async (req, res) => {
+  try {
+    const cached = cache.get('emby-info');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('emby', '/System/Info');
+    cache.set('emby-info', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Maintainerr endpoints
+app.get('/api/maintainerr/health', async (req, res) => {
+  try {
+    const cached = cache.get('maintainerr-health');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('maintainerr', '/api/health');
+    cache.set('maintainerr-health', data);
+    res.json(data);
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -127,6 +353,10 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
+    cache: {
+      keys: cache.keys().length,
+      ttl: cache.getStats().kexpired || 0
+    },
     services: Object.keys(services).reduce((acc, svc) => {
       acc[svc] = { configured: !!(services[svc].url && services[svc].key) };
       return acc;
@@ -135,8 +365,8 @@ app.get('/health', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🔀 API Proxy server listening on port ${PORT}`);
-  console.log(`   All requests: http://localhost:${PORT}/proxy/:service/:path`);
+  console.log(`🔀 API Aggregator listening on port ${PORT}`);
+  console.log(`   Cache TTL: 30 seconds`);
   console.log(`   Health check: http://localhost:${PORT}/health`);
   console.log('\nConfigured services:');
   Object.entries(services).forEach(([service, config]) => {
