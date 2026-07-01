@@ -630,8 +630,9 @@ class Component extends DCLogic {
         });
     } else if (service === 'deluge') {
       const jsonUrl = `${proxyBase}/deluge/json`;
+      const delugePass = localStorage.getItem('DELUGE_PASSWORD') || '';
       console.log(`[API] Fetching ${service}: authenticating... (via proxy)`);
-      const loginPayload = { method: 'auth.login', params: [], id: 1 };
+      const loginPayload = { method: 'auth.login', params: [delugePass, 'localclient'], id: 1 };
       fetchPromise = fetch(jsonUrl, {
         mode: 'cors',
         redirect: 'follow',
