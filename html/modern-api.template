@@ -387,34 +387,21 @@ class Component extends DCLogic {
   }
 
   fetchMediaServerStats(service, app) {
-    const apiKey = localStorage.getItem(`${service.toUpperCase()}_API_KEY`);
-    if (!apiKey) {
-      console.log(`[API] ${service} - No API key found`);
-      return Promise.resolve(null);
-    }
-
-    const baseUrl = app.href.endsWith('/') ? app.href.slice(0, -1) : app.href;
-    let url, fetchOptions;
+    const proxyBase = `http://localhost:3000/proxy`;
+    let url;
 
     if (service === 'jellyfin') {
-      url = `${baseUrl}/Sessions`;
-      console.log(`[API] Fetching ${service}: ${url}`);
-      fetchOptions = {
-        mode: 'cors',
-        redirect: 'follow',
-        headers: { 'Authorization': `MediaBrowser Token="${apiKey}"` }
-      };
-    } else if (service === 'plex') {
-      url = `http://localhost:3000/proxy/plex/sessions`;
+      url = `${proxyBase}/jellyfin/Sessions`;
       console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
-      fetchOptions = { mode: 'cors', redirect: 'follow' };
+    } else if (service === 'plex') {
+      url = `${proxyBase}/plex/api/sessions.json`;
+      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
     } else {
-      url = `${baseUrl}/emby/Sessions?api_key=${apiKey}`;
-      console.log(`[API] Fetching ${service}: ${url}`);
-      fetchOptions = { mode: 'cors', redirect: 'follow' };
+      url = `${proxyBase}/emby/emby/Sessions`;
+      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
     }
 
-    return fetch(url, fetchOptions)
+    return fetch(url, { mode: 'cors', redirect: 'follow' })
       .then(r => {
         if (!r.ok) {
           console.error(`[API] ${service} HTTP ${r.status}`);
@@ -451,12 +438,7 @@ class Component extends DCLogic {
   }
 
   fetchArrStats(service, app) {
-    const apiKey = localStorage.getItem(`${service.toUpperCase()}_API_KEY`);
-    if (!apiKey) {
-      console.log(`[API] ${service} - No API key found`);
-      return Promise.resolve(null);
-    }
-
+    const proxyBase = `http://localhost:3000/proxy`;
     const endpoints = {
       'sonarr': 'api/v3/queue',
       'radarr': 'api/v3/queue',
@@ -464,16 +446,12 @@ class Component extends DCLogic {
       'whisparr': 'api/v3/queue'
     };
 
-    const baseUrl = app.href.endsWith('/') ? app.href.slice(0, -1) : app.href;
-    const url = `${baseUrl}/${endpoints[service]}`;
-    console.log(`[API] Fetching ${service}: ${url}`);
+    const url = `${proxyBase}/${service}/${endpoints[service]}`;
+    console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
 
     return fetch(url, {
       mode: 'cors',
-      redirect: 'follow',
-      headers: {
-        'X-Api-Key': apiKey
-      }
+      redirect: 'follow'
     })
       .then(r => {
         if (!r.ok) {
@@ -511,19 +489,13 @@ class Component extends DCLogic {
   }
 
   fetchDownloadStats(service, app) {
-    const apiKey = localStorage.getItem(`${service.toUpperCase()}_API_KEY`);
-    if (!apiKey && service !== 'transmission') {
-      console.log(`[API] ${service} - No API key found`);
-      return Promise.resolve(null);
-    }
-
+    const proxyBase = `http://localhost:3000/proxy`;
     let fetchPromise;
     let url = '';
-    const baseUrl = app.href.endsWith('/') ? app.href.slice(0, -1) : app.href;
 
     if (service === 'qbittorrent') {
-      url = `${baseUrl}/api/v2/torrents/info?api_key=${apiKey}`;
-      console.log(`[API] Fetching ${service}: ${url}`);
+      url = `${proxyBase}/qbittorrent/api/v2/torrents/info`;
+      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
       fetchPromise = fetch(url, { mode: 'cors', redirect: 'follow' })
         .then(r => {
           if (!r.ok) {
@@ -538,8 +510,8 @@ class Component extends DCLogic {
           return { torrents, active, seeding };
         });
     } else if (service === 'sabnzbd') {
-      url = `${baseUrl}/api?mode=queue&output=json&apikey=${apiKey}`;
-      console.log(`[API] Fetching ${service}: ${url}`);
+      url = `${proxyBase}/sabnzbd/api?mode=queue&output=json`;
+      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
       fetchPromise = fetch(url, { mode: 'cors', redirect: 'follow' })
         .then(r => {
           if (!r.ok) {
@@ -553,18 +525,14 @@ class Component extends DCLogic {
           return { queue, downloading: queue.length };
         });
     } else if (service === 'nzbget') {
-      const username = 'nzbget';
-      const password = apiKey;
-      const auth = btoa(`${username}:${password}`);
-      url = `${baseUrl}/jsonrpc`;
-      console.log(`[API] Fetching ${service}: ${url}`);
+      url = `${proxyBase}/nzbget/jsonrpc`;
+      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
       const payload = { version: '1.1', method: 'status', params: [], id: 1 };
       fetchPromise = fetch(url, {
         mode: 'cors',
         redirect: 'follow',
         method: 'POST',
         headers: {
-          'Authorization': `Basic ${auth}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
@@ -583,8 +551,8 @@ class Component extends DCLogic {
           return { downloading, remaining };
         });
     } else if (service === 'transmission') {
-      url = `${baseUrl}/rpc`;
-      console.log(`[API] Fetching ${service}: ${url}`);
+      url = `${proxyBase}/transmission/rpc`;
+      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
       const payload = { method: 'session-stats' };
       fetchPromise = fetch(url, {
         mode: 'cors',
@@ -625,10 +593,9 @@ class Component extends DCLogic {
           return { activeTorrents, pausedTorrents };
         });
     } else if (service === 'deluge') {
-      const password = apiKey;
-      const jsonUrl = `${baseUrl}/json`;
-      console.log(`[API] Fetching ${service}: authenticating...`);
-      const loginPayload = { method: 'auth.login', params: [password], id: 1 };
+      const jsonUrl = `${proxyBase}/deluge/json`;
+      console.log(`[API] Fetching ${service}: authenticating... (via proxy)`);
+      const loginPayload = { method: 'auth.login', params: [], id: 1 };
       fetchPromise = fetch(jsonUrl, {
         mode: 'cors',
         redirect: 'follow',
@@ -755,21 +722,14 @@ class Component extends DCLogic {
   }
 
   fetchUtilityStats(service, app) {
-    const apiKey = localStorage.getItem(`${service.toUpperCase()}_API_KEY`);
-    if (!apiKey) {
-      console.log(`[API] ${service} - No API key found`);
-      return Promise.resolve(null);
-    }
-
-    const baseUrl = app.href.replace(/\/$/, '');
+    const proxyBase = `http://localhost:3000/proxy`;
     let url, fetchPromise;
 
     if (service === 'nzbhydra') {
-      url = `${baseUrl}/api/stats`;
-      console.log(`[API] Fetching ${service}: ${url}`);
+      url = `${proxyBase}/nzbhydra/api/stats`;
+      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
       fetchPromise = fetch(url, {
-        mode: 'cors',
-        headers: { 'X-Api-Key': apiKey }
+        mode: 'cors'
       })
         .then(r => {
           if (!r.ok) {
@@ -784,11 +744,10 @@ class Component extends DCLogic {
           return { searches, indexers };
         });
     } else if (service === 'prowlarr') {
-      url = `${baseUrl}/api/v1/health`;
-      console.log(`[API] Fetching ${service}: ${url}`);
+      url = `${proxyBase}/prowlarr/api/v1/health`;
+      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
       fetchPromise = fetch(url, {
-        mode: 'cors',
-        headers: { 'X-Api-Key': apiKey }
+        mode: 'cors'
       })
         .then(r => {
           if (!r.ok) {
@@ -802,7 +761,7 @@ class Component extends DCLogic {
           return { issues };
         });
     } else if (service === 'seerr') {
-      url = `http://localhost:3000/proxy/seerr/request/count`;
+      url = `${proxyBase}/seerr/api/v1/request/count`;
       console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
       fetchPromise = fetch(url, {
         mode: 'cors'
@@ -820,11 +779,10 @@ class Component extends DCLogic {
           return { pending, approved };
         });
     } else if (service === 'bazarr') {
-      url = `${baseUrl}/api/system/status`;
-      console.log(`[API] Fetching ${service}: ${url}`);
+      url = `${proxyBase}/bazarr/api/system/status`;
+      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
       fetchPromise = fetch(url, {
-        mode: 'cors',
-        headers: { 'X-API-KEY': apiKey }
+        mode: 'cors'
       })
         .then(r => {
           if (!r.ok) {
@@ -842,8 +800,8 @@ class Component extends DCLogic {
           return { missing, health };
         });
     } else if (service === 'tautulli') {
-      url = `${baseUrl}/api/v2/?apikey=${apiKey}&cmd=get_activity`;
-      console.log(`[API] Fetching ${service}: ${url}`);
+      url = `${proxyBase}/tautulli/api/v2/?cmd=get_activity`;
+      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
       fetchPromise = fetch(url, {
         mode: 'cors'
       })
@@ -859,11 +817,10 @@ class Component extends DCLogic {
           return { playing };
         });
     } else if (service === 'maintainerr') {
-      url = `${baseUrl}/api/rules`;
-      console.log(`[API] Fetching ${service}: ${url}`);
+      url = `${proxyBase}/maintainerr/api/rules`;
+      console.log(`[API] Fetching ${service}: ${url} (via proxy)`);
       fetchPromise = fetch(url, {
-        mode: 'cors',
-        headers: { 'X-Api-Key': apiKey }
+        mode: 'cors'
       })
         .then(r => {
           if (!r.ok) {
