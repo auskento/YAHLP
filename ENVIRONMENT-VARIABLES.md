@@ -87,21 +87,26 @@ For `ACCESS_MODE=public`, these **must** be set:
 - **Note:** Only used in modern, sleek, and minimal dashboard styles
 
 - **Variable:** `DASHBOARD_ORDER`
-- **Type:** String (comma-separated group names)
-- **Default:** `CONTENT,SEARCH,USENET,TORRENTS,MEDIA`
-- **Description:** Order of service category groups in dashboard
-- **Service Groups:**
-  - `CONTENT`: Sonarr, Radarr, Lidarr, Whisparr
-  - `SEARCH`: Seerr, Prowlarr, Bazarr
-  - `USENET`: SABnzbd, NZBGet, NZBHydra
-  - `TORRENTS`: Deluge, Transmission, qBittorrent
-  - `MEDIA`: Emby, Plex, Jellyfin, Tautulli
+- **Type:** String (comma-separated 3-letter service codes)
+- **Default:** `SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT`
+- **Description:** Order in which to display services on dashboard
 - **Examples:** 
-  - `CONTENT,SEARCH,USENET,TORRENTS,MEDIA` (default order)
-  - `MEDIA,CONTENT,USENET,TORRENTS,SEARCH` (Media servers first)
-  - `USENET,TORRENTS,CONTENT,SEARCH,MEDIA` (Downloads first)
-- **Valid Groups:** `CONTENT`, `SEARCH`, `USENET`, `TORRENTS`, `MEDIA` (case-insensitive)
-- **Note:** Group names must be comma-separated with no extra spaces. Applies to all dashboard styles (modern, sleek, minimal, classic).
+  - `SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT` (default order)
+  - `JEL,EMB,PLX,TAU,MNT,SON,RAD,LID,WHI,PRO,SEE,BAZ,SAB,GET,HYD,TRA,QBI,DEL` (media servers first)
+  - `SAB,GET,HYD,TRA,QBI,DEL` (only download clients)
+- **Note:** Use 3-letter codes (see Service Codes Reference below). Codes must be comma-separated with no extra spaces. Only enabled services are displayed.
+
+- **Variable:** `SITES_ENABLED`
+- **Type:** String (comma-separated 3-letter site codes)
+- **Default:** Empty (sites disabled)
+- **Description:** Quick-link shortcuts for torrent and usenet indexer sites
+- **Available Torrent Sites:** TPB, FIL, HDB, IPT, 1337, YTS, LAT, NYA, PTP
+- **Available Usenet Sites:** DOG, DRS, NLF, NFW, NGK, PLA, TAB
+- **Examples:**
+  - `SITES_ENABLED=TPB,FIL,HDB,DOG,DRS` (5 popular sites)
+  - `SITES_ENABLED=TPB,FIL,HDB,IPT,1337,YTS,LAT,NYA,PTP,DOG,DRS,NLF` (all sites)
+  - `SITES_ENABLED=` (disabled)
+- **Note:** See **[SITES-CONFIGURATION.md](SITES-CONFIGURATION.md)** for complete site documentation and setup
 
 ### Authentication
 - **Variable:** `AUTHTYPE`
@@ -123,65 +128,48 @@ For `ACCESS_MODE=public`, these **must** be set:
 
 All services use 3-letter codes for dashboard configuration. The `DASHBOARD_ORDER` variable accepts these codes:
 
-| Code | Service | Category |
-|------|---------|----------|
-| SAB | SABnzbd | USENET |
-| GET | NZBGet | USENET |
-| HYD | NZBHydra | USENET |
-| TRA | Transmission | TORRENTS |
-| QBI | qBittorrent | TORRENTS |
-| DEL | Deluge | TORRENTS |
-| SON | Sonarr | CONTENT |
-| RAD | Radarr | CONTENT |
-| LID | Lidarr | CONTENT |
-| WHI | Whisparr | CONTENT |
-| PRO | Prowlarr | SEARCH |
-| SEE | Seerr | SEARCH |
-| BAZ | Bazarr | SEARCH |
-| JEL | Jellyfin | MEDIA |
-| EMB | Emby | MEDIA |
-| PLX | Plex | MEDIA |
-| TAU | Tautulli | MEDIA |
-| MNT | Maintainerr | MEDIA |
+| Code | Service |
+|------|---------|
+| SAB | SABnzbd |
+| GET | NZBGet |
+| HYD | NZBHydra |
+| TRA | Transmission |
+| QBI | qBittorrent |
+| DEL | Deluge |
+| SON | Sonarr |
+| RAD | Radarr |
+| LID | Lidarr |
+| WHI | Whisparr |
+| PRO | Prowlarr |
+| SEE | Seerr |
+| BAZ | Bazarr |
+| JEL | Jellyfin |
+| EMB | Emby |
+| PLX | Plex |
+| TAU | Tautulli |
+| MNT | Maintainerr |
 
 ### Enable/Disable Services
 
-For each service, use `ENABLE_*` variables (grouped by DASHBOARD_ORDER category):
+For each service, use `ENABLE_*` variables:
 
-**USENET Category:**
-```
-ENABLE_SABNZBD=true/false       # SAB
-ENABLE_NZBGET=true/false        # GET
-ENABLE_NZBHYDRA=true/false      # HYD
-```
-
-**TORRENTS Category:**
-```
-ENABLE_DELUGE=true/false        # DEL
-ENABLE_TRANSMISSION=true/false  # TRA
-ENABLE_QBITTORRENT=true/false   # QBI
-```
-
-**CONTENT Category:**
 ```
 ENABLE_SONARR=true/false        # SON
 ENABLE_RADARR=true/false        # RAD
 ENABLE_LIDARR=true/false        # LID
 ENABLE_WHISPARR=true/false      # WHI
-```
-
-**SEARCH Category:**
-```
-ENABLE_SEERR=true/false         # SEE
 ENABLE_PROWLARR=true/false      # PRO
+ENABLE_SEERR=true/false         # SEE
 ENABLE_BAZARR=true/false        # BAZ
-```
-
-**MEDIA Category:**
-```
+ENABLE_SABNZBD=true/false       # SAB
+ENABLE_NZBGET=true/false        # GET
+ENABLE_NZBHYDRA=true/false      # HYD
+ENABLE_TRANSMISSION=true/false  # TRA
+ENABLE_QBITTORRENT=true/false   # QBI
+ENABLE_DELUGE=true/false        # DEL
+ENABLE_JELLYFIN=true/false      # JEL
 ENABLE_EMBY=true/false          # EMB
 ENABLE_PLEX=true/false          # PLX
-ENABLE_JELLYFIN=true/false      # JEL
 ENABLE_TAUTULLI=true/false      # TAU
 ENABLE_MAINTAINERR=true/false   # MNT
 ```
@@ -194,42 +182,25 @@ ENABLE_MAINTAINERR=true/false   # MNT
 
 ### Service Backend URLs
 
-For each enabled service, specify the backend address (grouped by category):
+For each enabled service, specify the backend address:
 
-**USENET Category:**
-```
-SABNZBD_URL=http://sabnzbd:8080
-NZBGET_URL=http://nzbget:6789
-NZBHYDRA_URL=http://nzbhydra:5076
-```
-
-**TORRENTS Category:**
-```
-DELUGE_URL=http://deluge:8112
-TRANSMISSION_URL=http://transmission:6969
-QBITTORRENT_URL=http://qbittorrent:8080
-```
-
-**CONTENT Category:**
 ```
 SONARR_URL=http://sonarr:8989
 RADARR_URL=http://radarr:7878
 LIDARR_URL=http://lidarr:8686
 WHISPARR_URL=http://whisparr:6969
-```
-
-**SEARCH Category:**
-```
-SEERR_URL=http://seerr:5055
 PROWLARR_URL=http://prowlarr:9696
+SEERR_URL=http://seerr:5055
 BAZARR_URL=http://bazarr:6767
-```
-
-**MEDIA Category:**
-```
+SABNZBD_URL=http://sabnzbd:8080
+NZBGET_URL=http://nzbget:6789
+NZBHYDRA_URL=http://nzbhydra:5076
+TRANSMISSION_URL=http://transmission:9091
+QBITTORRENT_URL=http://qbittorrent:8080
+DELUGE_URL=http://deluge:8112
+JELLYFIN_URL=http://jellyfin:8096
 EMBY_URL=http://emby:8096
 PLEX_URL=http://plex:32400
-JELLYFIN_URL=http://jellyfin:8096
 TAUTULLI_URL=http://tautulli:8181
 MAINTAINERR_URL=http://maintainerr:6246
 ```
@@ -245,42 +216,24 @@ MAINTAINERR_URL=http://maintainerr:6246
 
 ### Service Icon URLs
 
-Customize icons for each service (grouped by category):
+Customize icons for each service:
 
-**USENET Category:**
-```
-ICON_URL_SABNZBD=
-ICON_URL_NZBGET=
-ICON_URL_NZBHYDRA=
-```
-
-**TORRENTS Category:**
-```
-ICON_URL_DELUGE=
-ICON_URL_TRANSMISSION=
-ICON_URL_QBITTORRENT=
-```
-
-**CONTENT Category:**
 ```
 ICON_URL_SONARR=
 ICON_URL_RADARR=
 ICON_URL_LIDARR=
 ICON_URL_WHISPARR=
-```
-
-**SEARCH Category:**
-```
-ICON_URL_SEERR=
 ICON_URL_PROWLARR=
+ICON_URL_SEERR=
 ICON_URL_BAZARR=
-```
-
-**MEDIA Category:**
-```
-ICON_URL_EMBY=
-ICON_URL_PLEX=
+ICON_URL_SABNZBD=
+ICON_URL_NZBGET=
+ICON_URL_NZBHYDRA=
+ICON_URL_TRANSMISSION=
+ICON_URL_QBITTORRENT=
+ICON_URL_DELUGE=
 ICON_URL_JELLYFIN=
+ICON_URL_PLEX=
 ICON_URL_TAUTULLI=
 ICON_URL_MAINTAINERR=
 ```

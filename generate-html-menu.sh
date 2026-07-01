@@ -922,6 +922,7 @@ generate_all_styles() {
         [ ! -z "$TRANSMISSION_API_KEY" ] && api_keys_script+="localStorage.setItem('TRANSMISSION_API_KEY', '${TRANSMISSION_API_KEY}');"
         [ ! -z "$NZBGET_API_KEY" ] && api_keys_script+="localStorage.setItem('NZBGET_API_KEY', '${NZBGET_API_KEY}');"
         [ ! -z "$SABNZBD_API_KEY" ] && api_keys_script+="localStorage.setItem('SABNZBD_API_KEY', '${SABNZBD_API_KEY}');"
+        [ ! -z "$DELUGE_API_KEY" ] && api_keys_script+="localStorage.setItem('DELUGE_API_KEY', '${DELUGE_API_KEY}');"
         api_keys_script+="}"
         api_keys_script+="</script>"
 

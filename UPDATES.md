@@ -101,7 +101,7 @@ Update your `.env` file to use new names.
 - ✅ `docker-entrypoint.sh` - Added Bazarr, reorganized variables
 - ✅ `generate-config.sh` - NZBGet auth support, Bazarr service
 - ✅ `generate-html-menu.sh` - New category structure, Bazarr integration
-- ✅ `.env.example` - All 17 services, organized by category
+- ✅ `.env.example` - All 18 services, organized by category
 
 ### Apache Configuration
 - ✅ `apache-conf/services/bazarr.conf` - NEW! Bazarr proxy config
@@ -114,7 +114,7 @@ Update your `.env` file to use new names.
 ### Documentation
 - ✅ `ENVIRONMENT-VARIABLES.md` - Reorganized by category
 - ✅ `SERVICES.md` - Added Bazarr, updated Seerr (was Overseerr)
-- ✅ `SERVICE-URLS.md` - All 17 services documented
+- ✅ `SERVICE-URLS.md` - All 18 services documented
 - ✅ `ICON-URLS.md` - Complete icon reference
 - ✅ `ICONS.md` - Icon naming conventions
 - ✅ `QUICKSTART-SERVICES.md` - Updated examples with Bazarr

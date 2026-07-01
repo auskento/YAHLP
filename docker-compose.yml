@@ -44,7 +44,7 @@ services:
       EMBY_URL: "http://emby:8096"
       PLEX_URL: "http://plex:32400"
       TAUTULLI_URL: "http://tautulli:8181"
-      TRANSMISSION_URL: "http://transmission:6969"
+      TRANSMISSION_URL: "http://transmission:9091"
       QBITTORRENT_URL: "http://qbittorrent:8080"
       SABNZBD_URL: "http://sabnzbd:8080"
       DELUGE_URL: "http://deluge:8112"

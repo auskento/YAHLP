@@ -7,7 +7,7 @@ This is **YAHLP (Yet Another HomeLab Portal)** - a unified media server dashboar
 ## Features
 
 ✅ **Unified Dashboard** - All your homelab services in one place  
-✅ **17 Services Supported** - Sonarr, Radarr, Jellyfin, Plex, qBittorrent, Bazarr, and more  
+✅ **18 Services Supported** - Sonarr, Radarr, Jellyfin, Plex, qBittorrent, Bazarr, Maintainerr, and more  
 ✅ **Automatic HTTPS** - Let's Encrypt with daily auto-renewal  
 ✅ **Flexible Authentication** - None, Basic, Entra ID, or Google OAuth  
 ✅ **4 Dashboard Themes** - Customize your interface  

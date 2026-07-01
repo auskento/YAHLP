@@ -465,8 +465,9 @@ ENABLE_JELLYFIN: "true"
 |----------|---------|
 | **QUICKSTART.md** | 5-minute setup guide |
 | **ENVIRONMENT-VARIABLES.md** | All configuration options |
-| **SERVICES.md** | Details on 17 supported services |
+| **SERVICES.md** | Details on 18 supported services |
 | **SERVICE-URLS.md** | Backend URL configuration |
+| **SITES-CONFIGURATION.md** | Torrent & usenet site shortcuts |
 | **AUTHENTICATION-SETUP.md** | Auth method setup guides |
 | **TROUBLESHOOTING.md** | Problem solving |
 | **COMPLETE-FEATURES.md** | Feature overview |

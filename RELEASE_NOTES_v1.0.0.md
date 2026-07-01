@@ -15,7 +15,7 @@ YAHLP v1.0.0 is the initial stable release, providing a complete solution for ma
 - **Customizable Landing Page**: Set a default service to display on dashboard load
 - **Service Icons**: Auto-generated or custom service icons with favicon caching
 
-### Supported Services (17 Total)
+### Supported Services (18 Total)
 - **Content Management**: Sonarr (TV), Radarr (Movies), Whisparr (Adult), Lidarr (Music)
 - **Search & Discovery**: Prowlarr (Indexers), Seerr (Requests), Bazarr (Subtitles)
 - **Usenet Downloads**: SABnzbd, NZBGet, NZBHydra
@@ -27,7 +27,7 @@ YAHLP v1.0.0 is the initial stable release, providing a complete solution for ma
 - **Torrent Sites** (9): TPB, FileList, HDBits, IP Torrents, 1337x, YTS, LimeTorrents, Nyaa, PassThePopcorn
 - **Usenet Sites** (7): DOGnzb, DrunkenSlug, nzb.life, NZBFinder, NZBgeek, nzbplanet, Tabula Rasa
 - **Favicon Caching**: Pre-cached site icons for instant loading
-- **User-Editable Config**: Modify sites.json in the persistent volume
+- **User-Editable Config**: Optional custom sites configuration (advanced)
 
 ### Authentication
 - **Multiple Methods**: None, HTTP Basic Auth, Google OAuth2, Microsoft Entra ID (Azure AD)
@@ -87,14 +87,14 @@ YAHLP v1.0.0 is the initial stable release, providing a complete solution for ma
 ## 🔧 Configuration Highlights
 
 ### Services
-- Enable/disable any of 17 services independently
+- Enable/disable any of 18 services independently
 - Custom backend URLs for each service
 - Optional service-specific domains for public deployments
 - Custom service icons or auto-generated defaults
 
 ### Sites
 - Pre-configured with 16 popular torrent/usenet sites
-- User-editable `sites.json` for customization
+- Optional custom sites configuration for advanced users
 - Favicon caching for consistent look
 - Easy enable/disable via `SITES_ENABLED` variable
 

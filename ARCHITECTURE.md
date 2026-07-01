@@ -194,7 +194,7 @@ DASHBOARD_ICON="/icons/yahlp.png"     # Icon path
 DASHBOARD_COLOR="#1a1a1a"             # 6-digit hex, menu background
 DASHBOARD_THEME=dark                  # dark or light
 DASHBOARD_LANDING=""                  # Default service on load
-DASHBOARD_ORDER="CONTENT,SEARCH,USENET,TORRENTS,MEDIA"  # Category order
+DASHBOARD_ORDER="SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT"  # Service code order
 
 # Testing
 TEST=false                            # Set to true for Let's Encrypt dry-run

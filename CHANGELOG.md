@@ -62,48 +62,25 @@ A complete, production-ready reverse proxy and dashboard system for 18 homelab s
 
 ---
 
-## [Unreleased]
-
-### Planned
-- Authelia authentication support
-- LDAP / Active Directory integration
-- Web-based configuration UI
-- Service health checks dashboard
-- Rate limiting per service
-- Request logging and analytics
-- Automatic service discovery
-
----
-
-## [2.1.0] - 2026-06-25
+## [0.9.0] - 2026-06-25
 
 ### Added
 - **New Service** ⭐
-  - Bazarr (Subtitle management) in SEARCH category
+  - Bazarr (Subtitle management)
   - Total services now: 17
-
-- **Service Reorganization**
-  - Restructured categories: CONTENT, SEARCH, USENET, TORRENTS, MEDIA
-  - Added USENET category: SABnzbd, NZBGet, NZBHydra
-  - Added TORRENTS category: Deluge, Transmission, qBittorrent
-  - Added CONTENT category: Sonarr, Radarr, Lidarr, Whisparr
-  - Added SEARCH category: Seerr, Prowlarr, Bazarr
-  - Added MEDIA category: Emby, Plex, Jellyfin, Tautulli
 
 - **NZBGet Authentication**
   - HTTP Basic Auth support for NZBGet with NZBGET_USER/NZBGET_PASS
   - Automatic Base64 encoding of credentials
 
 - **Dashboard Improvements**
-  - Custom service grouping via DASHBOARD_ORDER
   - Multiple dashboard styles: modern, classic, sleek, minimal
   - Configurable landing page via DASHBOARD_LANDING
 
 ### Changed
-- Environment variable naming: LANDING → DASHBOARD_LANDING, DASH_ORDER → DASHBOARD_ORDER
+- Environment variable naming: LANDING → DASHBOARD_LANDING
 - Unraid template network mode: bridge → br0
 - Environment variable organization in templates and scripts
-- Documentation structure to reflect new category organization
 
 ### Removed
 - Readarr service (no longer supported)
@@ -119,7 +96,7 @@ A complete, production-ready reverse proxy and dashboard system for 18 homelab s
 
 ---
 
-## [2.0.0] - 2026-06-18
+## [0.8.0] - 2026-06-18
 
 ### Added
 - **New Services** ⭐
@@ -164,7 +141,7 @@ A complete, production-ready reverse proxy and dashboard system for 18 homelab s
 
 ---
 
-## [1.5.0] - 2026-06-10
+## [0.7.0] - 2026-06-10
 
 ### Added
 - Dynamic HTML menu system
@@ -179,7 +156,7 @@ A complete, production-ready reverse proxy and dashboard system for 18 homelab s
 
 ---
 
-## [1.4.0] - 2026-06-05
+## [0.6.0] - 2026-06-05
 
 ### Added
 - Unraid native template support
@@ -194,7 +171,7 @@ A complete, production-ready reverse proxy and dashboard system for 18 homelab s
 
 ---
 
-## [1.3.0] - 2026-06-01
+## [0.5.0] - 2026-06-01
 
 ### Added
 - Custom backend support
@@ -207,7 +184,7 @@ A complete, production-ready reverse proxy and dashboard system for 18 homelab s
 
 ---
 
-## [1.2.0] - 2026-05-28
+## [0.4.0] - 2026-05-28
 
 ### Added
 - 10 core services (Sonarr, Radarr, Lidarr, etc.)
@@ -221,7 +198,7 @@ A complete, production-ready reverse proxy and dashboard system for 18 homelab s
 
 ---
 
-## [1.1.0] - 2026-05-25
+## [0.3.0] - 2026-05-25
 
 ### Added
 - Base Docker image
@@ -231,55 +208,23 @@ A complete, production-ready reverse proxy and dashboard system for 18 homelab s
 
 ---
 
-## [1.0.0] - 2026-05-20
+## [0.2.0] - 2026-05-22
+
+### Added
+- Apache reverse proxy foundation
+- Docker containerization
+- Basic configuration management
+- Service routing templates
+
+---
+
+## [0.1.0] - 2026-05-20
 
 ### Added
 - Initial project setup
-- Apache reverse proxy foundation
-- Docker containerization
-- Basic documentation
-
----
-
-## Migration Guides
-
-### From 1.x to 2.0
-
-**New features require no action:**
-- SABnzbd and Deluge are optional
-- Enable in `.env` if desired:
-  ```env
-  ENABLE_SABNZBD=true
-  ENABLE_DELUGE=true
-  ```
-
-**Docker image rebuild recommended:**
-```bash
-docker-compose build --no-cache
-docker-compose up -d
-```
-
-**No breaking changes** — all existing configurations remain compatible.
-
----
-
-## Roadmap
-
-### Q3 2026
-- [ ] Authelia authentication
-- [ ] LDAP integration
-- [ ] Basic Auth (htpasswd)
-
-### Q4 2026
-- [ ] Generic OAuth2 support
-- [ ] Keycloak integration
-- [ ] Web-based UI
-
-### 2027
-- [ ] Service discovery
-- [ ] Health monitoring
-- [ ] Rate limiting
-- [ ] Advanced analytics
+- Project structure and documentation
+- Basic tooling and scripts
+- License and contributing guidelines
 
 ---
 
@@ -309,5 +254,3 @@ See the [LICENSE](LICENSE) file for details.
 ---
 
 **[⬆ back to top](#changelog)**
-
-
