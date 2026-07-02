@@ -170,14 +170,16 @@ a { text-decoration: none; color: inherit; }
   font-weight: 600;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  writing-mode: horizontal-tb;
 }
 
-/* Vertical text for column layouts */
-.service-menu[style*="column"] .menu-separator-label,
-.service-menu[style*="flex-direction: column"] .menu-separator-label {
+/* Vertical text for horizontal menus (classic, modern with row direction) */
+.service-menu[style*="row"] .menu-separator-label {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: none;
+  border-bottom: none;
 }
 
 .menu-icon {
