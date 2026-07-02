@@ -139,11 +139,20 @@ a { text-decoration: none; color: inherit; }
 
 .menu-separator {
   flex: 0 0 auto;
+  pointer-events: none;
+}
+
+.menu-separator-invisible {
+  height: 12px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.menu-separator-visible {
   height: 12px;
   margin-top: 4px;
   margin-bottom: 4px;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
-  pointer-events: none;
 }
 
 .menu-icon {

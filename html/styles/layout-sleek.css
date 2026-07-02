@@ -52,6 +52,10 @@
   color: var(--text-primary);
 }
 
+.menu-separator-invisible {
+  display: none;
+}
+
 .app-content {
   flex: 1;
   display: flex;

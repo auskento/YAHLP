@@ -413,9 +413,9 @@ generate_services_array() {
         IFS=',' read -ra codes <<< "$DASHBOARD_ORDER"
         for code in "${codes[@]}"; do
             code=$(echo "$code" | xargs | tr '[:lower:]' '[:upper:]')
-            # Handle SEP (separator) marker
-            if [ "$code" = "SEP" ]; then
-                order_array+=("SEP")
+            # Handle separator markers (SEP=invisible gap, VIS=visible line)
+            if [ "$code" = "SEP" ] || [ "$code" = "VIS" ]; then
+                order_array+=("$code")
             elif [ -n "${SERVICE_CODE_MAP[$code]}" ]; then
                 order_array+=("${SERVICE_CODE_MAP[$code]}")
             fi
@@ -425,15 +425,15 @@ generate_services_array() {
     fi
 
     for service_key in "${order_array[@]}"; do
-        # Handle separator marker
-        if [ "$service_key" = "SEP" ]; then
+        # Handle separator markers (SEP=invisible, VIS=visible)
+        if [ "$service_key" = "SEP" ] || [ "$service_key" = "VIS" ]; then
             # Add separator object
             if [ "$first" = true ]; then
                 first=false
             else
                 array+=",$( printf '\n    ')"
             fi
-            array+="{ id: 'SEP', name: '', desc: '', icon: '', href: '', accent: '', popup: false }"
+            array+="{ id: '$service_key', name: '', desc: '', icon: '', href: '', accent: '', popup: false }"
             continue
         fi
 
