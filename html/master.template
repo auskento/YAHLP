@@ -61,6 +61,7 @@
 <footer class="app-footer">
   <div class="footer-left">
     <img src="@@DASHBOARD_ICON@@" alt="Dashboard" class="footer-icon">
+    <span class="footer-name">@@DASHBOARD_NAME@@</span>
   </div>
   <div class="footer-center">
     <input type="range" id="templateSlider" min="0" max="4" value="0" class="template-slider" title="Switch template style">
