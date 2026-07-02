@@ -379,6 +379,7 @@ app.post('/api/deluge/stats', async (req, res) => {
     }
 
     let authData = await response.json();
+    console.error('[DELUGE] Auth response:', JSON.stringify(authData).substring(0, 200));
     if (!authData || !authData.result) {
       console.error('[DELUGE] Auth failed:', authData);
       throw new Error('Deluge auth failed');
