@@ -1063,8 +1063,8 @@ generate_css_based_templates() {
         return 1
     fi
 
-    # Generate classic, sleek, minimal from master template
-    for layout in classic sleek minimal; do
+    # Generate classic, sleek, minimal, focus from master template
+    for layout in classic sleek minimal focus; do
         local html_content=$(cat "$MASTER_TEMPLATE")
         html_content="${html_content//@@TEMPLATE_TYPE@@/$layout}"
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
@@ -1103,7 +1103,7 @@ generate_html() {
         SHOW_STYLE_SWITCHER="true"
     fi
 
-    # Generate CSS-based templates (classic, sleek, minimal from master.template)
+    # Generate CSS-based templates (classic, sleek, minimal, focus from master.template)
     generate_css_based_templates
 
     # Generate all style variants (for backwards compatibility)
