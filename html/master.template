@@ -236,6 +236,11 @@ async function loadDashboard() {
 async function buildServiceMenu() {
     let html = '';
     SERVICES.forEach(app => {
+        // Handle labeled separator
+        if (app.id === 'LBL') {
+            html += `<div class="menu-separator menu-separator-label">${app.name}</div>`;
+            return;
+        }
         // Handle separator markers
         if (app.id === 'SEP') {
             html += '<div class="menu-separator menu-separator-invisible"></div>';

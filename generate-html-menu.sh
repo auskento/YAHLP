@@ -412,12 +412,18 @@ generate_services_array() {
         # Parse DASHBOARD_ORDER (service codes format: SAB,GET,HYD,etc + SEP for separators)
         IFS=',' read -ra codes <<< "$DASHBOARD_ORDER"
         for code in "${codes[@]}"; do
-            code=$(echo "$code" | xargs | tr '[:lower:]' '[:upper:]')
-            # Handle separator markers (SEP=invisible gap, VIS=visible line)
-            if [ "$code" = "SEP" ] || [ "$code" = "VIS" ]; then
+            code=$(echo "$code" | xargs)
+            # Handle labeled separators (LBL:Label)
+            if [[ "$code" =~ ^LBL: ]]; then
                 order_array+=("$code")
-            elif [ -n "${SERVICE_CODE_MAP[$code]}" ]; then
-                order_array+=("${SERVICE_CODE_MAP[$code]}")
+            else
+                code=$(echo "$code" | tr '[:lower:]' '[:upper:]')
+                # Handle separator markers (SEP=invisible gap, VIS=visible line)
+                if [ "$code" = "SEP" ] || [ "$code" = "VIS" ]; then
+                    order_array+=("$code")
+                elif [ -n "${SERVICE_CODE_MAP[$code]}" ]; then
+                    order_array+=("${SERVICE_CODE_MAP[$code]}")
+                fi
             fi
         done
     else
@@ -425,6 +431,18 @@ generate_services_array() {
     fi
 
     for service_key in "${order_array[@]}"; do
+        # Handle labeled separators (LBL:Label)
+        if [[ "$service_key" =~ ^LBL: ]]; then
+            local label="${service_key#LBL:}"
+            if [ "$first" = true ]; then
+                first=false
+            else
+                array+=",$( printf '\n    ')"
+            fi
+            array+="{ id: 'LBL', name: '$label', desc: '', icon: '', href: '', accent: '', popup: false }"
+            continue
+        fi
+
         # Handle separator markers (SEP=invisible, VIS=visible)
         if [ "$service_key" = "SEP" ] || [ "$service_key" = "VIS" ]; then
             # Add separator object
