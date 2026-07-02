@@ -21,11 +21,12 @@
       <div class="current-time" id="currentTime">--:--</div>
       <div class="current-date" id="currentDate">---</div>
     </div>
-    <div class="style-switcher" id="styleSwitcher" style="display:none;">
-      <input type="range" id="templateSlider" min="0" max="0" value="0" class="template-slider" title="Switch template style">
-      <span class="template-label" id="templateLabel">Classic</span>
-    </div>
   </header>
+
+  <div class="style-switcher" id="styleSwitcher" style="display:none;">
+    <input type="range" id="templateSlider" min="0" max="0" value="0" class="template-slider" title="Switch template style">
+    <span class="template-label" id="templateLabel">Classic</span>
+  </div>
 
   <aside class="app-sidebar">
     <nav class="service-menu" id="serviceMenu">
