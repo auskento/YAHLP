@@ -757,10 +757,7 @@ class Component extends DCLogic {
           }
           return r.json();
         })
-        .then(data => {
-          const playing = data?.response?.data?.sessions || 0;
-          return { playing };
-        });
+        .then(data => data);
     } else if (service === 'maintainerr') {
       const url = `${apiBase}/maintainerr/health`;
       console.log(`[API] Fetching ${service}: ${url} (cached)`);
