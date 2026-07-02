@@ -188,14 +188,7 @@ app.get('/api/nzbhydra/status', async (req, res) => {
     const cached = cache.get('nzbhydra-status');
     if (cached) return res.json(cached);
 
-    const config = services['nzbhydra'];
-    if (!config.url || !config.key) {
-      throw new Error('NZBHydra not configured');
-    }
-
-    const url = `${config.url}/api/stats?apikey=${encodeURIComponent(config.key)}`;
-    const response = await fetch(url);
-    const data = await response.json();
+    const data = await makeRequest('nzbhydra', '/api/v2/stats');
     cache.set('nzbhydra-status', data);
     res.json(data);
   } catch (err) {
