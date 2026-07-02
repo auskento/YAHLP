@@ -21,6 +21,10 @@
       <div class="current-time" id="currentTime">--:--</div>
       <div class="current-date" id="currentDate">---</div>
     </div>
+    <div class="style-switcher" id="styleSwitcher" style="display:none;">
+      <input type="range" id="templateSlider" min="0" max="0" value="0" class="template-slider" title="Switch template style">
+      <span class="template-label" id="templateLabel">Classic</span>
+    </div>
   </header>
 
   <aside class="app-sidebar">
@@ -266,6 +270,71 @@ async function checkConfiguredServices() {
 }
 
 checkConfiguredServices();
+
+let availableTemplates = [];
+const builtInTemplates = ['classic', 'sleek', 'minimal', 'focus', 'neon'];
+
+async function detectTemplates() {
+    availableTemplates = [];
+
+    for (const template of builtInTemplates) {
+        try {
+            const response = await fetch(`/${template}.html`, { method: 'HEAD' });
+            if (response.ok) {
+                availableTemplates.push(template);
+            }
+        } catch (e) {}
+    }
+
+    if (availableTemplates.length === 0) {
+        availableTemplates = ['classic'];
+    }
+
+    if (availableTemplates.length > 1) {
+        initStyleSwitcher();
+    }
+}
+
+function initStyleSwitcher() {
+    const switcher = document.getElementById('styleSwitcher');
+    const slider = document.getElementById('templateSlider');
+    const label = document.getElementById('templateLabel');
+    const currentTemplate = document.querySelector('.app').getAttribute('data-layout');
+
+    slider.max = availableTemplates.length - 1;
+    const currentIndex = availableTemplates.indexOf(currentTemplate);
+    slider.value = currentIndex >= 0 ? currentIndex : 0;
+    label.textContent = availableTemplates[slider.value];
+
+    switcher.style.display = 'flex';
+
+    slider.addEventListener('input', (e) => {
+        const index = parseInt(e.target.value);
+        const template = availableTemplates[index];
+        label.textContent = template;
+
+        const link = document.querySelector('link[href*="layout-"]');
+        if (link) {
+            link.href = `/styles/layout-${template}.css`;
+        }
+
+        const app = document.querySelector('.app');
+        app.setAttribute('data-layout', template);
+
+        localStorage.setItem('dashboard-template', template);
+    });
+}
+
+const savedTemplate = localStorage.getItem('dashboard-template');
+if (savedTemplate && builtInTemplates.includes(savedTemplate)) {
+    const link = document.querySelector('link[href*="layout-"]');
+    if (link) {
+        link.href = `/styles/layout-${savedTemplate}.css`;
+    }
+    document.querySelector('.app').setAttribute('data-layout', savedTemplate);
+}
+
+detectTemplates();
 </script>
 </body>
 </html>
