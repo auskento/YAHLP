@@ -1131,6 +1131,16 @@ generate_css_based_templates() {
     for layout in "${layouts[@]}"; do
         echo "  • http://localhost/${layout}.html"
     done
+
+    # Generate index.html with default DASH_STYLE
+    echo ""
+    echo "📄 Generating index.html..."
+    if [ -f "/var/www/html/index.template" ]; then
+        local index_content=$(cat "/var/www/html/index.template")
+        index_content="${index_content//@@DASH_STYLE@@/${DASH_STYLE:-classic}}"
+        echo "$index_content" > "/var/www/html/index.html"
+        echo "  ✓ Generated index.html (default: ${DASH_STYLE:-classic})"
+    fi
 }
 
 # Main generation function
