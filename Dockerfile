@@ -50,6 +50,9 @@ COPY html /var/www/html
 RUN chmod -R 755 /var/www/html && \
     find /var/www/html -type f -exec chmod 644 {} \;
 
+# Create templates directory for user custom CSS templates (mounted volume)
+RUN mkdir -p /templates && chmod 777 /templates
+
 # Copy pre-cached site favicons if they exist
 RUN if [ -d /var/www/html/sites-icons ] && [ "$(ls -A /var/www/html/sites-icons 2>/dev/null)" ]; then \
       cp /var/www/html/sites-icons/* /var/log/apache2/sites/ 2>/dev/null || true; \

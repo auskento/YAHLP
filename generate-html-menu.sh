@@ -1054,8 +1054,11 @@ generate_all_styles() {
 
 
 # Generate CSS-based templates from master.template
+# Auto-detects CSS files in both built-in and user template directories
 generate_css_based_templates() {
     local MASTER_TEMPLATE="/var/www/html/master.template"
+    local BUILTIN_STYLES="/var/www/html/styles"
+    local USER_TEMPLATES="/templates"
     local services_array=$(generate_services_array)
 
     if [ ! -f "$MASTER_TEMPLATE" ]; then
@@ -1063,8 +1066,41 @@ generate_css_based_templates() {
         return 1
     fi
 
-    # Generate classic, sleek, minimal, focus from master template
-    for layout in classic sleek minimal focus; do
+    local layouts=()
+    local template_count=0
+
+    # Scan built-in styles directory
+    if [ -d "$BUILTIN_STYLES" ]; then
+        echo "📁 Scanning built-in styles: $BUILTIN_STYLES"
+        while IFS= read -r -d '' css_file; do
+            local layout_name=$(basename "$css_file" | sed 's/^layout-//' | sed 's/\.css$//')
+            layouts+=("$layout_name")
+            echo "  ✓ Found: layout-${layout_name}.css"
+            ((template_count++))
+        done < <(find "$BUILTIN_STYLES" -name "layout-*.css" -print0 2>/dev/null)
+    fi
+
+    # Scan user templates directory (if mounted)
+    if [ -d "$USER_TEMPLATES" ]; then
+        echo "📁 Scanning user templates: $USER_TEMPLATES"
+        while IFS= read -r -d '' css_file; do
+            local layout_name=$(basename "$css_file" | sed 's/^layout-//' | sed 's/\.css$//')
+            layouts+=("$layout_name")
+            echo "  ✓ Found: layout-${layout_name}.css"
+            ((template_count++))
+        done < <(find "$USER_TEMPLATES" -name "layout-*.css" -print0 2>/dev/null)
+    fi
+
+    if [ ${#layouts[@]} -eq 0 ]; then
+        echo "⚠️  No layout CSS files found! Generating defaults..."
+        layouts=("classic" "sleek" "minimal" "focus")
+    fi
+
+    echo ""
+    echo "🎨 Generating ${#layouts[@]} template(s)..."
+
+    # Generate HTML for each layout
+    for layout in "${layouts[@]}"; do
         local html_content=$(cat "$MASTER_TEMPLATE")
         html_content="${html_content//@@TEMPLATE_TYPE@@/$layout}"
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
@@ -1073,7 +1109,15 @@ generate_css_based_templates() {
         html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
 
         echo "$html_content" > "/var/www/html/${layout}.html"
-        echo "✓ Generated ${layout}.html from master.template"
+        echo "  ✓ Generated ${layout}.html"
+    done
+
+    echo ""
+    echo "✅ Built ${#layouts[@]} template(s)"
+    echo ""
+    echo "Available templates:"
+    for layout in "${layouts[@]}"; do
+        echo "  • http://localhost/${layout}.html"
     done
 }
 
