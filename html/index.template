@@ -41,12 +41,26 @@ body {
 </div>
 
 <script>
-const defaultTemplate = '@@DASH_STYLE@@' || 'classic';
+const dashStyleRaw = '@@DASH_STYLE@@' || 'classic';
+const isLocked = dashStyleRaw.includes(':only');
+const defaultTemplate = dashStyleRaw.replace(':only', '').trim() || 'classic';
 const builtInTemplates = ['classic', 'sleek', 'minimal', 'focus', 'neon'];
 
-// Check localStorage for user preference
-const savedTemplate = localStorage.getItem('dashboard-template');
-const template = (savedTemplate && builtInTemplates.includes(savedTemplate)) ? savedTemplate : defaultTemplate;
+// Store lock status
+if (isLocked) {
+  localStorage.setItem('dashboard-locked', 'true');
+} else {
+  localStorage.removeItem('dashboard-locked');
+}
+
+// Check localStorage for user preference (unless locked)
+let template = defaultTemplate;
+if (!isLocked) {
+  const savedTemplate = localStorage.getItem('dashboard-template');
+  if (savedTemplate && builtInTemplates.includes(savedTemplate)) {
+    template = savedTemplate;
+  }
+}
 
 // Redirect to the appropriate template
 window.location.href = `/${template}.html`;

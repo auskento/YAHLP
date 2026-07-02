@@ -300,20 +300,29 @@ function initFooter() {
     let currentTemplate = app.getAttribute('data-layout');
     const currentTheme = app.getAttribute('data-theme');
 
-    // Setup template slider
-    const currentIndex = availableTemplates.indexOf(currentTemplate);
-    slider.value = currentIndex >= 0 ? currentIndex : 0;
-    label.textContent = currentTemplate || availableTemplates[slider.value];
+    // Check if dashboard is locked to a single template
+    const isLocked = localStorage.getItem('dashboard-locked') === 'true';
 
-    slider.addEventListener('input', (e) => {
-        const index = parseInt(e.target.value);
-        const template = availableTemplates[index];
-        label.textContent = template;
-        localStorage.setItem('dashboard-template', template);
+    if (isLocked) {
+      // Hide the slider and label when locked
+      slider.style.display = 'none';
+      label.style.display = 'none';
+    } else {
+      // Setup template slider
+      const currentIndex = availableTemplates.indexOf(currentTemplate);
+      slider.value = currentIndex >= 0 ? currentIndex : 0;
+      label.textContent = currentTemplate || availableTemplates[slider.value];
 
-        // Navigate to the selected template HTML file
-        window.location.href = `/${template}.html`;
-    });
+      slider.addEventListener('input', (e) => {
+          const index = parseInt(e.target.value);
+          const template = availableTemplates[index];
+          label.textContent = template;
+          localStorage.setItem('dashboard-template', template);
+
+          // Navigate to the selected template HTML file
+          window.location.href = `/${template}.html`;
+      });
+    }
 
     // Setup theme toggle
     function updateThemeButton() {
