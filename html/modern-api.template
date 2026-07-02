@@ -476,11 +476,8 @@ class Component extends DCLogic {
       })
       .then(data => {
         if (!data) return null;
-        const queue = Array.isArray(data) ? data : data.records || [];
-        const downloading = queue.filter(i => i.status === 'Downloading').length;
-        const completed = queue.filter(i => i.status === 'Completed').length;
 
-        console.log(`[API] ${service} success:`, { total: queue.length, downloading, completed });
+        console.log(`[API] ${service} success:`, { queue: data.queue, downloading: data.downloading });
         return {
           ...app,
           status: 'Online',
@@ -488,9 +485,9 @@ class Component extends DCLogic {
           statusBg: 'rgba(16, 185, 129, 0.1)',
           statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
           stats: [
-            { label: 'Queue', value: `${queue.length} item${queue.length !== 1 ? 's' : ''}` },
-            { label: 'Downloading', value: `${downloading}` },
-            { label: 'Completed', value: `${completed}` }
+            { label: 'Queue', value: `${data.queue}` },
+            { label: 'Downloading', value: `${data.downloading}` },
+            { label: 'Completed', value: `${data.completed}` }
           ],
           iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
           open: () => this.navigate(app)
@@ -614,7 +611,7 @@ class Component extends DCLogic {
       .then(data => {
         if (!data) return null;
         if (service === 'qbittorrent') {
-          console.log(`[API] ${service} success:`, { active: data.active, seeding: data.seeding });
+          console.log(`[API] ${service} success:`, { active: data.active, dlSpeed: data.dlSpeed });
           return {
             ...app,
             status: 'Online',
@@ -622,15 +619,15 @@ class Component extends DCLogic {
             statusBg: 'rgba(16, 185, 129, 0.1)',
             statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
             stats: [
-              { label: 'Active Downloads', value: `${data.active}` },
-              { label: 'Seeding', value: `${data.seeding}` },
-              { label: 'Total', value: `${data.torrents.length}` }
+              { label: 'Queue', value: `${data.total}` },
+              { label: 'Downloading', value: `${data.active}` },
+              { label: 'Speed', value: `${data.dlSpeed} MB/s` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
           };
         } else if (service === 'transmission') {
-          console.log(`[API] ${service} success:`, { active: data.activeTorrents, paused: data.pausedTorrents });
+          console.log(`[API] ${service} success:`, { active: data.active, dlSpeed: data.dlSpeed });
           return {
             ...app,
             status: 'Online',
@@ -638,14 +635,14 @@ class Component extends DCLogic {
             statusBg: 'rgba(16, 185, 129, 0.1)',
             statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
             stats: [
-              { label: 'Active', value: `${data.activeTorrents}` },
-              { label: 'Paused', value: `${data.pausedTorrents}` }
+              { label: 'Active', value: `${data.active}` },
+              { label: 'Speed', value: `${data.dlSpeed} MB/s` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
           };
         } else if (service === 'nzbget') {
-          console.log(`[API] ${service} success:`, { downloading: data.downloading, remaining: data.remaining });
+          console.log(`[API] ${service} success:`, { downloading: data.downloading, dlSpeed: data.dlSpeed });
           return {
             ...app,
             status: 'Online',
@@ -654,13 +651,13 @@ class Component extends DCLogic {
             statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
             stats: [
               { label: 'Downloading', value: `${data.downloading}` },
-              { label: 'Remaining (MB)', value: `${data.remaining}` }
+              { label: 'Speed', value: `${data.dlSpeed} MB/s` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
           };
         } else {
-          console.log(`[API] ${service} success:`, { items: data.downloading });
+          console.log(`[API] ${service} success:`, { items: data.items, dlSpeed: data.dlSpeed });
           return {
             ...app,
             status: 'Online',
@@ -668,8 +665,8 @@ class Component extends DCLogic {
             statusBg: 'rgba(16, 185, 129, 0.1)',
             statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
             stats: [
-              { label: 'Active Items', value: `${data.downloading}` },
-              { label: 'Status', value: 'Active' }
+              { label: 'Queue', value: `${data.items}` },
+              { label: 'Speed', value: `${data.dlSpeed} MB/s` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
@@ -861,7 +858,7 @@ class Component extends DCLogic {
             open: () => this.navigate(app)
           };
         } else if (service === 'tautulli') {
-          console.log(`[API] ${service} success:`, { playing: data.playing });
+          console.log(`[API] ${service} success:`, { playing: data.playing, topUser: data.topUser });
           return {
             ...app,
             status: 'Online',
@@ -869,7 +866,9 @@ class Component extends DCLogic {
             statusBg: 'rgba(16, 185, 129, 0.1)',
             statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
             stats: [
-              { label: 'Now Playing', value: `${data.playing}` }
+              { label: 'Now Playing', value: `${data.playing}` },
+              { label: 'Top User', value: `${data.topUser}` },
+              { label: 'Users', value: `${data.users}` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
