@@ -512,6 +512,11 @@ async function fetchServiceStatus(service, app) {
             const sessions = Array.isArray(data) ? data : data.MediaSessions || [];
             const playing = sessions.filter(s => s.PlayState && !s.PlayState.IsPaused).length;
             stats = [{ label: 'Playing', value: playing }];
+        } else if (service === 'nzbhydra') {
+            stats = [
+                { label: 'Searches', value: data.searches || 0 },
+                { label: 'Indexers', value: data.indexers || 0 }
+            ];
         } else if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(service)) {
             stats = [
                 { label: 'Queue', value: data.queue || 0 },
