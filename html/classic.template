@@ -2,8 +2,16 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>@@DASHBOARD_NAME@@</title>
+    <title>@@DASHBOARD_NAME@@ - Status</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script crossorigin src="/react.production.min.js"></script>
+    <script crossorigin src="/react-dom.production.min.js"></script>
+    <script src="support.js"></script>
+    <script>
+window.getCoordinates = function() { return { x: 0, y: 0, width: 0, height: 0 }; };
+window.ClientData = window.ClientData || {};
+window.ClientData.update = function() {};
+    </script>
     <style>
         :root {
             --bg-primary: #000;
@@ -20,6 +28,9 @@
             --base-icon-width: calc(120px * var(--icon-multiplier));
             --base-icon-height: calc(100px * var(--icon-multiplier));
             --menu-gap: calc(8px * var(--gap-multiplier));
+            --status-success: #10b981;
+            --status-warning: #f59e0b;
+            --status-error: #ef4444;
         }
 
         [data-theme="light"] {
@@ -52,7 +63,7 @@
         [data-theme="light"] img {
             filter: invert(0.85) hue-rotate(180deg) brightness(0.95);
         }
-        
+
         .header {
             background-color: var(--bg-secondary);
             padding: 8px 12px;
@@ -135,7 +146,7 @@
             color: #6bb3ff;
             text-decoration: underline;
         }
-        
+
         .menu-container {
             flex: 1;
             display: flex;
@@ -161,6 +172,7 @@
             text-align: center;
             flex: 0 1 auto;
             min-width: 0;
+            position: relative;
         }
 
         .menu-item a {
@@ -180,7 +192,30 @@
             display: block;
             object-fit: contain;
         }
-        
+
+        .menu-item .tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            font-size: 12px;
+            z-index: 1000;
+            border: 1px solid var(--border-accent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .menu-item:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
         .menu-item .label {
             display: none !important;
             visibility: hidden !important;
@@ -188,129 +223,65 @@
             margin: 0 !important;
             padding: 0 !important;
         }
-        
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+
+        .status-online {
+            background-color: var(--status-success);
+            animation: pulse-success 2s infinite;
+        }
+
+        .status-offline {
+            background-color: var(--status-error);
+        }
+
+        @keyframes pulse-success {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
         .content {
             flex: 1;
             background-color: #000;
             border: none;
             width: 100%;
-            overflow: hidden;
-        }
-        
-        .welcome-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            padding: 40px 20px;
-            text-align: center;
-        }
-        
-        .welcome-screen h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            color: #4a9eff;
-        }
-        
-        .welcome-screen p {
-            font-size: 1.1em;
-            color: #aaa;
-            margin-bottom: 10px;
-            max-width: 600px;
-        }
-        
-        .services-list {
-            margin-top: 40px;
-            text-align: left;
-            display: inline-block;
-        }
-        
-        .services-list h3 {
-            color: #4a9eff;
-            margin-bottom: 15px;
-        }
-        
-        .services-list ul {
-            list-style: none;
-        }
-        
-        .services-list li {
-            padding: 8px 0;
-            color: #aaa;
-            border-bottom: 1px solid #333;
-        }
-        
-        .services-list li:last-child {
-            border-bottom: none;
-        }
-        
-        .services-list a {
-            color: #4a9eff;
-            text-decoration: none;
-        }
-        
-        .services-list a:hover {
-            text-decoration: underline;
+            overflow: auto;
+            padding: 20px;
         }
 
-        .no-services {
-            color: #ff6b6b;
-            font-size: 1.2em;
-            margin-top: 20px;
-        }
-
-        .sites-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-            justify-content: center;
-            padding: 0 10px;
-            overflow: hidden;
-            flex-shrink: 0;
-            width: 100%;
-            max-width: 100%;
-        }
-
-        .site-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            text-decoration: none;
-            padding: 6px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-
-        .site-link:hover {
-            border-color: var(--text-accent);
+        .service-card {
             background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
         }
 
-        .site-icon {
-            width: 28px;
-            height: 28px;
+        .service-card:hover {
+            border-color: var(--text-accent);
+            background: rgba(74, 158, 255, 0.15);
+        }
+
+        .service-name {
+            color: var(--text-primary);
+            font-weight: bold;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            border-radius: 2px;
-            overflow: hidden;
         }
 
-        .site-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 1px;
-        }
-
-        .site-code {
-            display: none;
+        .service-stats {
+            color: var(--text-secondary);
+            font-size: 12px;
+            line-height: 1.6;
         }
 
         /* Responsive */
@@ -339,16 +310,12 @@
             .datetime-box .time {
                 font-size: 18px;
             }
-            
+
             .content {
                 flex: 1;
-                overflow: hidden;
+                overflow: auto;
             }
-            
-            .welcome-screen h1 {
-                font-size: 1.8em;
-            }
-            
+
             .menu-item img {
                 max-width: 80px;
                 max-height: 70px;
@@ -372,92 +339,195 @@
     </div>
     <div class="menu-container">
         <table class="menu-table">
-            <tr>
+            <tr id="menu-items">
                 @@MENU_ITEMS@@
             </tr>
         </table>
-        <div class="sites-bar">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:0 10px;overflow:hidden;flex-shrink:0;width:100%;max-width:100%">
             @@SITES_ITEMS@@
         </div>
     </div>
 </div>
 
-<iframe name="Main" class="content" src="/@@DASHBOARD_LANDING@@" frameborder="0" scrolling="yes">
-    <!-- Fallback content if iframe fails -->
-    <div class="welcome-screen">
-        <h1>🎬 Media Server Dashboard</h1>
-        <p>Click a service above to access it</p>
-        <p>All services are protected with HTTPS and accessible through this reverse proxy</p>
-        <div class="services-list">
-            <h3>Enabled Services:</h3>
-            <ul>
-                @@ENABLED_SERVICES_LIST@@
-            </ul>
-        </div>
-    </div>
-</iframe>
+<div class="content" id="dashboard-content">
+    <div style="text-align:center;padding:40px;color:var(--text-secondary)">Loading service status...</div>
+</div>
 
 <noscript>
-    <div class="welcome-screen">
-        <h1>🎬 Media Server Dashboard</h1>
-        <p>JavaScript is required for this interface</p>
-    </div>
+    <div style="padding:40px;text-align:center;color:#ff6b6b">JavaScript is required for this interface</div>
 </noscript>
 
 <script>
-    function updateDateTime() {
-        const now = new Date();
-        
-        // Format time as HH:MM
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
-        
-        // Format date
-        const options = { weekday: 'short', month: 'short', day: 'numeric' };
-        const dateStr = now.toLocaleDateString('en-US', options);
-        document.getElementById('currentDate').textContent = dateStr;
-    }
-    
-    // Update immediately
-    updateDateTime();
-    
-    // Update every second
-    setInterval(updateDateTime, 1000);
-    
+const SERVICES = @@SERVICES_ARRAY@@;
 
-    // Hide sites bar if empty (check for child elements, not textContent)
-    const sitesBar = document.querySelector('.sites-bar');
-    if (sitesBar && sitesBar.children.length === 0) {
-        sitesBar.style.display = 'none';
-    }
+function updateDateTime() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
 
-    // Site link handling - open in new window
-    document.querySelectorAll('.site-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.open(this.href, '_blank');
-        });
+    const options = { weekday: 'short', month: 'short', day: 'numeric' };
+    const dateStr = now.toLocaleDateString('en-US', options);
+    document.getElementById('currentDate').textContent = dateStr;
+}
+
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+// Add hover tooltips to menu items
+const menuItems = document.getElementById('menu-items');
+if (menuItems) {
+    const cells = menuItems.querySelectorAll('td');
+    cells.forEach((cell, idx) => {
+        if (idx < SERVICES.length) {
+            const service = SERVICES[idx];
+            const link = cell.querySelector('a');
+            if (link) {
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = service.name;
+                cell.style.position = 'relative';
+                cell.appendChild(tooltip);
+            }
+        }
+    });
+}
+
+// Fetch and display service status
+const apiBase = `http://${window.location.hostname}:3000/api`;
+const codeToService = {
+    'jel': 'jellyfin', 'pls': 'plex', 'emb': 'emby',
+    'son': 'sonarr', 'rad': 'radarr', 'liz': 'lidarr', 'wis': 'whisparr',
+    'qbt': 'qbittorrent', 'sab': 'sabnzbd', 'nzb': 'nzbget', 'tra': 'transmission', 'del': 'deluge',
+    'hyd': 'nzbhydra', 'pro': 'prowlarr', 'see': 'seerr', 'baz': 'bazarr', 'tau': 'tautulli', 'mai': 'maintainerr'
+};
+
+const codeToColor = {
+    'jel': '#00a4ef', 'pls': '#e5a00d', 'emb': '#9d2d8f',
+    'son': '#2196f3', 'rad': '#d63269', 'liz': '#00b0ff', 'wis': '#ff6b6b',
+    'qbt': '#ef7734', 'sab': '#f4b834', 'nzb': '#0db7ed', 'tra': '#567d46', 'del': '#003d82',
+    'hyd': '#3498db', 'pro': '#00a7f5', 'see': '#6b00d6', 'baz': '#f59e0b', 'tau': '#2196f3', 'mai': '#e53e3e'
+};
+
+async function fetchServiceStatus(service, app) {
+    try {
+        let url;
+        if (['jellyfin', 'plex', 'emby'].includes(service)) {
+            url = `${apiBase}/${service}/info`;
+        } else if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(service)) {
+            url = `${apiBase}/${service}/queue`;
+        } else if (['qbittorrent', 'sabnzbd', 'nzbget', 'transmission', 'deluge'].includes(service)) {
+            url = `${apiBase}/${service}/stats`;
+        } else if (['nzbhydra', 'prowlarr', 'seerr', 'bazarr', 'tautulli', 'maintainerr'].includes(service)) {
+            url = `${apiBase}/${service}/status`;
+        } else {
+            return null;
+        }
+
+        const response = await fetch(url, { mode: 'cors', redirect: 'follow', method: service === 'nzbget' || service === 'transmission' || service === 'deluge' ? 'POST' : 'GET' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const data = await response.json();
+        if (!data) return null;
+
+        let stats = [];
+        if (service === 'jellyfin' || service === 'plex' || service === 'emby') {
+            const sessions = Array.isArray(data) ? data : data.MediaSessions || [];
+            const playing = sessions.filter(s => s.PlayState && !s.PlayState.IsPaused).length;
+            stats = [{ label: 'Playing', value: playing }];
+        } else if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(service)) {
+            stats = [
+                { label: 'Queue', value: data.queue || 0 },
+                { label: 'Downloading', value: data.downloading || 0 },
+                { label: 'Completed', value: data.completed || 0 }
+            ];
+        } else if (service === 'qbittorrent') {
+            stats = [
+                { label: 'Queue', value: data.total || 0 },
+                { label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }
+            ];
+        } else if (service === 'transmission') {
+            stats = [{ label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }];
+        } else if (service === 'sabnzbd') {
+            stats = [
+                { label: 'Queue', value: data.queue || 0 },
+                { label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }
+            ];
+        } else if (service === 'nzbget') {
+            stats = [{ label: 'Downloading', value: data.downloading || 0 }];
+        } else if (service === 'deluge') {
+            stats = [
+                { label: 'Downloading', value: data.downloading || 0 },
+                { label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }
+            ];
+        } else if (service === 'tautulli') {
+            stats = [
+                { label: 'Top User', value: data.topUser || 'N/A' },
+                { label: 'Users', value: data.users || 0 },
+                { label: 'Libraries', value: data.libraries || 0 }
+            ];
+        }
+
+        return { ...app, status: 'Online', stats };
+    } catch (err) {
+        console.error(`[${service}] Error:`, err);
+        return { ...app, status: 'Offline', stats: [] };
+    }
+}
+
+async function loadDashboard() {
+    const content = document.getElementById('dashboard-content');
+    const statuses = await Promise.all(SERVICES.map(app => fetchServiceStatus(codeToService[app.code] || app.code, app)));
+
+    let html = '';
+    statuses.forEach(status => {
+        if (!status) return;
+        const statusClass = status.status === 'Online' ? 'status-online' : 'status-offline';
+        html += `
+            <div class="service-card">
+                <div class="service-name">
+                    <span class="status-indicator ${statusClass}"></span>
+                    ${status.name} <span style="color:var(--text-secondary);font-size:11px;margin-left:8px">${status.status}</span>
+                </div>
+                <div class="service-stats">
+                    ${status.stats.map(s => `<div>${s.label}: <strong>${s.value}</strong></div>`).join('')}
+                </div>
+            </div>
+        `;
     });
 
-    // Theme management
-    (function() {
-        const defaultTheme = '@@DASHBOARD_THEME@@' || 'dark';
-        const savedTheme = localStorage.getItem('theme') || defaultTheme;
-        document.documentElement.setAttribute('data-theme', savedTheme);
+    content.innerHTML = html || '<div style="text-align:center;color:var(--text-secondary)">No services available</div>';
+}
 
-        const themeButton = document.getElementById('theme-toggle-classic');
-        if (themeButton) {
-            themeButton.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-            themeButton.addEventListener('click', function() {
-                const current = document.documentElement.getAttribute('data-theme');
-                const next = current === 'dark' ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', next);
-                localStorage.setItem('theme', next);
-                themeButton.textContent = next === 'dark' ? '☀️' : '🌙';
-            });
-        }
-    })();
+loadDashboard();
+setInterval(loadDashboard, 30000);
+
+// Theme management
+(function() {
+    const defaultTheme = '@@DASHBOARD_THEME@@' || 'dark';
+    const savedTheme = localStorage.getItem('theme') || defaultTheme;
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    const themeButton = document.getElementById('theme-toggle-classic');
+    if (themeButton) {
+        themeButton.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        themeButton.addEventListener('click', function() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeButton.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+    }
+})();
+
+// Site link handling
+document.querySelectorAll('.site-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.open(this.href, '_blank');
+    });
+});
 </script>
 </body>
 </html>
