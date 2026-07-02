@@ -737,7 +737,6 @@ generate_style_dashboard() {
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
-        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
         html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
         html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
         html_content="${html_content//@@LOGO_SIZE@@/$LOGO_SIZE}"
@@ -761,7 +760,6 @@ generate_style_dashboard() {
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
-        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
 
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
@@ -784,7 +782,6 @@ generate_style_dashboard() {
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
-        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
 
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
@@ -823,7 +820,6 @@ generate_style_dashboard() {
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
-        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
 
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
@@ -872,7 +868,6 @@ generate_all_styles() {
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
-        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
         html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
         html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
@@ -897,7 +892,6 @@ generate_all_styles() {
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
-        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
         html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
         if [ -z "$DASHBOARD_LANDING" ]; then
@@ -945,7 +939,6 @@ generate_all_styles() {
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
-        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
         html_content="${html_content//@@DASHBOARD_ORDER@@/$dash_order}"
         # Insert API keys script before closing body tag
@@ -975,7 +968,6 @@ generate_all_styles() {
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
-        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
@@ -1005,7 +997,6 @@ generate_all_styles() {
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
-        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
         if [ -z "$DASHBOARD_LANDING" ]; then
             html_content=$(echo "$html_content" | sed 's|src="/@@DASHBOARD_LANDING@@"||')
@@ -1043,7 +1034,6 @@ generate_all_styles() {
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
-        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
         html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
         html_content="${html_content//@@ICON_SIZE@@/$ICON_SIZE}"
         html_content="${html_content//@@ICON_GAP@@/$ICON_GAP}"
@@ -1155,7 +1145,6 @@ generate_css_based_templates() {
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
-        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
 
         echo "$html_content" > "/var/www/html/${layout}.html"
         echo "  ✓ Generated ${layout}.html"
