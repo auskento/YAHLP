@@ -108,21 +108,15 @@
 }
 
 .dashboard-header {
-  margin-bottom: 24px;
+  display: none;
 }
 
 .dashboard-title {
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--text-light);
-  margin-bottom: 6px;
-  font-family: 'Space Grotesk', system-ui, sans-serif;
+  display: none;
 }
 
 .dashboard-subtitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin: 0;
+  display: none;
 }
 
 .dashboard-content {

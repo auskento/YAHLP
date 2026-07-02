@@ -58,6 +58,10 @@
   flex-direction: column;
 }
 
+.dashboard-header {
+  display: none;
+}
+
 .dashboard-view {
   flex: 1;
   overflow-y: auto;
