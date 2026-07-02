@@ -17,10 +17,10 @@
 }
 
 .service-menu {
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
   padding: 0;
-  grid-template-columns: 1fr 1fr;
 }
 
 .menu-item {
@@ -45,11 +45,7 @@
 }
 
 .menu-label {
-  font-size: 10px;
-  text-align: center;
-  color: var(--text-secondary);
-  max-width: 60px;
-  word-break: break-word;
+  display: none;
 }
 
 .menu-item:hover .menu-label {
@@ -80,6 +76,10 @@
   .app-sidebar {
     width: 160px;
     padding: 12px;
+  }
+
+  .service-menu {
+    grid-template-columns: 1fr 1fr;
   }
 
   .menu-icon {
