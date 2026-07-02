@@ -53,7 +53,7 @@ services:
       - SEERR_API_KEY=${SEERR_API_KEY}
       - BAZARR_URL=http://bazarr:6767
       - BAZARR_API_KEY=${BAZARR_API_KEY}
-      - TAUTULLI_URL=http://tautulli:8181
+      - TAUTULLI_URL=http://tautulli:8181/tautulli
       - TAUTULLI_API_KEY=${TAUTULLI_API_KEY}
       - MAINTAINERR_URL=http://maintainerr:6246
       - MAINTAINERR_API_KEY=${MAINTAINERR_API_KEY}
