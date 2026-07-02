@@ -1070,6 +1070,14 @@ generate_css_based_templates() {
     local layouts=()
     local template_count=0
 
+    # Copy built-in templates to /templates BEFORE build process
+    echo "📋 Copying built-in templates to /templates..."
+    mkdir -p "$USER_TEMPLATES"
+    if [ -d "$BUILTIN_TEMPLATES" ] && [ -n "$(ls -A "$BUILTIN_TEMPLATES" 2>/dev/null)" ]; then
+        cp "$BUILTIN_TEMPLATES"/layout-*.css "$USER_TEMPLATES/" 2>/dev/null || true
+        echo "  ✓ Built-in templates copied to /templates"
+    fi
+
     # Scan built-in styles directory (layout-classic.css, layout-sleek.css, etc.)
     if [ -d "$BUILTIN_STYLES" ]; then
         echo "📁 Built-in styles: $BUILTIN_STYLES"
@@ -1079,16 +1087,6 @@ generate_css_based_templates() {
             echo "  ✓ Found: layout-${layout_name}.css"
             ((template_count++))
         done < <(find "$BUILTIN_STYLES" -name "layout-*.css" -print0 2>/dev/null)
-    fi
-
-    # Copy built-in templates as demo if /templates is empty or doesn't exist
-    if [ ! -d "$USER_TEMPLATES" ] || [ -z "$(ls -A "$USER_TEMPLATES" 2>/dev/null)" ]; then
-        if [ -d "$BUILTIN_TEMPLATES" ] && [ -n "$(ls -A "$BUILTIN_TEMPLATES" 2>/dev/null)" ]; then
-            echo "📋 /templates empty or not mounted - copying built-in templates as demo"
-            mkdir -p "$USER_TEMPLATES"
-            cp "$BUILTIN_TEMPLATES"/layout-*.css "$USER_TEMPLATES/" 2>/dev/null || true
-            echo "  ✓ Copied built-in templates to /templates/"
-        fi
     fi
 
     # Scan user templates directory for custom layouts
