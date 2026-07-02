@@ -114,11 +114,27 @@ app.get('/api/tautulli/status', async (req, res) => {
       throw new Error('Tautulli not configured');
     }
 
-    const url = `${config.url}/api/v2?cmd=get_activity&apikey=${encodeURIComponent(config.key)}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    cache.set('tautulli-status', data);
-    res.json(data);
+    const activityUrl = `${config.url}/api/v2?cmd=get_activity&apikey=${encodeURIComponent(config.key)}`;
+    const activityResp = await fetch(activityUrl);
+    const activityData = await activityResp.json();
+
+    const usersUrl = `${config.url}/api/v2?cmd=get_users&apikey=${encodeURIComponent(config.key)}`;
+    const usersResp = await fetch(usersUrl);
+    const usersData = await usersResp.json();
+
+    const users = usersData.response?.data || [];
+    const topUser = users.length > 0 ? users[0].friendly_name : 'N/A';
+
+    const playing = activityData.response?.data?.sessions || 0;
+
+    const result = {
+      playing,
+      topUser,
+      users: users.length
+    };
+
+    cache.set('tautulli-status', result);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -180,8 +196,16 @@ app.get('/api/sonarr/queue', async (req, res) => {
     if (cached) return res.json(cached);
 
     const data = await makeRequest('sonarr', '/api/v3/queue');
-    cache.set('sonarr-queue', data);
-    res.json(data);
+    const queue = Array.isArray(data) ? data : data.records || [];
+
+    const result = {
+      queue: queue.length,
+      downloading: queue.filter(i => i.status === 'Downloading').length,
+      completed: queue.filter(i => i.status === 'Completed').length
+    };
+
+    cache.set('sonarr-queue', result);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -194,8 +218,16 @@ app.get('/api/radarr/queue', async (req, res) => {
     if (cached) return res.json(cached);
 
     const data = await makeRequest('radarr', '/api/v3/queue');
-    cache.set('radarr-queue', data);
-    res.json(data);
+    const queue = Array.isArray(data) ? data : data.records || [];
+
+    const result = {
+      queue: queue.length,
+      downloading: queue.filter(i => i.status === 'Downloading').length,
+      completed: queue.filter(i => i.status === 'Completed').length
+    };
+
+    cache.set('radarr-queue', result);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -208,8 +240,16 @@ app.get('/api/lidarr/queue', async (req, res) => {
     if (cached) return res.json(cached);
 
     const data = await makeRequest('lidarr', '/api/v1/queue');
-    cache.set('lidarr-queue', data);
-    res.json(data);
+    const queue = Array.isArray(data) ? data : data.records || [];
+
+    const result = {
+      queue: queue.length,
+      downloading: queue.filter(i => i.status === 'Downloading').length,
+      completed: queue.filter(i => i.status === 'Completed').length
+    };
+
+    cache.set('lidarr-queue', result);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -222,8 +262,16 @@ app.get('/api/whisparr/queue', async (req, res) => {
     if (cached) return res.json(cached);
 
     const data = await makeRequest('whisparr', '/api/v3/queue');
-    cache.set('whisparr-queue', data);
-    res.json(data);
+    const queue = Array.isArray(data) ? data : data.records || [];
+
+    const result = {
+      queue: queue.length,
+      downloading: queue.filter(i => i.status === 'Downloading').length,
+      completed: queue.filter(i => i.status === 'Completed').length
+    };
+
+    cache.set('whisparr-queue', result);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -235,9 +283,22 @@ app.get('/api/qbittorrent/stats', async (req, res) => {
     const cached = cache.get('qbittorrent-stats');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('qbittorrent', '/api/v2/torrents/info');
-    cache.set('qbittorrent-stats', data);
-    res.json(data || []);
+    const torrents = await makeRequest('qbittorrent', '/api/v2/torrents/info');
+    const active = (torrents || []).filter(t => t.state.includes('dl')).length;
+    const seeding = (torrents || []).filter(t => t.state.includes('up')).length;
+    const dlSpeed = (torrents || []).reduce((sum, t) => sum + (t.dl_speed || 0), 0);
+    const ulSpeed = (torrents || []).reduce((sum, t) => sum + (t.up_speed || 0), 0);
+
+    const result = {
+      active,
+      seeding,
+      total: torrents?.length || 0,
+      dlSpeed: Math.round(dlSpeed / 1024 / 1024 * 100) / 100,
+      ulSpeed: Math.round(ulSpeed / 1024 / 1024 * 100) / 100
+    };
+
+    cache.set('qbittorrent-stats', result);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -279,8 +340,17 @@ app.post('/api/transmission/stats', async (req, res) => {
     }
 
     const data = await response.json();
-    cache.set('transmission-stats', data);
-    res.json(data);
+    const args = data.arguments || {};
+
+    const result = {
+      active: args.activeTorrentCount || 0,
+      paused: args.pausedTorrentCount || 0,
+      dlSpeed: Math.round((args.downloadSpeed || 0) / 1024 / 1024 * 100) / 100,
+      ulSpeed: Math.round((args.uploadSpeed || 0) / 1024 / 1024 * 100) / 100
+    };
+
+    cache.set('transmission-stats', result);
+    res.json(result);
   } catch (err) {
     console.error('[TRANSMISSION]', err.message);
     res.status(500).json({ error: err.message });
@@ -301,8 +371,18 @@ app.get('/api/sabnzbd/stats', async (req, res) => {
     const url = `${config.url}/api?mode=queue&output=json&apikey=${encodeURIComponent(config.key)}`;
     const response = await fetch(url);
     const data = await response.json();
-    cache.set('sabnzbd-stats', data);
-    res.json(data);
+
+    const queue = data.queue?.slots || [];
+    const dlSpeed = parseFloat(data.queue?.kbps || 0);
+
+    const result = {
+      queue: queue.length,
+      items: queue.length,
+      dlSpeed: Math.round(dlSpeed / 1024 * 100) / 100
+    };
+
+    cache.set('sabnzbd-stats', result);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -342,8 +422,16 @@ app.post('/api/nzbget/stats', async (req, res) => {
     }
 
     const data = await response.json();
-    cache.set('nzbget-stats', data);
-    res.json(data);
+    const result = data.result || {};
+
+    const result_clean = {
+      downloading: result.ArticlesDownloading || 0,
+      remaining: result.RemainingSizeMB || 0,
+      dlSpeed: Math.round((result.DownloadRate || 0) / 1024 / 1024 * 100) / 100
+    };
+
+    cache.set('nzbget-stats', result_clean);
+    res.json(result_clean);
   } catch (err) {
     console.error('[NZBGET]', err.message);
     res.status(500).json({ error: err.message });
@@ -409,8 +497,36 @@ app.post('/api/deluge/stats', async (req, res) => {
     });
 
     const data = await response.json();
-    cache.set('deluge-stats', data);
-    res.json(data);
+
+    // Get speed stats
+    const speedPayload = {
+      method: 'core.get_session_status',
+      params: [['download_rate', 'upload_rate']],
+      id: 3
+    };
+    const speedResponse = await fetch(`${config.url}/json`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(speedPayload),
+      timeout: 10000
+    });
+    const speedData = await speedResponse.json();
+    const speedResult = speedData.result || {};
+
+    const torrents = Object.values(data.result || {});
+    const downloading = torrents.filter(t =>
+      t.state && ['Downloading', 'Allocating'].includes(t.state)
+    ).length;
+
+    const result = {
+      downloading,
+      total: torrents.length,
+      dlSpeed: Math.round((speedResult.download_rate || 0) / 1024 / 1024 * 100) / 100,
+      ulSpeed: Math.round((speedResult.upload_rate || 0) / 1024 / 1024 * 100) / 100
+    };
+
+    cache.set('deluge-stats', result);
+    res.json(result);
   } catch (err) {
     console.error('[DELUGE]', err.message);
     res.status(500).json({ error: err.message });
