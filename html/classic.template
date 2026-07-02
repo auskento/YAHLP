@@ -259,29 +259,96 @@ window.ClientData.update = function() {};
         .service-card {
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
             transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
         .service-card:hover {
-            border-color: var(--text-accent);
-            background: rgba(74, 158, 255, 0.15);
+            background: var(--bg-secondary);
+            border-color: var(--border-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
-        .service-name {
-            color: var(--text-primary);
-            font-weight: bold;
-            margin-bottom: 6px;
+        .service-card-header {
             display: flex;
             align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
-        .service-stats {
-            color: var(--text-secondary);
+        .service-card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .service-card-icon img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .service-card-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .service-card-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.online {
+            background: var(--status-success);
+            box-shadow: 0 0 8px var(--status-success);
+        }
+
+        .status-dot.offline {
+            background: var(--status-error);
+        }
+
+        .api-stat {
+            display: flex;
+            justify-content: space-between;
             font-size: 12px;
-            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .api-stat-label {
+            flex: 1;
+        }
+
+        .api-stat-value {
+            font-weight: 600;
+            color: var(--text-accent);
+            font-variant-numeric: tabular-nums;
         }
 
         /* Responsive */
@@ -489,21 +556,31 @@ async function loadDashboard() {
     let html = '';
     statuses.forEach(status => {
         if (!status) return;
-        const statusClass = status.status === 'Online' ? 'status-online' : 'status-offline';
+        const isOnline = status.status === 'Online';
+        const statusDotClass = isOnline ? 'online' : 'offline';
         html += `
             <div class="service-card">
-                <div class="service-name">
-                    <span class="status-indicator ${statusClass}"></span>
-                    ${status.name} <span style="color:var(--text-secondary);font-size:11px;margin-left:8px">${status.status}</span>
+                <div class="service-card-header">
+                    <div class="service-card-icon">
+                        <img src="${status.icon}" alt="${status.name}" />
+                    </div>
+                    <div class="service-card-title">${status.name}</div>
+                    <div class="service-card-status">
+                        <span class="status-dot ${statusDotClass}"></span>
+                        ${status.status}
+                    </div>
                 </div>
-                <div class="service-stats">
-                    ${status.stats.map(s => `<div>${s.label}: <strong>${s.value}</strong></div>`).join('')}
-                </div>
+                ${status.stats.map(s => `
+                    <div class="api-stat">
+                        <span class="api-stat-label">${s.label}</span>
+                        <span class="api-stat-value">${s.value}</span>
+                    </div>
+                `).join('')}
             </div>
         `;
     });
 
-    content.innerHTML = html || '<div style="text-align:center;color:var(--text-secondary)">No services available</div>';
+    content.innerHTML = html || '<div style="text-align:center;color:var(--text-secondary);padding:40px">No services available</div>';
 }
 
 loadDashboard();
