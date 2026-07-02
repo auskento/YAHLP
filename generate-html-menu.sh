@@ -401,12 +401,27 @@ generate_services_list() {
     echo "$list_html"
 }
 
-# Generate services array for React dashboard (with categories)
+# Generate services array respecting DASHBOARD_ORDER (with categories)
 generate_services_array() {
     local array=""
     local first=true
+    local order_array=()
 
-    for service_key in "${SERVICE_ORDER[@]}"; do
+    # Use DASHBOARD_ORDER if provided, otherwise use SERVICE_ORDER
+    if [ ! -z "$DASHBOARD_ORDER" ]; then
+        # Parse DASHBOARD_ORDER (service codes format: SAB,GET,HYD,etc)
+        IFS=',' read -ra codes <<< "$DASHBOARD_ORDER"
+        for code in "${codes[@]}"; do
+            code=$(echo "$code" | xargs | tr '[:lower:]' '[:upper:]')
+            if [ -n "${SERVICE_CODE_MAP[$code]}" ]; then
+                order_array+=("${SERVICE_CODE_MAP[$code]}")
+            fi
+        done
+    else
+        order_array=("${SERVICE_ORDER[@]}")
+    fi
+
+    for service_key in "${order_array[@]}"; do
         # Check if service is enabled
         local enable_var="ENABLE_${service_key}"
         local is_enabled="${!enable_var}"
