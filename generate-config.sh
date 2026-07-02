@@ -79,7 +79,7 @@ process_service_config() {
 [ "$ENABLE_PLEX" = "true" ] && process_service_config "plex" "32400"
 [ "$ENABLE_TAUTULLI" = "true" ] && process_service_config "tautulli" "8181"
 [ "$ENABLE_MAINTAINERR" = "true" ] && process_service_config "maintainerr" "6246"
-[ "$ENABLE_TRANSMISSION" = "true" ] && process_service_config "transmission" "6969"
+[ "$ENABLE_TRANSMISSION" = "true" ] && process_service_config "transmission" "9091"
 [ "$ENABLE_QBITTORRENT" = "true" ] && process_service_config "qbittorrent" "8080"
 [ "$ENABLE_SABNZBD" = "true" ] && process_service_config "sabnzbd" "8080"
 [ "$ENABLE_DELUGE" = "true" ] && process_service_config "deluge" "8112"

@@ -1,6 +1,6 @@
 # Service Backend URL Configuration
 
-Guide for configuring backend URLs for your 17 supported services.
+Guide for configuring backend URLs for your 18 supported services.
 
 ## Overview
 
@@ -8,7 +8,7 @@ Each service needs two variables:
 1. **`ENABLE_*`** - Turn service on/off (`true`/`false`)
 2. **`*_URL`** - Where the service is located
 
-## All 17 Services
+## All 18 Services
 
 ### Automation Services
 
@@ -129,7 +129,7 @@ TAUTULLI_URL: "http://tautulli:8181"
 #### Transmission (Torrent Client)
 ```yaml
 ENABLE_TRANSMISSION: "true"
-TRANSMISSION_URL: "http://transmission:6969"
+TRANSMISSION_URL: "http://transmission:9091"
 ```
 - **Default Port:** 6969
 - **Docker Container Name:** `transmission`

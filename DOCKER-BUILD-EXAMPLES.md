@@ -43,7 +43,7 @@ services:
       DASHBOARD_NAME: My Homelab
       DASHBOARD_ICON: /icons/yahlp.png
       DASHBOARD_LANDING: radarr
-      DASHBOARD_ORDER: CONTENT,SEARCH,USENET,TORRENTS,MEDIA
+      DASHBOARD_ORDER: SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT
       AUTHTYPE: basic
       BASIC_AUTH_CREDENTIALS: "admin:securepassword|user:password"
       ENABLE_RADARR: "true"
@@ -83,7 +83,7 @@ services:
       STYLE: sleek
       DASHBOARD_NAME: Family Media
       DASHBOARD_LANDING: ""
-      DASHBOARD_ORDER: MEDIA,USENET,TORRENTS,CONTENT,SEARCH
+      DASHBOARD_ORDER: JEL,EMB,PLX,TAU,MNT,SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ
       AUTHTYPE: basic
       BASIC_AUTH_CREDENTIALS: "user:password"
       ENABLE_PLEX: "true"
@@ -118,7 +118,7 @@ services:
       STYLE: modern
       DASHBOARD_NAME: Company Services
       DASHBOARD_LANDING: radarr/calendar
-      DASHBOARD_ORDER: CONTENT,SEARCH,USENET,TORRENTS,MEDIA
+      DASHBOARD_ORDER: SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT
       AUTHTYPE: entra
       ENTRA_CLIENT_ID: your-azure-app-id
       ENTRA_CLIENT_SECRET: your-azure-app-secret
@@ -160,7 +160,7 @@ services:
       STYLE: minimal
       DASHBOARD_NAME: Dashboard
       DASHBOARD_LANDING: ""
-      DASHBOARD_ORDER: CONTENT,SEARCH,USENET,TORRENTS,MEDIA
+      DASHBOARD_ORDER: SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT
       AUTHTYPE: google
       GOOGLE_CLIENT_ID: your-client-id.apps.googleusercontent.com
       GOOGLE_CLIENT_SECRET: your-client-secret
@@ -174,7 +174,7 @@ services:
       ENABLE_DELUGE: "true"
       DELUGE_URL: http://deluge:8112
       ENABLE_TRANSMISSION: "true"
-      TRANSMISSION_URL: http://transmission:6969
+      TRANSMISSION_URL: http://transmission:9091
       ENABLE_QBITTORRENT: "true"
       QBITTORRENT_URL: http://qbittorrent:8080
       ENABLE_RADARR: "true"
@@ -234,7 +234,7 @@ STYLE=modern
 DASHBOARD_NAME=Services Dashboard
 DASHBOARD_ICON=/icons/yahlp.png
 DASHBOARD_LANDING=radarr
-DASHBOARD_ORDER=USENET,TORRENTS,CONTENT,SEARCH,MEDIA
+DASHBOARD_ORDER=SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT
 AUTHTYPE=basic
 BASIC_AUTH_CREDENTIALS=admin:password123
 ENABLE_RADARR=true
@@ -252,19 +252,19 @@ JELLYFIN_URL=http://jellyfin:8096
 **Custom Media-First Order:**
 ```yaml
 environment:
-  DASHBOARD_ORDER: MEDIA,USENET,TORRENTS,CONTENT,SEARCH
+  DASHBOARD_ORDER: JEL,EMB,PLX,TAU,MNT,SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ
 ```
 
 **Infrastructure-First Order:**
 ```yaml
 environment:
-  DASHBOARD_ORDER: CONTENT,SEARCH,USENET,TORRENTS,MEDIA
+  DASHBOARD_ORDER: SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT
 ```
 
-**Downloads-Only Visible First:**
+**Download Services First:**
 ```yaml
 environment:
-  DASHBOARD_ORDER: DOWNLOADS,MEDIA,INFRA
+  DASHBOARD_ORDER: SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT
 ```
 
 ---
@@ -368,7 +368,7 @@ docker run -d \
 ## Unraid Installation
 
 ### Via Community Applications
-1. Search for "Apache Reverse Proxy" in Community Applications
+1. Search for "YAHLP" in Community Applications
 2. Click Install
 3. Configure environment variables and volumes
 4. Start the container
@@ -376,7 +376,7 @@ docker run -d \
 ### Manual Template Installation
 1. Navigate to Unraid Dashboard → Docker
 2. Add Container → Template URL
-3. Enter: `https://raw.githubusercontent.com/auskento/apache-reverse-proxy/main/YAHLP.xml`
+3. Enter: `https://raw.githubusercontent.com/auskento/yahlp/main/unraid/YAHLP.xml`
 4. Fill in required fields (DOMAIN, EMAIL, authentication)
 5. Configure services
 6. Create

@@ -1162,10 +1162,16 @@ apache2ctl configtest || {
     exit 1
 }
 
+echo "=== Starting Node.js API Proxy ==="
+cd /opt/proxy
+node proxy.js &
+PROXY_PID=$!
+echo "✓ API Proxy started (PID: $PROXY_PID)"
+
 echo "=== Starting Apache ==="
 
-# Trap signals to gracefully shut down cron and Apache
-trap 'echo "Shutting down..."; service cron stop 2>/dev/null; kill ${APACHE_PID} 2>/dev/null; wait ${APACHE_PID} 2>/dev/null; exit 0' SIGTERM SIGINT
+# Trap signals to gracefully shut down cron, proxy, and Apache
+trap 'echo "Shutting down..."; service cron stop 2>/dev/null; kill ${PROXY_PID} 2>/dev/null; kill ${APACHE_PID} 2>/dev/null; wait ${APACHE_PID} 2>/dev/null; exit 0' SIGTERM SIGINT
 
 # Start Apache in foreground and capture PID
 apache2ctl -D FOREGROUND &

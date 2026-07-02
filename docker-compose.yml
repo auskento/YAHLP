@@ -8,8 +8,56 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    
+      - "3000:3000"
+
     environment:
+      # Proxy Configuration
+      - PROXY_PORT=3000
+
+      # Media Servers (for API Proxy)
+      - JELLYFIN_URL=http://jellyfin:8096
+      - JELLYFIN_API_KEY=${JELLYFIN_API_KEY}
+      - PLEX_URL=http://plex:32400
+      - PLEX_API_KEY=${PLEX_API_KEY}
+      - EMBY_URL=http://emby:8096
+      - EMBY_API_KEY=${EMBY_API_KEY}
+
+      # Content Managers (for API Proxy)
+      - SONARR_URL=http://sonarr:8989
+      - SONARR_API_KEY=${SONARR_API_KEY}
+      - RADARR_URL=http://radarr:7878
+      - RADARR_API_KEY=${RADARR_API_KEY}
+      - LIDARR_URL=http://lidarr:8686
+      - LIDARR_API_KEY=${LIDARR_API_KEY}
+      - WHISPARR_URL=http://whisparr:6969
+      - WHISPARR_API_KEY=${WHISPARR_API_KEY}
+
+      # Download Clients (for API Proxy)
+      - QBITTORRENT_URL=http://qbittorrent:8080
+      - QBITTORRENT_API_KEY=${QBITTORRENT_API_KEY}
+      - TRANSMISSION_URL=http://transmission:9091
+      - TRANSMISSION_PASSWORD=${TRANSMISSION_PASSWORD}
+      - SABNZBD_URL=http://sabnzbd:8080
+      - SABNZBD_API_KEY=${SABNZBD_API_KEY}
+      - NZBGET_URL=http://nzbget:6789
+      - NZBGET_PASS=${NZBGET_PASS}
+      - DELUGE_URL=http://deluge:8112
+      - DELUGE_PASSWORD=${DELUGE_PASSWORD}
+
+      # Utilities (for API Proxy)
+      - NZBHYDRA_URL=http://nzbhydra:5076
+      - NZBHYDRA_API_KEY=${NZBHYDRA_API_KEY}
+      - PROWLARR_URL=http://prowlarr:9696
+      - PROWLARR_API_KEY=${PROWLARR_API_KEY}
+      - SEERR_URL=http://seerr:5055
+      - SEERR_API_KEY=${SEERR_API_KEY}
+      - BAZARR_URL=http://bazarr:6767
+      - BAZARR_API_KEY=${BAZARR_API_KEY}
+      - TAUTULLI_URL=http://tautulli:8181
+      - TAUTULLI_API_KEY=${TAUTULLI_API_KEY}
+      - MAINTAINERR_URL=http://maintainerr:6246
+      - MAINTAINERR_API_KEY=${MAINTAINERR_API_KEY}
+
       # Required: Domain and email for Let's Encrypt
       DOMAIN: example.com
       EMAIL: admin@example.com
@@ -44,7 +92,7 @@ services:
       EMBY_URL: "http://emby:8096"
       PLEX_URL: "http://plex:32400"
       TAUTULLI_URL: "http://tautulli:8181"
-      TRANSMISSION_URL: "http://transmission:6969"
+      TRANSMISSION_URL: "http://transmission:9091"
       QBITTORRENT_URL: "http://qbittorrent:8080"
       SABNZBD_URL: "http://sabnzbd:8080"
       DELUGE_URL: "http://deluge:8112"
