@@ -22,7 +22,7 @@ const services = {
   'qbittorrent': { url: process.env.QBITTORRENT_URL, key: process.env.QBITTORRENT_API_KEY, authType: 'query' },
   'transmission': { url: process.env.TRANSMISSION_URL, key: process.env.TRANSMISSION_PASSWORD, authType: 'transmission' },
   'sabnzbd': { url: process.env.SABNZBD_URL, key: process.env.SABNZBD_API_KEY, authType: 'query' },
-  'nzbget': { url: process.env.NZBGET_URL, key: process.env.NZBGET_PASS, authType: 'nzbget' },
+  'nzbget': { url: process.env.NZBGET_URL, key: process.env.NZBGET_PASS, user: process.env.NZBGET_USER, authType: 'nzbget' },
   'deluge': { url: process.env.DELUGE_URL, key: process.env.DELUGE_PASSWORD, authType: 'deluge' },
   'nzbhydra': { url: process.env.NZBHYDRA_URL, key: process.env.NZBHYDRA_API_KEY, authType: 'header' },
   'prowlarr': { url: process.env.PROWLARR_URL, key: process.env.PROWLARR_API_KEY, authType: 'header' },
@@ -250,7 +250,7 @@ app.post('/api/transmission/stats', async (req, res) => {
     if (cached) return res.json(cached);
 
     const config = services['transmission'];
-    if (!config.url || !config.key) {
+    if (!config.url) {
       throw new Error('Transmission not configured');
     }
 
@@ -315,7 +315,7 @@ app.post('/api/nzbget/stats', async (req, res) => {
     if (cached) return res.json(cached);
 
     const config = services['nzbget'];
-    if (!config.url || !config.key) {
+    if (!config.url || !config.key || !config.user) {
       throw new Error('NZBGet not configured');
     }
 
@@ -326,7 +326,7 @@ app.post('/api/nzbget/stats', async (req, res) => {
       id: 1
     };
 
-    const basicAuth = Buffer.from('nzbget:' + config.key).toString('base64');
+    const basicAuth = Buffer.from(config.user + ':' + config.key).toString('base64');
     const response = await fetch(`${config.url}/jsonrpc`, {
       method: 'POST',
       headers: {
