@@ -298,13 +298,15 @@ function initFooter() {
     const label = document.getElementById('templateLabel');
     const themeToggle = document.getElementById('themeToggle');
     const app = document.querySelector('.app');
-    const currentTemplate = app.getAttribute('data-layout');
+
+    // Get current template from data-layout attribute
+    let currentTemplate = app.getAttribute('data-layout');
     const currentTheme = app.getAttribute('data-theme');
 
     // Setup template slider
     const currentIndex = availableTemplates.indexOf(currentTemplate);
     slider.value = currentIndex >= 0 ? currentIndex : 0;
-    label.textContent = availableTemplates[slider.value];
+    label.textContent = currentTemplate || availableTemplates[slider.value];
 
     slider.addEventListener('input', (e) => {
         const index = parseInt(e.target.value);
