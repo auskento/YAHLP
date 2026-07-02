@@ -44,12 +44,7 @@
 }
 
 .menu-label {
-  font-size: 9px;
-  text-align: center;
-  color: var(--text-secondary);
-  max-width: 100px;
-  word-break: break-word;
-  line-height: 1.2;
+  display: none;
 }
 
 .menu-item:hover .menu-label {
