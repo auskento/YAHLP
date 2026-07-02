@@ -32,6 +32,14 @@ const services = {
   'maintainerr': { url: process.env.MAINTAINERR_URL, key: process.env.MAINTAINERR_API_KEY, authType: 'header' }
 };
 
+// Check if any services are configured
+const configuredServices = Object.keys(services).filter(key => services[key].url && services[key].key);
+const hasConfiguredServices = configuredServices.length > 0;
+
+if (!hasConfiguredServices) {
+  console.warn('[Proxy] No services configured with API keys. Proxy will be limited.');
+}
+
 // Generic request helper
 async function makeRequest(serviceKey, endpoint, options = {}) {
   const config = services[serviceKey];
