@@ -59,7 +59,7 @@
     <span class="footer-name">@@DASHBOARD_NAME@@</span>
   </div>
   <div class="footer-center">
-    <input type="range" id="templateSlider" min="0" max="4" value="0" class="template-slider" title="Switch template style">
+    <input type="range" id="templateSlider" min="0" max="0" value="0" class="template-slider" title="Switch template style">
     <span class="template-label" id="templateLabel">Classic</span>
   </div>
   <div class="footer-right">
@@ -285,8 +285,9 @@ async function checkConfiguredServices() {
 
 checkConfiguredServices();
 
-const coreLayouts = ['classic', 'modern', 'sleek', 'minimal'];
-let availableTemplates = coreLayouts;
+// Injected by build script - contains all detected layouts (core + custom + demos)
+@@AVAILABLE_TEMPLATES@@
+let availableTemplates = AVAILABLE_TEMPLATES;
 
 function initFooter() {
     const sliders = document.querySelectorAll('.template-slider');
@@ -308,7 +309,8 @@ function initFooter() {
       slider.style.display = 'none';
       label.style.display = 'none';
     } else {
-      // Setup template slider
+      // Setup template slider with correct max value
+      slider.max = Math.max(0, availableTemplates.length - 1);
       const currentIndex = availableTemplates.indexOf(currentTemplate);
       slider.value = currentIndex >= 0 ? currentIndex : 0;
       label.textContent = currentTemplate || availableTemplates[slider.value];

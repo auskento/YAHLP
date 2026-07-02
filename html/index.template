@@ -44,7 +44,6 @@ body {
 const dashStyleRaw = '@@DASH_STYLE@@' || 'classic';
 const isLocked = dashStyleRaw.includes(':only');
 const defaultTemplate = dashStyleRaw.replace(':only', '').trim() || 'classic';
-const builtInTemplates = ['classic', 'sleek', 'minimal', 'focus', 'neon'];
 
 // Store lock status
 if (isLocked) {
@@ -53,17 +52,9 @@ if (isLocked) {
   localStorage.removeItem('dashboard-locked');
 }
 
-// Check localStorage for user preference (unless locked)
-let template = defaultTemplate;
-if (!isLocked) {
-  const savedTemplate = localStorage.getItem('dashboard-template');
-  if (savedTemplate && builtInTemplates.includes(savedTemplate)) {
-    template = savedTemplate;
-  }
-}
-
-// Redirect to the appropriate template
-window.location.href = `/${template}.html`;
+// Use provided default template
+// (index.html will redirect to one of the generated template files)
+window.location.href = `/${defaultTemplate}.html`;
 </script>
 </body>
 </html>
