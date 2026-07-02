@@ -94,16 +94,17 @@ a { text-decoration:none; color:inherit; }
   bottom: 110%;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   color: var(--text-primary);
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
   z-index: 1000;
   opacity: 0;
   transition: opacity 0.2s;
-  min-width: 200px;
+  min-width: 220px;
   pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 .service-link:hover .tooltip {
   visibility: visible;
@@ -459,7 +460,14 @@ async function loadDashboard() {
         const isOnline = status.status === 'Online';
         const statusDotClass = isOnline ? 'online' : 'offline';
         html += `
-            <div class="service-card">
+            <div class="service-card" style="cursor:pointer" onclick="
+                event.preventDefault();
+                if (${status.popup}) {
+                    window.open('${status.href}', '${status.name}', 'resizable=no,status=no,location=no,toolbar=no,menubar=no,scrollbars=no');
+                } else {
+                    window.location.href = '${status.href}';
+                }
+            ">
                 <div class="service-card-header">
                     <div class="service-card-icon">
                         <img src="${status.icon}" alt="${status.name}" />

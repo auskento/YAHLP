@@ -97,17 +97,17 @@ a { text-decoration:none; color:inherit; }
   bottom: 110%;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   color: var(--text-primary);
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
-  white-space: nowrap;
   z-index: 1000;
   opacity: 0;
   transition: opacity 0.2s;
-  min-width: 200px;
+  min-width: 220px;
   pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 .service-link:hover .tooltip {
   visibility: visible;
@@ -451,8 +451,9 @@ async function loadDashboard() {
         if (!status) return;
         const isOnline = status.status === 'Online';
         const statusDotClass = isOnline ? 'online' : 'offline';
+        const href = status.popup ? `javascript:window.open('${status.href}', '${status.name}', 'resizable=no,status=no,location=no,toolbar=no,menubar=no,scrollbars=no')` : status.href;
         html += `
-            <div class="service-card">
+            <div class="service-card" style="cursor:pointer" onclick="window.location.href='${status.href}'">
                 <div class="service-card-header">
                     <div class="service-card-icon">
                         <img src="${status.icon}" alt="${status.name}" />
@@ -474,6 +475,21 @@ async function loadDashboard() {
     });
 
     content.innerHTML = html || '<div style="text-align:center;color:var(--text-secondary);padding:40px">No services available</div>';
+
+    // Add click handlers for popup vs regular navigation
+    document.querySelectorAll('.service-card').forEach((card, idx) => {
+        if (statuses[idx]) {
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                const status = statuses[idx];
+                if (status.popup) {
+                    window.open(status.href, status.name, 'resizable=no,status=no,location=no,toolbar=no,menubar=no,scrollbars=no');
+                } else {
+                    window.location.href = status.href;
+                }
+            });
+        }
+    });
 }
 
 loadDashboard();
