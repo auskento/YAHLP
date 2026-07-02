@@ -359,6 +359,7 @@ window.ClientData.update = function() {};
 
 <script>
 const SERVICES = @@SERVICES_ARRAY@@;
+console.log('[Classic] SERVICES loaded:', SERVICES);
 
 function updateDateTime() {
     const now = new Date();
