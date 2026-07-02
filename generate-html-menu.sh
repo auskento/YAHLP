@@ -422,6 +422,18 @@ generate_services_array() {
     fi
 
     for service_key in "${order_array[@]}"; do
+        # Handle separator marker
+        if [ "$service_key" = "SEP" ]; then
+            # Add separator object
+            if [ "$first" = true ]; then
+                first=false
+            else
+                array+=",$( printf '\n    ')"
+            fi
+            array+="{ id: 'SEP', name: '', desc: '', icon: '', href: '', accent: '', popup: false }"
+            continue
+        fi
+
         # Check if service is enabled
         local enable_var="ENABLE_${service_key}"
         local is_enabled="${!enable_var}"

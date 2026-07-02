@@ -137,6 +137,13 @@ a { text-decoration: none; color: inherit; }
   transform: translateX(4px);
 }
 
+.menu-separator {
+  flex-basis: 100%;
+  height: 12px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .menu-icon {
   width: 32px;
   height: 32px;
