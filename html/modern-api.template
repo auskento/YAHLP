@@ -643,6 +643,21 @@ class Component extends DCLogic {
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
           };
+        } else if (service === 'deluge') {
+          console.log(`[API] ${service} success:`, { downloading: data.downloading, dlSpeed: data.dlSpeed });
+          return {
+            ...app,
+            status: 'Online',
+            statusColor: 'var(--status-success)',
+            statusBg: 'rgba(16, 185, 129, 0.1)',
+            statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
+            stats: [
+              { label: 'Downloading', value: `${data.downloading}` },
+              { label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }
+            ],
+            iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
+            open: () => this.navigate(app)
+          };
         }
       })
       .catch(err => {
