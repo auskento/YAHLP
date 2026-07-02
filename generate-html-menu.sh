@@ -1054,10 +1054,11 @@ generate_all_styles() {
 
 
 # Generate CSS-based templates from master.template
-# Auto-detects CSS files in both built-in and user template directories
+# Auto-detects CSS files in built-in templates and user-mounted /templates
 generate_css_based_templates() {
     local MASTER_TEMPLATE="/var/www/html/master.template"
     local BUILTIN_STYLES="/var/www/html/styles"
+    local BUILTIN_TEMPLATES="/var/www/html/templates"
     local USER_TEMPLATES="/templates"
     local services_array=$(generate_services_array)
 
@@ -1069,9 +1070,9 @@ generate_css_based_templates() {
     local layouts=()
     local template_count=0
 
-    # Scan built-in styles directory
+    # Scan built-in styles directory (layout-classic.css, layout-sleek.css, etc.)
     if [ -d "$BUILTIN_STYLES" ]; then
-        echo "📁 Scanning built-in styles: $BUILTIN_STYLES"
+        echo "📁 Built-in styles: $BUILTIN_STYLES"
         while IFS= read -r -d '' css_file; do
             local layout_name=$(basename "$css_file" | sed 's/^layout-//' | sed 's/\.css$//')
             layouts+=("$layout_name")
@@ -1080,9 +1081,20 @@ generate_css_based_templates() {
         done < <(find "$BUILTIN_STYLES" -name "layout-*.css" -print0 2>/dev/null)
     fi
 
-    # Scan user templates directory (if mounted)
-    if [ -d "$USER_TEMPLATES" ]; then
-        echo "📁 Scanning user templates: $USER_TEMPLATES"
+    # Scan built-in templates directory (example templates, layout-neon.css, etc.)
+    if [ -d "$BUILTIN_TEMPLATES" ]; then
+        echo "📁 Built-in templates: $BUILTIN_TEMPLATES"
+        while IFS= read -r -d '' css_file; do
+            local layout_name=$(basename "$css_file" | sed 's/^layout-//' | sed 's/\.css$//')
+            layouts+=("$layout_name")
+            echo "  ✓ Found: layout-${layout_name}.css"
+            ((template_count++))
+        done < <(find "$BUILTIN_TEMPLATES" -name "layout-*.css" -print0 2>/dev/null)
+    fi
+
+    # Scan user templates directory (only if mounted with -v option)
+    if [ -d "$USER_TEMPLATES" ] && [ "$(ls -A "$USER_TEMPLATES" 2>/dev/null)" ]; then
+        echo "📁 User templates: $USER_TEMPLATES"
         while IFS= read -r -d '' css_file; do
             local layout_name=$(basename "$css_file" | sed 's/^layout-//' | sed 's/\.css$//')
             layouts+=("$layout_name")
