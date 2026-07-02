@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@@DASHBOARD_NAME@@ - Status</title>
+<script crossorigin src="/react.production.min.js"></script>
+<script crossorigin src="/react-dom.production.min.js"></script>
+<script src="support.js"></script>
+<link rel="stylesheet" href="/styles/base.css">
+<link rel="stylesheet" href="/styles/layout-@@TEMPLATE_TYPE@@.css">
+</head>
+<body>
+<div class="app" data-layout="@@TEMPLATE_TYPE@@" data-theme="dark">
+  <header class="app-header">
+    <div class="header-logo">
+      <img src="@@DASHBOARD_ICON@@" alt="Dashboard" class="logo-img">
+      <div class="logo-text">@@DASHBOARD_NAME@@</div>
+    </div>
+    <div class="header-time">
+      <div class="current-time" id="currentTime">--:--</div>
+      <div class="current-date" id="currentDate">---</div>
+    </div>
+  </header>
+
+  <aside class="app-sidebar">
+    <nav class="service-menu" id="serviceMenu">
+      <!-- Services populated by JavaScript -->
+    </nav>
+  </aside>
+
+  <main class="app-content">
+    <iframe id="service-frame" class="service-frame" src="" title="Service"></iframe>
+
+    <div id="dashboard-view" class="dashboard-view">
+      <div class="dashboard-header">
+        <h1 class="dashboard-title">Service Status</h1>
+        <p class="dashboard-subtitle">Real-time data from your services</p>
+      </div>
+      <div id="dashboard-content" class="dashboard-content">
+        <div class="loading-placeholder">Loading service status...</div>
+      </div>
+    </div>
+
+    <div id="welcome-screen" class="welcome-screen" style="display:none">
+      <img src="@@DASHBOARD_ICON@@" alt="Dashboard" class="welcome-logo">
+      <div class="welcome-title">Welcome to YAHLP</div>
+      <div class="welcome-message">
+        Configure your services with API keys in the environment variables to get started.
+        Once configured, your service status will appear here.
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const SERVICES = @@SERVICES_ARRAY@@;
+const apiBase = `http://${window.location.hostname}:3000/api`;
+
+const codeToService = {
+    'JEL': 'jellyfin', 'PLX': 'plex', 'EMB': 'emby',
+    'SON': 'sonarr', 'RAD': 'radarr', 'LID': 'lidarr', 'WHI': 'whisparr',
+    'QBI': 'qbittorrent', 'TRA': 'transmission', 'GET': 'nzbget', 'SAB': 'sabnzbd',
+    'DEL': 'deluge', 'HYD': 'nzbhydra', 'PRO': 'prowlarr', 'SEE': 'seerr',
+    'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
+};
+
+const frame = document.getElementById('service-frame');
+const dashboardView = document.getElementById('dashboard-view');
+const content = document.getElementById('dashboard-content');
+const welcomeScreen = document.getElementById('welcome-screen');
+const serviceMenu = document.getElementById('serviceMenu');
+
+function updateDateTime() {
+    const now = new Date();
+    const timeEl = document.getElementById('currentTime');
+    const dateEl = document.getElementById('currentDate');
+    if (timeEl) timeEl.textContent = now.toLocaleTimeString('en-AU', {hour: '2-digit', minute: '2-digit'});
+    if (dateEl) dateEl.textContent = now.toLocaleDateString('en-AU', {weekday: 'short', month: 'short', day: 'numeric'});
+}
+
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+async function fetchServiceStatus(service, app) {
+    try {
+        let url;
+        if (service === 'jellyfin' || service === 'emby') {
+            url = `${apiBase}/${service}/info`;
+        } else if (service === 'plex') {
+            url = `${apiBase}/plex/server`;
+        } else if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(service)) {
+            url = `${apiBase}/${service}/queue`;
+        } else if (['qbittorrent', 'sabnzbd', 'nzbget', 'transmission', 'deluge'].includes(service)) {
+            url = `${apiBase}/${service}/stats`;
+        } else if (['nzbhydra', 'prowlarr', 'seerr', 'bazarr', 'tautulli'].includes(service)) {
+            url = `${apiBase}/${service}/status`;
+        } else if (service === 'maintainerr') {
+            url = `${apiBase}/maintainerr/health`;
+        } else {
+            return null;
+        }
+
+        const response = await fetch(url, { mode: 'cors', redirect: 'follow', method: service === 'nzbget' || service === 'transmission' || service === 'deluge' ? 'POST' : 'GET' });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            if (errorData.error && errorData.error.includes('not configured')) {
+                return null;
+            }
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!data) return null;
+
+        let stats = [];
+        if (service === 'jellyfin' || service === 'plex' || service === 'emby') {
+            const sessions = Array.isArray(data) ? data : data.MediaSessions || [];
+            const playing = sessions.filter(s => s.PlayState && !s.PlayState.IsPaused).length;
+            stats = [{ label: 'Playing', value: playing }];
+        } else if (service === 'nzbhydra') {
+            stats = [
+                { label: 'Searches', value: data.searches || 0 },
+                { label: 'Indexers', value: data.indexers || 0 }
+            ];
+        } else if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(service)) {
+            stats = [
+                { label: 'Queue', value: data.queue || 0 },
+                { label: 'Downloading', value: data.downloading || 0 },
+                { label: 'Completed', value: data.completed || 0 }
+            ];
+        } else if (service === 'qbittorrent') {
+            stats = [
+                { label: 'Queue', value: data.total || 0 },
+                { label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }
+            ];
+        } else if (service === 'transmission') {
+            stats = [{ label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }];
+        } else if (service === 'sabnzbd') {
+            stats = [
+                { label: 'Queue', value: data.queue || 0 },
+                { label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }
+            ];
+        } else if (service === 'nzbget') {
+            stats = [{ label: 'Downloading', value: data.downloading || 0 }];
+        } else if (service === 'deluge') {
+            stats = [
+                { label: 'Downloading', value: data.downloading || 0 },
+                { label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }
+            ];
+        } else if (service === 'tautulli') {
+            stats = [
+                { label: 'Top User', value: data.topUser || 'N/A' },
+                { label: 'Users', value: data.users || 0 },
+                { label: 'Libraries', value: data.libraries || 0 }
+            ];
+        }
+
+        return { ...app, status: 'Online', stats };
+    } catch (err) {
+        console.error(`[${service}] Error:`, err);
+        return { ...app, status: 'Offline', stats: [] };
+    }
+}
+
+async function loadDashboard() {
+    const statuses = await Promise.all(SERVICES.map(app => {
+        const service = codeToService[app.id];
+        if (!service) return Promise.resolve(null);
+        return fetchServiceStatus(service, app);
+    }));
+
+    let html = '';
+    const visibleServices = statuses.filter(s => s);
+    visibleServices.forEach(status => {
+        const isOnline = status.status === 'Online';
+        const statusClass = isOnline ? 'online' : 'offline';
+        html += `
+            <div class="service-card" data-service-href="${status.href}" data-service-popup="${status.popup}">
+                <div class="service-card-header">
+                    <div class="service-card-icon">
+                        <img src="${status.icon}" alt="${status.name}" />
+                    </div>
+                    <div class="service-card-title">${status.name}</div>
+                    <div class="service-card-status">
+                        <span class="status-dot ${statusClass}"></span>
+                        ${status.status}
+                    </div>
+                </div>
+                ${status.stats.map(s => `
+                    <div class="service-stat">
+                        <span class="stat-label">${s.label}</span>
+                        <span class="stat-value">${s.value}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    });
+
+    content.innerHTML = html || '<div class="no-services">No configured services</div>';
+
+    document.querySelectorAll('.service-card').forEach((card) => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            const href = card.getAttribute('data-service-href');
+            const isPopup = card.getAttribute('data-service-popup') === 'true';
+            if (isPopup) {
+                window.open(href, '_blank');
+            } else {
+                frame.src = href;
+                frame.style.display = 'block';
+                dashboardView.style.display = 'none';
+            }
+        });
+    });
+}
+
+async function buildServiceMenu() {
+    let html = '';
+    SERVICES.forEach(app => {
+        html += `
+            <button class="menu-item" title="${app.name}" data-href="${app.href}" data-popup="${app.popup}">
+                <img src="${app.icon}" alt="${app.name}" class="menu-icon">
+                <span class="menu-label">${app.name}</span>
+            </button>
+        `;
+    });
+    serviceMenu.innerHTML = html;
+
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const href = item.getAttribute('data-href');
+            const isPopup = item.getAttribute('data-popup') === 'true';
+            if (isPopup) {
+                window.open(href, '_blank');
+            } else {
+                frame.src = href;
+                frame.style.display = 'block';
+                dashboardView.style.display = 'none';
+            }
+        });
+    });
+}
+
+async function checkConfiguredServices() {
+    try {
+        const response = await fetch(`http://${window.location.hostname}:3000/health`);
+        const health = await response.json();
+        const hasAnyConfigured = Object.values(health.services || {}).some(s => s.configured);
+
+        if (!hasAnyConfigured) {
+            dashboardView.style.display = 'none';
+            welcomeScreen.style.display = 'flex';
+            return;
+        }
+
+        await buildServiceMenu();
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+    } catch (err) {
+        console.error('[Health Check] Error:', err);
+        await buildServiceMenu();
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+    }
+}
+
+checkConfiguredServices();
+</script>
+</body>
+</html>
