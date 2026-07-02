@@ -348,26 +348,47 @@ a { text-decoration: none; color: inherit; }
   line-height: 1.6;
 }
 
-/* Style Switcher */
-.style-switcher {
+/* Footer Bar */
+.app-footer {
   position: fixed;
-  top: 12px;
-  right: 12px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  z-index: 1000;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.footer-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+}
+
+.footer-center {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  z-index: 1000;
-  min-height: 32px;
+  flex: 1;
 }
 
 .template-slider {
-  width: 80px;
+  width: 100px;
   height: 4px;
   cursor: pointer;
+  flex: 1;
+  max-width: 150px;
 }
 
 .template-label {
@@ -379,6 +400,45 @@ a { text-decoration: none; color: inherit; }
   text-align: center;
   letter-spacing: 0.5px;
   white-space: nowrap;
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.footer-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.footer-time span {
+  white-space: nowrap;
+}
+
+.theme-toggle {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.theme-toggle:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--text-primary);
 }
 
 /* Responsive */
@@ -400,12 +460,12 @@ a { text-decoration: none; color: inherit; }
     margin-left: 0;
   }
 
-  .style-switcher {
-    position: fixed;
-    top: 8px;
-    right: 8px;
-    width: auto;
-    border: 1px solid var(--border-color);
+  .footer-time {
+    font-size: 10px;
+  }
+
+  .template-slider {
+    max-width: 100px;
   }
 
   .template-slider {
