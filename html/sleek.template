@@ -90,16 +90,13 @@ a { text-decoration:none; color:inherit; }
 
 .tooltip {
   visibility: hidden;
-  position: absolute;
-  bottom: 110%;
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
+  z-index: 10000;
   background: var(--bg-secondary);
   border: 1px solid var(--border-light);
   color: var(--text-primary);
   padding: 12px;
   border-radius: 8px;
-  z-index: 1000;
   opacity: 0;
   transition: opacity 0.2s;
   min-width: 220px;
@@ -251,7 +248,7 @@ a { text-decoration:none; color:inherit; }
 </head>
 <body style="display:flex;height:100vh;width:100vw;background:radial-gradient(1200px 700px at 18% -10%,rgba(58,160,224,.10),transparent 60%),radial-gradient(900px 600px at 100% 110%,rgba(46,205,111,.07),transparent 55%),#08090c;overflow:hidden">
 
-  <aside style="display:flex;flex-direction:column;align-items:center;gap:calc(8px * var(--gap-multiplier));padding:15px 10px;flex:none;width:calc(110px * var(--icon-multiplier));min-width:100px;border-right:1px solid var(--border-color);overflow-y:auto;background:var(--bg-secondary)">
+  <aside style="display:flex;flex-direction:column;align-items:center;gap:calc(8px * var(--gap-multiplier));padding:15px 10px;flex:none;width:calc(110px * var(--icon-multiplier));min-width:100px;border-right:1px solid var(--border-color);overflow-y:auto;overflow-x:visible;background:var(--bg-secondary);position:relative;z-index:100">
 
     <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
       <a href="/" style="display:flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer">
@@ -324,22 +321,54 @@ function updateTime() {
 updateTime();
 setInterval(updateTime, 1000);
 
-// Render service icons
+// Render service icons with tooltips
 SERVICES.forEach(app => {
     const btn = document.createElement('button');
     btn.className = 'service-link';
     btn.style.setProperty('--accent', app.accent);
     console.log('[Sleek] Rendering service:', app.id, app.name);
 
-    btn.innerHTML = `
-      <div class="service-icon">
-        <img src="${app.icon}" alt="${app.name}" />
-      </div>
-      <div class="tooltip" data-id="${app.id}">
+    const icon = document.createElement('div');
+    icon.className = 'service-icon';
+    icon.innerHTML = `<img src="${app.icon}" alt="${app.name}" />`;
+    btn.appendChild(icon);
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.setAttribute('data-id', app.id);
+    tooltip.innerHTML = `
         <div style="font-weight:600;color:var(--text-primary);margin-bottom:6px">${app.name}</div>
-        <div class="tooltip-content" style="text-align:center;color:var(--text-secondary)">Loading...</div>
-      </div>
+        <div class="tooltip-content" style="font-size:11px">
+          <div style="text-align:center;color:var(--text-secondary)">Loading...</div>
+        </div>
     `;
+
+    btn.addEventListener('mouseenter', (e) => {
+        const rect = btn.getBoundingClientRect();
+        tooltip.style.visibility = 'visible';
+        tooltip.style.opacity = '1';
+        tooltip.style.left = (rect.left + rect.width / 2 - 110) + 'px';
+        tooltip.style.top = (rect.top - 20) + 'px';
+    });
+
+    btn.addEventListener('mouseleave', (e) => {
+        tooltip.style.visibility = 'hidden';
+        tooltip.style.opacity = '0';
+    });
+
+    btn.appendChild(tooltip);
+
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (app.popup) {
+            window.open(app.href, app.name, 'resizable=no,status=no,location=no,toolbar=no,menubar=no,scrollbars=no');
+        } else {
+            frame.src = app.href;
+            frame.style.display = 'block';
+            dashboardView.style.display = 'none';
+        }
+    });
+
     nav.appendChild(btn);
 });
 

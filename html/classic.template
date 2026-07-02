@@ -195,16 +195,13 @@ window.ClientData.update = function() {};
 
         .menu-item .tooltip {
             visibility: hidden;
-            position: absolute;
-            bottom: 110%;
-            left: 50%;
-            transform: translateX(-50%);
+            position: fixed;
+            z-index: 10000;
             background: var(--bg-secondary);
             border: 1px solid var(--border-accent);
             color: var(--text-primary);
             padding: 12px;
             border-radius: 8px;
-            z-index: 1000;
             opacity: 0;
             transition: opacity 0.2s;
             min-width: 220px;
@@ -412,7 +409,7 @@ window.ClientData.update = function() {};
 <body>
 
 <div class="header">
-    <div class="header-left">
+    <div class="header-left" style="position:relative;z-index:100">
         <a href="/" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex-shrink:0">
             <img src="@@DASHBOARD_ICON@@" alt="Dashboard" style="width:32px;height:32px;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(58,160,224,.4))">
             <div id="dashboard-name" style="font-weight:600;font-size:14px;color:#cdd3dd;letter-spacing:0.1em">@@DASHBOARD_NAME@@</div>
@@ -423,7 +420,7 @@ window.ClientData.update = function() {};
             @@STYLE_SWITCHER@@
         </div>
     </div>
-    <div class="menu-container">
+    <div class="menu-container" style="position:relative;z-index:100">
         <table class="menu-table">
             <tr id="menu-items">
                 @@MENU_ITEMS@@
@@ -489,8 +486,21 @@ if (menuItems) {
                     <div style="font-weight:600;color:var(--text-primary);margin-bottom:6px">${service.name}</div>
                     <div class="tooltip-content" style="text-align:center;color:var(--text-secondary)">Loading...</div>
                 `;
-                cell.style.position = 'relative';
-                cell.appendChild(tooltip);
+
+                cell.addEventListener('mouseenter', (e) => {
+                    const rect = link.getBoundingClientRect();
+                    tooltip.style.visibility = 'visible';
+                    tooltip.style.opacity = '1';
+                    tooltip.style.left = (rect.left + rect.width / 2 - 110) + 'px';
+                    tooltip.style.top = (rect.top - 20) + 'px';
+                });
+
+                cell.addEventListener('mouseleave', (e) => {
+                    tooltip.style.visibility = 'hidden';
+                    tooltip.style.opacity = '0';
+                });
+
+                document.body.appendChild(tooltip);
                 console.log('[Classic] Added tooltip for:', service.id, service.name);
             }
         }
