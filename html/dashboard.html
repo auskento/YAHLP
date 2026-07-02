@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard - Status</title>
+<script crossorigin src="/react.production.min.js"></script>
+<script crossorigin src="/react-dom.production.min.js"></script>
+<script src="support.js"></script>
+<style>
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #0d0d0d;
+  --bg-tertiary: #2a2a2a;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --text-accent: #00d4ff;
+  --text-link: #00d4ff;
+  --border-color: #333333;
+  --status-success: #00cc00;
+  --status-error: #ff3333;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app[data-theme="light"] {
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e8e8e8;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-accent: #0099cc;
+  --text-link: #0099cc;
+  --border-color: #cccccc;
+}
+
+.app-header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0;
+  gap: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  flex-shrink: 0;
+}
+
+.logo-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+.logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.header-time {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 24px;
+  flex-shrink: 0;
+}
+
+.current-time {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.current-date {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.style-switcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-left: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.template-slider {
+  width: 80px;
+  height: 4px;
+  cursor: pointer;
+}
+
+.template-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  min-width: 50px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.app-sidebar {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.service-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+}
+
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.menu-item:hover {
+  background: var(--bg-tertiary);
+  transform: scale(1.05);
+}
+
+.menu-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+}
+
+.menu-label {
+  font-size: 10px;
+  text-align: center;
+  color: var(--text-secondary);
+  max-width: 60px;
+  word-break: break-word;
+}
+
+.menu-item:hover .menu-label {
+  color: var(--text-primary);
+}
+
+.app-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.service-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: var(--bg-primary);
+  display: none;
+}
+
+.dashboard-view {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.dashboard-header {
+  margin-bottom: 30px;
+}
+
+.dashboard-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.dashboard-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.dashboard-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  max-width: 1600px;
+}
+
+.service-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.service-card:hover {
+  border-color: var(--text-accent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.service-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.service-card-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.service-card-title {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.service-card-status {
+  font-size: 12px;
+  color: var(--status-success);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.service-card-status.offline {
+  color: var(--status-error);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.service-stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 12px;
+}
+
+.service-stat:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+}
+
+.stat-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 40px;
+}
+
+.welcome-logo {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 30px;
+}
+
+.welcome-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.welcome-message {
+  font-size: 14px;
+  color: var(--text-secondary);
+  max-width: 500px;
+}
+
+.loading-placeholder {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+.no-services {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+/* CLASSIC LAYOUT */
+.app[data-template="classic"] {
+  flex-direction: column;
+}
+
+.app[data-template="classic"] .app-header {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 64px;
+  padding: 12px 24px;
+  gap: 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.app[data-template="classic"] .app-header .header-logo {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+}
+
+.app[data-template="classic"] .header-time {
+  margin-left: auto;
+  flex: 0 0 auto;
+  padding: 0;
+  border-left: 1px solid var(--border-color);
+  padding-left: 24px;
+}
+
+.app[data-template="classic"] .app-sidebar {
+  position: absolute;
+  top: 12px;
+  left: 280px;
+  right: 200px;
+  height: 40px;
+  border: none;
+  padding: 0;
+  background: transparent;
+  flex-direction: row;
+  align-items: center;
+}
+
+.app[data-template="classic"] .service-menu {
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.app[data-template="classic"] .menu-item {
+  height: 40px;
+  padding: 8px;
+}
+
+.app[data-template="classic"] .menu-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.app[data-template="classic"] .menu-label {
+  display: none !important;
+}
+
+.app[data-template="classic"] .app-content {
+  flex: 1;
+}
+
+/* SLEEK LAYOUT */
+.app[data-template="sleek"] {
+  flex-direction: row;
+}
+
+.app[data-template="sleek"] .app-header {
+  display: none;
+}
+
+.app[data-template="sleek"] .app-sidebar {
+  width: 200px;
+  border-right: 1px solid var(--border-color);
+  padding: 16px;
+}
+
+.app[data-template="sleek"] .service-menu {
+  flex-direction: column;
+  gap: 8px;
+}
+
+.app[data-template="sleek"] .menu-item {
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+}
+
+.app[data-template="sleek"] .menu-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.app[data-template="sleek"] .menu-label {
+  font-size: 10px;
+  text-align: center;
+  max-width: 60px;
+}
+
+/* MINIMAL LAYOUT */
+.app[data-template="minimal"] {
+  flex-direction: row;
+}
+
+.app[data-template="minimal"] .app-header {
+  display: none;
+}
+
+.app[data-template="minimal"] .app-sidebar {
+  width: 120px;
+  border-right: 1px solid var(--border-color);
+  padding: 12px;
+}
+
+.app[data-template="minimal"] .service-menu {
+  flex-direction: column;
+  gap: 4px;
+}
+
+.app[data-template="minimal"] .menu-item {
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+}
+
+.app[data-template="minimal"] .menu-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.app[data-template="minimal"] .menu-label {
+  font-size: 9px;
+  max-width: 50px;
+}
+
+/* FOCUS LAYOUT */
+.app[data-template="focus"] {
+  flex-direction: column;
+  background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+}
+
+.app[data-template="focus"] .app-header {
+  display: none;
+}
+
+.app[data-template="focus"] .app-sidebar {
+  display: none;
+}
+
+.app[data-template="focus"] .dashboard-view {
+  padding: 40px;
+  background: linear-gradient(180deg, rgba(0, 212, 255, 0.05) 0%, transparent 100%);
+}
+
+.app[data-template="focus"] .dashboard-content {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.app[data-template="focus"] .service-card {
+  background: rgba(20, 30, 48, 0.6);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.app[data-template="focus"] .service-card:hover {
+  border-color: rgba(0, 212, 255, 0.6);
+  box-shadow: 0 12px 48px rgba(0, 212, 255, 0.15);
+}
+
+/* NEON LAYOUT */
+.app[data-template="neon"] {
+  flex-direction: row;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a0a2e 100%);
+  color: #00f5ff;
+}
+
+.app[data-template="neon"] .app-header {
+  display: none;
+}
+
+.app[data-template="neon"] .app-sidebar {
+  width: 200px;
+  background: #0f0f1e;
+  border-right: 2px solid #00f5ff;
+  box-shadow: 2px 0 30px rgba(0, 245, 255, 0.3);
+  padding: 20px 12px;
+}
+
+.app[data-template="neon"] .service-menu {
+  flex-direction: column;
+  gap: 12px;
+}
+
+.app[data-template="neon"] .menu-item {
+  border: 2px solid #b537f2;
+  background: rgba(181, 55, 242, 0.05);
+  padding: 12px;
+}
+
+.app[data-template="neon"] .menu-item:hover {
+  border-color: #00f5ff;
+  background: rgba(0, 245, 255, 0.1);
+  box-shadow: 0 0 20px #00f5ff;
+}
+
+.app[data-template="neon"] .menu-label {
+  color: #00f5ff;
+  text-shadow: 0 0 8px #00f5ff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.app[data-template="neon"] .dashboard-view {
+  padding: 40px;
+  background: linear-gradient(180deg, rgba(0, 245, 255, 0.05) 0%, transparent 100%);
+}
+
+.app[data-template="neon"] .dashboard-title {
+  color: #00f5ff;
+  text-shadow: 0 0 20px #00f5ff;
+}
+
+.app[data-template="neon"] .service-card {
+  background: rgba(10, 14, 39, 0.8);
+  border: 2px solid #00f5ff;
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+}
+
+.app[data-template="neon"] .service-card:hover {
+  border-color: #ff006e;
+  box-shadow: 0 0 30px #ff006e;
+}
+
+.app[data-template="neon"] .service-card-title {
+  color: #00f5ff;
+  text-shadow: 0 0 10px #00f5ff;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .dashboard-content {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .app[data-template="classic"] .app-sidebar {
+    left: 240px;
+    right: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app[data-template="classic"] {
+    flex-direction: column;
+  }
+
+  .app[data-template="classic"] .app-header {
+    flex-wrap: nowrap;
+    position: relative;
+  }
+
+  .app[data-template="classic"] .app-sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    border-top: 1px solid var(--border-color);
+    border-right: none;
+    padding: 8px 12px;
+  }
+
+  .app[data-template="sleek"] {
+    flex-direction: column;
+  }
+
+  .app[data-template="sleek"] .app-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: row;
+    padding: 12px;
+  }
+
+  .app[data-template="sleek"] .service-menu {
+    flex-direction: row;
+  }
+
+  .app[data-template="minimal"] {
+    flex-direction: column;
+  }
+
+  .app[data-template="minimal"] .app-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .app[data-template="neon"] {
+    flex-direction: column;
+  }
+
+  .app[data-template="neon"] .app-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 2px solid #00f5ff;
+    flex-direction: row;
+    padding: 12px;
+  }
+
+  .app[data-template="neon"] .service-menu {
+    flex-direction: row;
+  }
+
+  .dashboard-view {
+    padding: 16px;
+  }
+
+  .dashboard-title {
+    font-size: 24px;
+  }
+
+  .dashboard-content {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .service-card {
+    padding: 12px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app" data-template="classic" data-theme="dark">
+  <header class="app-header">
+    <div class="header-logo">
+      <img src="/icon.svg" alt="Dashboard" class="logo-img">
+      <div class="logo-text" id="dashboardName">PRIVATE</div>
+    </div>
+    <div class="header-time">
+      <div class="current-time" id="currentTime">--:--</div>
+      <div class="current-date" id="currentDate">---</div>
+    </div>
+    <div class="style-switcher" id="styleSwitcher" style="display:none;">
+      <input type="range" id="templateSlider" min="0" max="4" value="0" class="template-slider" title="Switch template style">
+      <span class="template-label" id="templateLabel">Classic</span>
+    </div>
+  </header>
+
+  <aside class="app-sidebar">
+    <nav class="service-menu" id="serviceMenu">
+      <!-- Services populated by JavaScript -->
+    </nav>
+  </aside>
+
+  <main class="app-content">
+    <iframe id="service-frame" class="service-frame" src="" title="Service"></iframe>
+
+    <div id="dashboard-view" class="dashboard-view">
+      <div class="dashboard-header">
+        <h1 class="dashboard-title">Service Status</h1>
+        <p class="dashboard-subtitle">Real-time data from your services</p>
+      </div>
+      <div id="dashboard-content" class="dashboard-content">
+        <div class="loading-placeholder">Loading service status...</div>
+      </div>
+    </div>
+
+    <div id="welcome-screen" class="welcome-screen" style="display:none">
+      <img src="/icon.svg" alt="Dashboard" class="welcome-logo">
+      <div class="welcome-title">Welcome to YAHLP</div>
+      <div class="welcome-message">
+        Configure your services with API keys in the environment variables to get started.
+        Once configured, your service status will appear here.
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const SERVICES = @@SERVICES_ARRAY@@;
+const apiBase = `http://${window.location.hostname}:3000/api`;
+
+const codeToService = {
+    'JEL': 'jellyfin', 'PLX': 'plex', 'EMB': 'emby',
+    'SON': 'sonarr', 'RAD': 'radarr', 'LID': 'lidarr', 'WHI': 'whisparr',
+    'QBI': 'qbittorrent', 'TRA': 'transmission', 'GET': 'nzbget', 'SAB': 'sabnzbd',
+    'DEL': 'deluge', 'HYD': 'nzbhydra', 'PRO': 'prowlarr', 'SEE': 'seerr',
+    'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
+};
+
+const frame = document.getElementById('service-frame');
+const dashboardView = document.getElementById('dashboard-view');
+const content = document.getElementById('dashboard-content');
+const welcomeScreen = document.getElementById('welcome-screen');
+const serviceMenu = document.getElementById('serviceMenu');
+const app = document.querySelector('.app');
+
+const templates = ['classic', 'sleek', 'minimal', 'focus', 'neon'];
+
+function updateDateTime() {
+    const now = new Date();
+    const timeEl = document.getElementById('currentTime');
+    const dateEl = document.getElementById('currentDate');
+    if (timeEl) timeEl.textContent = now.toLocaleTimeString('en-AU', {hour: '2-digit', minute: '2-digit'});
+    if (dateEl) dateEl.textContent = now.toLocaleDateString('en-AU', {weekday: 'short', month: 'short', day: 'numeric'});
+}
+
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+async function fetchServiceStatus(service, app) {
+    try {
+        let url;
+        if (service === 'jellyfin' || service === 'emby') {
+            url = `${apiBase}/${service}/info`;
+        } else if (service === 'plex') {
+            url = `${apiBase}/plex/server`;
+        } else if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(service)) {
+            url = `${apiBase}/${service}/queue`;
+        } else if (['qbittorrent', 'sabnzbd', 'nzbget', 'transmission', 'deluge'].includes(service)) {
+            url = `${apiBase}/${service}/stats`;
+        } else if (['nzbhydra', 'prowlarr', 'seerr', 'bazarr', 'tautulli'].includes(service)) {
+            url = `${apiBase}/${service}/status`;
+        } else if (service === 'maintainerr') {
+            url = `${apiBase}/maintainerr/health`;
+        } else {
+            return null;
+        }
+
+        const response = await fetch(url, { mode: 'cors', redirect: 'follow', method: service === 'nzbget' || service === 'transmission' || service === 'deluge' ? 'POST' : 'GET' });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            if (errorData.error && errorData.error.includes('not configured')) {
+                return null;
+            }
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!data) return null;
+
+        let stats = [];
+        if (service === 'jellyfin' || service === 'plex' || service === 'emby') {
+            const sessions = Array.isArray(data) ? data : data.MediaSessions || [];
+            const playing = sessions.filter(s => s.PlayState && !s.PlayState.IsPaused).length;
+            stats = [{ label: 'Playing', value: playing }];
+        } else if (service === 'nzbhydra') {
+            stats = [
+                { label: 'Searches', value: data.searches || 0 },
+                { label: 'Indexers', value: data.indexers || 0 }
+            ];
+        } else if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(service)) {
+            stats = [
+                { label: 'Queue', value: data.queue || 0 },
+                { label: 'Downloading', value: data.downloading || 0 },
+                { label: 'Completed', value: data.completed || 0 }
+            ];
+        } else if (service === 'qbittorrent') {
+            stats = [
+                { label: 'Queue', value: data.total || 0 },
+                { label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }
+            ];
+        } else if (service === 'transmission') {
+            stats = [{ label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }];
+        } else if (service === 'sabnzbd') {
+            stats = [
+                { label: 'Queue', value: data.queue || 0 },
+                { label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }
+            ];
+        } else if (service === 'nzbget') {
+            stats = [{ label: 'Downloading', value: data.downloading || 0 }];
+        } else if (service === 'deluge') {
+            stats = [
+                { label: 'Downloading', value: data.downloading || 0 },
+                { label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }
+            ];
+        } else if (service === 'tautulli') {
+            stats = [
+                { label: 'Top User', value: data.topUser || 'N/A' },
+                { label: 'Users', value: data.users || 0 },
+                { label: 'Libraries', value: data.libraries || 0 }
+            ];
+        }
+
+        return { ...app, status: 'Online', stats };
+    } catch (err) {
+        console.error(`[${service}] Error:`, err);
+        return { ...app, status: 'Offline', stats: [] };
+    }
+}
+
+async function loadDashboard() {
+    const statuses = await Promise.all(SERVICES.map(app => {
+        const service = codeToService[app.id];
+        if (!service) return Promise.resolve(null);
+        return fetchServiceStatus(service, app);
+    }));
+
+    let html = '';
+    const visibleServices = statuses.filter(s => s);
+    visibleServices.forEach(status => {
+        const isOnline = status.status === 'Online';
+        const statusClass = isOnline ? '' : 'offline';
+        html += `
+            <div class="service-card" data-service-href="${status.href}" data-service-popup="${status.popup}">
+                <div class="service-card-header">
+                    <img src="${status.icon}" alt="${status.name}" class="service-card-icon" />
+                    <div class="service-card-title">${status.name}</div>
+                    <div class="service-card-status ${statusClass}">
+                        <span class="status-dot"></span>
+                        ${status.status}
+                    </div>
+                </div>
+                ${status.stats.map(s => `
+                    <div class="service-stat">
+                        <span class="stat-label">${s.label}</span>
+                        <span class="stat-value">${s.value}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    });
+
+    content.innerHTML = html || '<div class="no-services">No configured services</div>';
+
+    document.querySelectorAll('.service-card').forEach((card) => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            const href = card.getAttribute('data-service-href');
+            const isPopup = card.getAttribute('data-service-popup') === 'true';
+            if (isPopup) {
+                window.open(href, '_blank');
+            } else {
+                frame.src = href;
+                frame.style.display = 'block';
+                dashboardView.style.display = 'none';
+            }
+        });
+    });
+}
+
+async function buildServiceMenu() {
+    let html = '';
+    SERVICES.forEach(app => {
+        html += `
+            <button class="menu-item" title="${app.name}" data-href="${app.href}" data-popup="${app.popup}">
+                <img src="${app.icon}" alt="${app.name}" class="menu-icon">
+                <span class="menu-label">${app.name}</span>
+            </button>
+        `;
+    });
+    serviceMenu.innerHTML = html;
+
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const href = item.getAttribute('data-href');
+            const isPopup = item.getAttribute('data-popup') === 'true';
+            if (isPopup) {
+                window.open(href, '_blank');
+            } else {
+                frame.src = href;
+                frame.style.display = 'block';
+                dashboardView.style.display = 'none';
+            }
+        });
+    });
+}
+
+async function checkConfiguredServices() {
+    try {
+        const response = await fetch(`http://${window.location.hostname}:3000/health`);
+        const health = await response.json();
+        const hasAnyConfigured = Object.values(health.services || {}).some(s => s.configured);
+
+        if (!hasAnyConfigured) {
+            dashboardView.style.display = 'none';
+            welcomeScreen.style.display = 'flex';
+            return;
+        }
+
+        await buildServiceMenu();
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+    } catch (err) {
+        console.error('[Health Check] Error:', err);
+        await buildServiceMenu();
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+    }
+}
+
+checkConfiguredServices();
+
+function initStyleSwitcher() {
+    const switcher = document.getElementById('styleSwitcher');
+    const slider = document.getElementById('templateSlider');
+    const label = document.getElementById('templateLabel');
+
+    const savedTemplate = localStorage.getItem('dashboard-template') || 'classic';
+    if (templates.includes(savedTemplate)) {
+        app.setAttribute('data-template', savedTemplate);
+    }
+
+    const currentTemplate = app.getAttribute('data-template');
+    const currentIndex = templates.indexOf(currentTemplate);
+    slider.value = currentIndex >= 0 ? currentIndex : 0;
+    label.textContent = templates[slider.value];
+
+    switcher.style.display = 'flex';
+
+    slider.addEventListener('input', (e) => {
+        const index = parseInt(e.target.value);
+        const template = templates[index];
+        label.textContent = template;
+        app.setAttribute('data-template', template);
+        localStorage.setItem('dashboard-template', template);
+    });
+}
+
+initStyleSwitcher();
+</script>
+</body>
+</html>
