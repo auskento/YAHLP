@@ -1,0 +1,344 @@
+/* Storm Layout: Melbourne Storm themed dashboard */
+
+:root {
+  --storm-navy: #001f3f;
+  --storm-blue: #0099ff;
+  --storm-light: #e8f4ff;
+  --storm-accent: #00ccff;
+  --storm-dark: #0a1428;
+}
+
+.app {
+  flex-direction: column;
+  background: linear-gradient(135deg, var(--storm-dark) 0%, var(--storm-navy) 100%);
+}
+
+.app-header {
+  display: none;
+  height: 0;
+  padding: 0;
+  min-height: 0;
+}
+
+.header-logo {
+  display: none;
+}
+
+.header-time {
+  display: none;
+}
+
+.style-switcher {
+  order: 4;
+}
+
+.app-sidebar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  position: static;
+  width: 100%;
+  height: auto;
+  padding: 16px 24px;
+  border-bottom: 2px solid var(--storm-blue);
+  background: rgba(0, 31, 63, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 153, 255, 0.2);
+  order: 2;
+}
+
+.service-menu {
+  flex-direction: row;
+  gap: 12px;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  flex: 0 1 auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 10px;
+  min-width: auto;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  background: transparent;
+  height: auto;
+}
+
+.menu-item:hover {
+  transform: translateY(-2px);
+  background: rgba(0, 153, 255, 0.15);
+  border-color: var(--storm-blue);
+  box-shadow: 0 0 15px rgba(0, 153, 255, 0.3);
+}
+
+.menu-icon {
+  width: 48px;
+  height: 48px;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 153, 255, 0.2));
+}
+
+.menu-label {
+  display: none !important;
+  height: 0;
+  overflow: hidden;
+}
+
+.app-content {
+  order: 3;
+  flex: 1;
+  position: relative;
+}
+
+.dashboard-header {
+  display: none;
+}
+
+.dashboard-view {
+  padding: 32px;
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.dashboard-view::before {
+  content: '';
+  position: fixed;
+  top: 50%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><style>.st-logo{fill:none;stroke:%23003d66;stroke-width:2;opacity:0.08;}</style></defs><circle cx="100" cy="100" r="90" class="st-logo"/><path d="M100,30 L130,80 L170,80 L140,110 L160,160 L100,130 L40,160 L60,110 L30,80 L70,80 Z" class="st-logo"/><text x="100" y="170" font-size="16" text-anchor="middle" class="st-logo">STORM</text></svg>') no-repeat center;
+  background-size: contain;
+  pointer-events: none;
+  z-index: 0;
+  transform: translateY(-50%);
+}
+
+.dashboard-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.service-card {
+  background: rgba(10, 20, 40, 0.6);
+  border: 1px solid var(--storm-blue);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--storm-blue), var(--storm-accent));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.service-card:hover {
+  background: rgba(0, 99, 150, 0.3);
+  border-color: var(--storm-accent);
+  box-shadow: 0 0 20px rgba(0, 153, 255, 0.4);
+  transform: translateY(-3px);
+}
+
+.service-card:hover::before {
+  transform: scaleX(1);
+}
+
+.service-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.service-card-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 153, 255, 0.15);
+  border: 1px solid var(--storm-blue);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.service-card-title {
+  flex: 1;
+  font-weight: 600;
+  color: var(--storm-light);
+  font-size: 15px;
+}
+
+.service-card-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(0, 153, 255, 0.15);
+  border: 1px solid var(--storm-blue);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.online {
+  background: #00ff88;
+  box-shadow: 0 0 8px #00ff88;
+}
+
+.status-dot.offline {
+  background: #ff4444;
+}
+
+.service-stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: rgba(232, 244, 255, 0.7);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 153, 255, 0.2);
+}
+
+.stat-value {
+  font-weight: 600;
+  color: var(--storm-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.loading-placeholder,
+.welcome-screen {
+  text-align: center;
+  color: rgba(232, 244, 255, 0.7);
+}
+
+.welcome-logo {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 30px;
+  filter: drop-shadow(0 0 20px rgba(0, 153, 255, 0.4));
+}
+
+.welcome-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--storm-light);
+  margin-bottom: 15px;
+  text-shadow: 0 0 10px rgba(0, 153, 255, 0.3);
+}
+
+.welcome-message {
+  font-size: 15px;
+  color: rgba(232, 244, 255, 0.7);
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.service-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: var(--storm-navy);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .app-sidebar {
+    padding: 12px 16px;
+  }
+
+  .service-menu {
+    gap: 8px;
+  }
+
+  .menu-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .menu-item {
+    padding: 8px;
+  }
+
+  .dashboard-view {
+    padding: 24px;
+  }
+
+  .dashboard-view::before {
+    width: 450px;
+    height: 450px;
+    right: -5%;
+  }
+}
+
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+  }
+
+  .app-sidebar {
+    width: 100%;
+    padding: 12px;
+    border-bottom: 2px solid var(--storm-blue);
+  }
+
+  .service-menu {
+    gap: 8px;
+  }
+
+  .menu-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .menu-item {
+    padding: 6px;
+  }
+
+  .dashboard-view {
+    padding: 16px;
+  }
+
+  .dashboard-view::before {
+    width: 300px;
+    height: 300px;
+    right: -15%;
+    opacity: 0.05;
+  }
+
+  .service-card {
+    padding: 16px;
+  }
+}
