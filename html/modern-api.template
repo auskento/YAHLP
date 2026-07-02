@@ -514,11 +514,7 @@ class Component extends DCLogic {
           }
           return r.json();
         })
-        .then(torrents => {
-          const active = (torrents || []).filter(t => t.state.includes('dl')).length;
-          const seeding = (torrents || []).filter(t => t.state.includes('up')).length;
-          return { torrents, active, seeding };
-        });
+        .then(data => data);
     } else if (service === 'sabnzbd') {
       const url = `${apiBase}/sabnzbd/stats`;
       console.log(`[API] Fetching ${service}: ${url} (cached)`);
@@ -592,17 +588,7 @@ class Component extends DCLogic {
           }
           return r.json();
         })
-        .then(data => {
-          if (!data?.result) {
-            console.error(`[API] ${service} Invalid response format`);
-            return null;
-          }
-          const torrents = Object.values(data.result || {});
-          const downloading = torrents.filter(t =>
-            t.state && ['Downloading', 'Allocating'].includes(t.state)
-          ).length;
-          return { torrents, downloading };
-        });
+        .then(data => data);
     } else {
       return Promise.resolve(null);
     }
