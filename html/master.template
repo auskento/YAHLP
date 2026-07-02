@@ -236,6 +236,12 @@ async function loadDashboard() {
 async function buildServiceMenu() {
     let html = '';
     SERVICES.forEach(app => {
+        // Handle separator marker
+        if (app.id === 'SEP') {
+            html += '<div class="menu-separator"></div>';
+            return;
+        }
+
         html += `
             <button class="menu-item" title="${app.name}" data-href="${app.href}" data-popup="${app.popup}">
                 <img src="${app.icon}" alt="${app.name}" class="menu-icon">
