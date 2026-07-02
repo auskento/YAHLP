@@ -188,7 +188,7 @@ app.get('/api/nzbhydra/status', async (req, res) => {
     const cached = cache.get('nzbhydra-status');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('nzbhydra', '/api/v2/stats');
+    const data = await makeRequest('nzbhydra', '/api/stats');
     cache.set('nzbhydra-status', data);
     res.json(data);
   } catch (err) {

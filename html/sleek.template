@@ -303,7 +303,7 @@ const codeToService = {
     'JEL': 'jellyfin', 'PLX': 'plex', 'EMB': 'emby',
     'SON': 'sonarr', 'RAD': 'radarr', 'LID': 'lidarr', 'WHI': 'whisparr',
     'QBI': 'qbittorrent', 'TRA': 'transmission', 'GET': 'nzbget', 'SAB': 'sabnzbd',
-    'DEL': 'deluge', 'HYD': 'nzbhydra', 'PRW': 'prowlarr', 'SER': 'seerr',
+    'DEL': 'deluge', 'HYD': 'nzbhydra', 'PRO': 'prowlarr', 'SEE': 'seerr',
     'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
 };
 
