@@ -97,25 +97,38 @@ a { text-decoration:none; color:inherit; }
   bottom: 110%;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.9);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   color: var(--text-primary);
-  padding: 8px 12px;
-  border-radius: 6px;
+  padding: 10px;
+  border-radius: 8px;
   white-space: nowrap;
-  font-size: 11px;
   z-index: 1000;
-  border: 1px solid var(--border-light);
   opacity: 0;
   transition: opacity 0.2s;
+  min-width: 200px;
+  pointer-events: none;
 }
 .service-link:hover .tooltip {
   visibility: visible;
   opacity: 1;
 }
 
-.tooltip-status {
-  font-size: 10px;
+.tooltip-content {
   color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.tooltip-stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tooltip-stat-value {
+  font-weight: 600;
+  color: var(--text-accent);
 }
 
 .site-link {
@@ -309,9 +322,11 @@ SERVICES.forEach(app => {
       <div class="service-icon">
         <img src="${app.icon}" alt="${app.name}" />
       </div>
-      <div class="tooltip">
-        <div>${app.name}</div>
-        <div class="tooltip-status" style="margin-top:4px;font-weight:500" data-id="${app.id}">Loading...</div>
+      <div class="tooltip" data-id="${app.id}">
+        <div style="font-weight:600;color:var(--text-primary);margin-bottom:6px">${app.name}</div>
+        <div class="tooltip-content" style="font-size:11px">
+          <div style="text-align:center;color:var(--text-secondary)">Loading...</div>
+        </div>
       </div>
     `;
     nav.appendChild(btn);
@@ -409,14 +424,24 @@ async function loadDashboard() {
         return fetchServiceStatus(service, app);
     }));
 
-    // Update tooltips
-    const tooltips = document.querySelectorAll('[data-id]');
+    // Update tooltips with service stats
+    const tooltips = document.querySelectorAll('.tooltip[data-id]');
     tooltips.forEach((tooltip, idx) => {
         if (statuses[idx]) {
-            const status = statuses[idx].status;
-            tooltip.textContent = status;
-            tooltip.style.color = status === 'Online' ? 'var(--status-success)' : 'var(--status-error)';
-            console.log(`[Dashboard] Tooltip ${idx}: ${status}`);
+            const status = statuses[idx];
+            const content = tooltip.querySelector('.tooltip-content');
+            if (content) {
+                const statsHtml = status.stats.length > 0
+                    ? status.stats.map(s => `
+                        <div class="tooltip-stat">
+                            <span>${s.label}:</span>
+                            <span class="tooltip-stat-value">${s.value}</span>
+                        </div>
+                    `).join('')
+                    : `<div style="color:var(--text-secondary);text-align:center">${status.status}</div>`;
+                content.innerHTML = statsHtml;
+            }
+            console.log(`[Dashboard] Updated tooltip for ${status.name}: ${status.status}`);
         }
     });
 
