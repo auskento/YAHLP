@@ -23,11 +23,6 @@
     </div>
   </header>
 
-  <div class="style-switcher" id="styleSwitcher" style="display:none;">
-    <input type="range" id="templateSlider" min="0" max="0" value="0" class="template-slider" title="Switch template style">
-    <span class="template-label" id="templateLabel">Classic</span>
-  </div>
-
   <aside class="app-sidebar">
     <nav class="service-menu" id="serviceMenu">
       <!-- Services populated by JavaScript -->
@@ -294,8 +289,10 @@ const builtInTemplates = ['classic', 'sleek', 'minimal', 'focus', 'neon'];
 let availableTemplates = builtInTemplates;
 
 function initFooter() {
-    const slider = document.getElementById('templateSlider');
-    const label = document.getElementById('templateLabel');
+    const sliders = document.querySelectorAll('.template-slider');
+    const slider = sliders[sliders.length - 1]; // Get the footer slider (last one)
+    const labels = document.querySelectorAll('.template-label');
+    const label = labels[labels.length - 1]; // Get the footer label (last one)
     const themeToggle = document.getElementById('themeToggle');
     const app = document.querySelector('.app');
 
