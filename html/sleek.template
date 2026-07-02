@@ -235,6 +235,7 @@ a { text-decoration:none; color:inherit; }
 
 <script>
 const SERVICES = @@SERVICES_ARRAY@@;
+console.log('[Sleek] SERVICES loaded:', SERVICES);
 const nav = document.getElementById('services-nav');
 const content = document.getElementById('dashboard-content');
 
