@@ -138,8 +138,9 @@ a { text-decoration: none; color: inherit; }
 }
 
 .menu-separator {
-  flex: 0 0 12px;
-  opacity: 0;
+  flex: 0 0 auto;
+  margin-top: 6px;
+  margin-bottom: 6px;
   pointer-events: none;
 }
 
