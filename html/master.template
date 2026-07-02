@@ -310,14 +310,10 @@ function initFooter() {
         const index = parseInt(e.target.value);
         const template = availableTemplates[index];
         label.textContent = template;
-
-        const link = document.querySelector('link[href*="layout-"]');
-        if (link) {
-            link.href = `/styles/layout-${template}.css`;
-        }
-
-        app.setAttribute('data-layout', template);
         localStorage.setItem('dashboard-template', template);
+
+        // Navigate to the selected template HTML file
+        window.location.href = `/${template}.html`;
     });
 
     // Setup theme toggle
@@ -340,18 +336,6 @@ function initFooter() {
         app.setAttribute('data-theme', savedTheme);
     }
     updateThemeButton();
-
-    // Restore saved template
-    const savedTemplate = localStorage.getItem('dashboard-template');
-    if (savedTemplate && builtInTemplates.includes(savedTemplate)) {
-        app.setAttribute('data-layout', savedTemplate);
-        const link = document.querySelector('link[href*="layout-"]');
-        if (link) {
-            link.href = `/styles/layout-${savedTemplate}.css`;
-        }
-        slider.value = builtInTemplates.indexOf(savedTemplate);
-        label.textContent = savedTemplate;
-    }
 
     // Update footer time
     function updateFooterTime() {
