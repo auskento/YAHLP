@@ -311,42 +311,18 @@ const codeToService = {
 
 console.log('[Minimal] codeToService:', codeToService);
 
-// Render service icons with tooltips
+// Render service icons
 SERVICES.forEach(app => {
     const btn = document.createElement('button');
     btn.className = 'service-link';
     btn.style.setProperty('--accent', app.accent);
-    console.log('[Minimal] Rendering service:', app.id, app.name);
+    btn.title = app.name;
 
-    const icon = document.createElement('div');
-    icon.className = 'service-icon';
-    icon.innerHTML = `<img src="${app.icon}" alt="${app.name}" />`;
-    btn.appendChild(icon);
-
-    const tooltip = document.createElement('div');
-    tooltip.className = 'tooltip';
-    tooltip.setAttribute('data-id', app.id);
-    tooltip.innerHTML = `
-        <div style="font-weight:600;color:var(--text-primary);margin-bottom:6px">${app.name}</div>
-        <div class="tooltip-content" style="font-size:11px">
-          <div style="text-align:center;color:var(--text-secondary)">Loading...</div>
-        </div>
+    btn.innerHTML = `
+      <div class="service-icon">
+        <img src="${app.icon}" alt="${app.name}" />
+      </div>
     `;
-
-    btn.addEventListener('mouseenter', (e) => {
-        const rect = btn.getBoundingClientRect();
-        tooltip.style.visibility = 'visible';
-        tooltip.style.opacity = '1';
-        tooltip.style.left = (rect.left + rect.width / 2 - 110) + 'px';
-        tooltip.style.top = (rect.top - 20) + 'px';
-    });
-
-    btn.addEventListener('mouseleave', (e) => {
-        tooltip.style.visibility = 'hidden';
-        tooltip.style.opacity = '0';
-    });
-
-    btn.appendChild(tooltip);
 
     btn.addEventListener('click', (e) => {
         e.preventDefault();
