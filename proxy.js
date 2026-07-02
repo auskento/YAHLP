@@ -398,6 +398,7 @@ app.post('/api/deluge/stats', async (req, res) => {
     });
 
     const data = await response.json();
+    console.error('[DELUGE] Response:', JSON.stringify(data).substring(0, 200));
     cache.set('deluge-stats', data);
     res.json(data);
   } catch (err) {
