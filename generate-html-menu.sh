@@ -792,8 +792,8 @@ generate_style_dashboard() {
 
         echo "$html_content" > "$OUTPUT_FILE"
     else
-        # For sleek and minimal styles, generate icons-only services array
-        local services_array=$(generate_dashboard2_services_array)
+        # For sleek and minimal styles, generate services array
+        local services_array=$(generate_services_array)
         local service_count=0
         for service_key in "${SERVICE_ORDER[@]}"; do
             local enable_var="ENABLE_${service_key}"
