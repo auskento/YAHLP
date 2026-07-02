@@ -1101,10 +1101,40 @@ generate_css_based_templates() {
         layouts=("classic" "sleek" "minimal" "focus")
     fi
 
+    # Separate core and custom layouts, sort alphabetically
+    local core_layouts=()
+    local custom_layouts=()
+    local core_names=("classic" "modern" "sleek" "minimal")
+
+    for layout in "${layouts[@]}"; do
+        local is_core=false
+        for core in "${core_names[@]}"; do
+            if [ "$layout" = "$core" ]; then
+                is_core=true
+                break
+            fi
+        done
+
+        if [ "$is_core" = true ]; then
+            core_layouts+=("$layout")
+        else
+            custom_layouts+=("$layout")
+        fi
+    done
+
+    # Sort each group alphabetically
+    IFS=$'\n' core_layouts=($(sort <<<"${core_layouts[*]}"))
+    unset IFS
+    IFS=$'\n' custom_layouts=($(sort <<<"${custom_layouts[*]}"))
+    unset IFS
+
+    # Combine: core first, then custom
+    layouts=("${core_layouts[@]}" "${custom_layouts[@]}")
+
     echo ""
     echo "🎨 Generating ${#layouts[@]} template(s)..."
 
-    # Generate JavaScript array of all available templates
+    # Generate JavaScript array of all available templates (sorted order)
     local templates_js="const AVAILABLE_TEMPLATES = ["
     local first=true
     for layout in "${layouts[@]}"; do
