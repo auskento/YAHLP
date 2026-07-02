@@ -1,4 +1,4 @@
-/* Classic Layout: Horizontal menu bar */
+/* Classic Layout: Menu items in header bar with logo */
 
 .app {
   flex-direction: column;
@@ -7,70 +7,60 @@
 .app-header {
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  min-height: 72px;
+  justify-content: flex-start;
+  min-height: 64px;
   padding: 12px 24px;
-  flex-wrap: wrap;
-  gap: 12px;
+  gap: 24px;
 }
 
 .header-logo {
-  order: 1;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .header-time {
-  order: 2;
   margin-left: auto;
+  flex: 0 0 auto;
 }
 
 .app-sidebar {
-  order: 3;
-  width: 100%;
-  flex-direction: row;
-  border: none;
-  border-top: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  padding: 0;
-  height: auto;
-  min-height: 64px;
+  display: none;
 }
 
 .service-menu {
   flex-direction: row;
-  gap: 0;
-  padding: 8px 24px;
+  gap: 8px;
+  padding: 0;
   align-items: center;
   flex-wrap: wrap;
-  width: 100%;
+  flex: 0 0 auto;
 }
 
 .menu-item {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 8px 12px;
-  min-width: 64px;
+  gap: 0;
+  padding: 8px;
+  min-width: auto;
+  border-radius: 8px;
+  transition: all 0.2s;
 }
 
 .menu-item:hover {
-  transform: translateX(0);
+  transform: translateY(-2px);
   background: var(--bg-tertiary);
 }
 
 .menu-icon {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
 }
 
 .menu-label {
-  font-size: 10px;
-  text-align: center;
-  color: var(--text-secondary);
-}
-
-.menu-item:hover .menu-label {
-  color: var(--text-primary);
+  display: none;
 }
 
 .app-content {
@@ -89,32 +79,57 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .app-header {
-    min-height: auto;
-    padding: 12px;
-  }
-
-  .header-time {
-    margin-left: 0;
-  }
-
-  .service-menu {
-    padding: 8px 12px;
-  }
-
-  .menu-item {
-    min-width: 56px;
-    padding: 6px 8px;
+    min-height: 56px;
+    padding: 8px 16px;
+    gap: 16px;
   }
 
   .menu-icon {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
   }
 
-  .menu-label {
-    font-size: 9px;
+  .menu-item {
+    padding: 6px;
+  }
+
+  .service-menu {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    min-height: 56px;
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .header-logo {
+    flex: 1 1 auto;
+  }
+
+  .header-time {
+    order: -1;
+    flex: 1 1 100%;
+  }
+
+  .service-menu {
+    flex: 1 1 100%;
+    gap: 4px;
+    order: 1;
+  }
+
+  .menu-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .menu-item {
+    padding: 4px;
   }
 
   .dashboard-view {
