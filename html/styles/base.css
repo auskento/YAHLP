@@ -367,6 +367,7 @@ a { text-decoration: none; color: inherit; }
 .footer-left {
   display: flex;
   align-items: center;
+  gap: 8px;
   flex-shrink: 0;
 }
 
@@ -374,6 +375,14 @@ a { text-decoration: none; color: inherit; }
   width: 28px;
   height: 28px;
   border-radius: 4px;
+}
+
+.footer-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .footer-center {
