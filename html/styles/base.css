@@ -155,6 +155,31 @@ a { text-decoration: none; color: inherit; }
   border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.menu-separator-label {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+  margin-bottom: 6px;
+  padding: 8px 4px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  writing-mode: horizontal-tb;
+}
+
+/* Vertical text for column layouts */
+.service-menu[style*="column"] .menu-separator-label,
+.service-menu[style*="flex-direction: column"] .menu-separator-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
 .menu-icon {
   width: 32px;
   height: 32px;
