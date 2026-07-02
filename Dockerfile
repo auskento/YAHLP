@@ -45,15 +45,10 @@ RUN mkdir -p /var/www/html/error-pages \
     && chmod 777 /etc/letsencrypt/live \
     && chmod -R 777 /var/log/apache2
 
-# Copy custom HTML files (including subdirectories)
+# Copy custom HTML files (including built-in templates and styles)
 COPY html /var/www/html
 RUN chmod -R 755 /var/www/html && \
     find /var/www/html -type f -exec chmod 644 {} \;
-
-# Copy example templates and set up templates directory (will be mounted as volume)
-COPY templates /templates
-RUN chmod -R 755 /templates && \
-    find /templates -type f -exec chmod 644 {} \;
 
 # Copy pre-cached site favicons if they exist
 RUN if [ -d /var/www/html/sites-icons ] && [ "$(ls -A /var/www/html/sites-icons 2>/dev/null)" ]; then \

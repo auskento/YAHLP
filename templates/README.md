@@ -1,127 +1,142 @@
-# Custom Templates
+# Custom User Templates
 
-Add CSS files here to automatically generate custom dashboard templates!
+This folder is mounted as a volume in Docker. Add your custom CSS templates here!
 
 ## How It Works
 
-**First time (Docker build):**
-1. Example templates included: `layout-neon.css`
-2. All templates in this folder are copied into the Docker image
-3. Auto-detected and built when Docker starts
-4. Access templates: `http://your-server/neon.html`
-
-**Adding custom templates:**
-1. Create a local `./templates/` folder on your host machine
-2. Add CSS files named `layout-yourname.css`
-3. Rebuild Docker: `docker-compose down && docker-compose up --build -d`
-4. Access your template: `http://your-server/yourname.html`
-
-## Example
-
+**Folder structure:**
 ```
-templates/
-├── layout-custom.css     → generates /custom.html
-├── layout-dark.css       → generates /dark.html
-├── layout-neon.css       → generates /neon.html
-└── README.md             (this file)
+(repo)/templates/          ← This folder (mounted as volume at /templates)
+├── layout-custom.css      → generates /custom.html
+├── layout-dark.css        → generates /dark.html
+└── README.md              (this file)
 ```
 
-## Creating a Custom Template
+**Auto-detection:**
+1. Any file named `layout-*.css` is automatically detected
+2. Docker scans `/templates` on startup
+3. Generated templates appear at `http://your-server/name.html`
 
-See `CUSTOMIZATION.md` in the root directory for:
-- CSS class reference
-- CSS variables
-- Layout examples
-- Tips & tricks
+**Note:** Built-in examples are in `../html/templates/` (not this folder). They're always available.
 
 ## Quick Start
 
-**1. Copy the neon example or another built-in template:**
+**1. Add a custom template file:**
 
 ```bash
-cp layout-neon.css layout-mytemplate.css
+# Create your CSS file
+cat > templates/layout-mytemplate.css << 'EOF'
+/* Your custom CSS here */
+.app {
+  flex-direction: column;
+}
+/* ... more CSS ... */
+EOF
 ```
 
-**2. Edit your template:**
-
-```bash
-nano layout-mytemplate.css
-```
-
-Customize colors, layout, spacing, transitions—whatever you want!
-
-**3. Rebuild Docker:**
+**2. Rebuild Docker:**
 
 ```bash
 docker-compose down
 docker-compose up --build -d
 ```
 
-**4. Access your template:**
+**3. Access your template:**
 
 ```
 http://your-server/mytemplate.html
 ```
 
-## Built-in Templates
+## Create from Example
 
-Located in `../html/styles/` - always available:
+**Copy a built-in example:**
+
+```bash
+# Copy from repo's html/templates
+cp html/templates/layout-neon.css templates/layout-myneon.css
+
+# Or from the container after first build
+docker cp apache-reverse-proxy:/var/www/html/templates/layout-neon.css templates/
+```
+
+**Edit and rebuild:**
+
+```bash
+nano templates/layout-myneon.css
+docker-compose down && docker-compose up --build -d
+```
+
+## CSS File Naming
+
+Files must be named `layout-*.css`:
+
+- ✅ `layout-custom.css` → generates `custom.html`
+- ✅ `layout-dark-mode.css` → generates `dark-mode.html`
+- ❌ `custom.css` → NOT detected
+- ❌ `my-layout.css` → NOT detected
+
+## Available Template Reference
+
+**Built-in styles** (always available, in `../html/styles/`):
 - `/classic.html` - Horizontal menu bar
 - `/sleek.html` - 2-column sidebar
 - `/minimal.html` - Single-column sidebar
 - `/focus.html` - Modern card-centric design
 
-## Included Examples
+**Built-in examples** (in `../html/templates/`):
+- `/neon.html` - Cyberpunk with glow effects
+- (More examples can be added here)
 
-Located in `./templates/` - copied into Docker at build time:
-- `/neon.html` - Cyberpunk-inspired design with glow effects
+**Your custom templates** (in `./templates/`):
+- Add your own `.css` files here
 
-Use these as starting points for your custom templates!
+## Customization Guide
 
-## CSS File Naming
+See `../CUSTOMIZATION.md` for:
+- CSS class reference (all available class names)
+- CSS variables for colors and styling
+- Layout examples (sidebar, grid, header styles)
+- Responsive design patterns
+- Tips and best practices
 
-**Important:** CSS files must be named `layout-*.css`
+## Debugging
 
-- ✅ `layout-custom.css` → generates `custom.html`
-- ✅ `layout-dark.css` → generates `dark.html`
-- ❌ `custom.css` → will NOT be detected
-- ❌ `layout-custom-v2.css` → generates `custom-v2.html` (okay)
-
-## Tips
-
-- Use browser DevTools to inspect and debug CSS
-- Reference existing layouts (`../html/styles/`) for examples
-- Keep CSS organized with comments
-- Test responsive behavior on mobile
-
-## Troubleshooting
-
-**Template not generating?**
-- Filename must be `layout-*.css` (e.g., `layout-custom.css`)
-- File must be in this folder: `./templates/`
-- Rebuild Docker: `docker-compose down && docker-compose up --build -d`
-- Check logs: `docker-compose logs apache-reverse-proxy | grep -i template`
-
-**Can't see my template?**
-- Hard refresh browser (Ctrl+Shift+R or Cmd+Shift+R)
-- Clear browser cache
-- Verify file exists: `ls -la ./templates/`
-- Verify Docker copied it: `docker exec apache-reverse-proxy ls -la /templates/`
-
-**Examples disappeared after first run?**
-- Examples are built into Docker at build time
-- If you mount a local `./templates` folder, it overrides the Docker image
-- Copy examples locally to keep them: `cp /path/to/repo/templates/* ./templates/`
-
-**Want to modify built-in layouts?**
-- Edit in `../html/styles/layout-*.css`
+**Template not appearing?**
+- Check filename: must start with `layout-` and end with `.css`
+- Verify file location: `ls -la templates/`
 - Rebuild: `docker-compose down && docker-compose up --build -d`
-- These are always available (not replaced by volume mount)
+- Check Docker logs: `docker-compose logs apache-reverse-proxy | grep -i template`
+
+**Can't see changes after rebuild?**
+- Hard refresh browser: Ctrl+Shift+R (Windows/Linux) or Cmd+Shift+R (Mac)
+- Clear browser cache completely
+- Verify Docker picked up the file: `docker exec apache-reverse-proxy ls -la /templates/`
+
+**Docker says template folder doesn't exist?**
+- This is normal if you haven't created `./templates/` yet
+- Create the folder: `mkdir -p ./templates/`
+- Add a CSS file
+- Rebuild Docker
+
+## Examples
+
+Check `../html/templates/` for example CSS files you can copy and customize.
 
 ## Contributing
 
-If you create a cool template, consider sharing it!
-- Document your design choices
-- Include responsive breakpoints
-- Test on mobile
-- Submit as a PR or issue on GitHub
+Found a great template design? Share it!
+- Test on desktop and mobile
+- Document your CSS choices
+- Submit as a PR to the main repo
+
+## Docker Mount
+
+The `./templates/` folder is mounted in docker-compose.yml:
+
+```yaml
+volumes:
+  - ./templates:/templates
+```
+
+This makes any CSS files you add immediately available to the dashboard builder.
+Only files in this folder are included in the mounted volume—built-in templates in `../html/templates/` are always available separately.
