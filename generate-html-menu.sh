@@ -1134,6 +1134,21 @@ generate_css_based_templates() {
         done < <(find "$BUILTIN_STYLES" -name "layout-*.css" -print0 2>/dev/null)
     fi
 
+    # Filter layouts if STYLES_TO_BUILD is specified
+    if [ ${#STYLES_TO_BUILD[@]} -gt 0 ]; then
+        local filtered_layouts=()
+        for style in "${STYLES_TO_BUILD[@]}"; do
+            style=$(echo "$style" | xargs | tr '[:lower:]' '[:upper:]')
+            for layout in "${layouts[@]}"; do
+                if [ "$(echo "$layout" | tr '[:lower:]' '[:upper:]')" = "$style" ]; then
+                    filtered_layouts+=("$layout")
+                    break
+                fi
+            done
+        done
+        layouts=("${filtered_layouts[@]}")
+    fi
+
     if [ ${#layouts[@]} -eq 0 ]; then
         echo "⚠️  No layout CSS files found! Generating defaults..."
         layouts=("classic" "sleek" "minimal" "focus")
@@ -1231,19 +1246,34 @@ generate_html() {
         fi
     done
 
-    # Parse DASH_STYLE for optional :only suffix
-    # Format: "classic", "modern", "sleek", "minimal", or "classic:only", "modern:only", etc.
-    if [[ "$DASH_STYLE" == *":only"* ]]; then
-        # Extract base style (remove :only suffix)
-        DASH_STYLE="${DASH_STYLE%:only}"
-        SHOW_STYLE_SWITCHER="false"
-        echo "Style locked to: $DASH_STYLE (style switcher disabled)"
-    else
-        # Default: show style switcher
+    # Parse DASH_STYLE options
+    # Format: "classic" (build all, use classic as default)
+    #         "classic:only" (build only classic, lock to it)
+    #         "classic,modern,sleek" (build only these, show only in slider)
+
+    local STYLES_TO_BUILD=()
+    local DEFAULT_STYLE=""
+
+    if [[ "$DASH_STYLE" == *","* ]]; then
+        # Comma-separated list: build only these styles
+        IFS=',' read -ra STYLES_TO_BUILD <<< "$DASH_STYLE"
+        DEFAULT_STYLE="${STYLES_TO_BUILD[0]}"
         SHOW_STYLE_SWITCHER="true"
+        echo "Building specific styles: ${STYLES_TO_BUILD[*]}"
+    elif [[ "$DASH_STYLE" == *":only"* ]]; then
+        # Single style with :only suffix: build only this, lock to it
+        DEFAULT_STYLE="${DASH_STYLE%:only}"
+        STYLES_TO_BUILD=("$DEFAULT_STYLE")
+        SHOW_STYLE_SWITCHER="false"
+        echo "Style locked to: $DEFAULT_STYLE (style switcher disabled)"
+    else
+        # Single style: build all, use this as default
+        DEFAULT_STYLE="$DASH_STYLE"
+        SHOW_STYLE_SWITCHER="true"
+        echo "Building all styles, default: $DEFAULT_STYLE"
     fi
 
-    # Generate CSS-based templates (classic, sleek, minimal, focus from master.template)
+    # Generate CSS-based templates
     generate_css_based_templates
 
     # Generate all style variants (for backwards compatibility)
