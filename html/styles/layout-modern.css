@@ -24,7 +24,7 @@
   background: linear-gradient(180deg, var(--bg-secondary), rgba(12, 14, 19, 0.95));
   backdrop-filter: blur(18px);
   border-right: 1px solid var(--border-color);
-  padding: 24px 20px;
+  padding: 0 20px 24px 20px;
   flex-direction: column;
   gap: 0;
   overflow-y: auto;

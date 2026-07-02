@@ -409,11 +409,14 @@ generate_services_array() {
 
     # Use DASHBOARD_ORDER if provided, otherwise use SERVICE_ORDER
     if [ ! -z "$DASHBOARD_ORDER" ]; then
-        # Parse DASHBOARD_ORDER (service codes format: SAB,GET,HYD,etc)
+        # Parse DASHBOARD_ORDER (service codes format: SAB,GET,HYD,etc + SEP for separators)
         IFS=',' read -ra codes <<< "$DASHBOARD_ORDER"
         for code in "${codes[@]}"; do
             code=$(echo "$code" | xargs | tr '[:lower:]' '[:upper:]')
-            if [ -n "${SERVICE_CODE_MAP[$code]}" ]; then
+            # Handle SEP (separator) marker
+            if [ "$code" = "SEP" ]; then
+                order_array+=("SEP")
+            elif [ -n "${SERVICE_CODE_MAP[$code]}" ]; then
                 order_array+=("${SERVICE_CODE_MAP[$code]}")
             fi
         done
