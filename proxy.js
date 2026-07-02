@@ -109,7 +109,14 @@ app.get('/api/tautulli/status', async (req, res) => {
     const cached = cache.get('tautulli-status');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('tautulli', '/api/v2?cmd=status');
+    const config = services['tautulli'];
+    if (!config.url || !config.key) {
+      throw new Error('Tautulli not configured');
+    }
+
+    const url = `${config.url}/api/v2?cmd=get_activity&apikey=${encodeURIComponent(config.key)}`;
+    const response = await fetch(url);
+    const data = await response.json();
     cache.set('tautulli-status', data);
     res.json(data);
   } catch (err) {
@@ -151,7 +158,14 @@ app.get('/api/nzbhydra/status', async (req, res) => {
     const cached = cache.get('nzbhydra-status');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('nzbhydra', '/api/stats');
+    const config = services['nzbhydra'];
+    if (!config.url || !config.key) {
+      throw new Error('NZBHydra not configured');
+    }
+
+    const url = `${config.url}/api/stats?apikey=${encodeURIComponent(config.key)}`;
+    const response = await fetch(url);
+    const data = await response.json();
     cache.set('nzbhydra-status', data);
     res.json(data);
   } catch (err) {
@@ -221,9 +235,9 @@ app.get('/api/qbittorrent/stats', async (req, res) => {
     const cached = cache.get('qbittorrent-stats');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('qbittorrent', '/api/v2/server/preferences');
+    const data = await makeRequest('qbittorrent', '/api/v2/torrents/info');
     cache.set('qbittorrent-stats', data);
-    res.json(data);
+    res.json(data || []);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -235,13 +249,39 @@ app.post('/api/transmission/stats', async (req, res) => {
     const cached = cache.get('transmission-stats');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('transmission', '/transmission/rpc', {
+    const config = services['transmission'];
+    if (!config.url || !config.key) {
+      throw new Error('Transmission not configured');
+    }
+
+    const payload = { method: 'session-stats' };
+    const basicAuth = 'transmission:' + config.key;
+
+    let response = await fetch(`${config.url}/rpc`, {
       method: 'POST',
-      body: JSON.stringify({
-        method: 'session-get',
-        arguments: {}
-      })
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + Buffer.from(basicAuth).toString('base64')
+      },
+      body: JSON.stringify(payload)
     });
+
+    if (response.status === 409) {
+      const sessionId = response.headers.get('X-Transmission-Session-Id');
+      if (sessionId) {
+        response = await fetch(`${config.url}/rpc`, {
+          method: 'POST',
+          headers: {
+            'X-Transmission-Session-Id': sessionId,
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + Buffer.from(basicAuth).toString('base64')
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+    }
+
+    const data = await response.json();
     cache.set('transmission-stats', data);
     res.json(data);
   } catch (err) {
@@ -255,7 +295,14 @@ app.get('/api/sabnzbd/stats', async (req, res) => {
     const cached = cache.get('sabnzbd-stats');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('sabnzbd', '/api?mode=queue&output=json');
+    const config = services['sabnzbd'];
+    if (!config.url || !config.key) {
+      throw new Error('SABnzbd not configured');
+    }
+
+    const url = `${config.url}/api?mode=queue&output=json&apikey=${encodeURIComponent(config.key)}`;
+    const response = await fetch(url);
+    const data = await response.json();
     cache.set('sabnzbd-stats', data);
     res.json(data);
   } catch (err) {
@@ -269,15 +316,27 @@ app.post('/api/nzbget/stats', async (req, res) => {
     const cached = cache.get('nzbget-stats');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('nzbget', '/jsonrpc', {
+    const config = services['nzbget'];
+    if (!config.url || !config.key) {
+      throw new Error('NZBGet not configured');
+    }
+
+    const payload = {
+      version: '1.1',
+      method: 'status',
+      params: [],
+      id: 1
+    };
+    const basicAuth = 'nzbget:' + config.key;
+    const response = await fetch(`${config.url}/jsonrpc`, {
       method: 'POST',
-      body: JSON.stringify({
-        version: '1.1',
-        method: 'status',
-        params: [],
-        id: 1
-      })
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + Buffer.from(basicAuth).toString('base64')
+      },
+      body: JSON.stringify(payload)
     });
+    const data = await response.json();
     cache.set('nzbget-stats', data);
     res.json(data);
   } catch (err) {
@@ -291,14 +350,40 @@ app.post('/api/deluge/stats', async (req, res) => {
     const cached = cache.get('deluge-stats');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('deluge', '/json', {
+    const config = services['deluge'];
+    if (!config.url || !config.key) {
+      throw new Error('Deluge not configured');
+    }
+
+    // First auth
+    let authPayload = {
+      method: 'auth.login',
+      params: [config.key],
+      id: 1
+    };
+    let response = await fetch(`${config.url}/json`, {
       method: 'POST',
-      body: JSON.stringify({
-        method: 'core.get_free_space',
-        params: ['/'],
-        id: 1
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(authPayload)
     });
+
+    if (!response.ok) {
+      throw new Error(`Deluge auth HTTP ${response.status}`);
+    }
+
+    // Get torrents
+    let statsPayload = {
+      method: 'core.get_torrents_status',
+      params: [[], ['state']],
+      id: 2
+    };
+    response = await fetch(`${config.url}/json`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(statsPayload)
+    });
+
+    const data = await response.json();
     cache.set('deluge-stats', data);
     res.json(data);
   } catch (err) {
@@ -340,9 +425,9 @@ app.get('/api/maintainerr/health', async (req, res) => {
     const cached = cache.get('maintainerr-health');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('maintainerr', '/api/health');
+    const data = await makeRequest('maintainerr', '/api/rules');
     cache.set('maintainerr-health', data);
-    res.json(data);
+    res.json(data || []);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
