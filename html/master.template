@@ -286,8 +286,7 @@ async function checkConfiguredServices() {
 checkConfiguredServices();
 
 const coreLayouts = ['classic', 'modern', 'sleek', 'minimal'];
-const exampleLayouts = ['focus', 'neon'];
-let availableTemplates = [...coreLayouts, ...exampleLayouts];
+let availableTemplates = coreLayouts;
 
 function initFooter() {
     const sliders = document.querySelectorAll('.template-slider');
