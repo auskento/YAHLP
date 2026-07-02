@@ -409,7 +409,7 @@ window.ClientData.update = function() {};
 <body>
 
 <div class="header">
-    <div class="header-left" style="position:relative;z-index:100">
+    <div class="header-left">
         <a href="/" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex-shrink:0">
             <img src="@@DASHBOARD_ICON@@" alt="Dashboard" style="width:32px;height:32px;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(58,160,224,.4))">
             <div id="dashboard-name" style="font-weight:600;font-size:14px;color:#cdd3dd;letter-spacing:0.1em">@@DASHBOARD_NAME@@</div>
@@ -420,7 +420,7 @@ window.ClientData.update = function() {};
             @@STYLE_SWITCHER@@
         </div>
     </div>
-    <div class="menu-container" style="position:relative;z-index:100">
+    <div class="menu-container">
         <table class="menu-table">
             <tr id="menu-items">
                 @@MENU_ITEMS@@
