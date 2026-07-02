@@ -386,7 +386,9 @@ app.post('/api/deluge/stats', async (req, res) => {
 
     // Extract cookies from auth response
     const setCookie = response.headers.get('set-cookie');
+    console.error('[DELUGE] Set-Cookie header:', setCookie);
     const cookieHeader = setCookie ? setCookie.split(';')[0] : '';
+    console.error('[DELUGE] Cookie to send:', cookieHeader);
 
     // Get torrents with cookie
     let statsPayload = {
