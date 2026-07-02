@@ -62,6 +62,10 @@
   flex-direction: column;
 }
 
+.dashboard-header {
+  display: none;
+}
+
 .dashboard-view {
   flex: 1;
   overflow-y: auto;
@@ -75,11 +79,11 @@
 }
 
 .dashboard-title {
-  font-size: 24px;
+  display: none;
 }
 
 .dashboard-subtitle {
-  font-size: 13px;
+  display: none;
 }
 
 /* Responsive */
