@@ -574,9 +574,9 @@ app.get('/api/maintainerr/health', async (req, res) => {
     const cached = cache.get('maintainerr-health');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('maintainerr', '/api/rules');
+    const data = await makeRequest('maintainerr', '/api/status');
     cache.set('maintainerr-health', data);
-    res.json(data || []);
+    res.json(data || {});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
