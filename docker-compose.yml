@@ -142,6 +142,8 @@ services:
       - letsencrypt-data:/etc/letsencrypt
       # Persist Apache logs
       - apache-logs:/var/log/apache2
+      # Mount custom template CSS files (user can add layout-*.css files here)
+      - ./templates:/templates
     
     networks:
       - proxy-network
