@@ -379,27 +379,34 @@ app.post('/api/deluge/stats', async (req, res) => {
     }
 
     let authData = await response.json();
-    console.error('[DELUGE] Auth response:', JSON.stringify(authData).substring(0, 200));
     if (!authData || !authData.result) {
       console.error('[DELUGE] Auth failed:', authData);
       throw new Error('Deluge auth failed');
     }
 
-    // Get torrents
+    // Extract cookies from auth response
+    const setCookie = response.headers.get('set-cookie');
+    const cookieHeader = setCookie ? setCookie.split(';')[0] : '';
+
+    // Get torrents with cookie
     let statsPayload = {
       method: 'core.get_torrents_status',
       params: [[], ['state']],
       id: 2
     };
+    const headers = { 'Content-Type': 'application/json' };
+    if (cookieHeader) {
+      headers['Cookie'] = cookieHeader;
+    }
+
     response = await fetch(`${config.url}/json`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(statsPayload),
       timeout: 10000
     });
 
     const data = await response.json();
-    console.error('[DELUGE] Response:', JSON.stringify(data).substring(0, 200));
     cache.set('deluge-stats', data);
     res.json(data);
   } catch (err) {
