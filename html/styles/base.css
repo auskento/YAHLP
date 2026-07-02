@@ -350,13 +350,17 @@ a { text-decoration: none; color: inherit; }
 
 /* Style Switcher */
 .style-switcher {
+  position: fixed;
+  top: 12px;
+  right: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-left: auto;
-  flex: 0 0 auto;
-  padding: 0 12px;
-  border-left: 1px solid var(--border-color);
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  z-index: 1000;
   min-height: 32px;
 }
 
@@ -374,6 +378,7 @@ a { text-decoration: none; color: inherit; }
   min-width: 50px;
   text-align: center;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 /* Responsive */
@@ -396,11 +401,11 @@ a { text-decoration: none; color: inherit; }
   }
 
   .style-switcher {
-    border-left: none;
-    border-top: 1px solid var(--border-color);
-    padding: 8px 12px;
-    width: 100%;
-    margin-left: 0;
+    position: fixed;
+    top: 8px;
+    right: 8px;
+    width: auto;
+    border: 1px solid var(--border-color);
   }
 
   .template-slider {
