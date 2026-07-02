@@ -1,16 +1,21 @@
 /* Classic Layout: Menu items in header bar with logo */
 
 .app {
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
 }
 
 .app-header {
+  display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
   min-height: 64px;
   padding: 12px 24px;
   gap: 24px;
+  grid-column: 1;
+  grid-row: 1;
 }
 
 .header-logo {
@@ -26,7 +31,19 @@
 }
 
 .app-sidebar {
-  display: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  grid-column: 1;
+  grid-row: 1;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  width: auto;
+  min-height: auto;
+  box-shadow: none;
+  border-right: none;
 }
 
 .service-menu {
@@ -64,7 +81,8 @@
 }
 
 .app-content {
-  order: 4;
+  grid-column: 1;
+  grid-row: 2;
   flex: 1;
 }
 
@@ -101,11 +119,16 @@
 }
 
 @media (max-width: 768px) {
+  .app {
+    grid-template-rows: auto auto 1fr;
+  }
+
   .app-header {
     min-height: 56px;
     padding: 8px 12px;
-    flex-wrap: wrap;
     gap: 12px;
+    grid-row: 1;
+    flex-wrap: wrap;
   }
 
   .header-logo {
@@ -117,10 +140,20 @@
     flex: 1 1 100%;
   }
 
-  .service-menu {
-    flex: 1 1 100%;
+  .app-sidebar {
+    grid-row: 2;
+    grid-column: 1;
+    flex-direction: row;
+    padding: 0;
     gap: 4px;
-    order: 1;
+    border-top: 1px solid var(--border-color);
+    padding: 8px 12px;
+  }
+
+  .service-menu {
+    flex-direction: row;
+    gap: 4px;
+    padding: 0;
   }
 
   .menu-icon {
@@ -130,6 +163,10 @@
 
   .menu-item {
     padding: 4px;
+  }
+
+  .app-content {
+    grid-row: 3;
   }
 
   .dashboard-view {
