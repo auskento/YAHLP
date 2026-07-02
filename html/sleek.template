@@ -333,8 +333,10 @@ const apiBase = `http://${window.location.hostname}:3000/api`;
 async function fetchServiceStatus(service, app) {
     try {
         let url, method = 'GET';
-        if (['jellyfin', 'plex', 'emby'].includes(service)) {
+        if (service === 'jellyfin' || service === 'emby') {
             url = `${apiBase}/${service}/info`;
+        } else if (service === 'plex') {
+            url = `${apiBase}/plex/server`;
         } else if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(service)) {
             url = `${apiBase}/${service}/queue`;
         } else if (['qbittorrent', 'sabnzbd'].includes(service)) {
@@ -342,8 +344,10 @@ async function fetchServiceStatus(service, app) {
         } else if (['nzbget', 'transmission', 'deluge'].includes(service)) {
             url = `${apiBase}/${service}/stats`;
             method = 'POST';
-        } else if (['nzbhydra', 'prowlarr', 'seerr', 'bazarr', 'tautulli', 'maintainerr'].includes(service)) {
+        } else if (['nzbhydra', 'prowlarr', 'seerr', 'bazarr', 'tautulli'].includes(service)) {
             url = `${apiBase}/${service}/status`;
+        } else if (service === 'maintainerr') {
+            url = `${apiBase}/maintainerr/health`;
         } else {
             return null;
         }
