@@ -114,14 +114,14 @@ app.get('/api/tautulli/status', async (req, res) => {
       throw new Error('Tautulli not configured');
     }
 
-    const activityUrl = `${config.url}/api/v2?cmd=get_activity&apikey=${encodeURIComponent(config.key)}`;
-    const activityResp = await fetch(activityUrl);
-    if (!activityResp.ok) {
-      throw new Error(`Tautulli activity HTTP ${activityResp.status}`);
+    const librariesUrl = `${config.url}/api/v2?apikey=${encodeURIComponent(config.key)}&cmd=get_libraries`;
+    const librariesResp = await fetch(librariesUrl);
+    if (!librariesResp.ok) {
+      throw new Error(`Tautulli libraries HTTP ${librariesResp.status}`);
     }
-    const activityData = await activityResp.json();
+    const librariesData = await librariesResp.json();
 
-    const usersUrl = `${config.url}/api/v2?cmd=get_users&apikey=${encodeURIComponent(config.key)}`;
+    const usersUrl = `${config.url}/api/v2?apikey=${encodeURIComponent(config.key)}&cmd=get_users`;
     const usersResp = await fetch(usersUrl);
     if (!usersResp.ok) {
       throw new Error(`Tautulli users HTTP ${usersResp.status}`);
@@ -130,13 +130,13 @@ app.get('/api/tautulli/status', async (req, res) => {
 
     const users = usersData.response?.data || [];
     const topUser = users.length > 0 ? users[0].friendly_name : 'N/A';
-
-    const playing = activityData.response?.data?.sessions || 0;
+    const libraries = librariesData.response?.data || [];
+    const totalLibraries = libraries.length;
 
     const result = {
-      playing,
       topUser,
-      users: users.length
+      users: users.length,
+      libraries: totalLibraries
     };
 
     cache.set('tautulli-status', result);

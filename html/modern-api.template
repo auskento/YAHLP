@@ -845,7 +845,7 @@ class Component extends DCLogic {
             open: () => this.navigate(app)
           };
         } else if (service === 'tautulli') {
-          console.log(`[API] ${service} success:`, { playing: data.playing, topUser: data.topUser });
+          console.log(`[API] ${service} success:`, { topUser: data.topUser, users: data.users, libraries: data.libraries });
           return {
             ...app,
             status: 'Online',
@@ -853,9 +853,9 @@ class Component extends DCLogic {
             statusBg: 'rgba(16, 185, 129, 0.1)',
             statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
             stats: [
-              { label: 'Now Playing', value: `${data.playing}` },
               { label: 'Top User', value: `${data.topUser}` },
-              { label: 'Users', value: `${data.users}` }
+              { label: 'Users', value: `${data.users}` },
+              { label: 'Libraries', value: `${data.libraries}` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
