@@ -255,13 +255,11 @@ app.post('/api/transmission/stats', async (req, res) => {
     }
 
     const payload = { method: 'session-stats' };
-    const basicAuth = 'transmission:' + config.key;
 
-    let response = await fetch(`${config.url}/rpc`, {
+    let response = await fetch(`${config.url}/transmission/rpc`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + Buffer.from(basicAuth).toString('base64')
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)
     });
@@ -269,12 +267,11 @@ app.post('/api/transmission/stats', async (req, res) => {
     if (response.status === 409) {
       const sessionId = response.headers.get('X-Transmission-Session-Id');
       if (sessionId) {
-        response = await fetch(`${config.url}/rpc`, {
+        response = await fetch(`${config.url}/transmission/rpc`, {
           method: 'POST',
           headers: {
             'X-Transmission-Session-Id': sessionId,
-            'Content-Type': 'application/json',
-            'Authorization': 'Basic ' + Buffer.from(basicAuth).toString('base64')
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify(payload)
         });
@@ -285,6 +282,7 @@ app.post('/api/transmission/stats', async (req, res) => {
     cache.set('transmission-stats', data);
     res.json(data);
   } catch (err) {
+    console.error('[TRANSMISSION]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -327,19 +325,27 @@ app.post('/api/nzbget/stats', async (req, res) => {
       params: [],
       id: 1
     };
-    const basicAuth = 'nzbget:' + config.key;
+
+    const basicAuth = Buffer.from('nzbget:' + config.key).toString('base64');
     const response = await fetch(`${config.url}/jsonrpc`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + Buffer.from(basicAuth).toString('base64')
+        'Authorization': 'Basic ' + basicAuth
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      timeout: 10000
     });
+
+    if (!response.ok) {
+      throw new Error(`NZBGet HTTP ${response.status}`);
+    }
+
     const data = await response.json();
     cache.set('nzbget-stats', data);
     res.json(data);
   } catch (err) {
+    console.error('[NZBGET]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -364,11 +370,18 @@ app.post('/api/deluge/stats', async (req, res) => {
     let response = await fetch(`${config.url}/json`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(authPayload)
+      body: JSON.stringify(authPayload),
+      timeout: 10000
     });
 
     if (!response.ok) {
       throw new Error(`Deluge auth HTTP ${response.status}`);
+    }
+
+    let authData = await response.json();
+    if (!authData || !authData.result) {
+      console.error('[DELUGE] Auth failed:', authData);
+      throw new Error('Deluge auth failed');
     }
 
     // Get torrents
@@ -380,13 +393,15 @@ app.post('/api/deluge/stats', async (req, res) => {
     response = await fetch(`${config.url}/json`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(statsPayload)
+      body: JSON.stringify(statsPayload),
+      timeout: 10000
     });
 
     const data = await response.json();
     cache.set('deluge-stats', data);
     res.json(data);
   } catch (err) {
+    console.error('[DELUGE]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
