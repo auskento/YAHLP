@@ -1081,20 +1081,19 @@ generate_css_based_templates() {
         done < <(find "$BUILTIN_STYLES" -name "layout-*.css" -print0 2>/dev/null)
     fi
 
-    # Scan built-in templates directory (example templates, layout-neon.css, etc.)
-    if [ -d "$BUILTIN_TEMPLATES" ]; then
-        echo "📁 Built-in templates: $BUILTIN_TEMPLATES"
-        while IFS= read -r -d '' css_file; do
-            local layout_name=$(basename "$css_file" | sed 's/^layout-//' | sed 's/\.css$//')
-            layouts+=("$layout_name")
-            echo "  ✓ Found: layout-${layout_name}.css"
-            ((template_count++))
-        done < <(find "$BUILTIN_TEMPLATES" -name "layout-*.css" -print0 2>/dev/null)
+    # Copy built-in templates as demo if /templates is empty or doesn't exist
+    if [ ! -d "$USER_TEMPLATES" ] || [ -z "$(ls -A "$USER_TEMPLATES" 2>/dev/null)" ]; then
+        if [ -d "$BUILTIN_TEMPLATES" ] && [ -n "$(ls -A "$BUILTIN_TEMPLATES" 2>/dev/null)" ]; then
+            echo "📋 /templates empty or not mounted - copying built-in templates as demo"
+            mkdir -p "$USER_TEMPLATES"
+            cp "$BUILTIN_TEMPLATES"/layout-*.css "$USER_TEMPLATES/" 2>/dev/null || true
+            echo "  ✓ Copied built-in templates to /templates/"
+        fi
     fi
 
-    # Scan user templates directory (only if mounted with -v option)
+    # Scan user templates directory for custom layouts
     if [ -d "$USER_TEMPLATES" ] && [ "$(ls -A "$USER_TEMPLATES" 2>/dev/null)" ]; then
-        echo "📁 User templates: $USER_TEMPLATES"
+        echo "📁 User/custom templates: $USER_TEMPLATES"
         while IFS= read -r -d '' css_file; do
             local layout_name=$(basename "$css_file" | sed 's/^layout-//' | sed 's/\.css$//')
             layouts+=("$layout_name")
