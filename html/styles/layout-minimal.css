@@ -1,0 +1,164 @@
+/* Minimal Layout: Single-column sidebar */
+
+.app {
+  flex-direction: row;
+}
+
+.app-header {
+  display: none;
+}
+
+.app-sidebar {
+  width: 120px;
+  min-height: auto;
+  border: none;
+  background: var(--bg-secondary);
+  padding: 16px 8px;
+}
+
+.service-menu {
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+}
+
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 9px;
+}
+
+.menu-item:hover {
+  transform: scale(1.1);
+}
+
+.menu-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+
+.menu-label {
+  font-size: 9px;
+  text-align: center;
+  color: var(--text-secondary);
+  max-width: 100px;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+.menu-item:hover .menu-label {
+  color: var(--text-primary);
+}
+
+.app-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-view {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+.dashboard-content {
+  max-width: 100%;
+  width: 100%;
+}
+
+.dashboard-title {
+  font-size: 24px;
+}
+
+.dashboard-subtitle {
+  font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .app-sidebar {
+    width: 100px;
+    padding: 12px 6px;
+  }
+
+  .menu-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .menu-item {
+    padding: 6px 4px;
+    gap: 3px;
+  }
+
+  .menu-label {
+    font-size: 8px;
+  }
+
+  .dashboard-view {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+  }
+
+  .app-header {
+    display: flex;
+  }
+
+  .app-sidebar {
+    width: 100%;
+    flex-direction: row;
+    padding: 8px;
+    border-right: none;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .service-menu {
+    flex-direction: row;
+    padding: 0;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .menu-item {
+    min-width: 56px;
+    padding: 6px;
+  }
+
+  .menu-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .menu-label {
+    font-size: 9px;
+  }
+
+  .dashboard-view {
+    padding: 12px;
+  }
+
+  .dashboard-title {
+    font-size: 20px;
+  }
+
+  .dashboard-subtitle {
+    font-size: 12px;
+  }
+
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+}

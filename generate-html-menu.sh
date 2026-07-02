@@ -1053,6 +1053,30 @@ generate_all_styles() {
 }
 
 
+# Generate CSS-based templates from master.template
+generate_css_based_templates() {
+    local MASTER_TEMPLATE="/var/www/html/master.template"
+    local services_array=$(generate_services_array)
+
+    if [ ! -f "$MASTER_TEMPLATE" ]; then
+        echo "Master template not found: $MASTER_TEMPLATE"
+        return 1
+    fi
+
+    # Generate classic, sleek, minimal from master template
+    for layout in classic sleek minimal; do
+        local html_content=$(cat "$MASTER_TEMPLATE")
+        html_content="${html_content//@@TEMPLATE_TYPE@@/$layout}"
+        html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+        html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
+        html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
+        html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
+
+        echo "$html_content" > "/var/www/html/${layout}.html"
+        echo "✓ Generated ${layout}.html from master.template"
+    done
+}
+
 # Main generation function
 generate_html() {
     echo "Generating dashboards for DASH_STYLE=$DASH_STYLE..."
@@ -1079,8 +1103,11 @@ generate_html() {
         SHOW_STYLE_SWITCHER="true"
     fi
 
-    # Generate all style variants
-    generate_all_styles
+    # Generate CSS-based templates (classic, sleek, minimal from master.template)
+    generate_css_based_templates
+
+    # Generate all style variants (for backwards compatibility)
+    # generate_all_styles
 
     echo ""
     echo "✓ Dashboards generated with $count enabled service(s)"

@@ -1,0 +1,156 @@
+/* Sleek Layout: 2-column sidebar */
+
+.app {
+  flex-direction: row;
+}
+
+.app-header {
+  display: none;
+}
+
+.app-sidebar {
+  width: 200px;
+  min-height: auto;
+  border: none;
+  background: var(--bg-secondary);
+  padding: 16px;
+}
+
+.service-menu {
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  grid-template-columns: 1fr 1fr;
+}
+
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 11px;
+}
+
+.menu-item:hover {
+  transform: scale(1.05);
+}
+
+.menu-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.menu-label {
+  font-size: 10px;
+  text-align: center;
+  color: var(--text-secondary);
+  max-width: 60px;
+  word-break: break-word;
+}
+
+.menu-item:hover .menu-label {
+  color: var(--text-primary);
+}
+
+.app-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-view {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px;
+}
+
+.dashboard-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .app-sidebar {
+    width: 160px;
+    padding: 12px;
+  }
+
+  .menu-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .menu-item {
+    padding: 10px;
+  }
+
+  .dashboard-view {
+    padding: 16px;
+  }
+
+  .dashboard-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+  }
+
+  .app-header {
+    display: flex;
+  }
+
+  .app-sidebar {
+    width: 100%;
+    flex-direction: row;
+    padding: 8px;
+    border-right: none;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .service-menu {
+    flex-direction: row;
+    padding: 0;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .menu-item {
+    min-width: 56px;
+    padding: 6px;
+  }
+
+  .menu-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .menu-label {
+    font-size: 9px;
+  }
+
+  .dashboard-view {
+    padding: 12px;
+  }
+
+  .dashboard-title {
+    font-size: 20px;
+  }
+
+  .dashboard-subtitle {
+    font-size: 12px;
+  }
+
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+}
