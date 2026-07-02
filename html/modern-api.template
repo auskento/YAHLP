@@ -526,10 +526,7 @@ class Component extends DCLogic {
           }
           return r.json();
         })
-        .then(data => {
-          const queue = data.queue.slots || [];
-          return { queue, downloading: queue.length };
-        });
+        .then(data => data);
     } else if (service === 'nzbget') {
       const url = `${apiBase}/nzbget/stats`;
       console.log(`[API] Fetching ${service}: ${url} (cached)`);
@@ -545,12 +542,7 @@ class Component extends DCLogic {
           }
           return r.json();
         })
-        .then(data => {
-          const result = data.result || {};
-          const downloading = result.ArticlesDownloading || 0;
-          const remaining = result.RemainingSizeMB || 0;
-          return { downloading, remaining };
-        });
+        .then(data => data);
     } else if (service === 'transmission') {
       const url = `${apiBase}/transmission/stats`;
       console.log(`[API] Fetching ${service}: ${url} (cached)`);
@@ -566,13 +558,7 @@ class Component extends DCLogic {
           }
           return r.json();
         })
-        .then(data => {
-          if (!data?.arguments) return null;
-          const args = data.arguments;
-          const activeTorrents = args.activeTorrentCount || 0;
-          const pausedTorrents = args.pausedTorrentCount || 0;
-          return { activeTorrents, pausedTorrents };
-        });
+        .then(data => data);
     } else if (service === 'deluge') {
       const url = `${apiBase}/deluge/stats`;
       console.log(`[API] Fetching ${service}: ${url} (cached)`);
@@ -622,7 +608,7 @@ class Component extends DCLogic {
             statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
             stats: [
               { label: 'Active', value: `${data.active}` },
-              { label: 'Speed', value: `${data.dlSpeed} MB/s` }
+              { label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
@@ -637,12 +623,12 @@ class Component extends DCLogic {
             statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
             stats: [
               { label: 'Downloading', value: `${data.downloading}` },
-              { label: 'Speed', value: `${data.dlSpeed} MB/s` }
+              { label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
           };
-        } else {
+        } else if (service === 'sabnzbd') {
           console.log(`[API] ${service} success:`, { items: data.items, dlSpeed: data.dlSpeed });
           return {
             ...app,
@@ -652,7 +638,7 @@ class Component extends DCLogic {
             statusDotGlow: 'box-shadow:0 0 8px var(--status-success)',
             stats: [
               { label: 'Queue', value: `${data.items}` },
-              { label: 'Speed', value: `${data.dlSpeed} MB/s` }
+              { label: 'Speed', value: `${data.dlSpeed || 0} MB/s` }
             ],
             iconEl: React.createElement('img', { src: app.icon, alt: app.name, style: { width: 24, height: 24, objectFit: 'contain' } }),
             open: () => this.navigate(app)
