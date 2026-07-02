@@ -485,14 +485,18 @@ const codeToService = {
 async function fetchServiceStatus(service, app) {
     try {
         let url;
-        if (['jellyfin', 'plex', 'emby'].includes(service)) {
+        if (service === 'jellyfin' || service === 'emby') {
             url = `${apiBase}/${service}/info`;
+        } else if (service === 'plex') {
+            url = `${apiBase}/plex/server`;
         } else if (['sonarr', 'radarr', 'lidarr', 'whisparr'].includes(service)) {
             url = `${apiBase}/${service}/queue`;
         } else if (['qbittorrent', 'sabnzbd', 'nzbget', 'transmission', 'deluge'].includes(service)) {
             url = `${apiBase}/${service}/stats`;
-        } else if (['nzbhydra', 'prowlarr', 'seerr', 'bazarr', 'tautulli', 'maintainerr'].includes(service)) {
+        } else if (['nzbhydra', 'prowlarr', 'seerr', 'bazarr', 'tautulli'].includes(service)) {
             url = `${apiBase}/${service}/status`;
+        } else if (service === 'maintainerr') {
+            url = `${apiBase}/maintainerr/health`;
         } else {
             return null;
         }
