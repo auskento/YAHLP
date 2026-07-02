@@ -262,9 +262,17 @@ a { text-decoration:none; color:inherit; }
 
   </aside>
 
-  <main style="flex:1;min-width:0;position:relative;display:flex;flex-direction:column;overflow:auto;padding:20px">
-    <div id="dashboard-content">
-      <div style="text-align:center;color:var(--text-secondary);padding:40px">Loading service status...</div>
+  <main style="flex:1;min-width:0;position:relative;display:flex;flex-direction:column;overflow:auto">
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:24px">
+      <div style="max-width:1400px;margin:0 auto">
+        <div style="margin-bottom:24px">
+          <h1 style="margin:0;font-size:28px;font-weight:600;color:var(--text-primary)">Service Status</h1>
+          <p style="margin:6px 0 0 0;color:var(--text-secondary);font-size:14px">Real-time data from your services</p>
+        </div>
+        <div id="dashboard-content" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px">
+          <div style="text-align:center;color:var(--text-secondary);padding:40px;grid-column:1/-1">Loading service status...</div>
+        </div>
+      </div>
     </div>
   </main>
 
