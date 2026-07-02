@@ -357,7 +357,13 @@ async function fetchServiceStatus(service, app) {
         }
 
         const response = await fetch(url, { mode: 'cors', redirect: 'follow', method });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            if (errorData.error && errorData.error.includes('not configured')) {
+                return null;
+            }
+            throw new Error(`HTTP ${response.status}`);
+        }
 
         const data = await response.json();
         if (!data) return null;
@@ -447,8 +453,8 @@ async function loadDashboard() {
 
     // Update main dashboard
     let html = '';
-    statuses.forEach(status => {
-        if (!status) return;
+    const visibleServices = statuses.filter(s => s);
+    visibleServices.forEach(status => {
         const isOnline = status.status === 'Online';
         const statusDotClass = isOnline ? 'online' : 'offline';
         const href = status.popup ? `javascript:window.open('${status.href}', '${status.name}', 'resizable=no,status=no,location=no,toolbar=no,menubar=no,scrollbars=no')` : status.href;
@@ -474,7 +480,7 @@ async function loadDashboard() {
         `;
     });
 
-    content.innerHTML = html || '<div style="text-align:center;color:var(--text-secondary);padding:40px">No services available</div>';
+    content.innerHTML = html || '<div style="text-align:center;color:var(--text-secondary);padding:40px">No configured services</div>';
 
     // Add click handlers for popup vs regular navigation
     document.querySelectorAll('.service-card').forEach((card, idx) => {
