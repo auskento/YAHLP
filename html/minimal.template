@@ -247,11 +247,14 @@ const codeToService = {
     'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
 };
 
+console.log('[Minimal] codeToService:', codeToService);
+
 // Render service icons
 SERVICES.forEach(app => {
     const btn = document.createElement('button');
     btn.className = 'service-link';
     btn.style.setProperty('--accent', app.accent);
+    console.log('[Minimal] Rendering service:', app.id, app.name);
 
     btn.innerHTML = `
       <div class="service-icon">
@@ -259,7 +262,7 @@ SERVICES.forEach(app => {
       </div>
       <div class="tooltip">
         <div>${app.name}</div>
-        <div class="tooltip-status" style="margin-top:4px;font-weight:500" data-code="${app.id}">Loading...</div>
+        <div class="tooltip-status" style="margin-top:4px;font-weight:500" data-id="${app.id}">Loading...</div>
       </div>
     `;
     nav.appendChild(btn);
@@ -340,6 +343,7 @@ async function loadDashboard() {
     console.log('[Dashboard] Loading', SERVICES.length, 'services');
     const statuses = await Promise.all(SERVICES.map(app => {
         const service = codeToService[app.id];
+        console.log(`[Dashboard] Mapping ${app.id} to service:`, service);
         if (!service) {
             console.warn(`[Dashboard] No service mapping for code: ${app.id}`);
             return Promise.resolve(null);
@@ -348,12 +352,13 @@ async function loadDashboard() {
     }));
 
     // Update tooltips
-    const tooltips = document.querySelectorAll('[data-code]');
+    const tooltips = document.querySelectorAll('[data-id]');
     tooltips.forEach((tooltip, idx) => {
         if (statuses[idx]) {
             const status = statuses[idx].status;
             tooltip.textContent = status;
             tooltip.style.color = status === 'Online' ? 'var(--status-success)' : 'var(--status-error)';
+            console.log(`[Dashboard] Tooltip ${idx}: ${status}`);
         }
     });
 
