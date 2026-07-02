@@ -1104,10 +1104,24 @@ generate_css_based_templates() {
     echo ""
     echo "🎨 Generating ${#layouts[@]} template(s)..."
 
+    # Generate JavaScript array of all available templates
+    local templates_js="const AVAILABLE_TEMPLATES = ["
+    local first=true
+    for layout in "${layouts[@]}"; do
+        if [ "$first" = true ]; then
+            templates_js+="'$layout'"
+            first=false
+        else
+            templates_js+=", '$layout'"
+        fi
+    done
+    templates_js+="];"
+
     # Generate HTML for each layout
     for layout in "${layouts[@]}"; do
         local html_content=$(cat "$MASTER_TEMPLATE")
         html_content="${html_content//@@TEMPLATE_TYPE@@/$layout}"
+        html_content="${html_content//@@AVAILABLE_TEMPLATES@@/$templates_js}"
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
