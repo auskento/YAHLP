@@ -68,11 +68,13 @@ COPY apache-conf/services/ /etc/apache2/sites-available/services/
 
 # Copy proxy files and install dependencies
 COPY package.json /opt/proxy/
-WORKDIR /opt/proxy
-RUN npm install --production
+RUN cd /opt/proxy && npm install --production
 
 # Copy proxy application
 COPY proxy.js /opt/proxy/
+
+# Set working directory to root
+WORKDIR /
 
 # Copy configuration generator scripts
 COPY generate-config.sh generate-html-menu.sh download-icons.sh generate-sites-config.sh generate-emby-virtualhost.sh generate-plex-virtualhost.sh /usr/local/bin/
