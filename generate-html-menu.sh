@@ -1071,11 +1071,18 @@ generate_css_based_templates() {
     local template_count=0
 
     # Copy built-in templates to /templates BEFORE build process
-    echo "📋 Copying built-in templates to /templates..."
+    echo "📋 Populating /templates with built-in examples..."
     mkdir -p "$USER_TEMPLATES"
     if [ -d "$BUILTIN_TEMPLATES" ] && [ -n "$(ls -A "$BUILTIN_TEMPLATES" 2>/dev/null)" ]; then
         cp "$BUILTIN_TEMPLATES"/layout-*.css "$USER_TEMPLATES/" 2>/dev/null || true
         echo "  ✓ Built-in templates copied to /templates"
+    fi
+
+    # Copy any /templates CSS files to /var/www/html/styles for serving
+    echo "📋 Copying /templates CSS files to styles folder..."
+    if [ -d "$USER_TEMPLATES" ] && [ -n "$(ls -A "$USER_TEMPLATES"/layout-*.css 2>/dev/null)" ]; then
+        cp "$USER_TEMPLATES"/layout-*.css "$BUILTIN_STYLES/" 2>/dev/null || true
+        echo "  ✓ Custom templates copied to styles/"
     fi
 
     # Scan built-in styles directory (layout-classic.css, layout-sleek.css, etc.)
@@ -1087,17 +1094,6 @@ generate_css_based_templates() {
             echo "  ✓ Found: layout-${layout_name}.css"
             ((template_count++))
         done < <(find "$BUILTIN_STYLES" -name "layout-*.css" -print0 2>/dev/null)
-    fi
-
-    # Scan user templates directory for custom layouts
-    if [ -d "$USER_TEMPLATES" ] && [ "$(ls -A "$USER_TEMPLATES" 2>/dev/null)" ]; then
-        echo "📁 User/custom templates: $USER_TEMPLATES"
-        while IFS= read -r -d '' css_file; do
-            local layout_name=$(basename "$css_file" | sed 's/^layout-//' | sed 's/\.css$//')
-            layouts+=("$layout_name")
-            echo "  ✓ Found: layout-${layout_name}.css"
-            ((template_count++))
-        done < <(find "$USER_TEMPLATES" -name "layout-*.css" -print0 2>/dev/null)
     fi
 
     if [ ${#layouts[@]} -eq 0 ]; then
