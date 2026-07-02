@@ -1,9 +1,7 @@
 /* Classic Layout: Menu items in header bar with logo */
 
 .app {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto 1fr;
+  flex-direction: column;
 }
 
 .app-header {
@@ -14,8 +12,7 @@
   min-height: 64px;
   padding: 12px 24px;
   gap: 24px;
-  grid-column: 1;
-  grid-row: 1;
+  order: 1;
 }
 
 .header-logo {
@@ -23,27 +20,32 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  order: 1;
 }
 
 .header-time {
-  margin-left: auto;
   flex: 0 0 auto;
+  order: 3;
+}
+
+.style-switcher {
+  order: 4;
 }
 
 .app-sidebar {
   display: flex;
   flex-direction: row;
   align-items: center;
-  grid-column: 1;
-  grid-row: 1;
-  margin-left: auto;
+  position: absolute;
+  top: 12px;
+  left: 280px;
+  right: 200px;
+  height: 40px;
   padding: 0;
   border: none;
   background: transparent;
-  width: auto;
-  min-height: auto;
   box-shadow: none;
-  border-right: none;
+  order: 2;
 }
 
 .service-menu {
@@ -51,11 +53,14 @@
   gap: 8px;
   padding: 0;
   align-items: center;
-  flex-wrap: wrap;
-  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .menu-item {
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -64,6 +69,9 @@
   min-width: auto;
   border-radius: 8px;
   transition: all 0.2s;
+  border: none;
+  background: transparent;
+  height: 40px;
 }
 
 .menu-item:hover {
@@ -72,17 +80,19 @@
 }
 
 .menu-icon {
-  width: 48px;
-  height: 48px;
+  width: 32px;
+  height: 32px;
+  display: block;
 }
 
 .menu-label {
-  display: none;
+  display: none !important;
+  height: 0;
+  overflow: hidden;
 }
 
 .app-content {
-  grid-column: 1;
-  grid-row: 2;
+  order: 3;
   flex: 1;
 }
 
@@ -104,12 +114,18 @@
     gap: 16px;
   }
 
+  .app-sidebar {
+    left: 240px;
+    right: 160px;
+  }
+
   .menu-icon {
-    width: 40px;
-    height: 40px;
+    width: 28px;
+    height: 28px;
   }
 
   .menu-item {
+    height: 36px;
     padding: 6px;
   }
 
@@ -120,34 +136,46 @@
 
 @media (max-width: 768px) {
   .app {
-    grid-template-rows: auto auto 1fr;
+    flex-direction: column;
+    position: relative;
   }
 
   .app-header {
     min-height: 56px;
     padding: 8px 12px;
     gap: 12px;
-    grid-row: 1;
-    flex-wrap: wrap;
+    position: relative;
+    flex-wrap: nowrap;
   }
 
   .header-logo {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
+    order: 1;
   }
 
   .header-time {
-    order: -1;
-    flex: 1 1 100%;
+    flex: 0 0 auto;
+    order: 2;
+    border-left: 1px solid var(--border-color);
+    padding-left: 12px;
+    margin-left: 12px;
+  }
+
+  .style-switcher {
+    order: 4;
   }
 
   .app-sidebar {
-    grid-row: 2;
-    grid-column: 1;
-    flex-direction: row;
-    padding: 0;
-    gap: 4px;
+    position: static;
+    width: 100%;
+    top: auto;
+    left: auto;
+    right: auto;
+    height: auto;
     border-top: 1px solid var(--border-color);
     padding: 8px 12px;
+    margin-top: 0;
+    order: 2;
   }
 
   .service-menu {
@@ -157,16 +185,17 @@
   }
 
   .menu-icon {
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
   }
 
   .menu-item {
     padding: 4px;
+    height: 36px;
   }
 
   .app-content {
-    grid-row: 3;
+    order: 3;
   }
 
   .dashboard-view {
