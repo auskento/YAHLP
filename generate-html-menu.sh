@@ -712,6 +712,7 @@ generate_style_dashboard() {
     if [ "$DASH_STYLE" = "classic" ]; then
         local menu_items=$(generate_menu_items)
         local services_list=$(generate_services_list)
+        local services_array=$(generate_services_array)
         local style_switcher=$(generate_style_switcher_classic)
 
         # Calculate dynamic icon sizes based on service count for classic
@@ -729,6 +730,7 @@ generate_style_dashboard() {
         local LOGO_SIZE=$(echo "$sizes" | cut -d'|' -f3)
 
         local html_content=$(cat "$TEMPLATE_FILE")
+        html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
         html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
         html_content="${html_content//@@STYLE_SWITCHER@@/$style_switcher}"
@@ -859,9 +861,11 @@ generate_all_styles() {
         echo "📊 Classic: $service_count services → icon_multiplier=$ICON_SIZE, gap_multiplier=$ICON_GAP, logo_multiplier=$LOGO_SIZE"
         local menu_items=$(generate_menu_items)
         local services_list=$(generate_services_list)
+        local services_array=$(generate_services_array)
         local sites_items=$(generate_sites_html)
         local style_switcher=$(generate_style_switcher_classic)
         local html_content=$(cat "$CLASSIC_TEMPLATE")
+        html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
         html_content="${html_content//@@MENU_ITEMS@@/$menu_items}"
         html_content="${html_content//@@ENABLED_SERVICES_LIST@@/$services_list}"
         html_content="${html_content//@@SITES_ITEMS@@/$sites_items}"
