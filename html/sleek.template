@@ -497,8 +497,34 @@ async function loadDashboard() {
     content.innerHTML = html || '<div style="text-align:center;color:var(--text-secondary);padding:40px">No configured services</div>';
 }
 
-loadDashboard();
-setInterval(loadDashboard, 30000);
+// Check if any services are configured
+async function checkConfiguredServices() {
+    try {
+        const response = await fetch(`http://${window.location.hostname}:3000/health`);
+        const health = await response.json();
+        const hasAnyConfigured = Object.values(health.services || {}).some(s => s.configured);
+
+        if (!hasAnyConfigured) {
+            content.innerHTML = `
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px;height:100%">
+                    <img src="/icons/yahlp.png" alt="Dashboard" style="width:80px;height:80px;margin-bottom:26px;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(58,160,224,.3))">
+                    <div style="font-weight:600;font-size:27px;color:var(--text-primary);letter-spacing:-.01em;margin-bottom:10px">Welcome to YAHLP</div>
+                    <div style="font-size:15px;color:var(--text-secondary);max-width:420px;line-height:1.6">Configure your services with API keys in the environment variables to get started. Once configured, your service status will appear here.</div>
+                </div>
+            `;
+            return;
+        }
+
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+    } catch (err) {
+        console.error('[Health Check] Error:', err);
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+    }
+}
+
+checkConfiguredServices();
 
 // Hide sites sidebar if empty
 const rightSidebar = document.querySelector('aside:nth-of-type(2)');
