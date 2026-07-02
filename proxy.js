@@ -116,10 +116,16 @@ app.get('/api/tautulli/status', async (req, res) => {
 
     const activityUrl = `${config.url}/api/v2?cmd=get_activity&apikey=${encodeURIComponent(config.key)}`;
     const activityResp = await fetch(activityUrl);
+    if (!activityResp.ok) {
+      throw new Error(`Tautulli activity HTTP ${activityResp.status}`);
+    }
     const activityData = await activityResp.json();
 
     const usersUrl = `${config.url}/api/v2?cmd=get_users&apikey=${encodeURIComponent(config.key)}`;
     const usersResp = await fetch(usersUrl);
+    if (!usersResp.ok) {
+      throw new Error(`Tautulli users HTTP ${usersResp.status}`);
+    }
     const usersData = await usersResp.json();
 
     const users = usersData.response?.data || [];
