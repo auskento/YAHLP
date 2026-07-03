@@ -13,10 +13,10 @@
 <body>
 <div class="app" data-layout="@@TEMPLATE_TYPE@@" data-theme="dark" style="padding-bottom: 48px;">
   <header class="app-header">
-    <div class="header-logo">
+    <a href="/" style="display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer;">
       <img src="@@DASHBOARD_ICON@@" alt="Dashboard" class="logo-img">
       <div class="logo-text">@@DASHBOARD_NAME@@</div>
-    </div>
+    </a>
     <div class="header-time">
       <div class="current-time" id="currentTime">--:--</div>
       <div class="current-date" id="currentDate">---</div>
@@ -55,8 +55,10 @@
 
 <footer class="app-footer">
   <div class="footer-left">
-    <img src="@@DASHBOARD_ICON@@" alt="Dashboard" class="footer-icon">
-    <span class="footer-name">@@DASHBOARD_NAME@@</span>
+    <a href="/" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; cursor: pointer;">
+      <img src="@@DASHBOARD_ICON@@" alt="Dashboard" class="footer-icon">
+      <span class="footer-name">@@DASHBOARD_NAME@@</span>
+    </a>
   </div>
   <div class="footer-center">
     <input type="range" id="templateSlider" min="0" max="0" value="0" class="template-slider" title="Switch template style">
