@@ -611,8 +611,10 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '::', () => {
   console.log(`🔀 API Aggregator listening on port ${PORT}`);
+  console.log(`   IPv4: http://localhost:${PORT}`);
+  console.log(`   IPv6: http://[::1]:${PORT}`);
   console.log(`   Cache TTL: 30 seconds`);
   console.log(`   Health check: http://localhost:${PORT}/health`);
   console.log('\nConfigured services:');
@@ -621,3 +623,11 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`   ${status} ${service}`);
   });
 });
+
+// Enable IPv6 dual-stack
+if (server.address().family === 'IPv6') {
+  server.on('listening', () => {
+    const addr = server.address();
+    console.log(`   Listening on ${addr.address}:${addr.port} (${addr.family})`);
+  });
+}

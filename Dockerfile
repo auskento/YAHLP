@@ -21,6 +21,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     npm \
     && rm -rf /var/lib/apt/lists/*
 
+# Enable IPv6
+RUN echo "net.ipv6.conf.all.disable_ipv6 = 0" >> /etc/sysctl.conf && \
+    echo "net.ipv6.conf.default.disable_ipv6 = 0" >> /etc/sysctl.conf && \
+    echo "net.ipv6.conf.lo.disable_ipv6 = 0" >> /etc/sysctl.conf
+
 # Enable necessary Apache modules for reverse proxy, SSL, and authentication
 RUN a2enmod rewrite \
     && a2enmod proxy \
