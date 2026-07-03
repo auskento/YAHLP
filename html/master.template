@@ -27,10 +27,9 @@
     <nav class="service-menu" id="serviceMenu">
       <!-- Services populated by JavaScript -->
     </nav>
-    <div id="sites-section" class="sites-section" style="display:none">
-      <div class="sites-title">Quick Links</div>
-      <div id="sites-grid" class="sites-grid">
-        <!-- Sites populated by JavaScript -->
+    <div id="sidebar-sites-section" class="sidebar-sites-section" style="display:none">
+      <div id="sidebar-sites-grid" class="sidebar-sites-grid">
+        <!-- Sites populated by JavaScript for sidebar layouts -->
       </div>
     </div>
   </aside>
@@ -57,6 +56,13 @@
       </div>
     </div>
   </main>
+
+  <div id="sites-section" class="sites-section" style="display:none">
+    <div class="sites-title">Quick Links</div>
+    <div id="sites-grid" class="sites-grid">
+      <!-- Sites populated by JavaScript -->
+    </div>
+  </div>
 </div>
 
 <footer class="app-footer">
@@ -335,19 +341,19 @@ async function buildServiceMenu() {
 }
 
 function buildSitesGrid() {
-    const sitesSection = document.getElementById('sites-section');
-    const sitesGrid = document.getElementById('sites-grid');
     const app = document.querySelector('.app');
-    const isMobile = app.getAttribute('data-layout') === 'mobile';
+    const layout = app.getAttribute('data-layout');
+    const isMobile = layout === 'mobile';
+    const isSidebarLayout = ['classic', 'storm', 'storm-violet'].includes(layout);
 
     if (!SITES || SITES.length === 0) {
-        sitesSection.style.display = 'none';
+        document.getElementById('sites-section')?.style.display && (document.getElementById('sites-section').style.display = 'none');
+        document.getElementById('sidebar-sites-section')?.style.display && (document.getElementById('sidebar-sites-section').style.display = 'none');
         return;
     }
 
     let html = '';
     SITES.forEach(site => {
-        // Force _blank on mobile, otherwise use popup setting
         const target = isMobile ? '_blank' : (site.popup ? '_blank' : '_self');
         html += `
             <a href="${site.href}" class="site-link" title="${site.name}" target="${target}">
@@ -359,8 +365,19 @@ function buildSitesGrid() {
         `;
     });
 
-    sitesGrid.innerHTML = html;
-    sitesSection.style.display = 'block';
+    if (isSidebarLayout) {
+        const sidebarSitesGrid = document.getElementById('sidebar-sites-grid');
+        const sidebarSitesSection = document.getElementById('sidebar-sites-section');
+        sidebarSitesGrid.innerHTML = html;
+        sidebarSitesSection.style.display = 'block';
+        document.getElementById('sites-section').style.display = 'none';
+    } else if (!isMobile) {
+        const sitesGrid = document.getElementById('sites-grid');
+        const sitesSection = document.getElementById('sites-section');
+        sitesGrid.innerHTML = html;
+        sitesSection.style.display = 'block';
+        document.getElementById('sidebar-sites-section').style.display = 'none';
+    }
 
     document.querySelectorAll('.site-link').forEach(link => {
         if (!isMobile && (!link.getAttribute('target') || link.getAttribute('target') === '_self')) {
