@@ -391,6 +391,56 @@ function buildSitesGrid() {
     });
 }
 
+function adjustIconSizes() {
+    const layout = document.querySelector('.app')?.getAttribute('data-layout');
+    if (!layout || layout === 'mobile') return;
+
+    const isSidebarLayout = ['classic', 'storm', 'storm-violet'].includes(layout);
+    if (!isSidebarLayout) return;
+
+    const sidebar = document.querySelector('.app-sidebar');
+    const serviceMenu = document.querySelector('.service-menu');
+    const sidebarSitesSection = document.querySelector('.sidebar-sites-section');
+
+    if (!sidebar || !serviceMenu) return;
+
+    const sidebarWidth = sidebar.offsetWidth;
+    const sidebarPadding = 48; // 24px on each side
+    const iconGap = 12;
+
+    // Calculate service icon size
+    const serviceItems = document.querySelectorAll('.service-menu .menu-item:not(.menu-separator)');
+    const numServices = serviceItems.length;
+    if (numServices > 0) {
+        const availableWidth = sidebarWidth - sidebarPadding;
+        const totalGapWidth = (numServices - 1) * iconGap;
+        const serviceIconSize = Math.floor((availableWidth - totalGapWidth) / numServices);
+        const constrainedServiceSize = Math.min(serviceIconSize, 56);
+
+        document.querySelectorAll('.menu-icon').forEach(icon => {
+            icon.style.width = constrainedServiceSize + 'px';
+            icon.style.height = constrainedServiceSize + 'px';
+        });
+    }
+
+    // Calculate site icon size (exactly half of service icon size)
+    if (sidebarSitesSection) {
+        const siteItems = document.querySelectorAll('.sidebar-sites-grid .site-link');
+        const numSites = siteItems.length;
+        if (numSites > 0) {
+            const availableWidth = sidebarWidth - sidebarPadding;
+            const totalGapWidth = (numSites - 1) * iconGap;
+            const siteIconSize = Math.floor((availableWidth - totalGapWidth) / numSites / 2);
+            const constrainedSiteSize = Math.min(siteIconSize, 28);
+
+            document.querySelectorAll('.sidebar-sites-section .site-icon').forEach(icon => {
+                icon.style.width = constrainedSiteSize + 'px';
+                icon.style.height = constrainedSiteSize + 'px';
+            });
+        }
+    }
+}
+
 async function checkConfiguredServices() {
     try {
         const response = await fetch(`http://${window.location.hostname}:3000/health`);
@@ -405,16 +455,23 @@ async function checkConfiguredServices() {
 
         await buildServiceMenu();
         buildSitesGrid();
+        adjustIconSizes();
         loadDashboard();
         setInterval(loadDashboard, 30000);
     } catch (err) {
         console.error('[Health Check] Error:', err);
         await buildServiceMenu();
         buildSitesGrid();
+        adjustIconSizes();
         loadDashboard();
         setInterval(loadDashboard, 30000);
     }
 }
+
+// Adjust icon sizes on window resize
+window.addEventListener('resize', () => {
+    adjustIconSizes();
+});
 
 checkConfiguredServices();
 
