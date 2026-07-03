@@ -88,7 +88,7 @@
 <script>
 const SERVICES = @@SERVICES_ARRAY@@;
 const SITES = @@SITES_ARRAY@@;
-const apiBase = `http://${window.location.hostname}:3000/api`;
+const apiBase = `${window.location.protocol}//${window.location.hostname}:3000/api`;
 
 const codeToService = {
     'JEL': 'jellyfin', 'PLX': 'plex', 'EMB': 'emby',
@@ -494,7 +494,7 @@ function adjustIconSizes() {
 
 async function checkConfiguredServices() {
     try {
-        const response = await fetch(`http://${window.location.hostname}:3000/health`);
+        const response = await fetch(`${window.location.protocol}//${window.location.hostname}:3000/health`);
         const health = await response.json();
         const hasAnyConfigured = Object.values(health.services || {}).some(s => s.configured);
         const layout = document.querySelector('.app')?.getAttribute('data-layout');
