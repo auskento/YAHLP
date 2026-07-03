@@ -351,7 +351,8 @@ checkConfiguredServices();
 
 // Injected by build script - contains all detected layouts (core + custom + demos)
 @@AVAILABLE_TEMPLATES@@
-let availableTemplates = AVAILABLE_TEMPLATES;
+// Exclude mobile from the template slider (always available but not in switcher)
+let availableTemplates = AVAILABLE_TEMPLATES.filter(t => t !== 'mobile');
 
 function initFooter() {
     const sliders = document.querySelectorAll('.template-slider');
