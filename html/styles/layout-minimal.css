@@ -165,7 +165,12 @@
   }
 }
 
-/* Sites section - right sidebar */
+/* Hide sidebar sites section */
+.sidebar-sites-section {
+  display: none !important;
+}
+
+/* Sites section - right sidebar frame */
 .sites-section {
   width: 90px;
   background: var(--bg-secondary);
@@ -190,7 +195,7 @@
   width: 100%;
 }
 
-.site-link {
+.sites-section .site-link {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -207,14 +212,14 @@
   height: 54px;
 }
 
-.site-link:hover,
-.site-link:active {
+.sites-section .site-link:hover,
+.sites-section .site-link:active {
   background: var(--bg-secondary);
   border-color: var(--border-hover);
   transform: none;
 }
 
-.site-icon {
+.sites-section .site-icon {
   width: 36px;
   height: 36px;
   border-radius: 4px;
@@ -226,7 +231,7 @@
   border: none;
 }
 
-.site-icon img {
+.sites-section .site-icon img {
   width: 100%;
   height: 100%;
   object-fit: contain;
