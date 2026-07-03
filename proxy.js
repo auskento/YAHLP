@@ -183,9 +183,10 @@ app.get('/api/prowlarr/health', async (req, res) => {
 });
 
 // NZBHydra endpoints (GET/POST for compatibility)
+// Just checks if nzbhydra is online - returns empty object since caps endpoint returns XML
 const nzbhydraHandler = async (req, res) => {
   try {
-    const cached = cache.get('nzbhydra-stats');
+    const cached = cache.get('nzbhydra-status');
     if (cached) return res.json(cached);
 
     const config = services['nzbhydra'];
@@ -193,15 +194,17 @@ const nzbhydraHandler = async (req, res) => {
       throw new Error('NZBHydra not configured');
     }
 
-    const url = `${config.url}/api?t=stats&apikey=${encodeURIComponent(config.key)}`;
+    // Check if nzbhydra is accessible via caps endpoint
+    const url = `${config.url}/api?t=caps&apikey=${encodeURIComponent(config.key)}`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`NZBHydra HTTP ${response.status}`);
     }
 
-    const data = await response.json();
-    cache.set('nzbhydra-stats', data);
-    res.json(data);
+    // If we got a response, nzbhydra is online
+    const result = {};
+    cache.set('nzbhydra-status', result);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
