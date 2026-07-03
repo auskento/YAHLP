@@ -122,14 +122,17 @@ app.get('/api/tautulli/status', async (req, res) => {
       throw new Error('Tautulli not configured');
     }
 
-    const librariesUrl = `${config.url}/api/v2?apikey=${encodeURIComponent(config.key)}&cmd=get_libraries`;
+    // Append /tautulli to SERVICE_URL if not already present
+    const baseUrl = config.url.endsWith('/tautulli') ? config.url : `${config.url}/tautulli`;
+
+    const librariesUrl = `${baseUrl}/api/v2?apikey=${encodeURIComponent(config.key)}&cmd=get_libraries`;
     const librariesResp = await fetch(librariesUrl);
     if (!librariesResp.ok) {
       throw new Error(`Tautulli libraries HTTP ${librariesResp.status}`);
     }
     const librariesData = await librariesResp.json();
 
-    const usersUrl = `${config.url}/api/v2?apikey=${encodeURIComponent(config.key)}&cmd=get_users`;
+    const usersUrl = `${baseUrl}/api/v2?apikey=${encodeURIComponent(config.key)}&cmd=get_users`;
     const usersResp = await fetch(usersUrl);
     if (!usersResp.ok) {
       throw new Error(`Tautulli users HTTP ${usersResp.status}`);
@@ -195,7 +198,9 @@ const nzbhydraHandler = async (req, res) => {
     }
 
     // Check if nzbhydra is accessible via caps endpoint
-    const url = `${config.url}/api?t=caps&apikey=${encodeURIComponent(config.key)}`;
+    // Append /nzbhydra to SERVICE_URL if not already present
+    const baseUrl = config.url.endsWith('/nzbhydra') ? config.url : `${config.url}/nzbhydra`;
+    const url = `${baseUrl}/api?t=caps&apikey=${encodeURIComponent(config.key)}`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`NZBHydra HTTP ${response.status}`);
@@ -591,7 +596,22 @@ app.get('/api/maintainerr/api/overlays/sections', async (req, res) => {
     const cached = cache.get('maintainerr-sections');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('maintainerr', '/api/overlays/sections');
+    const config = services['maintainerr'];
+    if (!config.url || !config.key) {
+      throw new Error('Maintainerr not configured');
+    }
+
+    // Append /maintainerr to SERVICE_URL if not already present
+    const baseUrl = config.url.endsWith('/maintainerr') ? config.url : `${config.url}/maintainerr`;
+    const url = `${baseUrl}/api/overlays/sections`;
+    const response = await fetch(url, {
+      headers: { 'X-Api-Key': config.key }
+    });
+    if (!response.ok) {
+      throw new Error(`Maintainerr HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
     cache.set('maintainerr-sections', data);
     res.json(data || []);
   } catch (err) {
@@ -604,7 +624,22 @@ app.get('/api/maintainerr/api/storage-metrics/library-sizes', async (req, res) =
     const cached = cache.get('maintainerr-sizes');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('maintainerr', '/api/storage-metrics/library-sizes');
+    const config = services['maintainerr'];
+    if (!config.url || !config.key) {
+      throw new Error('Maintainerr not configured');
+    }
+
+    // Append /maintainerr to SERVICE_URL if not already present
+    const baseUrl = config.url.endsWith('/maintainerr') ? config.url : `${config.url}/maintainerr`;
+    const url = `${baseUrl}/api/storage-metrics/library-sizes`;
+    const response = await fetch(url, {
+      headers: { 'X-Api-Key': config.key }
+    });
+    if (!response.ok) {
+      throw new Error(`Maintainerr HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
     cache.set('maintainerr-sizes', data);
     res.json(data || []);
   } catch (err) {
