@@ -24,7 +24,21 @@ YAHLP includes the following built-in layouts (in `/html/styles/`):
 
 ## Sample Custom Templates
 
-Example custom layouts (neon, focus, storm variants) are available in a separate Custom Templates repository. Download them and place the CSS files in your custom templates directory.
+Example custom layouts are available in a separate Custom Templates repository. Download them and place the CSS files in your custom templates directory (mapped to `/templates` in Docker).
+
+## Docker Setup for Custom Templates
+
+To use custom templates with Docker, map your custom templates directory to `/var/www/html/templates` in your docker-compose.yml:
+
+```yaml
+services:
+  yahlp:
+    image: yahlp:latest
+    volumes:
+      - /path/to/custom-templates:/var/www/html/templates
+```
+
+Place your `layout-*.css` files in `/path/to/custom-templates/` on the host, and they will be available at `/templates/layout-*.css` inside the container and served to the browser.
 
 ## Complete HTML Structure Reference
 
@@ -55,7 +69,7 @@ Understanding the HTML structure is essential for styling. Here's the full compo
       <div class="menu-separator menu-separator-visible"></div>
       <div class="menu-separator menu-separator-label">Group Name</div>
     </nav>
-    <!-- Sites grid in sidebar (for classic/storm layouts) -->
+    <!-- Sites grid in sidebar (for sidebar-based layouts) -->
     <div id="sidebar-sites-section" class="sidebar-sites-section">
       <div id="sidebar-sites-grid" class="sidebar-sites-grid">
         <a href="#" class="site-link" title="Site Name">
@@ -579,7 +593,7 @@ Create `layout-mydesign.css` with the filename matching your desired layout name
 
 ## Common Patterns
 
-### Sidebar-based Layout (classic, storm)
+### Sidebar-based Layout (classic)
 - Sidebar on left/top with horizontal service menu
 - Sites grid below services in same sidebar
 - Dashboard content fills remaining space
