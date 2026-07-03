@@ -231,7 +231,7 @@ async function loadDashboard() {
     // Get health status to know which services are configured
     let configuredServices = {};
     try {
-        const response = await fetch(`http://${window.location.hostname}:3000/health`);
+        const response = await fetch(`/health`);
         const health = await response.json();
         configuredServices = health.services || {};
     } catch (err) {
