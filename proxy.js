@@ -183,6 +183,20 @@ app.get('/api/prowlarr/health', async (req, res) => {
 });
 
 // NZBHydra endpoints
+app.get('/api/nzbhydra/status', async (req, res) => {
+  try {
+    const cached = cache.get('nzbhydra-status');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('nzbhydra', '/nzbhydra/api/stats');
+    cache.set('nzbhydra-status', data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// NZBHydra POST for dashboard compatibility
 app.post('/api/nzbhydra/status', async (req, res) => {
   try {
     const cached = cache.get('nzbhydra-status');
