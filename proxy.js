@@ -625,9 +625,24 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+// Listen on both IPv4 and IPv6
+const http = require('http');
+const net = require('net');
+
+const server = http.createServer(app);
+
+// Listen on IPv4
+server.listen(PORT, '0.0.0.0');
+
+// Listen on IPv6
+const server6 = http.createServer(app);
+server6.listen(PORT, '::');
+
+server.on('listening', () => {
+  const addr = server.address();
   console.log(`🔀 API Aggregator listening on port ${PORT}`);
   console.log(`   IPv4: http://localhost:${PORT}`);
+  console.log(`   IPv6: http://[::1]:${PORT}`);
   console.log(`   Cache TTL: 30 seconds`);
   console.log(`   Health check: http://localhost:${PORT}/health`);
   console.log('\nConfigured services:');
@@ -635,4 +650,9 @@ app.listen(PORT, '0.0.0.0', () => {
     const status = config.url && config.key ? '✅' : '⏳';
     console.log(`   ${status} ${service}`);
   });
+});
+
+server6.on('error', (err) => {
+  if (err.code !== 'EADDRINUSE') throw err;
+  console.error(`IPv6 listen error: ${err.message}`);
 });
