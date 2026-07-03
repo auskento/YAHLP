@@ -569,14 +569,27 @@ app.get('/api/emby/info', async (req, res) => {
 });
 
 // Maintainerr endpoints
-app.get('/api/maintainerr/health', async (req, res) => {
+app.get('/api/maintainerr/api/overlays/sections', async (req, res) => {
   try {
-    const cached = cache.get('maintainerr-health');
+    const cached = cache.get('maintainerr-sections');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('maintainerr', '/api/status');
-    cache.set('maintainerr-health', data);
-    res.json(data || {});
+    const data = await makeRequest('maintainerr', '/api/overlays/sections');
+    cache.set('maintainerr-sections', data);
+    res.json(data || []);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/maintainerr/api/storage-metrics/library-sizes', async (req, res) => {
+  try {
+    const cached = cache.get('maintainerr-sizes');
+    if (cached) return res.json(cached);
+
+    const data = await makeRequest('maintainerr', '/api/storage-metrics/library-sizes');
+    cache.set('maintainerr-sizes', data);
+    res.json(data || []);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
