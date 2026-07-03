@@ -1,7 +1,7 @@
 /* Mobile layout - service menu only, centered full-height */
 
 .app {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     height: 100vh;
     width: 100vw;
@@ -12,15 +12,15 @@
 }
 
 .app-sidebar {
-    display: none !important;
-    position: fixed !important;
+    display: flex !important;
+    position: static !important;
     width: 100% !important;
     height: 100% !important;
-    left: 0;
-    top: 0;
+    flex: 1;
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
+    margin: 0 !important;
 }
 
 .service-menu {
@@ -28,12 +28,14 @@
     grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 16px;
     padding: 16px;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     align-items: center;
     justify-items: center;
     align-content: center;
     background: var(--bg-secondary);
+    margin: 0 !important;
+    list-style: none !important;
 }
 
 .app-footer {
@@ -64,7 +66,7 @@
     display: none !important;
 }
 
-.service-item {
+.menu-item {
     display: flex !important;
     flex-direction: column;
     align-items: center;
@@ -75,18 +77,21 @@
     border: 0.5px solid var(--border-color);
     background: var(--bg-secondary);
     cursor: pointer;
-    text-decoration: none;
     color: inherit;
     aspect-ratio: 1 / 1;
     transition: all 0.2s;
 }
 
-.service-item:active {
+.menu-item:active {
     transform: scale(0.95);
     border-color: var(--text-accent);
 }
 
-.service-item img {
+.menu-item:hover {
+    border-color: var(--text-accent);
+}
+
+.menu-icon {
     width: 48px;
     height: 48px;
     object-fit: contain;
@@ -94,7 +99,7 @@
     max-height: 100%;
 }
 
-.service-item span {
+.menu-label {
     font-size: 11px;
     text-align: center;
     color: var(--text-secondary);
@@ -102,8 +107,8 @@
     word-break: break-word;
 }
 
-.service-item.offline {
-    opacity: 0.5;
+.menu-separator {
+    display: none !important;
 }
 
 /* Responsive */
@@ -114,16 +119,16 @@
         padding: 12px;
     }
 
-    .service-item {
+    .menu-item {
         padding: 8px;
     }
 
-    .service-item img {
+    .menu-icon {
         width: 40px;
         height: 40px;
     }
 
-    .service-item span {
+    .menu-label {
         font-size: 10px;
     }
 }
@@ -132,19 +137,19 @@
     .service-menu {
         grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
         max-width: 600px;
-        margin: 0 auto;
+        margin: 0 auto !important;
     }
 
-    .service-item {
+    .menu-item {
         padding: 16px;
     }
 
-    .service-item img {
+    .menu-icon {
         width: 56px;
         height: 56px;
     }
 
-    .service-item span {
+    .menu-label {
         font-size: 12px;
     }
 }
