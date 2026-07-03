@@ -649,6 +649,9 @@ app.get('/api/maintainerr/api/storage-metrics/library-sizes', async (req, res) =
 
 // Health check
 app.get('/health', (req, res) => {
+  // Services that don't require API keys (URL-only configuration)
+  const keylessServices = ['nzbget', 'transmission', 'deluge'];
+
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -657,7 +660,10 @@ app.get('/health', (req, res) => {
       ttl: cache.getStats().kexpired || 0
     },
     services: Object.keys(services).reduce((acc, svc) => {
-      acc[svc] = { configured: !!(services[svc].url && services[svc].key) };
+      const isKeyless = keylessServices.includes(svc);
+      const hasUrl = !!services[svc].url;
+      const hasKey = !!services[svc].key;
+      acc[svc] = { configured: isKeyless ? hasUrl : (hasUrl && hasKey) };
       return acc;
     }, {})
   });
