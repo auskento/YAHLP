@@ -574,7 +574,7 @@ app.get('/api/maintainerr/api/overlays/sections', async (req, res) => {
     const cached = cache.get('maintainerr-sections');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('maintainerr', '/api/overlays/sections');
+    const data = await makeRequest('maintainerr', '/maintainerr/api/overlays/sections');
     cache.set('maintainerr-sections', data);
     res.json(data || []);
   } catch (err) {
@@ -587,7 +587,7 @@ app.get('/api/maintainerr/api/storage-metrics/library-sizes', async (req, res) =
     const cached = cache.get('maintainerr-sizes');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('maintainerr', '/api/storage-metrics/library-sizes');
+    const data = await makeRequest('maintainerr', '/maintainerr/api/storage-metrics/library-sizes');
     cache.set('maintainerr-sizes', data);
     res.json(data || []);
   } catch (err) {
