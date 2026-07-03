@@ -51,13 +51,20 @@ process_service_config() {
     # Replace ProxyPass URLs, preserving the path
     # Special handling for services that proxy to root (/)
     if [ "$service_name" = "deluge" ] || [ "$service_name" = "qbittorrent" ] || [ "$service_name" = "seerr" ] || [ "$service_name" = "nzbget" ]; then
-        sed -i "s|http://${service_name}:${template_port}|http://${service_host_with_port}|g" "$service_file"
+        sed -i "s|ProxyPass / http://${service_name}:${template_port}/|ProxyPass / http://${service_host_with_port}/|g" "$service_file"
+        sed -i "s|ProxyPassReverse / http://${service_name}:${template_port}/|ProxyPassReverse / http://${service_host_with_port}/|g" "$service_file"
         sed -i "s|ws://${service_name}:${template_port}|ws://${service_host_with_port}|g" "$service_file"
     else
-        sed -i "s|http://[^/]*:${template_port}/[^/]*|http://${service_host_with_port}${service_path}|g" "$service_file"
+        # For services with paths, update both ProxyPass and ProxyPassReverse with the path
+        sed -i "s|ProxyPass /${service_name} http://[^/]*:${template_port}/[^/]*|ProxyPass /${service_name} http://${service_host_with_port}${service_path}|g" "$service_file"
+        sed -i "s|ProxyPassReverse /${service_name} http://[^/]*:${template_port}/[^/]*|ProxyPassReverse /${service_name} http://${service_host_with_port}${service_path}|g" "$service_file"
         sed -i "s|ws://[^/]*:${template_port}/[^/]*|ws://${service_host_with_port}${service_path}|g" "$service_file"
     fi
     
+    # Update Location blocks with proper ProxyPassReverse paths
+    # Handle Location-specific ProxyPassReverse directives (for /api, /login, /signalr, etc)
+    sed -i "s|ProxyPassReverse http://[^/]*:${template_port}/[^/]*|ProxyPassReverse http://${service_host_with_port}${service_path}|g" "$service_file"
+
     # Replace cookie domain ONLY if the line contains ProxyPassReverseCookieDomain
     sed -i "s|\(ProxyPassReverseCookieDomain\) $service_name |\1 $service_host_only |g" "$service_file"
 
