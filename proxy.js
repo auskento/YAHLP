@@ -649,6 +649,9 @@ app.get('/api/maintainerr/api/storage-metrics/library-sizes', async (req, res) =
 
 // Health check
 app.get('/health', (req, res) => {
+  // Transmission doesn't require a password - session ID is obtained from server
+  const noPasswordRequired = ['transmission'];
+
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -657,7 +660,8 @@ app.get('/health', (req, res) => {
       ttl: cache.getStats().kexpired || 0
     },
     services: Object.keys(services).reduce((acc, svc) => {
-      acc[svc] = { configured: !!(services[svc].url && services[svc].key) };
+      const needsPassword = !noPasswordRequired.includes(svc);
+      acc[svc] = { configured: needsPassword ? (services[svc].url && services[svc].key) : !!services[svc].url };
       return acc;
     }, {})
   });
