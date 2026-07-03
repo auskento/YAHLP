@@ -59,6 +59,61 @@ MOBILE_TEMPLATE="/var/www/html/mobile.template"
 SITES_JSON="/var/log/apache2/sites/sites.json"
 SITES_DIR="/var/log/apache2/sites"
 
+# Function to generate sites array for JavaScript
+generate_sites_array() {
+    local sites_array="["
+
+    if [ ! -f "$SITES_JSON" ] || [ -z "$SITES_ENABLED" ]; then
+        echo "[]"
+        return
+    fi
+
+    # Parse SITES_ENABLED and generate array for each enabled site
+    IFS=',' read -ra CODES <<< "$SITES_ENABLED"
+    local first=true
+    for code in "${CODES[@]}"; do
+        code=$(echo "$code" | xargs)  # Trim whitespace
+
+        # Extract site data from sites.json
+        url=$(grep -A 3 "\"code\": \"$code\"" "$SITES_JSON" | grep "\"url\"" | sed 's/.*"url": "\(.*\)".*/\1/')
+        name=$(grep -A 2 "\"code\": \"$code\"" "$SITES_JSON" | grep "\"name\"" | sed 's/.*"name": "\(.*\)".*/\1/')
+
+        if [ ! -z "$url" ]; then
+            # Check for favicon
+            favicon_url=""
+            for ext in ico jpg jpeg png svg gif webp; do
+                if [ -f "$SITES_DIR/${code,,}.favicon.$ext" ]; then
+                    favicon_url="/sites/${code,,}.favicon.$ext"
+                    break
+                fi
+            done
+
+            if [ -z "$favicon_url" ]; then
+                for ext in ico jpg jpeg png svg gif webp; do
+                    if [ -f "/var/www/html/sites-icons/${code,,}.favicon.$ext" ]; then
+                        favicon_url="/sites/${code,,}.favicon.$ext"
+                        break
+                    fi
+                done
+            fi
+
+            if [ -z "$favicon_url" ]; then
+                favicon_url="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect fill='%23666' width='16' height='16'/%3E%3C/svg%3E"
+            fi
+
+            if [ "$first" = false ]; then
+                sites_array+=","
+            fi
+            first=false
+
+            sites_array+="{id:'$code',name:'$name',href:'$url',icon:'$favicon_url',popup:true}"
+        fi
+    done
+
+    sites_array+="]"
+    printf '%s' "$sites_array"
+}
+
 # Function to generate sites HTML
 generate_sites_html() {
     local sites_html=""
@@ -1099,6 +1154,7 @@ generate_css_based_templates() {
     local BUILTIN_TEMPLATES="/var/www/html/templates"
     local USER_TEMPLATES="/templates"
     local services_array=$(generate_services_array)
+    local sites_array=$(generate_sites_array)
 
     if [ ! -f "$MASTER_TEMPLATE" ]; then
         echo "Master template not found: $MASTER_TEMPLATE"
@@ -1218,6 +1274,7 @@ generate_css_based_templates() {
         html_content="${html_content//@@TEMPLATE_TYPE@@/$layout}"
         html_content="${html_content//@@AVAILABLE_TEMPLATES@@/$templates_js}"
         html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+        html_content="${html_content//@@SITES_ARRAY@@/$sites_array}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
 
