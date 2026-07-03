@@ -238,12 +238,16 @@ async function loadDashboard() {
         console.warn('[Health Check] Could not verify configured services:', err);
     }
 
+    const app = document.querySelector('.app');
+    const layout = app?.getAttribute('data-layout');
+    const isFocusLayout = layout === 'focus';
+
     const statuses = await Promise.all(SERVICES.map(app => {
         const service = codeToService[app.id];
         if (!service) return Promise.resolve(null);
 
-        // Skip services that aren't configured
-        if (!configuredServices[service]?.configured) {
+        // For focus layout, get all services; for others, skip unconfigured ones
+        if (!isFocusLayout && !configuredServices[service]?.configured) {
             return Promise.resolve(null);
         }
 
@@ -251,31 +255,76 @@ async function loadDashboard() {
     }));
 
     let html = '';
-    const visibleServices = statuses.filter(s => s);
-    visibleServices.forEach(status => {
-        const isOnline = status.status === 'Online';
-        const statusClass = isOnline ? 'online' : 'offline';
-        html += `
-            <div class="service-card" data-service-href="${status.href}" data-service-popup="${status.popup}">
-                <div class="service-card-header">
-                    <div class="service-card-icon">
-                        <img src="${status.icon}" alt="${status.name}" />
+
+    if (isFocusLayout) {
+        // For focus layout: show full panels for configured, icons for unconfigured
+        const serviceMap = new Map(SERVICES.filter(s => s.id in codeToService).map(s => [codeToService[s.id], s]));
+        const statusMap = new Map(statuses.filter(s => s).map(s => [s.name.toLowerCase(), s]));
+
+        serviceMap.forEach((app, serviceName) => {
+            const status = statusMap.get(serviceName);
+
+            if (status) {
+                // Configured service - show full panel
+                const isOnline = status.status === 'Online';
+                const statusClass = isOnline ? 'online' : 'offline';
+                html += `
+                    <div class="service-card" data-service-href="${status.href}" data-service-popup="${status.popup}">
+                        <div class="service-card-header">
+                            <div class="service-card-icon">
+                                <img src="${status.icon}" alt="${status.name}" />
+                            </div>
+                            <div class="service-card-title">${status.name}</div>
+                            <div class="service-card-status">
+                                <span class="status-dot ${statusClass}"></span>
+                                ${status.status}
+                            </div>
+                        </div>
+                        ${status.stats.map(s => `
+                            <div class="service-stat">
+                                <span class="stat-label">${s.label}</span>
+                                <span class="stat-value">${s.value}</span>
+                            </div>
+                        `).join('')}
                     </div>
-                    <div class="service-card-title">${status.name}</div>
-                    <div class="service-card-status">
-                        <span class="status-dot ${statusClass}"></span>
-                        ${status.status}
+                `;
+            } else {
+                // Unconfigured service - show icon only
+                html += `
+                    <div class="service-icon-only" data-service-name="${app.name}" data-service-icon="${app.icon}" title="Not configured">
+                        <img src="${app.icon}" alt="${app.name}" />
                     </div>
+                `;
+            }
+        });
+    } else {
+        // Standard layout: show only configured services
+        const visibleServices = statuses.filter(s => s);
+        visibleServices.forEach(status => {
+            const isOnline = status.status === 'Online';
+            const statusClass = isOnline ? 'online' : 'offline';
+            html += `
+                <div class="service-card" data-service-href="${status.href}" data-service-popup="${status.popup}">
+                    <div class="service-card-header">
+                        <div class="service-card-icon">
+                            <img src="${status.icon}" alt="${status.name}" />
+                        </div>
+                        <div class="service-card-title">${status.name}</div>
+                        <div class="service-card-status">
+                            <span class="status-dot ${statusClass}"></span>
+                            ${status.status}
+                        </div>
+                    </div>
+                    ${status.stats.map(s => `
+                        <div class="service-stat">
+                            <span class="stat-label">${s.label}</span>
+                            <span class="stat-value">${s.value}</span>
+                        </div>
+                    `).join('')}
                 </div>
-                ${status.stats.map(s => `
-                    <div class="service-stat">
-                        <span class="stat-label">${s.label}</span>
-                        <span class="stat-value">${s.value}</span>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    });
+            `;
+        });
+    }
 
     content.innerHTML = html || '<div class="no-services">No configured services</div>';
 
