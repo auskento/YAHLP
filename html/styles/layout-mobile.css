@@ -20,6 +20,10 @@ body {
     display: none;
 }
 
+.service-frame {
+    display: none;
+}
+
 .app-content {
     flex: 1;
     display: flex;
@@ -31,26 +35,20 @@ body {
 
 .dashboard-view {
     display: flex;
-    width: 100%;
-    height: 100%;
-    align-items: center;
-    justify-content: center;
-}
-
-.services-section {
-    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
+    padding: 0;
+    margin: 0;
 }
 
-.services-title {
+.dashboard-header {
     display: none;
 }
 
-.services-grid {
+#dashboard-content {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 16px;
@@ -73,6 +71,7 @@ body {
     border: 0.5px solid var(--border-color);
     background: var(--bg-secondary);
     transition: all 0.2s;
+    cursor: pointer;
     aspect-ratio: 1;
 }
 
@@ -85,7 +84,15 @@ body {
     opacity: 0.5;
 }
 
-.service-icon {
+.service-card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.service-card-icon {
     width: 48px;
     height: 48px;
     display: flex;
@@ -93,13 +100,13 @@ body {
     justify-content: center;
 }
 
-.service-icon img {
+.service-card-icon img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
 }
 
-.service-name {
+.service-card-title {
     font-size: 11px;
     text-align: center;
     color: var(--text-secondary);
@@ -107,11 +114,30 @@ body {
     word-break: break-word;
 }
 
-.service-status {
+.service-card-status {
+    display: none;
+}
+
+.status-dot {
+    display: none;
+}
+
+.no-services {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 20px;
+}
+
+#welcome-screen {
     display: none;
 }
 
 /* Hide everything else */
+.dashboard-content {
+    display: none;
+}
+
 .sites-section {
     display: none;
 }
@@ -162,7 +188,7 @@ body {
 
 /* Responsive */
 @media (max-width: 480px) {
-    .services-grid {
+    #dashboard-content {
         grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
         gap: 12px;
         padding: 12px;
@@ -172,18 +198,18 @@ body {
         padding: 8px;
     }
 
-    .service-icon {
+    .service-card-icon {
         width: 40px;
         height: 40px;
     }
 
-    .service-name {
+    .service-card-title {
         font-size: 10px;
     }
 }
 
 @media (min-width: 768px) {
-    .services-grid {
+    #dashboard-content {
         grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
         max-width: 600px;
         gap: 20px;
@@ -193,12 +219,12 @@ body {
         padding: 16px;
     }
 
-    .service-icon {
+    .service-card-icon {
         width: 56px;
         height: 56px;
     }
 
-    .service-name {
+    .service-card-title {
         font-size: 12px;
     }
 }
