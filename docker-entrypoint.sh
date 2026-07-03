@@ -25,6 +25,15 @@ if [ -f /etc/apache2/dashboard.conf ]; then
     source /etc/apache2/dashboard.conf
 fi
 
+# Load mounted environment configuration file if it exists
+# This allows passing sensitive credentials (API keys, passwords) via a mounted file instead of env vars
+if [ -f /etc/yahlp/.env.local ]; then
+    echo "Loading mounted configuration file..."
+    set -a
+    source /etc/yahlp/.env.local
+    set +a
+fi
+
 # Determine deployment mode early to clear DOMAIN/EMAIL before writing env.conf
 if [ "$ACCESS_MODE" = "private" ]; then
     DOMAIN=""
