@@ -527,7 +527,11 @@ a { text-decoration: none; color: inherit; }
   }
 }
 
-/* Hide site names across all layouts */
+/* Hide site names and titles across all layouts */
+.sites-title {
+  display: none !important;
+}
+
 .site-name {
   display: none !important;
 }
