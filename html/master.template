@@ -40,6 +40,12 @@
       <div id="dashboard-content" class="dashboard-content">
         <div class="loading-placeholder">Loading service status...</div>
       </div>
+      <div id="sites-section" class="sites-section" style="display:none">
+        <div class="sites-title">Quick Links</div>
+        <div id="sites-grid" class="sites-grid">
+          <!-- Sites populated by JavaScript -->
+        </div>
+      </div>
     </div>
 
     <div id="welcome-screen" class="welcome-screen" style="display:none">
@@ -75,6 +81,7 @@
 
 <script>
 const SERVICES = @@SERVICES_ARRAY@@;
+const SITES = @@SITES_ARRAY@@;
 const apiBase = `http://${window.location.hostname}:3000/api`;
 
 const codeToService = {
@@ -324,6 +331,42 @@ async function buildServiceMenu() {
     });
 }
 
+function buildSitesGrid() {
+    const sitesSection = document.getElementById('sites-section');
+    const sitesGrid = document.getElementById('sites-grid');
+
+    if (!SITES || SITES.length === 0) {
+        sitesSection.style.display = 'none';
+        return;
+    }
+
+    let html = '';
+    SITES.forEach(site => {
+        html += `
+            <a href="${site.href}" class="site-link" title="${site.name}" target="${site.popup ? '_blank' : '_self'}">
+                <div class="site-icon">
+                    <img src="${site.icon}" alt="${site.name}">
+                </div>
+                <div class="site-name">${site.name}</div>
+            </a>
+        `;
+    });
+
+    sitesGrid.innerHTML = html;
+    sitesSection.style.display = 'block';
+
+    document.querySelectorAll('.site-link').forEach(link => {
+        if (!link.getAttribute('target') || link.getAttribute('target') === '_self') {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                frame.src = link.getAttribute('href');
+                frame.style.display = 'block';
+                dashboardView.style.display = 'none';
+            });
+        }
+    });
+}
+
 async function checkConfiguredServices() {
     try {
         const response = await fetch(`http://${window.location.hostname}:3000/health`);
@@ -337,11 +380,13 @@ async function checkConfiguredServices() {
         }
 
         await buildServiceMenu();
+        buildSitesGrid();
         loadDashboard();
         setInterval(loadDashboard, 30000);
     } catch (err) {
         console.error('[Health Check] Error:', err);
         await buildServiceMenu();
+        buildSitesGrid();
         loadDashboard();
         setInterval(loadDashboard, 30000);
     }
