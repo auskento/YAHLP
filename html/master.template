@@ -447,20 +447,26 @@ async function checkConfiguredServices() {
         const health = await response.json();
         const hasAnyConfigured = Object.values(health.services || {}).some(s => s.configured);
 
+        // Always build menus and sites, regardless of API configuration
+        await buildServiceMenu();
+        buildSitesGrid();
+        adjustIconSizes();
+
         if (!hasAnyConfigured) {
             dashboardView.style.display = 'none';
             welcomeScreen.style.display = 'flex';
             return;
         }
 
-        await buildServiceMenu();
-        buildSitesGrid();
-        adjustIconSizes();
         loadDashboard();
         setInterval(loadDashboard, 30000);
     } catch (err) {
         console.error('[Health Check] Error:', err);
-        // If health check fails, show welcome screen as fallback
+        // Still build menus even if health check fails
+        await buildServiceMenu();
+        buildSitesGrid();
+        adjustIconSizes();
+        // If health check fails, show welcome screen
         dashboardView.style.display = 'none';
         welcomeScreen.style.display = 'flex';
     }
