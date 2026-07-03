@@ -121,7 +121,7 @@ async function fetchServiceStatus(service, app) {
             return null;
         }
 
-        const response = await fetch(url, { mode: 'cors', redirect: 'follow', method: service === 'nzbget' || service === 'transmission' || service === 'deluge' ? 'POST' : 'GET' });
+        const response = await fetch(url, { mode: 'cors', redirect: 'follow', method: service === 'nzbget' || service === 'transmission' || service === 'deluge' || service === 'nzbhydra' ? 'POST' : 'GET' });
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             if (errorData.error && errorData.error.includes('not configured')) {
