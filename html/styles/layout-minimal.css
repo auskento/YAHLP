@@ -76,6 +76,11 @@
   width: 100%;
 }
 
+.welcome-screen {
+  background: var(--bg-primary) !important;
+  z-index: 100 !important;
+}
+
 .dashboard-title {
   display: none;
 }
