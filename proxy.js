@@ -182,10 +182,10 @@ app.get('/api/prowlarr/health', async (req, res) => {
   }
 });
 
-// NZBHydra endpoints
-app.get('/api/nzbhydra/status', async (req, res) => {
+// NZBHydra endpoints (GET/POST for compatibility)
+const nzbhydraHandler = async (req, res) => {
   try {
-    const cached = cache.get('nzbhydra-status');
+    const cached = cache.get('nzbhydra-stats');
     if (cached) return res.json(cached);
 
     const config = services['nzbhydra'];
@@ -200,37 +200,15 @@ app.get('/api/nzbhydra/status', async (req, res) => {
     }
 
     const data = await response.json();
-    cache.set('nzbhydra-status', data);
+    cache.set('nzbhydra-stats', data);
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
+};
 
-// NZBHydra POST for dashboard compatibility
-app.post('/api/nzbhydra/status', async (req, res) => {
-  try {
-    const cached = cache.get('nzbhydra-status');
-    if (cached) return res.json(cached);
-
-    const config = services['nzbhydra'];
-    if (!config.url || !config.key) {
-      throw new Error('NZBHydra not configured');
-    }
-
-    const url = `${config.url}/api?t=stats&apikey=${encodeURIComponent(config.key)}`;
-    const response = await fetch(url, { method: 'POST' });
-    if (!response.ok) {
-      throw new Error(`NZBHydra HTTP ${response.status}`);
-    }
-
-    const data = await response.json();
-    cache.set('nzbhydra-status', data);
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+app.get('/api/nzbhydra', nzbhydraHandler);
+app.post('/api/nzbhydra', nzbhydraHandler);
 
 // Sonarr endpoints
 app.get('/api/sonarr/queue', async (req, res) => {
