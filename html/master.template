@@ -320,7 +320,10 @@ async function buildServiceMenu() {
         item.addEventListener('click', () => {
             const href = item.getAttribute('data-href');
             const isPopup = item.getAttribute('data-popup') === 'true';
-            if (isPopup) {
+            const app = document.querySelector('.app');
+            const isMobile = app.getAttribute('data-layout') === 'mobile';
+
+            if (isMobile || isPopup) {
                 window.open(href, '_blank');
             } else {
                 frame.src = href;
@@ -334,6 +337,8 @@ async function buildServiceMenu() {
 function buildSitesGrid() {
     const sitesSection = document.getElementById('sites-section');
     const sitesGrid = document.getElementById('sites-grid');
+    const app = document.querySelector('.app');
+    const isMobile = app.getAttribute('data-layout') === 'mobile';
 
     if (!SITES || SITES.length === 0) {
         sitesSection.style.display = 'none';
@@ -342,8 +347,10 @@ function buildSitesGrid() {
 
     let html = '';
     SITES.forEach(site => {
+        // Force _blank on mobile, otherwise use popup setting
+        const target = isMobile ? '_blank' : (site.popup ? '_blank' : '_self');
         html += `
-            <a href="${site.href}" class="site-link" title="${site.name}" target="${site.popup ? '_blank' : '_self'}">
+            <a href="${site.href}" class="site-link" title="${site.name}" target="${target}">
                 <div class="site-icon">
                     <img src="${site.icon}" alt="${site.name}">
                 </div>
@@ -356,7 +363,7 @@ function buildSitesGrid() {
     sitesSection.style.display = 'block';
 
     document.querySelectorAll('.site-link').forEach(link => {
-        if (!link.getAttribute('target') || link.getAttribute('target') === '_self') {
+        if (!isMobile && (!link.getAttribute('target') || link.getAttribute('target') === '_self')) {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 frame.src = link.getAttribute('href');
