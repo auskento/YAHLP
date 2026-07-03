@@ -122,6 +122,16 @@ TAUTULLI_URL: "http://tautulli:8181"
 - **Path on Dashboard:** `/tautulli/`
 - **Note:** Requires Plex to be running
 
+#### Maintainerr (Media Maintenance)
+```yaml
+ENABLE_MAINTAINERR: "true"
+MAINTAINERR_URL: "http://maintainerr:6246"
+```
+- **Default Port:** 6246
+- **Docker Container Name:** `maintainerr`
+- **Path on Dashboard:** `/maintainerr/`
+- **Note:** Manages and maintains media libraries
+
 ---
 
 ### Download Services
@@ -180,6 +190,26 @@ DELUGE_URL: "http://deluge:8112"
 - **Default Port:** 8112
 - **Docker Container Name:** `deluge`
 - **Path on Dashboard:** `/deluge/`
+
+---
+
+## Important: BASE_URL Configuration
+
+**The proxy assumes each service uses its service name as the BASE_URL.**
+
+For example:
+- **NZBHydra** must have `BASE_URL=/nzbhydra`
+- **Tautulli** must have `BASE_URL=/tautulli`
+- **Maintainerr** must have `BASE_URL=/maintainerr`
+
+If your service uses a different BASE_URL, you must append it to the `*_URL`:
+```yaml
+# Default (service uses BASE_URL=/nzbhydra)
+NZBHYDRA_URL: http://192.168.9.13:5076
+
+# Custom BASE_URL (service uses BASE_URL=/custom/path)
+NZBHYDRA_URL: http://192.168.9.13:5076/custom/path
+```
 
 ---
 
@@ -252,6 +282,13 @@ services:
       ENABLE_QBITTORRENT: "false"
       # QBITTORRENT_URL: (disabled)
       
+      # Monitoring
+      ENABLE_TAUTULLI: "true"
+      TAUTULLI_URL: http://tautulli:8181
+      
+      ENABLE_MAINTAINERR: "false"
+      # MAINTAINERR_URL: (disabled)
+      
       # All others disabled by default
       ENABLE_LIDARR: "false"
       ENABLE_WHISPARR: "false"
@@ -259,7 +296,6 @@ services:
       ENABLE_SEERR: "false"
       ENABLE_BAZARR: "false"
       ENABLE_EMBY: "false"
-      ENABLE_TAUTULLI: "false"
       ENABLE_TRANSMISSION: "false"
       ENABLE_DELUGE: "false"
       ENABLE_NZBGET: "false"
