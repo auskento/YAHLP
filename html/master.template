@@ -102,6 +102,34 @@ setInterval(updateDateTime, 1000);
 
 async function fetchServiceStatus(service, app) {
     try {
+        // Special handling for maintainerr - needs two endpoints
+        if (service === 'maintainerr') {
+            const sectionsUrl = `${apiBase}/maintainerr/api/overlays/sections`;
+            const sizesUrl = `${apiBase}/maintainerr/api/storage-metrics/library-sizes`;
+
+            const [sectionsResp, sizesResp] = await Promise.all([
+                fetch(sectionsUrl, { mode: 'cors', redirect: 'follow' }),
+                fetch(sizesUrl, { mode: 'cors', redirect: 'follow' })
+            ]);
+
+            if (!sectionsResp.ok || !sizesResp.ok) {
+                throw new Error(`HTTP ${sectionsResp.status}/${sizesResp.status}`);
+            }
+
+            const sections = await sectionsResp.json();
+            const sizes = await sizesResp.json();
+
+            const stats = [];
+            if (Array.isArray(sections) && Array.isArray(sizes)) {
+                sections.forEach((section, idx) => {
+                    const sizeGB = sizes[idx] ? (sizes[idx] / (1024 ** 3)).toFixed(2) : '0.00';
+                    stats.push({ label: section, value: `${sizeGB} GB` });
+                });
+            }
+
+            return { ...app, status: 'Online', stats };
+        }
+
         let url;
         if (service === 'jellyfin' || service === 'emby') {
             url = `${apiBase}/${service}/info`;
@@ -115,8 +143,6 @@ async function fetchServiceStatus(service, app) {
             url = `${apiBase}/${service}/status`;
         } else if (service === 'prowlarr') {
             url = `${apiBase}/prowlarr/health`;
-        } else if (service === 'maintainerr') {
-            url = `${apiBase}/maintainerr/api/rules/count`;
         } else {
             return null;
         }
@@ -177,9 +203,6 @@ async function fetchServiceStatus(service, app) {
         } else if (service === 'prowlarr') {
             const issues = Array.isArray(data) ? data.length : 0;
             stats = [{ label: 'Health Issues', value: issues }];
-        } else if (service === 'maintainerr') {
-            const rules = typeof data === 'number' ? data : data.count || 0;
-            stats = [{ label: 'Rules', value: rules }];
         }
 
         return { ...app, status: 'Online', stats };
