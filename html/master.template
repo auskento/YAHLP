@@ -116,7 +116,7 @@ async function fetchServiceStatus(service, app) {
         } else if (service === 'prowlarr') {
             url = `${apiBase}/prowlarr/health`;
         } else if (service === 'maintainerr') {
-            url = `${apiBase}/maintainerr/health`;
+            url = `${apiBase}/maintainerr/api/rules/count`;
         } else {
             return null;
         }
@@ -177,6 +177,9 @@ async function fetchServiceStatus(service, app) {
         } else if (service === 'prowlarr') {
             const issues = Array.isArray(data) ? data.length : 0;
             stats = [{ label: 'Health Issues', value: issues }];
+        } else if (service === 'maintainerr') {
+            const rules = typeof data === 'number' ? data : data.count || 0;
+            stats = [{ label: 'Rules', value: rules }];
         }
 
         return { ...app, status: 'Online', stats };
