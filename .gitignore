@@ -22,6 +22,9 @@ logs/
 *~
 .DS_Store
 
+# Preview files
+*-preview.html
+
 # IDE
 .vscode/
 .idea/
