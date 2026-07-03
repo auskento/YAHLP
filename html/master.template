@@ -246,8 +246,8 @@ async function loadDashboard() {
         const service = codeToService[app.id];
         if (!service) return Promise.resolve(null);
 
-        // For focus layout, get all services; for others, skip unconfigured ones
-        if (!isFocusLayout && !configuredServices[service]?.configured) {
+        // Skip unconfigured services - don't fetch status for them
+        if (!configuredServices[service]?.configured) {
             return Promise.resolve(null);
         }
 
