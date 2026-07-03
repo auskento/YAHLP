@@ -258,11 +258,13 @@ async function loadDashboard() {
 
     if (isFocusLayout) {
         // For focus layout: show full panels for configured, icons for unconfigured
-        const serviceMap = new Map(SERVICES.filter(s => s.id in codeToService).map(s => [codeToService[s.id], s]));
         const statusMap = new Map(statuses.filter(s => s).map(s => [s.name.toLowerCase(), s]));
 
-        serviceMap.forEach((app, serviceName) => {
-            const status = statusMap.get(serviceName);
+        SERVICES.forEach(app => {
+            const service = codeToService[app.id];
+            if (!service) return;
+
+            const status = statusMap.get(app.name.toLowerCase());
 
             if (status) {
                 // Configured service - show full panel
