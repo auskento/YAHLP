@@ -1154,10 +1154,22 @@ generate_css_based_templates() {
         layouts=("classic" "sleek" "minimal" "focus")
     fi
 
+    # Ensure mobile layout is always included
+    local has_mobile=false
+    for layout in "${layouts[@]}"; do
+        if [ "$layout" = "mobile" ]; then
+            has_mobile=true
+            break
+        fi
+    done
+    if [ "$has_mobile" = false ]; then
+        layouts+=("mobile")
+    fi
+
     # Separate core and custom layouts, sort alphabetically
     local core_layouts=()
     local custom_layouts=()
-    local core_names=("classic" "modern" "sleek" "minimal")
+    local core_names=("classic" "modern" "sleek" "minimal" "mobile")
 
     for layout in "${layouts[@]}"; do
         local is_core=false
