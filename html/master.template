@@ -139,7 +139,9 @@ async function fetchServiceStatus(service, app) {
             url = `${apiBase}/${service}/queue`;
         } else if (['qbittorrent', 'sabnzbd', 'nzbget', 'transmission', 'deluge'].includes(service)) {
             url = `${apiBase}/${service}/stats`;
-        } else if (['nzbhydra', 'seerr', 'bazarr', 'tautulli'].includes(service)) {
+        } else if (service === 'nzbhydra') {
+            url = `${apiBase}/nzbhydra`;
+        } else if (['seerr', 'bazarr', 'tautulli'].includes(service)) {
             url = `${apiBase}/${service}/status`;
         } else if (service === 'prowlarr') {
             url = `${apiBase}/prowlarr/health`;
