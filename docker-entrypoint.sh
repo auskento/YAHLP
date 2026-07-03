@@ -27,7 +27,12 @@ fi
 
 # Load mounted environment configuration file if it exists
 # This allows passing sensitive credentials (API keys, passwords) via a mounted file instead of env vars
-if [ -f /etc/yahlp/.env.local ]; then
+if [ -f /etc/yahlp/env.local ]; then
+    echo "Loading mounted configuration file..."
+    set -a
+    source /etc/yahlp/env.local
+    set +a
+elif [ -f /etc/yahlp/.env.local ]; then
     echo "Loading mounted configuration file..."
     set -a
     source /etc/yahlp/.env.local
