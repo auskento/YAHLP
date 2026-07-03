@@ -495,13 +495,15 @@ async function checkConfiguredServices() {
         const response = await fetch(`http://${window.location.hostname}:3000/health`);
         const health = await response.json();
         const hasAnyConfigured = Object.values(health.services || {}).some(s => s.configured);
+        const layout = document.querySelector('.app')?.getAttribute('data-layout');
+        const isFocusLayout = layout === 'focus';
 
         // Always build menus and sites, regardless of API configuration
         await buildServiceMenu();
         buildSitesGrid();
         adjustIconSizes();
 
-        if (!hasAnyConfigured) {
+        if (!hasAnyConfigured && !isFocusLayout) {
             dashboardView.style.display = 'none';
             welcomeScreen.style.display = 'flex';
             return;
@@ -515,9 +517,16 @@ async function checkConfiguredServices() {
         await buildServiceMenu();
         buildSitesGrid();
         adjustIconSizes();
-        // If health check fails, show welcome screen
-        dashboardView.style.display = 'none';
-        welcomeScreen.style.display = 'flex';
+        const layout = document.querySelector('.app')?.getAttribute('data-layout');
+        const isFocusLayout = layout === 'focus';
+        // If health check fails, show welcome screen (unless focus layout)
+        if (!isFocusLayout) {
+            dashboardView.style.display = 'none';
+            welcomeScreen.style.display = 'flex';
+        } else {
+            loadDashboard();
+            setInterval(loadDashboard, 30000);
+        }
     }
 }
 
