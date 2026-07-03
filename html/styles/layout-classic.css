@@ -44,10 +44,11 @@
   padding: 0;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   flex: 0 1 auto;
   overflow-x: auto;
   overflow-y: hidden;
+  width: 100%;
 }
 
 .menu-item {
@@ -123,10 +124,12 @@
   display: flex;
   gap: 8px;
   margin: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   width: 100%;
-  padding: 12px 20px 0;
+  padding: 8px 20px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .sidebar-sites-section .site-link {
@@ -134,14 +137,15 @@
   flex-direction: column;
   align-items: center;
   gap: 0;
-  padding: 6px;
-  border-radius: 8px;
+  padding: 4px;
+  border-radius: 6px;
   border: none;
   background: transparent;
   text-decoration: none;
   color: inherit;
   transition: all 0.2s;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .sidebar-sites-section .site-link:hover,
@@ -150,8 +154,8 @@
 }
 
 .sidebar-sites-section .site-icon {
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   border-radius: 6px;
   display: flex;
   align-items: center;

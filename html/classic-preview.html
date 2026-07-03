@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YAHLP - Status</title>
+<script crossorigin src="/react.production.min.js"></script>
+<script crossorigin src="/react-dom.production.min.js"></script>
+<script src="support.js"></script>
+<link rel="stylesheet" href="/styles/base.css">
+<link rel="stylesheet" href="/styles/layout-classic.css">
+</head>
+<body>
+<div class="app" data-layout="classic" data-theme="dark" style="padding-bottom: 48px;">
+  <header class="app-header">
+    <a href="/" style="display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer;">
+      <div style="width: 32px; height: 32px; background: #4a9eff; border-radius: 8px;"></div>
+      <div class="logo-text">YAHLP</div>
+    </a>
+    <div class="header-time">
+      <div class="current-time" id="currentTime">--:--</div>
+      <div class="current-date" id="currentDate">---</div>
+    </div>
+  </header>
+
+  <aside class="app-sidebar">
+    <nav class="service-menu" id="serviceMenu">
+      <button class="menu-item" title="Jellyfin" style="background: #00A4DC;">
+        <div style="width: 48px; height: 48px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #00A4DC; font-weight: bold; font-size: 20px;">JEL</div>
+        <span class="menu-label">Jellyfin</span>
+      </button>
+      <button class="menu-item" title="Plex" style="background: #E5A00D;">
+        <div style="width: 48px; height: 48px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #E5A00D; font-weight: bold; font-size: 20px;">PLX</div>
+        <span class="menu-label">Plex</span>
+      </button>
+      <button class="menu-item" title="Sonarr" style="background: #35B27F;">
+        <div style="width: 48px; height: 48px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #35B27F; font-weight: bold; font-size: 20px;">SON</div>
+        <span class="menu-label">Sonarr</span>
+      </button>
+      <button class="menu-item" title="Radarr" style="background: #FF6B6B;">
+        <div style="width: 48px; height: 48px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #FF6B6B; font-weight: bold; font-size: 20px;">RAD</div>
+        <span class="menu-label">Radarr</span>
+      </button>
+      <button class="menu-item" title="qBittorrent" style="background: #3B82F6;">
+        <div style="width: 48px; height: 48px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #3B82F6; font-weight: bold; font-size: 20px;">QBI</div>
+        <span class="menu-label">qBittorrent</span>
+      </button>
+    </nav>
+    <div id="sidebar-sites-section" class="sidebar-sites-section" style="display:block">
+      <div id="sidebar-sites-grid" class="sidebar-sites-grid">
+        <a href="#" class="site-link" title="Home" style="margin-top: 8px;">
+          <div class="site-icon" style="background: #FF9500; color: white; font-size: 24px; font-weight: bold;">🏠</div>
+          <div class="site-name">Home</div>
+        </a>
+        <a href="#" class="site-link" title="Settings">
+          <div class="site-icon" style="background: #5856D6; color: white; font-size: 24px; font-weight: bold;">⚙️</div>
+          <div class="site-name">Settings</div>
+        </a>
+        <a href="#" class="site-link" title="Help">
+          <div class="site-icon" style="background: #34C759; color: white; font-size: 24px; font-weight: bold;">❓</div>
+          <div class="site-name">Help</div>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="app-content">
+    <iframe id="service-frame" class="service-frame" src="" title="Service" style="display: none;"></iframe>
+
+    <div id="dashboard-view" class="dashboard-view">
+      <div class="dashboard-header">
+        <h1 class="dashboard-title">Service Status</h1>
+        <p class="dashboard-subtitle">Real-time data from your services</p>
+      </div>
+      <div id="dashboard-content" class="dashboard-content">
+        <div class="service-card">
+          <div class="service-card-header">
+            <div class="service-card-icon">
+              <div style="width: 100%; height: 100%; background: #00A4DC; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">JEL</div>
+            </div>
+            <div class="service-card-title">Jellyfin</div>
+            <div class="service-card-status">
+              <span class="status-dot online"></span>
+              Online
+            </div>
+          </div>
+          <div class="service-stat">
+            <span class="stat-label">Playing</span>
+            <span class="stat-value">2</span>
+          </div>
+        </div>
+        <div class="service-card">
+          <div class="service-card-header">
+            <div class="service-card-icon">
+              <div style="width: 100%; height: 100%; background: #E5A00D; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">PLX</div>
+            </div>
+            <div class="service-card-title">Plex</div>
+            <div class="service-card-status">
+              <span class="status-dot online"></span>
+              Online
+            </div>
+          </div>
+          <div class="service-stat">
+            <span class="stat-label">Playing</span>
+            <span class="stat-value">1</span>
+          </div>
+        </div>
+        <div class="service-card">
+          <div class="service-card-header">
+            <div class="service-card-icon">
+              <div style="width: 100%; height: 100%; background: #35B27F; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">SON</div>
+            </div>
+            <div class="service-card-title">Sonarr</div>
+            <div class="service-card-status">
+              <span class="status-dot online"></span>
+              Online
+            </div>
+          </div>
+          <div class="service-stat">
+            <span class="stat-label">Queue</span>
+            <span class="stat-value">5</span>
+          </div>
+          <div class="service-stat">
+            <span class="stat-label">Downloading</span>
+            <span class="stat-value">2</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="welcome-screen" class="welcome-screen" style="display:none">
+      <div style="width: 80px; height: 80px; background: #4a9eff; border-radius: 12px; margin-bottom: 30px;"></div>
+      <div class="welcome-title">Welcome to YAHLP</div>
+      <div class="welcome-message">
+        Configure your services with API keys in the environment variables to get started.
+        Once configured, your service status will appear here.
+      </div>
+    </div>
+  </main>
+
+  <div id="sites-section" class="sites-section" style="display:none">
+    <div class="sites-title">Quick Links</div>
+    <div id="sites-grid" class="sites-grid">
+    </div>
+  </div>
+</div>
+
+<footer class="app-footer">
+  <div class="footer-left">
+    <a href="/" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; cursor: pointer;">
+      <div style="width: 20px; height: 20px; background: #4a9eff; border-radius: 4px;"></div>
+      <span class="footer-name">YAHLP</span>
+    </a>
+  </div>
+  <div class="footer-center">
+    <span class="template-label" id="templateLabel">Classic</span>
+  </div>
+  <div class="footer-right">
+    <div class="footer-time">
+      <span id="footerTime">--:--</span>
+    </div>
+    <button id="themeToggle" class="theme-toggle" title="Toggle dark/light mode" aria-label="Toggle dark/light mode">🌙</button>
+  </div>
+</footer>
+
+<script>
+function updateDateTime() {
+    const now = new Date();
+    const timeEl = document.getElementById('currentTime');
+    const dateEl = document.getElementById('currentDate');
+    if (timeEl) timeEl.textContent = now.toLocaleTimeString('en-AU', {hour: '2-digit', minute: '2-digit'});
+    if (dateEl) dateEl.textContent = now.toLocaleDateString('en-AU', {weekday: 'short', month: 'short', day: 'numeric'});
+}
+
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+const themeToggle = document.getElementById('themeToggle');
+const app = document.querySelector('.app');
+
+themeToggle.addEventListener('click', () => {
+    const currentTheme = app.getAttribute('data-theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    app.setAttribute('data-theme', newTheme);
+});
+
+function updateFooterTime() {
+    const now = new Date();
+    const timeEl = document.getElementById('footerTime');
+    if (timeEl) timeEl.textContent = now.toLocaleTimeString('en-AU', {hour: '2-digit', minute: '2-digit'});
+}
+updateFooterTime();
+setInterval(updateFooterTime, 1000);
+</script>
+</body>
+</html>
