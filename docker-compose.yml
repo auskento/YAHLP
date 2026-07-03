@@ -9,6 +9,9 @@ services:
       - "80:80"
       - "443:443"
       - "3000:3000"
+      - "[::]:80:80"
+      - "[::]:443:443"
+      - "[::]:3000:3000"
 
     environment:
       # Proxy Configuration
@@ -164,3 +167,9 @@ volumes:
 networks:
   proxy-network:
     driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "true"
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+        - subnet: 2001:db8::/32
