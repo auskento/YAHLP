@@ -1,26 +1,51 @@
-# Built-in Template Examples
+# Custom Layout Templates Guide
 
-These are example templates included with YAHLP. They're automatically detected and built when the dashboard starts.
+This folder is a **guide location** for creating custom layout templates. Custom layout CSS files should be placed in your project's custom templates directory to avoid conflicts with YAHLP updates.
 
-## Available Examples
+## Built-in Layouts
 
-- **layout-neon.css** — Cyberpunk-inspired design with neon glow effects
+YAHLP includes the following built-in layouts:
+- **classic** — Traditional vertical sidebar with services and sites
+- **modern** — Right-side services frame with left sidebar  
+- **sleek** — Clean, minimal design
+- **minimal** — Minimal, distraction-free layout
+- **mobile** — Mobile-optimized single-column layout
 
-## Using These Examples
+## Sample Custom Templates
 
-Access the neon example:
-```
-http://your-server/neon.html
-```
+Example custom layouts (neon, focus, storm variants) are available in a separate Custom Templates repository. Download them and place the CSS files in your custom templates directory.
 
 ## Creating Custom Templates
 
-To create your own custom templates, see the main `/templates/README.md` in the repository root.
+To create your own custom layout:
 
-**Quick reference:**
-1. Copy an example: `cp layout-neon.css ./my-template.css`
-2. Edit the CSS to customize
-3. Rebuild Docker: `docker-compose down && docker-compose up --build -d`
-4. Access at: `http://your-server/my-template.html`
+1. Create a new file: `layout-{yourname}.css`
+2. Reference the base CSS variables in `/styles/base.css`
+3. Define styles for core components:
+   - `.app` — Main container
+   - `.app-sidebar` — Service menu area
+   - `.service-menu` — Service icons
+   - `.app-content` — Main content area
+   - `.dashboard-view` — Dashboard container
+   - `.sites-section` — Quick links area
+   - `.app-footer` — Footer bar
 
-See `../CUSTOMIZATION.md` for the complete CSS customization guide.
+4. Place the CSS file in your custom templates directory (not in this folder)
+5. The layout will be auto-detected by the `data-layout` attribute
+
+## CSS Variables
+
+All YAHLP components use CSS custom properties for theming:
+- `--bg-primary`, `--bg-secondary`, `--bg-tertiary`
+- `--text-primary`, `--text-secondary`, `--text-accent`
+- `--border-color`, `--border-light`
+- `--status-success`, `--status-error`
+
+Use these variables in your custom templates for proper light/dark mode support.
+
+## Best Practices
+
+- Keep custom templates in a separate repository or directory to prevent conflicts with YAHLP updates
+- Test layouts at different viewport sizes (desktop, tablet, mobile)
+- Use CSS custom properties instead of hardcoded colors
+- Reference existing layout files as examples for component selectors and patterns
