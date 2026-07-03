@@ -188,7 +188,18 @@ app.get('/api/nzbhydra/status', async (req, res) => {
     const cached = cache.get('nzbhydra-status');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('nzbhydra', '/nzbhydra/api/stats');
+    const config = services['nzbhydra'];
+    if (!config.url || !config.key) {
+      throw new Error('NZBHydra not configured');
+    }
+
+    const url = `${config.url}/nzbhydra/api?t=stats&apikey=${encodeURIComponent(config.key)}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`NZBHydra HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
     cache.set('nzbhydra-status', data);
     res.json(data);
   } catch (err) {
@@ -202,7 +213,18 @@ app.post('/api/nzbhydra/status', async (req, res) => {
     const cached = cache.get('nzbhydra-status');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('nzbhydra', '/nzbhydra/api/stats');
+    const config = services['nzbhydra'];
+    if (!config.url || !config.key) {
+      throw new Error('NZBHydra not configured');
+    }
+
+    const url = `${config.url}/nzbhydra/api?t=stats&apikey=${encodeURIComponent(config.key)}`;
+    const response = await fetch(url, { method: 'POST' });
+    if (!response.ok) {
+      throw new Error(`NZBHydra HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
     cache.set('nzbhydra-status', data);
     res.json(data);
   } catch (err) {
