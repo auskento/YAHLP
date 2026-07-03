@@ -193,7 +193,7 @@ app.get('/api/nzbhydra/status', async (req, res) => {
       throw new Error('NZBHydra not configured');
     }
 
-    const url = `${config.url}/nzbhydra/api?t=stats&apikey=${encodeURIComponent(config.key)}`;
+    const url = `${config.url}/api?t=stats&apikey=${encodeURIComponent(config.key)}`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`NZBHydra HTTP ${response.status}`);
@@ -218,7 +218,7 @@ app.post('/api/nzbhydra/status', async (req, res) => {
       throw new Error('NZBHydra not configured');
     }
 
-    const url = `${config.url}/nzbhydra/api?t=stats&apikey=${encodeURIComponent(config.key)}`;
+    const url = `${config.url}/api?t=stats&apikey=${encodeURIComponent(config.key)}`;
     const response = await fetch(url, { method: 'POST' });
     if (!response.ok) {
       throw new Error(`NZBHydra HTTP ${response.status}`);
@@ -610,7 +610,7 @@ app.get('/api/maintainerr/api/overlays/sections', async (req, res) => {
     const cached = cache.get('maintainerr-sections');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('maintainerr', '/maintainerr/api/overlays/sections');
+    const data = await makeRequest('maintainerr', '/api/overlays/sections');
     cache.set('maintainerr-sections', data);
     res.json(data || []);
   } catch (err) {
@@ -623,7 +623,7 @@ app.get('/api/maintainerr/api/storage-metrics/library-sizes', async (req, res) =
     const cached = cache.get('maintainerr-sizes');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('maintainerr', '/maintainerr/api/storage-metrics/library-sizes');
+    const data = await makeRequest('maintainerr', '/api/storage-metrics/library-sizes');
     cache.set('maintainerr-sizes', data);
     res.json(data || []);
   } catch (err) {

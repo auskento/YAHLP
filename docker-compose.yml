@@ -48,7 +48,8 @@ services:
       - DELUGE_PASSWORD=${DELUGE_PASSWORD}
 
       # Utilities (for API Proxy)
-      - NZBHYDRA_URL=http://nzbhydra:5076
+      # Note: SERVICE_URL should include BASE_URL if the service has one
+      - NZBHYDRA_URL=http://nzbhydra:5076/nzbhydra
       - NZBHYDRA_API_KEY=${NZBHYDRA_API_KEY}
       - PROWLARR_URL=http://prowlarr:9696
       - PROWLARR_API_KEY=${PROWLARR_API_KEY}
@@ -58,7 +59,7 @@ services:
       - BAZARR_API_KEY=${BAZARR_API_KEY}
       - TAUTULLI_URL=http://tautulli:8181/tautulli
       - TAUTULLI_API_KEY=${TAUTULLI_API_KEY}
-      - MAINTAINERR_URL=http://maintainerr:6246
+      - MAINTAINERR_URL=http://maintainerr:6246/maintainerr
       - MAINTAINERR_API_KEY=${MAINTAINERR_API_KEY}
 
       # Required: Domain and email for Let's Encrypt
