@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "proxy.js"
+      ],
+      "name": "yahlp-proxy",
+      "port": 3000
+    }
+  ]
+}
