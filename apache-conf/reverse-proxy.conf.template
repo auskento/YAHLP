@@ -47,7 +47,11 @@
     # Default timeout settings
     ProxyTimeout 300
     Timeout 300
-    
+
+    # Proxy API requests to the aggregator service
+    ProxyPass /api http://localhost:3000/api
+    ProxyPassReverse /api http://localhost:3000/api
+
     # Set DASH_STYLE environment variable for rewrite rules
     SetEnv DASH_STYLE @@DASH_STYLE@@
 
@@ -130,9 +134,9 @@
     CustomLog ${APACHE_LOG_DIR}/access.log combined
     LogLevel warn
 
-    # Health check endpoint
+    # Health check endpoint (proxy to API aggregator)
     <Location /health>
-        ProxyPass !
-        SetHandler server-status
+        ProxyPass http://localhost:3000/health
+        ProxyPassReverse http://localhost:3000/health
     </Location>
 </VirtualHost>
