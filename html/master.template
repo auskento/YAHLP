@@ -111,8 +111,10 @@ async function fetchServiceStatus(service, app) {
             url = `${apiBase}/${service}/queue`;
         } else if (['qbittorrent', 'sabnzbd', 'nzbget', 'transmission', 'deluge'].includes(service)) {
             url = `${apiBase}/${service}/stats`;
-        } else if (['nzbhydra', 'prowlarr', 'seerr', 'bazarr', 'tautulli'].includes(service)) {
+        } else if (['nzbhydra', 'seerr', 'bazarr', 'tautulli'].includes(service)) {
             url = `${apiBase}/${service}/status`;
+        } else if (service === 'prowlarr') {
+            url = `${apiBase}/prowlarr/health`;
         } else if (service === 'maintainerr') {
             url = `${apiBase}/maintainerr/health`;
         } else {
@@ -172,6 +174,9 @@ async function fetchServiceStatus(service, app) {
                 { label: 'Users', value: data.users || 0 },
                 { label: 'Libraries', value: data.libraries || 0 }
             ];
+        } else if (service === 'prowlarr') {
+            const issues = Array.isArray(data) ? data.length : 0;
+            stats = [{ label: 'Health Issues', value: issues }];
         }
 
         return { ...app, status: 'Online', stats };
