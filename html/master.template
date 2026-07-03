@@ -300,31 +300,56 @@ async function loadDashboard() {
             }
         });
     } else {
-        // Standard layout: show only configured services
-        const visibleServices = statuses.filter(s => s);
-        visibleServices.forEach(status => {
-            const isOnline = status.status === 'Online';
-            const statusClass = isOnline ? 'online' : 'offline';
-            html += `
-                <div class="service-card" data-service-href="${status.href}" data-service-popup="${status.popup}">
-                    <div class="service-card-header">
-                        <div class="service-card-icon">
-                            <img src="${status.icon}" alt="${status.name}" />
+        // Standard layout: show all services (configured and unconfigured)
+        const statusMap = new Map(statuses.filter(s => s).map(s => [s.name.toLowerCase(), s]));
+
+        SERVICES.forEach(app => {
+            const service = codeToService[app.id];
+            if (!service) return;
+
+            const status = statusMap.get(app.name.toLowerCase());
+
+            if (status) {
+                // Configured service - show full panel with status
+                const isOnline = status.status === 'Online';
+                const statusClass = isOnline ? 'online' : 'offline';
+                html += `
+                    <div class="service-card" data-service-href="${status.href}" data-service-popup="${status.popup}">
+                        <div class="service-card-header">
+                            <div class="service-card-icon">
+                                <img src="${status.icon}" alt="${status.name}" />
+                            </div>
+                            <div class="service-card-title">${status.name}</div>
+                            <div class="service-card-status">
+                                <span class="status-dot ${statusClass}"></span>
+                                ${status.status}
+                            </div>
                         </div>
-                        <div class="service-card-title">${status.name}</div>
-                        <div class="service-card-status">
-                            <span class="status-dot ${statusClass}"></span>
-                            ${status.status}
+                        ${status.stats.map(s => `
+                            <div class="service-stat">
+                                <span class="stat-label">${s.label}</span>
+                                <span class="stat-value">${s.value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                // Unconfigured service - show panel with "Not Configured" status
+                html += `
+                    <div class="service-card service-card-unconfigured" title="Not configured - add API key to enable">
+                        <div class="service-card-header">
+                            <div class="service-card-icon">
+                                <img src="${app.icon}" alt="${app.name}" />
+                            </div>
+                            <div class="service-card-title">${app.name}</div>
+                            <div class="service-card-status">
+                                <span class="status-dot offline"></span>
+                                Not Configured
+                            </div>
                         </div>
                     </div>
-                    ${status.stats.map(s => `
-                        <div class="service-stat">
-                            <span class="stat-label">${s.label}</span>
-                            <span class="stat-value">${s.value}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
+                `;
+            }
         });
     }
 
