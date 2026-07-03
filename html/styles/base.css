@@ -526,3 +526,8 @@ a { text-decoration: none; color: inherit; }
     flex: 1;
   }
 }
+
+/* Hide site names across all layouts */
+.site-name {
+  display: none !important;
+}

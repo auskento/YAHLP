@@ -393,10 +393,5 @@
   padding: 2px;
 }
 
-.site-name {
-  font-size: 9px;
-  text-align: center;
-  color: var(--text-secondary);
-  line-height: 1.1;
-  word-break: break-word;
-}
+
+
