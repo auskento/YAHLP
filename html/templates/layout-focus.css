@@ -136,6 +136,11 @@
   width: 100%;
 }
 
+.welcome-screen {
+  background: var(--bg-primary) !important;
+  z-index: 100 !important;
+}
+
 .loading-placeholder,
 .no-services {
   grid-column: 1 / -1;

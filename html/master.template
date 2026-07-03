@@ -460,11 +460,9 @@ async function checkConfiguredServices() {
         setInterval(loadDashboard, 30000);
     } catch (err) {
         console.error('[Health Check] Error:', err);
-        await buildServiceMenu();
-        buildSitesGrid();
-        adjustIconSizes();
-        loadDashboard();
-        setInterval(loadDashboard, 30000);
+        // If health check fails, show welcome screen as fallback
+        dashboardView.style.display = 'none';
+        welcomeScreen.style.display = 'flex';
     }
 }
 

@@ -82,6 +82,11 @@
   width: 100%;
 }
 
+.welcome-screen {
+  background: var(--bg-primary) !important;
+  z-index: 100 !important;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .app-sidebar {

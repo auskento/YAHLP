@@ -128,6 +128,11 @@
   width: 100%;
 }
 
+.welcome-screen {
+  background: var(--bg-primary) !important;
+  z-index: 100 !important;
+}
+
 .service-card {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);

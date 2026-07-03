@@ -112,6 +112,11 @@
   width: 100%;
 }
 
+.welcome-screen {
+  background: var(--bg-primary) !important;
+  z-index: 100 !important;
+}
+
 /* Sidebar sites section */
 .sidebar-sites-section {
   display: flex;
