@@ -27,6 +27,12 @@
     <nav class="service-menu" id="serviceMenu">
       <!-- Services populated by JavaScript -->
     </nav>
+    <div id="sites-section" class="sites-section" style="display:none">
+      <div class="sites-title">Quick Links</div>
+      <div id="sites-grid" class="sites-grid">
+        <!-- Sites populated by JavaScript -->
+      </div>
+    </div>
   </aside>
 
   <main class="app-content">
@@ -39,12 +45,6 @@
       </div>
       <div id="dashboard-content" class="dashboard-content">
         <div class="loading-placeholder">Loading service status...</div>
-      </div>
-      <div id="sites-section" class="sites-section" style="display:none">
-        <div class="sites-title">Quick Links</div>
-        <div id="sites-grid" class="sites-grid">
-          <!-- Sites populated by JavaScript -->
-        </div>
       </div>
     </div>
 

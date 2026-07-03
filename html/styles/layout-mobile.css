@@ -107,6 +107,10 @@
     display: none !important;
 }
 
+.sites-section {
+    display: none !important;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
     .service-menu {
