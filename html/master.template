@@ -9,6 +9,7 @@
 <script src="support.js"></script>
 <link rel="stylesheet" href="/styles/base.css">
 <link rel="stylesheet" href="/styles/layout-@@TEMPLATE_TYPE@@.css">
+<style>@@DASHBOARD_COLOR_OVERRIDE@@</style>
 </head>
 <body>
 <div class="app" data-layout="@@TEMPLATE_TYPE@@" data-theme="dark" style="padding-bottom: 48px;">
@@ -572,8 +573,10 @@ async function checkConfiguredServices() {
     const layout = document.querySelector('.app')?.getAttribute('data-layout');
     const isFocusLayout = layout === 'focus';
 
-    // A configured landing page always wins, independent of API/service status
-    if (DASHBOARD_LANDING) {
+    // A configured landing page always wins, independent of API/service status -
+    // except on the focus layout, which has no sidebar and relies entirely on the
+    // dashboard card grid to switch between services, so it must stay visible.
+    if (DASHBOARD_LANDING && !isFocusLayout) {
         frame.src = '/' + DASHBOARD_LANDING.replace(/^\/+/, '');
         frame.style.display = 'block';
         dashboardView.style.display = 'none';

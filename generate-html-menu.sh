@@ -418,18 +418,6 @@ generate_css_based_templates() {
         echo "  ✓ Custom templates copied to styles/"
     fi
 
-    # Substitute DASHBOARD_COLOR into the shared base stylesheet. Built-in layouts
-    # (classic/modern/sleek/minimal/mobile) use var(--bg-secondary) directly for
-    # their header/sidebar/footer chrome; custom layouts typically override those
-    # selectors with their own colors, so in practice this only affects built-ins.
-    local base_css_file="$BUILTIN_STYLES/base.css"
-    if [ -f "$base_css_file" ]; then
-        local base_css_content=$(cat "$base_css_file")
-        base_css_content="${base_css_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
-        echo "$base_css_content" > "$base_css_file"
-        echo "  ✓ Applied DASHBOARD_COLOR to base.css"
-    fi
-
     # Scan built-in styles directory (layout-classic.css, layout-sleek.css, etc.)
     if [ -d "$BUILTIN_STYLES" ]; then
         echo "📁 Built-in styles: $BUILTIN_STYLES"
@@ -521,6 +509,16 @@ generate_css_based_templates() {
 
     # Generate HTML for each layout
     for layout in "${layouts[@]}"; do
+        # DASHBOARD_COLOR only applies to the built-in layouts. Custom layouts
+        # render their own colors, so leave their --bg-secondary at the
+        # base.css default instead of forcing this admin setting onto them.
+        local dashboard_color_override=""
+        case "$layout" in
+            classic|modern|sleek|minimal|mobile)
+                dashboard_color_override=":root { --bg-secondary: ${DASHBOARD_COLOR:-#1a1a1a}; }"
+                ;;
+        esac
+
         local html_content=$(cat "$MASTER_TEMPLATE")
         html_content="${html_content//@@TEMPLATE_TYPE@@/$layout}"
         html_content="${html_content//@@AVAILABLE_TEMPLATES@@/$templates_js}"
@@ -529,6 +527,7 @@ generate_css_based_templates() {
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
+        html_content="${html_content//@@DASHBOARD_COLOR_OVERRIDE@@/$dashboard_color_override}"
 
         echo "$html_content" > "/var/www/html/${layout}.html"
         echo "  ✓ Generated ${layout}.html"

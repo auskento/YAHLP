@@ -1,7 +1,7 @@
 /* CSS Variables */
 :root {
   --bg-primary: #08090c;
-  --bg-secondary: @@DASHBOARD_COLOR@@;
+  --bg-secondary: #1a1a1a;
   --bg-tertiary: rgba(74, 158, 255, 0.1);
   --text-primary: #e9ecf2;
   --text-secondary: #5d6575;
