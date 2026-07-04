@@ -452,7 +452,7 @@ function buildSitesGrid() {
     const app = document.querySelector('.app');
     const layout = app.getAttribute('data-layout');
     const isMobile = layout === 'mobile';
-    const isSidebarLayout = ['classic', 'storm', 'storm-violet'].includes(layout);
+    const isSidebarLayout = ['classic', 'storm', 'storm-violet', 'vixens'].includes(layout);
 
     if (!SITES || SITES.length === 0) {
         document.getElementById('sites-section')?.style.display && (document.getElementById('sites-section').style.display = 'none');
@@ -503,7 +503,7 @@ function adjustIconSizes() {
     const layout = document.querySelector('.app')?.getAttribute('data-layout');
     if (!layout || layout === 'mobile') return;
 
-    const isSidebarLayout = ['classic', 'storm', 'storm-violet'].includes(layout);
+    const isSidebarLayout = ['classic', 'storm', 'storm-violet', 'vixens'].includes(layout);
     if (!isSidebarLayout) return;
 
     const sidebar = document.querySelector('.app-sidebar');
