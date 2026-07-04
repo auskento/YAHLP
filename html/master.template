@@ -376,7 +376,14 @@ async function loadDashboard() {
             }
 
             if (isPopup) {
-                window.open(href, '_blank');
+                // Open in new window for certain services, new tab for others
+                const windowServices = ['qBittorrent', 'Seerr', 'Emby', 'Plex'];
+                const openAsWindow = windowServices.includes(serviceName);
+
+                if (openAsWindow) {
+                    window.open(href, '_blank', 'width=1400,height=900,resizable=yes,status=yes,toolbar=yes,menubar=yes,location=yes,scrollbars=yes');
+                } else {
+                    window.open(href, '_blank');
             } else {
                 frame.src = href;
                 frame.style.display = 'block';
@@ -405,7 +412,7 @@ async function buildServiceMenu() {
         }
 
         html += `
-            <button class="menu-item" title="${app.name}" data-href="${app.href}" data-popup="${app.popup}">
+            <button class="menu-item" title="${app.name}" data-href="${app.href}" data-popup="${app.popup}" data-service-name="${app.name}">
                 <img src="${app.icon}" alt="${app.name}" class="menu-icon">
                 <span class="menu-label">${app.name}</span>
             </button>
@@ -417,11 +424,20 @@ async function buildServiceMenu() {
         item.addEventListener('click', () => {
             const href = item.getAttribute('data-href');
             const isPopup = item.getAttribute('data-popup') === 'true';
+            const serviceName = item.getAttribute('data-service-name');
             const app = document.querySelector('.app');
             const isMobile = app.getAttribute('data-layout') === 'mobile';
 
             if (isMobile || isPopup) {
-                window.open(href, '_blank');
+                // Open in new window for certain services, new tab for others
+                const windowServices = ['qBittorrent', 'Seerr', 'Emby', 'Plex'];
+                const openAsWindow = windowServices.includes(serviceName);
+
+                if (openAsWindow) {
+                    window.open(href, '_blank', 'width=1400,height=900,resizable=yes,status=yes,toolbar=yes,menubar=yes,location=yes,scrollbars=yes');
+                } else {
+                    window.open(href, '_blank');
+                }
             } else {
                 frame.src = href;
                 frame.style.display = 'block';
