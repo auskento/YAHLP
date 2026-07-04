@@ -381,7 +381,7 @@ async function loadDashboard() {
                 const openAsWindow = windowServices.includes(serviceName);
 
                 if (openAsWindow) {
-                    window.open(href, '_blank', 'width=1400,height=900,resizable=yes,status=yes,toolbar=yes,menubar=yes,location=yes,scrollbars=yes');
+                    window.open(href, '_blank', 'popup=yes,width=1400,height=900,resizable=yes,scrollbars=yes');
                 } else {
                     window.open(href, '_blank');
                 }
@@ -435,7 +435,7 @@ async function buildServiceMenu() {
                 const openAsWindow = windowServices.includes(serviceName);
 
                 if (openAsWindow) {
-                    window.open(href, '_blank', 'width=1400,height=900,resizable=yes,status=yes,toolbar=yes,menubar=yes,location=yes,scrollbars=yes');
+                    window.open(href, '_blank', 'popup=yes,width=1400,height=900,resizable=yes,scrollbars=yes');
                 } else {
                     window.open(href, '_blank');
                 }
