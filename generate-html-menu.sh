@@ -516,6 +516,7 @@ generate_css_based_templates() {
         html_content="${html_content//@@SITES_ARRAY@@/$sites_array}"
         html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
+        html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
 
         echo "$html_content" > "/var/www/html/${layout}.html"
         echo "  ✓ Generated ${layout}.html"
