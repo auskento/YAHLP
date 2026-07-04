@@ -199,6 +199,18 @@ Key selectors typically styled in custom layouts:
 .sidebar-sites-section .site-icon        /* Site icon */
 ```
 
+**This `display` rule is what tells YAHLP whether your layout is sidebar-based —
+no core file edits needed.** Set it explicitly one way or the other:
+
+```css
+/* Sidebar-based layout (sites render inside the sidebar) */
+.sidebar-sites-section { display: flex; }
+.sites-section { display: none; }
+
+/* Right-frame/full-width layout (sites render in the #sites-section panel) */
+.sidebar-sites-section { display: none !important; }
+```
+
 ### Content Area
 ```css
 .app-content                   /* Main content container */
