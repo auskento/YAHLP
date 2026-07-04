@@ -384,6 +384,7 @@ async function loadDashboard() {
                     window.open(href, '_blank', 'width=1400,height=900,resizable=yes,status=yes,toolbar=yes,menubar=yes,location=yes,scrollbars=yes');
                 } else {
                     window.open(href, '_blank');
+                }
             } else {
                 frame.src = href;
                 frame.style.display = 'block';
