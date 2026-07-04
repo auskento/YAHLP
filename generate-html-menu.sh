@@ -418,6 +418,18 @@ generate_css_based_templates() {
         echo "  ✓ Custom templates copied to styles/"
     fi
 
+    # Substitute DASHBOARD_COLOR into the shared base stylesheet. Built-in layouts
+    # (classic/modern/sleek/minimal/mobile) use var(--bg-secondary) directly for
+    # their header/sidebar/footer chrome; custom layouts typically override those
+    # selectors with their own colors, so in practice this only affects built-ins.
+    local base_css_file="$BUILTIN_STYLES/base.css"
+    if [ -f "$base_css_file" ]; then
+        local base_css_content=$(cat "$base_css_file")
+        base_css_content="${base_css_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
+        echo "$base_css_content" > "$base_css_file"
+        echo "  ✓ Applied DASHBOARD_COLOR to base.css"
+    fi
+
     # Scan built-in styles directory (layout-classic.css, layout-sleek.css, etc.)
     if [ -d "$BUILTIN_STYLES" ]; then
         echo "📁 Built-in styles: $BUILTIN_STYLES"
