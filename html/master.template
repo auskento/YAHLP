@@ -88,6 +88,7 @@
 <script>
 const SERVICES = @@SERVICES_ARRAY@@;
 const SITES = @@SITES_ARRAY@@;
+const DASHBOARD_LANDING = '@@DASHBOARD_LANDING@@';
 const apiBase = `/api`;
 
 const codeToService = {
@@ -563,17 +564,27 @@ function adjustIconSizes() {
 }
 
 async function checkConfiguredServices() {
+    // Always build menus and sites, regardless of dashboard landing or API configuration
+    await buildServiceMenu();
+    buildSitesGrid();
+    adjustIconSizes();
+
+    const layout = document.querySelector('.app')?.getAttribute('data-layout');
+    const isFocusLayout = layout === 'focus';
+
+    // A configured landing page always wins, independent of API/service status
+    if (DASHBOARD_LANDING) {
+        frame.src = '/' + DASHBOARD_LANDING.replace(/^\/+/, '');
+        frame.style.display = 'block';
+        dashboardView.style.display = 'none';
+        welcomeScreen.style.display = 'none';
+        return;
+    }
+
     try {
         const response = await fetch(`/health`);
         const health = await response.json();
         const hasAnyConfigured = Object.values(health.services || {}).some(s => s.configured);
-        const layout = document.querySelector('.app')?.getAttribute('data-layout');
-        const isFocusLayout = layout === 'focus';
-
-        // Always build menus and sites, regardless of API configuration
-        await buildServiceMenu();
-        buildSitesGrid();
-        adjustIconSizes();
 
         if (!hasAnyConfigured && !isFocusLayout) {
             dashboardView.style.display = 'none';
@@ -585,12 +596,6 @@ async function checkConfiguredServices() {
         setInterval(loadDashboard, 30000);
     } catch (err) {
         console.error('[Health Check] Error:', err);
-        // Still build menus even if health check fails
-        await buildServiceMenu();
-        buildSitesGrid();
-        adjustIconSizes();
-        const layout = document.querySelector('.app')?.getAttribute('data-layout');
-        const isFocusLayout = layout === 'focus';
         // If health check fails, show welcome screen (unless focus layout)
         if (!isFocusLayout) {
             dashboardView.style.display = 'none';
