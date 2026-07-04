@@ -448,11 +448,24 @@ async function buildServiceMenu() {
     });
 }
 
+// A layout is "sidebar-style" if its own CSS shows #sidebar-sites-section
+// (e.g. `.sidebar-sites-section { display: flex }`), rather than a hardcoded
+// list of layout names — lets custom layouts opt in without editing this file.
+function isSidebarStyleLayout() {
+    const section = document.getElementById('sidebar-sites-section');
+    if (!section) return false;
+    const inlineDisplay = section.style.display;
+    section.style.display = '';
+    const cssDisplay = getComputedStyle(section).display;
+    section.style.display = inlineDisplay;
+    return cssDisplay !== 'none';
+}
+
 function buildSitesGrid() {
     const app = document.querySelector('.app');
     const layout = app.getAttribute('data-layout');
     const isMobile = layout === 'mobile';
-    const isSidebarLayout = ['classic', 'storm', 'storm-violet', 'vixens'].includes(layout);
+    const isSidebarLayout = isSidebarStyleLayout();
 
     if (!SITES || SITES.length === 0) {
         document.getElementById('sites-section')?.style.display && (document.getElementById('sites-section').style.display = 'none');
@@ -503,7 +516,7 @@ function adjustIconSizes() {
     const layout = document.querySelector('.app')?.getAttribute('data-layout');
     if (!layout || layout === 'mobile') return;
 
-    const isSidebarLayout = ['classic', 'storm', 'storm-violet', 'vixens'].includes(layout);
+    const isSidebarLayout = isSidebarStyleLayout();
     if (!isSidebarLayout) return;
 
     const sidebar = document.querySelector('.app-sidebar');
