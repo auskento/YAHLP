@@ -619,6 +619,7 @@ function goHome(e) {
     frame.src = '';
     welcomeScreen.style.display = 'none';
     dashboardView.style.display = 'flex';
+    loadDashboard();
     return false;
 }
 
