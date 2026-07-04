@@ -12,48 +12,51 @@ app.use(express.json());
 const PORT = process.env.PROXY_PORT || 3000;
 const cache = new NodeCache({ stdTTL: 30, checkperiod: 10 });
 
-// Load credentials from mounted yahlp.json if it exists
+// Load configuration from mounted yahlp.json if it exists
+// yahlp.json takes precedence over environment variables
 const configPath = '/etc/yahlp/yahlp.json';
+let jsonConfig = {};
+
 if (fs.existsSync(configPath)) {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    console.log('Loading credentials from yahlp.json...');
-
-    // Map JSON structure to environment variables
-    Object.entries(config).forEach(([service, creds]) => {
-      if (typeof creds === 'object' && creds !== null) {
-        Object.entries(creds).forEach(([key, value]) => {
-          const envKey = `${service.toUpperCase()}_${key.toUpperCase()}`;
-          process.env[envKey] = value;
-        });
-      }
-    });
-    console.log('✓ Credentials loaded from yamlp.json');
+    jsonConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    console.log('✓ Configuration loaded from yahlp.json');
+    console.log('  Services in JSON:', Object.keys(jsonConfig).length);
   } catch (err) {
-    console.error('Error loading yamlp.json:', err.message);
+    console.error('Error loading yahlp.json:', err.message);
   }
 }
 
+// Helper function to get config value: JSON takes precedence, fall back to env var
+function getConfigValue(service, key) {
+  const jsonValue = jsonConfig[service]?.[key];
+  if (jsonValue) return jsonValue;
+
+  const envKey = `${service.toUpperCase()}_${key.toUpperCase()}`;
+  return process.env[envKey];
+}
+
 // Service URL and key configuration
+// Values from yahlp.json take precedence over environment variables
 const services = {
-  'jellyfin': { url: process.env.JELLYFIN_URL, key: process.env.JELLYFIN_API_KEY, authType: 'mediabrowser' },
-  'plex': { url: process.env.PLEX_URL, key: process.env.PLEX_API_KEY, authType: 'plex' },
-  'emby': { url: process.env.EMBY_URL, key: process.env.EMBY_API_KEY, authType: 'query' },
-  'sonarr': { url: process.env.SONARR_URL, key: process.env.SONARR_API_KEY, authType: 'header' },
-  'radarr': { url: process.env.RADARR_URL, key: process.env.RADARR_API_KEY, authType: 'header' },
-  'lidarr': { url: process.env.LIDARR_URL, key: process.env.LIDARR_API_KEY, authType: 'header' },
-  'whisparr': { url: process.env.WHISPARR_URL, key: process.env.WHISPARR_API_KEY, authType: 'header' },
-  'qbittorrent': { url: process.env.QBITTORRENT_URL, key: process.env.QBITTORRENT_API_KEY, authType: 'query' },
-  'transmission': { url: process.env.TRANSMISSION_URL, key: process.env.TRANSMISSION_PASSWORD, authType: 'transmission' },
-  'sabnzbd': { url: process.env.SABNZBD_URL, key: process.env.SABNZBD_API_KEY, authType: 'query' },
-  'nzbget': { url: process.env.NZBGET_URL, key: process.env.NZBGET_PASS, user: process.env.NZBGET_USER, authType: 'nzbget' },
-  'deluge': { url: process.env.DELUGE_URL, key: process.env.DELUGE_PASSWORD, authType: 'deluge' },
-  'nzbhydra': { url: process.env.NZBHYDRA_URL, key: process.env.NZBHYDRA_API_KEY, authType: 'header' },
-  'prowlarr': { url: process.env.PROWLARR_URL, key: process.env.PROWLARR_API_KEY, authType: 'header' },
-  'seerr': { url: process.env.SEERR_URL, key: process.env.SEERR_API_KEY, authType: 'header' },
-  'bazarr': { url: process.env.BAZARR_URL, key: process.env.BAZARR_API_KEY, authType: 'bazarr' },
-  'tautulli': { url: process.env.TAUTULLI_URL, key: process.env.TAUTULLI_API_KEY, authType: 'query' },
-  'maintainerr': { url: process.env.MAINTAINERR_URL, key: process.env.MAINTAINERR_API_KEY, authType: 'header' }
+  'jellyfin': { url: getConfigValue('jellyfin', 'url'), key: getConfigValue('jellyfin', 'api_key'), authType: 'mediabrowser' },
+  'plex': { url: getConfigValue('plex', 'url'), key: getConfigValue('plex', 'api_key'), authType: 'plex' },
+  'emby': { url: getConfigValue('emby', 'url'), key: getConfigValue('emby', 'api_key'), authType: 'query' },
+  'sonarr': { url: getConfigValue('sonarr', 'url'), key: getConfigValue('sonarr', 'api_key'), authType: 'header' },
+  'radarr': { url: getConfigValue('radarr', 'url'), key: getConfigValue('radarr', 'api_key'), authType: 'header' },
+  'lidarr': { url: getConfigValue('lidarr', 'url'), key: getConfigValue('lidarr', 'api_key'), authType: 'header' },
+  'whisparr': { url: getConfigValue('whisparr', 'url'), key: getConfigValue('whisparr', 'api_key'), authType: 'header' },
+  'qbittorrent': { url: getConfigValue('qbittorrent', 'url'), key: getConfigValue('qbittorrent', 'api_key'), authType: 'query' },
+  'transmission': { url: getConfigValue('transmission', 'url'), key: getConfigValue('transmission', 'password'), authType: 'transmission' },
+  'sabnzbd': { url: getConfigValue('sabnzbd', 'url'), key: getConfigValue('sabnzbd', 'api_key'), authType: 'query' },
+  'nzbget': { url: getConfigValue('nzbget', 'url'), key: getConfigValue('nzbget', 'pass'), user: getConfigValue('nzbget', 'user'), authType: 'nzbget' },
+  'deluge': { url: getConfigValue('deluge', 'url'), key: getConfigValue('deluge', 'password'), authType: 'deluge' },
+  'nzbhydra': { url: getConfigValue('nzbhydra', 'url'), key: getConfigValue('nzbhydra', 'api_key'), authType: 'header' },
+  'prowlarr': { url: getConfigValue('prowlarr', 'url'), key: getConfigValue('prowlarr', 'api_key'), authType: 'header' },
+  'seerr': { url: getConfigValue('seerr', 'url'), key: getConfigValue('seerr', 'api_key'), authType: 'header' },
+  'bazarr': { url: getConfigValue('bazarr', 'url'), key: getConfigValue('bazarr', 'api_key'), authType: 'bazarr' },
+  'tautulli': { url: getConfigValue('tautulli', 'url'), key: getConfigValue('tautulli', 'api_key'), authType: 'query' },
+  'maintainerr': { url: getConfigValue('maintainerr', 'url'), key: getConfigValue('maintainerr', 'api_key'), authType: 'header' }
 };
 
 // Check if any services are configured
