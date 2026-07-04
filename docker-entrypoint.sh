@@ -25,15 +25,57 @@ if [ -f /etc/apache2/dashboard.conf ]; then
     source /etc/apache2/dashboard.conf
 fi
 
-# Load mounted environment configuration file if it exists
-# This allows passing sensitive credentials (API keys, passwords) via a mounted file instead of env vars
+# Load mounted yahlp.json configuration file if it exists
+# This is the primary configuration source, env vars are fallback
+if [ -f /etc/yahlp/yahlp.json ]; then
+    echo "Loading configuration from yahlp.json..."
+
+    # Use jq to extract values from JSON if available
+    if command -v jq &> /dev/null; then
+        # Extract top-level settings
+        ACCESS_MODE=$(jq -r '.access_mode // empty' /etc/yahlp/yahlp.json)
+        DOMAIN=$(jq -r '.domain // empty' /etc/yahlp/yahlp.json)
+        EMAIL=$(jq -r '.email // empty' /etc/yahlp/yahlp.json)
+        IP=$(jq -r '.ip // empty' /etc/yahlp/yahlp.json)
+
+        # Extract dashboard settings
+        DASHBOARD_NAME=$(jq -r '.dashboard.name // empty' /etc/yahlp/yahlp.json)
+        DASHBOARD_ICON_URL=$(jq -r '.dashboard.icon_url // empty' /etc/yahlp/yahlp.json)
+        DASHBOARD_COLOR=$(jq -r '.dashboard.color // empty' /etc/yahlp/yahlp.json)
+        DASHBOARD_THEME=$(jq -r '.dashboard.theme // empty' /etc/yahlp/yahlp.json)
+        DASH_STYLE=$(jq -r '.dashboard.style // empty' /etc/yahlp/yahlp.json)
+        DASHBOARD_LANDING=$(jq -r '.dashboard.landing // empty' /etc/yahlp/yahlp.json)
+
+        # Extract auth settings
+        AUTHTYPE=$(jq -r '.auth.type // empty' /etc/yahlp/yahlp.json)
+        BASIC_AUTH_CREDENTIALS=$(jq -r '.auth.basic_credentials // empty' /etc/yahlp/yahlp.json)
+
+        # Extract Google OAuth settings
+        GOOGLE_CLIENT_ID=$(jq -r '.google.client_id // empty' /etc/yahlp/yahlp.json)
+        GOOGLE_CLIENT_SECRET=$(jq -r '.google.client_secret // empty' /etc/yahlp/yahlp.json)
+        GOOGLE_REDIRECT_URI=$(jq -r '.google.redirect_uri // empty' /etc/yahlp/yahlp.json)
+
+        # Extract Entra OAuth settings
+        ENTRA_CLIENT_ID=$(jq -r '.entra.client_id // empty' /etc/yahlp/yahlp.json)
+        ENTRA_CLIENT_SECRET=$(jq -r '.entra.client_secret // empty' /etc/yahlp/yahlp.json)
+        ENTRA_REDIRECT_URI=$(jq -r '.entra.redirect_uri // empty' /etc/yahlp/yahlp.json)
+        ENTRA_PROVIDER_METADATA_URL=$(jq -r '.entra.provider_metadata_url // empty' /etc/yahlp/yahlp.json)
+        ENTRA_CRYPTO_PASSPHRASE=$(jq -r '.entra.crypto_passphrase // empty' /etc/yahlp/yahlp.json)
+
+        echo "✓ Configuration loaded from yahlp.json"
+    else
+        echo "⚠ jq not found - yahlp.json will not be parsed"
+    fi
+fi
+
+# Load env.local/env file for additional overrides (if it exists)
 if [ -f /etc/yahlp/env.local ]; then
-    echo "Loading mounted configuration file..."
+    echo "Loading additional overrides from env.local..."
     set -a
     source /etc/yahlp/env.local
     set +a
 elif [ -f /etc/yahlp/.env.local ]; then
-    echo "Loading mounted configuration file..."
+    echo "Loading additional overrides from .env.local..."
     set -a
     source /etc/yahlp/.env.local
     set +a

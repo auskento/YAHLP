@@ -21,7 +21,19 @@ if (fs.existsSync(configPath)) {
   try {
     jsonConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     console.log('✓ Configuration loaded from yahlp.json');
-    console.log('  Services in JSON:', Object.keys(jsonConfig).length);
+
+    // Log what's configured
+    const hasServices = jsonConfig.services && Object.keys(jsonConfig.services).length > 0;
+    const hasAuth = jsonConfig.auth?.type;
+    const hasGoogleAuth = jsonConfig.google?.client_id;
+    const hasEntraAuth = jsonConfig.entra?.client_id;
+    const hasDashboard = jsonConfig.dashboard?.name;
+
+    console.log('  Services in JSON:', hasServices ? Object.keys(jsonConfig.services).length : '0');
+    console.log('  Auth configured:', hasAuth || 'none');
+    if (hasGoogleAuth) console.log('  Google OAuth: configured');
+    if (hasEntraAuth) console.log('  Entra OAuth: configured');
+    if (hasDashboard) console.log('  Dashboard: ' + jsonConfig.dashboard.name);
   } catch (err) {
     console.error('Error loading yahlp.json:', err.message);
   }
@@ -29,7 +41,7 @@ if (fs.existsSync(configPath)) {
 
 // Helper function to get config value: JSON takes precedence, fall back to env var
 function getConfigValue(service, key) {
-  const jsonValue = jsonConfig[service]?.[key];
+  const jsonValue = jsonConfig.services?.[service]?.[key];
   if (jsonValue) return jsonValue;
 
   const envKey = `${service.toUpperCase()}_${key.toUpperCase()}`;
