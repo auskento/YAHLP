@@ -476,10 +476,10 @@ function buildSitesGrid() {
     }
 
     let html = '';
-    SITES.forEach(site => {
-        const target = isMobile ? '_blank' : (site.popup ? '_blank' : '_self');
+    SITES.forEach((site, index) => {
+        // Use data attributes to track popup and href for click handlers
         html += `
-            <a href="${site.href}" class="site-link" title="${site.name}" target="${target}">
+            <a href="javascript:void(0)" class="site-link" data-popup="${site.popup || isMobile}" data-href="${site.href}" title="${site.name}">
                 <div class="site-icon">
                     <img src="${site.icon}" alt="${site.name}">
                 </div>
@@ -503,14 +503,19 @@ function buildSitesGrid() {
     }
 
     document.querySelectorAll('.site-link').forEach(link => {
-        if (!isMobile && (!link.getAttribute('target') || link.getAttribute('target') === '_self')) {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                frame.src = link.getAttribute('href');
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const href = link.getAttribute('data-href');
+            const shouldPopup = link.getAttribute('data-popup') === 'true';
+
+            if (shouldPopup) {
+                window.open(href, '_blank', 'width=1200,height=800,resizable=yes,scrollbars=yes');
+            } else {
+                frame.src = href;
                 frame.style.display = 'block';
                 dashboardView.style.display = 'none';
-            });
-        }
+            }
+        });
     });
 }
 
