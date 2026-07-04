@@ -12,12 +12,12 @@ app.use(express.json());
 const PORT = process.env.PROXY_PORT || 3000;
 const cache = new NodeCache({ stdTTL: 30, checkperiod: 10 });
 
-// Load credentials from mounted yamlp.json if it exists
-const configPath = '/etc/yahlp/yamlp.json';
+// Load credentials from mounted yahlp.json if it exists
+const configPath = '/etc/yahlp/yahlp.json';
 if (fs.existsSync(configPath)) {
   try {
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    console.log('Loading credentials from yamlp.json...');
+    console.log('Loading credentials from yahlp.json...');
 
     // Map JSON structure to environment variables
     Object.entries(config).forEach(([service, creds]) => {
