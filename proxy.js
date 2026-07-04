@@ -2,6 +2,8 @@ const express = require('express');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const cors = require('cors');
 const NodeCache = require('node-cache');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 app.use(cors());
@@ -9,6 +11,28 @@ app.use(express.json());
 
 const PORT = process.env.PROXY_PORT || 3000;
 const cache = new NodeCache({ stdTTL: 30, checkperiod: 10 });
+
+// Load credentials from mounted yamlp.json if it exists
+const configPath = '/etc/yahlp/yamlp.json';
+if (fs.existsSync(configPath)) {
+  try {
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    console.log('Loading credentials from yamlp.json...');
+
+    // Map JSON structure to environment variables
+    Object.entries(config).forEach(([service, creds]) => {
+      if (typeof creds === 'object' && creds !== null) {
+        Object.entries(creds).forEach(([key, value]) => {
+          const envKey = `${service.toUpperCase()}_${key.toUpperCase()}`;
+          process.env[envKey] = value;
+        });
+      }
+    });
+    console.log('✓ Credentials loaded from yamlp.json');
+  } catch (err) {
+    console.error('Error loading yamlp.json:', err.message);
+  }
+}
 
 // Service URL and key configuration
 const services = {
