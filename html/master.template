@@ -618,7 +618,7 @@ function goHome(e) {
     frame.style.display = 'none';
     frame.src = '';
     welcomeScreen.style.display = 'none';
-    dashboardView.style.display = '';
+    dashboardView.style.display = 'flex';
     return false;
 }
 
