@@ -68,6 +68,21 @@ if [ -f /etc/yahlp/yahlp.json ]; then
     fi
 fi
 
+# Load yahlp.sites.json if it exists
+if [ -f /etc/yahlp/yahlp.sites.json ]; then
+    echo "Loading sites configuration from yahlp.sites.json..."
+
+    if command -v jq &> /dev/null; then
+        # Extract site codes from sites array
+        SITES_ENABLED=$(jq -r '.sites[]? | select(.enabled != false) | .code' /etc/yahlp/yahlp.sites.json | paste -sd ',' -)
+        if [ ! -z "$SITES_ENABLED" ]; then
+            echo "✓ Sites loaded: $SITES_ENABLED"
+        fi
+    else
+        echo "⚠ jq not found - yahlp.sites.json will not be parsed"
+    fi
+fi
+
 # Load env.local/env file for additional overrides (if it exists)
 if [ -f /etc/yahlp/env.local ]; then
     echo "Loading additional overrides from env.local..."

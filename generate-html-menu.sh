@@ -50,58 +50,73 @@ get_service_icon_path() {
 # Determine dashboard icon path - use custom version if it exists, otherwise use default
 DASHBOARD_ICON_PATH=$(get_icon_path "dashboard" "/icons/yahlp.png")
 
-SITES_JSON="/var/log/apache2/sites/sites.json"
-SITES_DIR="/var/log/apache2/sites"
+SITES_JSON="/etc/yahlp/yahlp.sites.json"
+SITES_DIR="/etc/yahlp"
 
 # Function to generate sites array for JavaScript
 generate_sites_array() {
-    local sites_array="["
-
     if [ ! -f "$SITES_JSON" ] || [ -z "$SITES_ENABLED" ]; then
         echo "[]"
         return
     fi
 
+    if ! command -v jq &> /dev/null; then
+        echo "[]"
+        return
+    fi
+
+    local sites_array="["
+    local first=true
+
     # Parse SITES_ENABLED and generate array for each enabled site
     IFS=',' read -ra CODES <<< "$SITES_ENABLED"
-    local first=true
     for code in "${CODES[@]}"; do
         code=$(echo "$code" | xargs)  # Trim whitespace
 
-        # Extract site data from sites.json
-        url=$(grep -A 3 "\"code\": \"$code\"" "$SITES_JSON" | grep "\"url\"" | sed 's/.*"url": "\(.*\)".*/\1/')
-        name=$(grep -A 2 "\"code\": \"$code\"" "$SITES_JSON" | grep "\"name\"" | sed 's/.*"name": "\(.*\)".*/\1/')
+        # Extract site data from sites.json using jq
+        site_json=$(jq ".sites[] | select(.code == \"$code\")" "$SITES_JSON" 2>/dev/null)
+        if [ -z "$site_json" ]; then
+            continue
+        fi
 
-        if [ ! -z "$url" ]; then
-            # Check for favicon
-            favicon_url=""
+        url=$(echo "$site_json" | jq -r '.url // empty')
+        name=$(echo "$site_json" | jq -r '.name // empty')
+        icon=$(echo "$site_json" | jq -r '.icon // empty')
+
+        if [ -z "$url" ]; then
+            continue
+        fi
+
+        # Use icon from JSON if provided, otherwise fall back to file lookup
+        if [ -z "$icon" ]; then
+            # Check for favicon files
             for ext in ico jpg jpeg png svg gif webp; do
                 if [ -f "$SITES_DIR/${code,,}.favicon.$ext" ]; then
-                    favicon_url="/sites/${code,,}.favicon.$ext"
+                    icon="/sites/${code,,}.favicon.$ext"
                     break
                 fi
             done
 
-            if [ -z "$favicon_url" ]; then
+            if [ -z "$icon" ]; then
                 for ext in ico jpg jpeg png svg gif webp; do
                     if [ -f "/var/www/html/sites-icons/${code,,}.favicon.$ext" ]; then
-                        favicon_url="/sites/${code,,}.favicon.$ext"
+                        icon="/sites/${code,,}.favicon.$ext"
                         break
                     fi
                 done
             fi
 
-            if [ -z "$favicon_url" ]; then
-                favicon_url="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect fill='%23666' width='16' height='16'/%3E%3C/svg%3E"
+            if [ -z "$icon" ]; then
+                icon="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect fill='%23666' width='16' height='16'/%3E%3C/svg%3E"
             fi
-
-            if [ "$first" = false ]; then
-                sites_array+=","
-            fi
-            first=false
-
-            sites_array+="{id:'$code',name:'$name',href:'$url',icon:'$favicon_url',popup:true}"
         fi
+
+        if [ "$first" = false ]; then
+            sites_array+=","
+        fi
+        first=false
+
+        sites_array+="{id:'$code',name:'$name',href:'$url',icon:'$icon',popup:true}"
     done
 
     sites_array+="]"
