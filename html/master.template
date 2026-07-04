@@ -271,7 +271,7 @@ async function loadDashboard() {
                 const isOnline = status.status === 'Online';
                 const statusClass = isOnline ? 'online' : 'offline';
                 html += `
-                    <div class="service-card" data-service-href="${status.href}" data-service-popup="${status.popup}">
+                    <div class="service-card" data-service-href="${status.href}" data-service-popup="${status.popup}" data-service-name="${status.name}">
                         <div class="service-card-header">
                             <div class="service-card-icon">
                                 <img src="${status.icon}" alt="${status.name}" />
@@ -314,7 +314,7 @@ async function loadDashboard() {
                 const isOnline = status.status === 'Online';
                 const statusClass = isOnline ? 'online' : 'offline';
                 html += `
-                    <div class="service-card" data-service-href="${status.href}" data-service-popup="${status.popup}">
+                    <div class="service-card" data-service-href="${status.href}" data-service-popup="${status.popup}" data-service-name="${status.name}">
                         <div class="service-card-header">
                             <div class="service-card-icon">
                                 <img src="${status.icon}" alt="${status.name}" />
@@ -356,10 +356,25 @@ async function loadDashboard() {
     content.innerHTML = html || '<div class="no-services">No configured services</div>';
 
     document.querySelectorAll('.service-card').forEach((card) => {
-        card.addEventListener('click', (e) => {
+        card.addEventListener('click', async (e) => {
             e.preventDefault();
             const href = card.getAttribute('data-service-href');
             const isPopup = card.getAttribute('data-service-popup') === 'true';
+            const serviceName = card.getAttribute('data-service-name');
+
+            // Special handling for Deluge - get session cookie before opening
+            if (serviceName === 'Deluge' || href?.includes('8112')) {
+                try {
+                    const response = await fetch(`/api/deluge/login`);
+                    const data = await response.json();
+                    if (data.success && data.cookie) {
+                        document.cookie = data.cookie + '; path=/';
+                    }
+                } catch (err) {
+                    console.warn('Deluge pre-auth failed:', err);
+                }
+            }
+
             if (isPopup) {
                 window.open(href, '_blank');
             } else {

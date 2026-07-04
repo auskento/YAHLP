@@ -491,6 +491,51 @@ app.post('/api/nzbget/stats', async (req, res) => {
   }
 });
 
+// Deluge login endpoint - returns session cookie for web UI authentication
+app.get('/api/deluge/login', async (req, res) => {
+  try {
+    const config = services['deluge'];
+    if (!config.url || !config.key) {
+      throw new Error('Deluge not configured');
+    }
+
+    const authPayload = {
+      method: 'auth.login',
+      params: [config.key],
+      id: 1
+    };
+
+    const response = await fetch(`${config.url}/json`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(authPayload),
+      timeout: 10000
+    });
+
+    if (!response.ok) {
+      throw new Error(`Deluge auth HTTP ${response.status}`);
+    }
+
+    const authData = await response.json();
+    if (!authData || !authData.result) {
+      throw new Error('Deluge auth failed');
+    }
+
+    // Extract session cookie
+    const setCookie = response.headers.get('set-cookie');
+    const sessionCookie = setCookie ? setCookie.split(';')[0] : '';
+
+    res.json({
+      success: true,
+      cookie: sessionCookie,
+      url: `${config.url}/`
+    });
+  } catch (err) {
+    console.error('[DELUGE-LOGIN]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Deluge endpoints
 app.post('/api/deluge/stats', async (req, res) => {
   try {
