@@ -14,7 +14,7 @@
 <body>
 <div class="app" data-layout="@@TEMPLATE_TYPE@@" data-theme="dark" style="padding-bottom: 48px;">
   <header class="app-header">
-    <a href="/" style="display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer;">
+    <a href="/" onclick="return goHome(event)" style="display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer;">
       <img src="@@DASHBOARD_ICON@@" alt="Dashboard" class="logo-img">
       <div class="logo-text">@@DASHBOARD_NAME@@</div>
     </a>
@@ -68,7 +68,7 @@
 
 <footer class="app-footer">
   <div class="footer-left">
-    <a href="/" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; cursor: pointer;">
+    <a href="/" onclick="return goHome(event)" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; cursor: pointer;">
       <img src="@@DASHBOARD_ICON@@" alt="Dashboard" class="footer-icon">
       <span class="footer-name">@@DASHBOARD_NAME@@</span>
     </a>
@@ -608,6 +608,18 @@ async function checkConfiguredServices() {
             setInterval(loadDashboard, 30000);
         }
     }
+}
+
+// Logo/name click in the header or footer - stay on the current layout's page
+// and return to its service panel instead of navigating to "/" (which loads
+// whatever DASH_STYLE default the server is configured with).
+function goHome(e) {
+    e.preventDefault();
+    frame.style.display = 'none';
+    frame.src = '';
+    welcomeScreen.style.display = 'none';
+    dashboardView.style.display = '';
+    return false;
 }
 
 // Adjust icon sizes on window resize
