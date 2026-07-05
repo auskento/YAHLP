@@ -105,7 +105,10 @@
   flex: 1;
   overflow-y: auto;
   padding: 24px;
-  background: transparent;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  border-radius: 12px;
+  margin: 12px;
 }
 
 .dashboard-header {
