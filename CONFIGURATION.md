@@ -62,6 +62,19 @@ volumes:
 **Dashboard Order:**
 The `order` array controls the sequence services appear on the dashboard. Only enabled services will be displayed. Use 3-letter service codes to specify the order.
 
+**Dashboard Sites (Built-in URLs):**
+The `sites` array enables quick links for services using their configured URLs. Instead of manually entering URLs in sites.json5, you can reference service codes to automatically create links.
+
+```json5
+{
+  dashboard: {
+    sites: ['JEL', 'PLX', 'SEE'],  // Jellyfin, Plex, Seerr as quick links
+  },
+}
+```
+
+Built-in sites are added before custom sites from sites.json5, using the service's configured URL and icon.
+
 **Service Codes:**
 ```
 JEL = Jellyfin          PLX = Plex              EMB = Emby
@@ -359,6 +372,7 @@ services.sonarr.landing  → SONARR_LANDING
 - `DASHBOARD_STYLE` — Layout style
 - `DASHBOARD_LANDING` — 'dashboard' or 'welcome'
 - `DASHBOARD_ORDER` — Service order (comma-separated 3-letter codes: JEL,SON,RAD,SEE,...)
+- `DASHBOARD_SITES` — Quick links (comma-separated service codes: JEL,PLX,SEE,...)
 
 **Access:**
 - `ACCESS_MODE` — 'private' or 'public'
