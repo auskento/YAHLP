@@ -898,13 +898,17 @@ const builtInSites = {
 app.get('/api/config/sites', (req, res) => {
   const allSites = [];
 
-  // Get DASHBOARD_SITES from environment variable
+  // Get sites from dashboard.sites config or DASHBOARD_SITES env var (env var takes precedence)
+  let dashboardSites = jsonConfig.dashboard?.sites || [];
   const envDashboardSites = process.env.DASHBOARD_SITES ?
     process.env.DASHBOARD_SITES.split(',').map(s => s.trim().toUpperCase()) : [];
 
-  // Add built-in sites if DASHBOARD_SITES is set
-  if (envDashboardSites.length > 0) {
-    envDashboardSites.forEach(code => {
+  // Environment variable takes precedence over JSON5 config
+  const siteCodes = envDashboardSites.length > 0 ? envDashboardSites : dashboardSites.map(s => s.toUpperCase ? s.toUpperCase() : s);
+
+  // Add built-in sites if any are specified
+  if (siteCodes.length > 0) {
+    siteCodes.forEach(code => {
       if (builtInSites[code]) {
         allSites.push(builtInSites[code]);
       }

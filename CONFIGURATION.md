@@ -308,12 +308,23 @@ There are two types of quick link sites:
 
 ### 1. Built-in Sites (Torrent & Usenet)
 
-Built-in sites are pre-configured torrent and usenet providers. Enable them via `DASHBOARD_SITES` environment variable:
+Built-in sites are pre-configured torrent and usenet providers. Enable them in `yahlp.json5` under `dashboard.sites`:
+
+```json5
+{
+  dashboard: {
+    sites: ['TPB', 'DOG', 'NLF'],  // The Pirate Bay, DOGnzb, nzb.life
+  },
+}
+```
 
 **Available Torrent Sites:** TPB, FIL, HDB, IPT, 1337, YTS, LAT, NYA, PTP
 **Available Usenet Sites:** DOG, DRS, NLF, NFW, NGK, PLA, TAB
 
-Example: `DASHBOARD_SITES=TPB,DOG,NLF` enables The Pirate Bay, DOGnzb, and nzb.life
+**Priority:** Environment variable `DASHBOARD_SITES` overrides the JSON5 config:
+```bash
+DASHBOARD_SITES=TPB,DOG,NLF
+```
 
 ### 2. Custom Sites (sites.json5)
 
@@ -339,9 +350,9 @@ Define custom quick link sites in `sites.json5`. Each site has an `enabled` flag
 ```
 
 **Display Order:**
-1. If `DASHBOARD_SITES` is set: show those built-in sites first
-2. Then show custom sites from sites.json5 where `enabled: true`
-3. If `DASHBOARD_SITES` is empty: only show custom sites from sites.json5
+1. Built-in sites from `dashboard.sites` (if any)
+2. Then custom sites from sites.json5 where `enabled: true`
+3. If `dashboard.sites` is empty: only show custom sites from sites.json5
 
 ## Configuration Priority
 
@@ -379,7 +390,7 @@ services.sonarr.landing  → SONARR_LANDING
 - `DASHBOARD_STYLE` — Layout style
 - `DASHBOARD_LANDING` — 'dashboard' or 'welcome'
 - `DASHBOARD_ORDER` — Service order (comma-separated 3-letter codes: JEL,SON,RAD,SEE,...)
-- `DASHBOARD_SITES` — Enable built-in torrent/usenet sites (comma-separated codes: TPB,DOG,NLF,...)
+- `DASHBOARD_SITES` — Built-in torrent/usenet sites (comma-separated codes: TPB,DOG,NLF,...; overrides dashboard.sites from JSON5)
 
 **Access:**
 - `ACCESS_MODE` — 'private' or 'public'
