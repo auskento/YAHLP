@@ -350,10 +350,16 @@ case "${AUTHTYPE}" in
     entra)
         echo "=== Setting up Entra ID (Microsoft) Authentication ==="
 
-        # Validate required parameters
-        if [ -z "$ENTRA_CLIENT_ID" ] || [ -z "$ENTRA_CLIENT_SECRET" ] || [ -z "$ENTRA_PROVIDER_METADATA_URL" ]; then
-            echo "ERROR: ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET, and ENTRA_PROVIDER_METADATA_URL are required for AUTHTYPE=entra"
-            exit 1
+        # If any Entra env vars are provided, validate all are present
+        if [ ! -z "$ENTRA_CLIENT_ID" ] || [ ! -z "$ENTRA_CLIENT_SECRET" ] || [ ! -z "$ENTRA_PROVIDER_METADATA_URL" ]; then
+            if [ -z "$ENTRA_CLIENT_ID" ] || [ -z "$ENTRA_CLIENT_SECRET" ] || [ -z "$ENTRA_PROVIDER_METADATA_URL" ]; then
+                echo "ERROR: If using environment variables for Entra OAuth, ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET, and ENTRA_PROVIDER_METADATA_URL are all required"
+                exit 1
+            fi
+        else
+            # No env vars provided - must be in yahlp.json5
+            echo "INFO: Entra OAuth settings not found in environment variables"
+            echo "INFO: Using settings from yahlp.json5 (entra section)"
         fi
 
         # Generate crypto passphrase if not provided
@@ -395,10 +401,16 @@ case "${AUTHTYPE}" in
     google)
         echo "=== Setting up Google OAuth2 Authentication ==="
 
-        # Validate required parameters
-        if [ -z "$GOOGLE_CLIENT_ID" ] || [ -z "$GOOGLE_CLIENT_SECRET" ] || [ -z "$GOOGLE_REDIRECT_URI" ]; then
-            echo "ERROR: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI are required for AUTHTYPE=google"
-            exit 1
+        # If any Google env vars are provided, validate all are present
+        if [ ! -z "$GOOGLE_CLIENT_ID" ] || [ ! -z "$GOOGLE_CLIENT_SECRET" ] || [ ! -z "$GOOGLE_REDIRECT_URI" ]; then
+            if [ -z "$GOOGLE_CLIENT_ID" ] || [ -z "$GOOGLE_CLIENT_SECRET" ] || [ -z "$GOOGLE_REDIRECT_URI" ]; then
+                echo "ERROR: If using environment variables for Google OAuth, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI are all required"
+                exit 1
+            fi
+        else
+            # No env vars provided - must be in yahlp.json5
+            echo "INFO: Google OAuth settings not found in environment variables"
+            echo "INFO: Using settings from yahlp.json5 (google section)"
         fi
 
         # Configure Google OAuth2
