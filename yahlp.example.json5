@@ -37,6 +37,17 @@
     // Landing page: 'dashboard' or 'welcome'
     // 'dashboard' shows services, 'welcome' shows the welcome screen
     landing: 'dashboard',
+
+    // Service display order on dashboard
+    // Arrange services as desired; only enabled services will be shown
+    order: [
+      'jellyfin', 'plex', 'emby',
+      'sonarr', 'radarr', 'lidarr', 'whisparr',
+      'qbittorrent', 'transmission',
+      'sabnzbd', 'nzbget', 'deluge',
+      'nzbhydra', 'prowlarr', 'seerr',
+      'bazarr', 'tautulli', 'maintainerr',
+    ],
   },
 
   // Access Mode Configuration

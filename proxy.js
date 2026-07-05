@@ -835,13 +835,33 @@ app.get('/api/maintainerr/api/storage-metrics/library-sizes', async (req, res) =
 // Configuration endpoints - serve dashboard and sites configuration
 // These support environment variable overrides
 app.get('/api/config/dashboard', (req, res) => {
+  let order = getConfig('dashboard.order', null);
+
+  // Handle DASHBOARD_ORDER environment variable (comma-separated string)
+  if (process.env.DASHBOARD_ORDER) {
+    order = process.env.DASHBOARD_ORDER.split(',').map(s => s.trim());
+  }
+
+  // Fall back to JSON5 order or default order
+  if (!order) {
+    order = jsonConfig.dashboard?.order || [
+      'jellyfin', 'plex', 'emby',
+      'sonarr', 'radarr', 'lidarr', 'whisparr',
+      'qbittorrent', 'transmission',
+      'sabnzbd', 'nzbget', 'deluge',
+      'nzbhydra', 'prowlarr', 'seerr',
+      'bazarr', 'tautulli', 'maintainerr',
+    ];
+  }
+
   const dashboard = {
     name: getConfig('dashboard.name', 'YAHLP Dashboard'),
     icon_url: getConfig('dashboard.icon_url', 'https://via.placeholder.com/64'),
     color: getConfig('dashboard.color', '#00A99D'),
     theme: getConfig('dashboard.theme', 'dark'),
     style: getConfig('dashboard.style', 'classic'),
-    landing: getConfig('dashboard.landing', 'dashboard')
+    landing: getConfig('dashboard.landing', 'dashboard'),
+    order: order
   };
   res.json(dashboard);
 });
