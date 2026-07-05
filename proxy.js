@@ -145,12 +145,7 @@ const services = {
   'radarr': { url: getConfigValue('radarr', 'url'), key: getConfigValue('radarr', 'api_key'), authType: 'header' },
   'lidarr': { url: getConfigValue('lidarr', 'url'), key: getConfigValue('lidarr', 'api_key'), authType: 'header' },
   'whisparr': { url: getConfigValue('whisparr', 'url'), key: getConfigValue('whisparr', 'api_key'), authType: 'header' },
-  'qbittorrent': {
-    url: getConfigValue('qbittorrent', 'url'),
-    username: getConfigValue('qbittorrent', 'username'),
-    password: getConfigValue('qbittorrent', 'password'),
-    authType: 'qbittorrent'
-  },
+  'qbittorrent': { url: getConfigValue('qbittorrent', 'url'), key: getConfigValue('qbittorrent', 'api_key'), authType: 'qbittorrent' },
   'transmission': { url: getConfigValue('transmission', 'url'), authType: 'transmission' },
   'sabnzbd': { url: getConfigValue('sabnzbd', 'url'), key: getConfigValue('sabnzbd', 'api_key'), authType: 'query' },
   'nzbget': { url: getConfigValue('nzbget', 'url'), username: getConfigValue('nzbget', 'username'), password: getConfigValue('nzbget', 'password'), authType: 'nzbget' },
@@ -189,7 +184,13 @@ async function makeRequest(serviceKey, endpoint, options = {}) {
   // Check for required authentication based on auth type
   switch (config.authType) {
     case 'qbittorrent':
+      // qBittorrent requires API key
+      if (!config.key) {
+        throw new Error(`Service ${serviceKey} not configured`);
+      }
+      break;
     case 'nzbget':
+      // NZBGet requires username and password
       if (!config.username || !config.password) {
         throw new Error(`Service ${serviceKey} not configured`);
       }
@@ -229,9 +230,8 @@ async function makeRequest(serviceKey, endpoint, options = {}) {
       // Transmission uses session ID from server response, no auth needed for status check
       break;
     case 'qbittorrent':
-      // qBittorrent uses basic auth with username/password
-      const basicAuth = Buffer.from(`${config.username}:${config.password}`).toString('base64');
-      headers['Authorization'] = `Basic ${basicAuth}`;
+      // qBittorrent uses API key in cookie or header
+      headers['Cookie'] = `qBittorrentAPIToken=${config.key}`;
       break;
   }
 
