@@ -100,7 +100,7 @@ const codeToService = {
     'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
 };
 
-// Extract dashboard color from computed style and darken it
+// Calculate average color between dashboard color and bg-primary
 function initDashboardColor() {
     // Wait a moment for styles to be applied
     setTimeout(() => {
@@ -120,11 +120,19 @@ function initDashboardColor() {
         }
 
         if (dashboardColor) {
-            const rgb = hexToRgb(dashboardColor);
-            if (rgb) {
-                const darkenedRgb = darkenRgb(rgb, 40);
-                const darkenedColor = `rgb(${darkenedRgb.r}, ${darkenedRgb.g}, ${darkenedRgb.b})`;
-                document.documentElement.style.setProperty('--content-bg-color', darkenedColor);
+            const dashRgb = hexToRgb(dashboardColor);
+            const bgRgb = hexToRgb('#08090c'); // bg-primary color
+
+            if (dashRgb && bgRgb) {
+                // Calculate average color
+                const avgRgb = {
+                    r: Math.round((dashRgb.r + bgRgb.r) / 2),
+                    g: Math.round((dashRgb.g + bgRgb.g) / 2),
+                    b: Math.round((dashRgb.b + bgRgb.b) / 2)
+                };
+
+                const avgColor = rgbToHex(avgRgb);
+                document.documentElement.style.setProperty('--content-bg-color', avgColor);
                 return;
             }
         }
@@ -143,12 +151,12 @@ function hexToRgb(hex) {
     } : null;
 }
 
-function darkenRgb(rgb, percent) {
-    return {
-        r: Math.max(0, Math.round(rgb.r * (1 - percent / 100))),
-        g: Math.max(0, Math.round(rgb.g * (1 - percent / 100))),
-        b: Math.max(0, Math.round(rgb.b * (1 - percent / 100)))
+function rgbToHex(rgb) {
+    const toHex = (n) => {
+        const hex = n.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
     };
+    return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
 }
 
 initDashboardColor();
