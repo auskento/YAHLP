@@ -567,6 +567,12 @@ generate_css_based_templates() {
     done
     templates_js+="];"
 
+    # Determine if style switcher should be locked (when :only is used)
+    local dashboard_locked="false"
+    if [[ "$DASHBOARD_STYLE" == *":only" ]]; then
+        dashboard_locked="true"
+    fi
+
     # Generate HTML for each layout
     for layout in "${layouts[@]}"; do
         # DASHBOARD_COLOR only applies to the built-in layouts. Custom layouts
@@ -588,6 +594,7 @@ generate_css_based_templates() {
         html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
         html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
         html_content="${html_content//@@DASHBOARD_COLOR_OVERRIDE@@/$dashboard_color_override}"
+        html_content="${html_content//@@DASHBOARD_LOCKED@@/$dashboard_locked}"
 
         echo "$html_content" > "/var/www/html/${layout}.html"
         echo "  ✓ Generated ${layout}.html"

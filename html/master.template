@@ -11,6 +11,11 @@
 <link rel="stylesheet" href="/styles/layout-@@TEMPLATE_TYPE@@.css">
 <style>@@DASHBOARD_COLOR_OVERRIDE@@</style>
 <script>
+// Set dashboard lock state if DASHBOARD_STYLE=style:only is used
+if (@@DASHBOARD_LOCKED@@) {
+    localStorage.setItem('dashboard-locked', 'true');
+}
+
 // Immediately calculate average color for content panel
 document.addEventListener('DOMContentLoaded', function() {
     const styleTag = document.querySelector('style');
