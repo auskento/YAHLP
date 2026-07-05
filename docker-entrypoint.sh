@@ -1064,8 +1064,8 @@ SEERRAUTHEOF
     echo "✓ Plex VirtualHost enabled"
 fi
 
-# Configure Seerr subdomain VirtualHost (if SEERR_DOMAIN is set and in public mode)
-if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$SEERR_DOMAIN" ]; then
+# Configure Seerr subdomain VirtualHost (if SEERR_DOMAIN and SEERR_URL are set and in public mode)
+if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$SEERR_DOMAIN" ] && [ ! -z "$SEERR_URL" ]; then
     echo ""
     echo "=== Generating Seerr VirtualHost ==="
 
@@ -1221,6 +1221,10 @@ SEERRAUTHEOF
 
     a2ensite seerr-vhost.conf 2>/dev/null || true
     echo "✓ Seerr VirtualHost enabled"
+else
+    if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$SEERR_DOMAIN" ]; then
+        echo "⚠ SEERR_DOMAIN is set but SEERR_URL is missing - skipping Seerr VirtualHost"
+    fi
 fi
 
 
