@@ -1140,16 +1140,68 @@ SEERRCEOF
 
     case "${AUTHTYPE}" in
         google)
-            # Only include OAuth config if SEERR_REDIRECT_URI is set (config files were created)
+            # Generate Google OAuth config for Seerr if SEERR_REDIRECT_URI is set
             if [ ! -z "$SEERR_REDIRECT_URI" ]; then
+                SEERR_COOKIE_DOMAIN=$(echo "$SEERR_DOMAIN" | sed 's|^[^.]*\.||')
+                cat /etc/apache2/conf-available/oauth2-google.conf \
+                    | sed "s#@@GOOGLE_REDIRECT_URI@@#$SEERR_REDIRECT_URI#g" \
+                    | sed "s#@@COOKIE_DOMAIN@@#$SEERR_COOKIE_DOMAIN#g" \
+                    > /etc/apache2/conf-available/oauth2-google-seerr.conf
+
+                # Generate auth protection config
+                cat > /etc/apache2/conf-available/auth-google-protect-seerr.conf <<'SEERRAUTHEOF'
+<Location /oauth2>
+    SetHandler oauth2-handler
+</Location>
+<Location /oauth2callback>
+    SetHandler oauth2-handler
+</Location>
+<Location />
+    AuthType openid-connect
+    Require valid-user
+</Location>
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Google"
+SEERRAUTHEOF
+
                 sed -i "/@@INCLUDE_SEERR_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-google-seerr.conf\n    Include /etc/apache2/conf-available/auth-google-protect-seerr.conf" /etc/apache2/sites-available/seerr-vhost.conf
             else
                 sed -i "/@@INCLUDE_SEERR_OAUTH@@/d" /etc/apache2/sites-available/seerr-vhost.conf
             fi
             ;;
         entra)
-            # Only include OAuth config if SEERR_REDIRECT_URI is set (config files were created)
+            # Generate Entra OAuth config for Seerr if SEERR_REDIRECT_URI is set
             if [ ! -z "$SEERR_REDIRECT_URI" ]; then
+                SEERR_COOKIE_DOMAIN=$(echo "$SEERR_DOMAIN" | sed 's|^[^.]*\.||')
+                cat /etc/apache2/conf-available/oauth2-entra.conf \
+                    | sed "s#@@ENTRA_CLIENT_ID@@#$ENTRA_CLIENT_ID#g" \
+                    | sed "s#@@ENTRA_CLIENT_SECRET@@#$ENTRA_CLIENT_SECRET#g" \
+                    | sed "s#@@ENTRA_REDIRECT_URI@@#$SEERR_REDIRECT_URI#g" \
+                    | sed "s#@@ENTRA_PROVIDER_METADATA_URL@@#$ENTRA_PROVIDER_METADATA_URL#g" \
+                    | sed "s#@@ENTRA_CRYPTO_PASSPHRASE@@#$ENTRA_CRYPTO_PASSPHRASE#g" \
+                    | sed "s#@@COOKIE_DOMAIN@@#$SEERR_COOKIE_DOMAIN#g" \
+                    > /etc/apache2/conf-available/oauth2-entra-seerr.conf
+
+                # Generate auth protection config
+                cat > /etc/apache2/conf-available/auth-entra-protect-seerr.conf <<'SEERRAUTHEOF'
+<Location /oauth2>
+    SetHandler oauth2-handler
+</Location>
+<Location /oauth2callback>
+    SetHandler oauth2-handler
+</Location>
+<Location />
+    AuthType openid-connect
+    Require valid-user
+</Location>
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Entra"
+SEERRAUTHEOF
+
                 sed -i "/@@INCLUDE_SEERR_OAUTH@@/c\\    Include /etc/apache2/conf-available/oauth2-entra-seerr.conf\n    Include /etc/apache2/conf-available/auth-entra-protect-seerr.conf" /etc/apache2/sites-available/seerr-vhost.conf
             else
                 sed -i "/@@INCLUDE_SEERR_OAUTH@@/d" /etc/apache2/sites-available/seerr-vhost.conf
