@@ -356,42 +356,44 @@ case "${AUTHTYPE}" in
                 echo "ERROR: If using environment variables for Entra OAuth, ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET, and ENTRA_PROVIDER_METADATA_URL are all required"
                 exit 1
             fi
+
+            # Generate crypto passphrase if not provided
+            if [ -z "$ENTRA_CRYPTO_PASSPHRASE" ]; then
+                ENTRA_CRYPTO_PASSPHRASE=$(openssl rand -base64 24)
+                echo "Generated random crypto passphrase"
+            fi
+
+            # Extract domain from ENTRA_REDIRECT_URI for wildcard cookie domain
+            # Example: https://transfers.limosani.net.au/oauth2callback → .limosani.net.au
+            COOKIE_DOMAIN=$(echo "$ENTRA_REDIRECT_URI" | sed -E 's|^https?://[^.]+\.([^/]+).*$|.\1|')
+            if [ -z "$COOKIE_DOMAIN" ] || [ "$COOKIE_DOMAIN" = "$ENTRA_REDIRECT_URI" ]; then
+                # Fallback: if URL doesn't have subdomain, use full domain
+                COOKIE_DOMAIN=$(echo "$ENTRA_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
+            fi
+
+            # Configure Entra OAuth2 in Apache
+            cat /etc/apache2/conf-available/oauth2-entra.conf \
+                | sed "s|@@ENTRA_CLIENT_ID@@|$ENTRA_CLIENT_ID|g" \
+                | sed "s|@@ENTRA_CLIENT_SECRET@@|$ENTRA_CLIENT_SECRET|g" \
+                | sed "s|@@ENTRA_REDIRECT_URI@@|$ENTRA_REDIRECT_URI|g" \
+                | sed "s|@@ENTRA_PROVIDER_METADATA_URL@@|$ENTRA_PROVIDER_METADATA_URL|g" \
+                | sed "s|@@ENTRA_CRYPTO_PASSPHRASE@@|$ENTRA_CRYPTO_PASSPHRASE|g" \
+                | sed "s|@@COOKIE_DOMAIN@@|$COOKIE_DOMAIN|g" \
+                > /etc/apache2/conf-enabled/oauth2-entra.conf
+
+            cp /etc/apache2/conf-available/auth-entra-protect.conf /etc/apache2/conf-enabled/
+            a2enconf oauth2-entra 2>/dev/null || true
+            a2enconf auth-entra-protect 2>/dev/null || true
+
+            echo "✓ Entra OAuth configured in Apache"
+            echo "  Client ID: ${ENTRA_CLIENT_ID:0:20}..."
         else
-            # No env vars provided - must be in yahlp.json5
+            # No env vars provided - use frontend OAuth from yahlp.json5
             echo "INFO: Entra OAuth settings not found in environment variables"
-            echo "INFO: Using settings from yahlp.json5 (entra section)"
+            echo "INFO: Will use settings from yahlp.json5 (entra section) via frontend"
+            a2disconf oauth2-entra 2>/dev/null || true
+            a2disconf auth-entra-protect 2>/dev/null || true
         fi
-
-        # Generate crypto passphrase if not provided
-        if [ -z "$ENTRA_CRYPTO_PASSPHRASE" ]; then
-            ENTRA_CRYPTO_PASSPHRASE=$(openssl rand -base64 24)
-            echo "Generated random crypto passphrase"
-        fi
-
-        # Extract domain from ENTRA_REDIRECT_URI for wildcard cookie domain
-        # Example: https://transfers.limosani.net.au/oauth2callback → .limosani.net.au
-        COOKIE_DOMAIN=$(echo "$ENTRA_REDIRECT_URI" | sed -E 's|^https?://[^.]+\.([^/]+).*$|.\1|')
-        if [ -z "$COOKIE_DOMAIN" ] || [ "$COOKIE_DOMAIN" = "$ENTRA_REDIRECT_URI" ]; then
-            # Fallback: if URL doesn't have subdomain, use full domain
-            COOKIE_DOMAIN=$(echo "$ENTRA_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
-        fi
-
-        # Configure Entra OAuth2
-        cat /etc/apache2/conf-available/oauth2-entra.conf \
-            | sed "s|@@ENTRA_CLIENT_ID@@|$ENTRA_CLIENT_ID|g" \
-            | sed "s|@@ENTRA_CLIENT_SECRET@@|$ENTRA_CLIENT_SECRET|g" \
-            | sed "s|@@ENTRA_REDIRECT_URI@@|$ENTRA_REDIRECT_URI|g" \
-            | sed "s|@@ENTRA_PROVIDER_METADATA_URL@@|$ENTRA_PROVIDER_METADATA_URL|g" \
-            | sed "s|@@ENTRA_CRYPTO_PASSPHRASE@@|$ENTRA_CRYPTO_PASSPHRASE|g" \
-            | sed "s|@@COOKIE_DOMAIN@@|$COOKIE_DOMAIN|g" \
-            > /etc/apache2/conf-enabled/oauth2-entra.conf
-
-        cp /etc/apache2/conf-available/auth-entra-protect.conf /etc/apache2/conf-enabled/
-        a2enconf oauth2-entra 2>/dev/null || true
-        a2enconf auth-entra-protect 2>/dev/null || true
-
-        echo "✓ Entra ID authentication enabled"
-        echo "  Client ID: ${ENTRA_CLIENT_ID:0:20}..."
 
         # Disable other auth methods
         rm -f /etc/apache2/conf-enabled/auth-basic.conf /etc/apache2/conf-enabled/oauth2-google.conf /etc/apache2/conf-enabled/auth-google-protect.conf
@@ -407,38 +409,40 @@ case "${AUTHTYPE}" in
                 echo "ERROR: If using environment variables for Google OAuth, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI are all required"
                 exit 1
             fi
+
+            # Configure Google OAuth2 in Apache
+            # Generate random encryption passphrase for sessions (internal use only)
+            GOOGLE_CRYPTO_PASSPHRASE=$(openssl rand -base64 24)
+
+            # Extract domain from GOOGLE_REDIRECT_URI for wildcard cookie domain
+            # Example: https://transfers.limosani.net.au/oauth2callback → .limosani.net.au
+            COOKIE_DOMAIN=$(echo "$GOOGLE_REDIRECT_URI" | sed -E 's|^https?://[^.]+\.([^/]+).*$|.\1|')
+            if [ -z "$COOKIE_DOMAIN" ] || [ "$COOKIE_DOMAIN" = "$GOOGLE_REDIRECT_URI" ]; then
+                # Fallback: if URL doesn't have subdomain, use full domain
+                COOKIE_DOMAIN=$(echo "$GOOGLE_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
+            fi
+
+            cat /etc/apache2/conf-available/oauth2-google.conf \
+                | sed "s|@@GOOGLE_CLIENT_ID@@|$GOOGLE_CLIENT_ID|g" \
+                | sed "s|@@GOOGLE_CLIENT_SECRET@@|$GOOGLE_CLIENT_SECRET|g" \
+                | sed "s|@@GOOGLE_REDIRECT_URI@@|$GOOGLE_REDIRECT_URI|g" \
+                | sed "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|$GOOGLE_CRYPTO_PASSPHRASE|g" \
+                | sed "s|@@COOKIE_DOMAIN@@|$COOKIE_DOMAIN|g" \
+                > /etc/apache2/conf-enabled/oauth2-google.conf
+
+            cp /etc/apache2/conf-available/auth-google-protect.conf /etc/apache2/conf-enabled/
+            a2enconf oauth2-google 2>/dev/null || true
+            a2enconf auth-google-protect 2>/dev/null || true
+
+            echo "✓ Google OAuth configured in Apache"
+            echo "  Client ID: ${GOOGLE_CLIENT_ID:0:20}..."
         else
-            # No env vars provided - must be in yahlp.json5
+            # No env vars provided - use frontend OAuth from yahlp.json5
             echo "INFO: Google OAuth settings not found in environment variables"
-            echo "INFO: Using settings from yahlp.json5 (google section)"
+            echo "INFO: Will use settings from yahlp.json5 (google section) via frontend"
+            a2disconf oauth2-google 2>/dev/null || true
+            a2disconf auth-google-protect 2>/dev/null || true
         fi
-
-        # Configure Google OAuth2
-        # Generate random encryption passphrase for sessions (internal use only)
-        GOOGLE_CRYPTO_PASSPHRASE=$(openssl rand -base64 24)
-
-        # Extract domain from GOOGLE_REDIRECT_URI for wildcard cookie domain
-        # Example: https://transfers.limosani.net.au/oauth2callback → .limosani.net.au
-        COOKIE_DOMAIN=$(echo "$GOOGLE_REDIRECT_URI" | sed -E 's|^https?://[^.]+\.([^/]+).*$|.\1|')
-        if [ -z "$COOKIE_DOMAIN" ] || [ "$COOKIE_DOMAIN" = "$GOOGLE_REDIRECT_URI" ]; then
-            # Fallback: if URL doesn't have subdomain, use full domain
-            COOKIE_DOMAIN=$(echo "$GOOGLE_REDIRECT_URI" | sed -E 's|^https?://([^/]+).*$|.\1|')
-        fi
-
-        cat /etc/apache2/conf-available/oauth2-google.conf \
-            | sed "s|@@GOOGLE_CLIENT_ID@@|$GOOGLE_CLIENT_ID|g" \
-            | sed "s|@@GOOGLE_CLIENT_SECRET@@|$GOOGLE_CLIENT_SECRET|g" \
-            | sed "s|@@GOOGLE_REDIRECT_URI@@|$GOOGLE_REDIRECT_URI|g" \
-            | sed "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|$GOOGLE_CRYPTO_PASSPHRASE|g" \
-            | sed "s|@@COOKIE_DOMAIN@@|$COOKIE_DOMAIN|g" \
-            > /etc/apache2/conf-enabled/oauth2-google.conf
-
-        cp /etc/apache2/conf-available/auth-google-protect.conf /etc/apache2/conf-enabled/
-        a2enconf oauth2-google 2>/dev/null || true
-        a2enconf auth-google-protect 2>/dev/null || true
-
-        echo "✓ Google authentication enabled"
-        echo "  Client ID: ${GOOGLE_CLIENT_ID:0:20}..."
 
         # Disable other auth methods
         rm -f /etc/apache2/conf-enabled/auth-basic.conf /etc/apache2/conf-enabled/oauth2-entra.conf /etc/apache2/conf-enabled/auth-entra-protect.conf
