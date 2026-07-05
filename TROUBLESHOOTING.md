@@ -103,10 +103,10 @@ Verify you have the correct port for each service:
 |---------|--------------|----------------|
 | Sonarr | 8989 | 8990 |
 | Radarr | 7878 | 7879 |
-| Lidarr | 8686 | 8686 |
-| Readarr | 8787 | 8788 |
+| Lidarr | 8686 | 8687 |
+| Whisparr | 6969 | 6970 |
 | Prowlarr | 9696 | 9697 |
-| Overseerr | 5055 | 5056 |
+| Seerr | 5055 | 5056 |
 | Jellyfin | 8096 | 8097 |
 
 Check your docker-compose.yml to ensure ports match.
@@ -135,7 +135,9 @@ docker-compose exec apache-reverse-proxy ls -la /usr/local/bin/generate-config.s
 **Check 3: Manually run the generator**
 
 ```bash
-docker-compose exec apache-reverse-proxy /usr/local/bin/generate-config.sh
+docker-compose exec apache-reverse-proxy /usr/local/bin/generate-config.sh \
+  /etc/apache2/sites-available/reverse-proxy.conf.template \
+  /etc/apache2/sites-available/reverse-proxy.conf
 ```
 
 **Check 4: View entrypoint logs**

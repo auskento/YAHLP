@@ -23,12 +23,12 @@ This enables The Pirate Bay, FileList, HDBits, DOGnzb, and DrunkenSlug.
 | Code | Site Name | URL |
 |------|-----------|-----|
 | TPB | The Pirate Bay | https://thepiratebay.org |
-| FIL | FileList | https://filelist.io |
+| FIL | FileList.io | https://filelist.io |
 | HDB | HDBits | https://hdbits.org |
 | IPT | IP Torrents | https://iptorrents.com |
 | 1337 | 1337x | https://1337x.to |
-| YTS | YTS / YIFY | https://yts.mx |
-| LAT | LimeTorrents | https://www.limetorrents.lol |
+| YTS | YTS | https://yts.torrentbay.st |
+| LAT | LimeTorrents | https://limetorrents.cc |
 | NYA | Nyaa | https://nyaa.si |
 | PTP | PassThePopcorn | https://passthepopcorn.me |
 
@@ -36,13 +36,15 @@ This enables The Pirate Bay, FileList, HDBits, DOGnzb, and DrunkenSlug.
 
 | Code | Site Name | URL |
 |------|-----------|-----|
-| DOG | DOGnzb | https://dognzb.cr |
-| DRS | DrunkenSlug | https://drunkenslug.com |
+| DOG | DOGnzb | https://dognzb.cr/browse |
+| DRS | DrunkenSlug | https://www.drunkenslug.com |
 | NLF | nzb.life | https://nzb.life |
-| NFW | NZBFinder | https://www.nzbfinder.com |
-| NGK | NZBgeek | https://www.nzbgeek.info |
-| PLA | nzbplanet | https://nzbplanet.net |
-| TAB | Tabula Rasa | https://www.tabulasearch.com |
+| NFW | NZBFinder.ws | https://nzbfinder.ws |
+| NGK | NZBgeek | https://nzbgeek.info |
+| PLA | nzbplanet.net | https://nzbplanet.net |
+| TAB | Tabula Rasa | https://tabula-rasa.pw |
+
+These are the preset values seeded into `sites.json` on first container start (from `generate-sites-config.sh`). If a site's URL changes, you can edit `sites.json` directly (see "Custom Sites" below) rather than waiting for an image update.
 
 ---
 
@@ -79,17 +81,17 @@ SITES_ENABLED=
 ## How It Works
 
 1. **Dashboard Menu**: Enabled sites appear as quick-link buttons in your dashboard sidebar
-2. **Icon Caching**: Site favicons are pre-cached for instant loading
+2. **Favicon Fetching**: On container startup, `generate-sites-config.sh` fetches a favicon for each enabled site via Google's public favicon service (`https://www.google.com/s2/favicons?sz=64&domain=...`) and resizes it to 64x64 with ImageMagick (if available). If a favicon already exists under `html/sites-icons/` (pre-cached in the image) or was already fetched to `/var/log/apache2/sites/`, that file is used instead and the fetch is skipped.
 3. **User-Editable**: The `sites.json` configuration file can be modified for custom sites
-4. **No External Dependencies**: Links are generated locally, no external API calls
+4. **Link Generation Is Local**: The quick-link URLs themselves are generated locally with no external API calls — only the one-time favicon fetch talks to an external service (Google's favicon endpoint)
 
 ---
 
 ## Custom Sites (Advanced)
 
-The default sites are built into the container. For advanced customization, you can modify `sites.json`, but this requires additional setup and is **not required** for standard operation.
+The default sites are seeded into `sites.json` on first container start (from the preset list in `generate-sites-config.sh`). The file lives at `/var/log/apache2/sites/sites.json` inside the container — it is not part of the `html/` directory. For advanced customization, you can modify `sites.json` directly (e.g. via `docker exec`), but this requires additional setup and is **not required** for standard operation.
 
-**Note:** The `/app/html/` directory does not need to be mounted as a volume for normal operation. Sites configuration is optional and only needed if you want to add custom trackers or modify existing sites.
+**Note:** No extra volume mount is needed for normal operation. Sites configuration is optional and only needed if you want to add custom trackers or modify existing sites.
 
 ---
 
@@ -132,7 +134,7 @@ Sites appear in your dashboard menu with:
 
 ## Security Note
 
-Sites links are generated locally by YAHLP and do not transmit any user data to YAHLP. They simply provide convenient shortcuts to public torrent and usenet indexer sites. Users are responsible for ensuring their usage complies with local laws and regulations.
+The quick-link URLs themselves are generated locally by YAHLP and do not transmit any user data to YAHLP. Note that the one-time favicon fetch at container startup does contact Google's public favicon service (`google.com/s2/favicons`) for each newly-enabled site's domain — this only happens once per site (results are cached to disk) and is skipped entirely if a favicon is already pre-cached in `html/sites-icons/`. The links themselves simply provide convenient shortcuts to public torrent and usenet indexer sites. Users are responsible for ensuring their usage complies with local laws and regulations.
 
 ---
 

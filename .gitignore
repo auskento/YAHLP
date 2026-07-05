@@ -3,6 +3,10 @@
 .env.local
 .env.*.local
 
+# Configuration files with sensitive data
+yahlp.json5
+sites.json5
+
 # Docker
 docker-compose.override.yml
 

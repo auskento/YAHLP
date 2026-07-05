@@ -66,13 +66,13 @@ Choose your preferred dashboard style:
 
 **Set theme:**
 ```yaml
-STYLE: modern
+DASH_STYLE: modern
 ```
 
 #### Custom Dashboard Names
 ```yaml
 DASHBOARD_NAME: "My Homelab"
-DASHBOARD_ICON: "/icons/yahlp.png"
+DASHBOARD_ICON_URL: "https://example.com/my-logo.png"
 ```
 
 #### Custom Landing Pages
@@ -187,10 +187,10 @@ DASHBOARD_ORDER: USENET,TORRENTS,CONTENT,SEARCH,MEDIA
 
 ### Theme Selection
 ```yaml
-STYLE: modern      # React-based, feature-rich
-STYLE: classic     # Original sidebar layout
-STYLE: sleek       # Compact with styling
-STYLE: minimal     # Simple single-column
+DASH_STYLE: modern      # Right-side services frame with left sidebar
+DASH_STYLE: classic     # Original sidebar layout
+DASH_STYLE: sleek       # Compact with styling
+DASH_STYLE: minimal     # Simple single-column
 ```
 
 ### NZBGet Authentication

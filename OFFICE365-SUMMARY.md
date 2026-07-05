@@ -2,25 +2,25 @@
 
 ## 🔐 What's New
 
-Your reverse proxy now supports **enterprise-grade Office 365 / Azure AD authentication**!
+Your reverse proxy supports **enterprise-grade Office 365 / Azure AD authentication** via YAHLP's `AUTHTYPE=entra` option (Microsoft Entra ID, formerly Azure AD)!
 
 This means:
 - ✅ All services protected with Microsoft login
 - ✅ Single Sign-On (SSO) with Office 365
 - ✅ No separate password management
-- ✅ Restrict access by email domain
+- ✅ Access can be scoped via Azure AD app registration settings
 - ✅ Full audit trail in Azure AD
 - ✅ Optional multi-factor authentication
 - ✅ User info passed to backend services
 
 ## Quick Enable/Disable
 
-```yaml
-# Enable Office 365 auth
-ENABLE_AUTH_OFFICE365: "true"
+```env
+# Enable Entra ID auth
+AUTHTYPE=entra
 
 # Disable (services accessible without login)
-ENABLE_AUTH_OFFICE365: "false"
+AUTHTYPE=none
 ```
 
 ## Setup (5 Steps)
@@ -28,8 +28,8 @@ ENABLE_AUTH_OFFICE365: "false"
 ### Step 1: Register App in Azure AD
 1. Go to https://portal.azure.com
 2. Create new app registration
-3. Set redirect URI to: `https://yourdomain.com/oauth2callback`
-4. Get Application (client) ID
+3. Set redirect URI to: `https://yourdomain.com/auth/oauth2/callback`
+4. Get Application (client) ID and Directory (tenant) ID
 
 ### Step 2: Create Client Secret
 1. In app → Certificates & secrets
@@ -37,13 +37,13 @@ ENABLE_AUTH_OFFICE365: "false"
 3. Copy the VALUE (save securely!)
 
 ### Step 3: Set Environment Variables
-```yaml
-ENABLE_AUTH_OFFICE365: "true"
-OAUTH2_CLIENT_ID: "YOUR_APP_ID"
-OAUTH2_CLIENT_SECRET: "YOUR_SECRET"
-OAUTH2_REDIRECT_URI: "https://yourdomain.com/oauth2callback"
-OAUTH2_ALLOWED_DOMAINS: "yourdomain.com"
-OAUTH2_CRYPTO_PASSPHRASE: "$(openssl rand -base64 24)"
+```env
+AUTHTYPE=entra
+ENTRA_CLIENT_ID="YOUR_APP_ID"
+ENTRA_CLIENT_SECRET="YOUR_SECRET"
+ENTRA_REDIRECT_URI="https://yourdomain.com/auth/oauth2/callback"
+ENTRA_PROVIDER_METADATA_URL="https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0/.well-known/openid-configuration"
+ENTRA_CRYPTO_PASSPHRASE=""   # Optional - auto-generated if left blank
 ```
 
 ### Step 4: Deploy
@@ -57,20 +57,15 @@ docker-compose up -d
 2. Login with Office 365 account
 3. Access your services!
 
-## Files Added/Updated
+## Relevant Files
 
-### New Files
-- `OFFICE365-AUTH.md` ⭐ - Complete setup guide
-- `apache-conf/oauth2-office365.conf` - OpenID Connect config
-- `apache-conf/auth-office365-protect.conf` - Authorization rules
-
-### Updated Files
-- `Dockerfile` - Added libapache2-mod-auth-openidc
-- `docker-compose.yml` - Added OAuth2 environment variables
-- `docker-entrypoint.sh` - Office 365 setup script
-- `generate-config.sh` - Config generation for auth
-- `apache-conf/reverse-proxy.conf.template` - Auth placeholder
-- `.env.example` - Office 365 variables template
+- `AUTHENTICATION-SETUP.md` / `OFFICE365-AUTH.md` ⭐ - Setup guides
+- `apache-conf/oauth2-entra.conf` - OpenID Connect config (templated with `@@ENTRA_*@@` placeholders, filled in by `docker-entrypoint.sh`)
+- `apache-conf/auth-entra-protect.conf` - Authorization rules (included when `AUTHTYPE=entra`)
+- `Dockerfile` - Installs and enables `libapache2-mod-auth-openidc` (`a2enmod auth_openidc`)
+- `docker-entrypoint.sh` - Reads `AUTHTYPE`/`ENTRA_*` vars, validates them, and wires up the Entra OAuth2 config (also handles Emby/Plex/Seerr subdomain OAuth when their `*_DOMAIN`/`*_REDIRECT_URI` vars are set)
+- `generate-config.sh` - Generates the `Include` directive for `auth-entra-protect.conf` in the main reverse-proxy vhost
+- `.env.example` - `AUTHTYPE`/`ENTRA_*` variable definitions
 
 ## Architecture
 
@@ -85,7 +80,7 @@ User visits https://yourdomain.com
          ↓
   Azure AD validates
          ↓
-  Redirect back to /oauth2callback
+  Redirect back to /auth/oauth2/callback
          ↓
   Apache validates token
          ↓
@@ -102,10 +97,10 @@ Gets user info in headers:
 
 ## Security Features
 
-✅ **HTTPS only** - OAuth2 requires secure connection  
+✅ **HTTPS only** - OAuth2 requires secure connection (enforced in public mode)  
 ✅ **Token validation** - Azure AD tokens verified  
-✅ **Session encryption** - OAUTH2_CRYPTO_PASSPHRASE  
-✅ **Domain restriction** - OAUTH2_ALLOWED_DOMAINS  
+✅ **Session encryption** - `ENTRA_CRYPTO_PASSPHRASE` (auto-generated if not set)  
+✅ **Access scoping** - Controlled via Azure AD app registration ("Supported account types", assignment required, Conditional Access) — no built-in domain allow-list variable  
 ✅ **Automatic logout** - Session timeout configurable  
 ✅ **No password storage** - Uses Office 365 credentials  
 ✅ **Audit trail** - Azure AD logs everything  
@@ -114,38 +109,24 @@ Gets user info in headers:
 ## Use Cases
 
 ### Company Internal Network
-```yaml
-OAUTH2_ALLOWED_DOMAINS: "company.com"
-```
-Only employees with company email can access.
+Set "Supported account types" to your organization only when registering the Entra app. Only employees in your tenant can access.
 
-### Family/Friends
-```yaml
-OAUTH2_ALLOWED_DOMAINS: "gmail.com,outlook.com"
-```
-Allow specific email domains.
+### Family/Friends or Personal Accounts
+Set "Supported account types" to "Accounts in any organizational directory and personal Microsoft accounts" to allow any Microsoft account to sign in.
 
 ### Specific Users Only
-```yaml
-OAUTH2_ALLOWED_DOMAINS: "john@example.com,jane@example.com"
-```
-Only specific email addresses.
-
-### Mix and Match
-```yaml
-OAUTH2_ALLOWED_DOMAINS: "yourcompany.com,partner.com,user1@gmail.com"
-```
+Under **Enterprise applications**, enable "Assignment required" for the app and explicitly assign individual users or groups.
 
 ## Environment Variables
 
 | Variable | Required | Example |
 |----------|----------|---------|
-| `ENABLE_AUTH_OFFICE365` | Yes | `true` or `false` |
-| `OAUTH2_CLIENT_ID` | If enabled | `1a2b3c4d-5e6f-7a8b-9c0d...` |
-| `OAUTH2_CLIENT_SECRET` | If enabled | `abc123~DEF456_GHI789=` |
-| `OAUTH2_REDIRECT_URI` | If enabled | `https://yourdomain.com/oauth2callback` |
-| `OAUTH2_ALLOWED_DOMAINS` | If enabled | `company.com,user@example.com` |
-| `OAUTH2_CRYPTO_PASSPHRASE` | If enabled | `randomSecureString123` |
+| `AUTHTYPE` | Yes | `entra` |
+| `ENTRA_CLIENT_ID` | Yes (if AUTHTYPE=entra) | `1a2b3c4d-5e6f-7a8b-9c0d...` |
+| `ENTRA_CLIENT_SECRET` | Yes (if AUTHTYPE=entra) | `abc123~DEF456_GHI789=` |
+| `ENTRA_REDIRECT_URI` | Yes (if AUTHTYPE=entra) | `https://yourdomain.com/auth/oauth2/callback` |
+| `ENTRA_PROVIDER_METADATA_URL` | Yes (if AUTHTYPE=entra) | `https://login.microsoftonline.com/TENANT_ID/v2.0/.well-known/openid-configuration` |
+| `ENTRA_CRYPTO_PASSPHRASE` | Optional | `randomSecureString123` (auto-generated if omitted) |
 
 ## How It Works
 
@@ -183,7 +164,7 @@ After login, these headers are available to backend services:
 X-Remote-User: john@example.com
 X-Remote-Name: John Smith
 X-Remote-ID: 550e8400-e29b-41d4-a716-446655440000
-X-Auth-Method: Office365
+X-Auth-Method: Entra
 ```
 
 Services like Sonarr, Radarr can read these headers for features like:
@@ -198,66 +179,66 @@ Services like Sonarr, Radarr can read these headers for features like:
 
 **"Invalid client ID"**
 - Check you copied the correct Application (client) ID from Azure AD
-- Rebuild and restart after changing
+- Restart the container after changing
 
 **"Redirect URI mismatch"**
-- Must be EXACT match in Azure AD and docker-compose
+- Must be EXACT match between Azure AD and `ENTRA_REDIRECT_URI`
 - Include protocol (https://) and domain
 - No trailing slashes
 
 **"Expired secret"**
 - Generate new secret in Azure AD
-- Update OAUTH2_CLIENT_SECRET
-- Rebuild and restart
+- Update `ENTRA_CLIENT_SECRET`
+- Restart the container
 
 **Login button not working**
-- Check HTTPS is enabled (required for OAuth2)
+- Check HTTPS is enabled (required for OAuth2 — public deployment mode only)
 - Verify redirect URI is exactly correct
-- Check logs: `docker-compose logs -f apache-reverse-proxy`
+- Check logs: `docker-compose logs -f apache-reverse-proxy` (or `docker logs <container>`)
 
 **Users can't access after login**
-- Check OAUTH2_ALLOWED_DOMAINS includes their email domain
 - Verify API permissions in Azure AD app
 - Check "Grant admin consent" is clicked
+- If sign-in should be restricted, verify Azure AD's "Supported account types" / Conditional Access / assignment settings (there is no `OAUTH2_ALLOWED_DOMAINS`-style variable in YAHLP)
 
 **See detailed troubleshooting in `OFFICE365-AUTH.md`**
 
 ## Configuration Examples
 
 ### Complete Media Server with Auth
-```yaml
-environment:
-  # Basics
-  DOMAIN: media.company.com
-  EMAIL: admin@company.com
-  
-  # Services
-  ENABLE_SONARR: "true"
-  ENABLE_RADARR: "true"
-  ENABLE_JELLYFIN: "true"
-  ENABLE_QBITTORRENT: "true"
-  ENABLE_OVERSEERR: "true"
-  
-  # Office 365 Auth
-  ENABLE_AUTH_OFFICE365: "true"
-  OAUTH2_CLIENT_ID: "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"
-  OAUTH2_CLIENT_SECRET: "~abc1234567890DEF_GHI=JKL"
-  OAUTH2_REDIRECT_URI: "https://media.company.com/oauth2callback"
-  OAUTH2_ALLOWED_DOMAINS: "company.com"
-  OAUTH2_CRYPTO_PASSPHRASE: "RandomPassphrase123456789="
+```env
+# Basics
+DOMAIN=media.company.com
+EMAIL=admin@company.com
+
+# Services
+ENABLE_SONARR=true
+ENABLE_RADARR=true
+ENABLE_JELLYFIN=true
+ENABLE_QBITTORRENT=true
+ENABLE_SEERR=true
+
+# Entra ID Auth
+AUTHTYPE=entra
+ENTRA_CLIENT_ID="1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"
+ENTRA_CLIENT_SECRET="~abc1234567890DEF_GHI=JKL"
+ENTRA_REDIRECT_URI="https://media.company.com/auth/oauth2/callback"
+ENTRA_PROVIDER_METADATA_URL="https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0/.well-known/openid-configuration"
+ENTRA_CRYPTO_PASSPHRASE="RandomPassphrase123456789="
 ```
 
 ### Personal Homelab (No Auth)
-```yaml
-ENABLE_AUTH_OFFICE365: "false"
+```env
+AUTHTYPE=none
 # Services accessible without login
 ```
 
 ### Friends/Family Access
-```yaml
-ENABLE_AUTH_OFFICE365: "true"
-OAUTH2_ALLOWED_DOMAINS: "gmail.com,outlook.com,yahoo.com"
-# Anyone with these email domains can access
+```env
+AUTHTYPE=entra
+# In Azure AD app registration, set "Supported account types" to
+# "Accounts in any organizational directory and personal Microsoft accounts"
+# so friends/family can sign in with any Microsoft account
 ```
 
 ## Performance Impact
@@ -282,8 +263,8 @@ OAUTH2_ALLOWED_DOMAINS: "gmail.com,outlook.com,yahoo.com"
 
 1. **Read `OFFICE365-AUTH.md`** - Complete step-by-step guide
 2. **Register app in Azure AD** - 5-10 minutes
-3. **Get credentials** - Client ID and Secret
-4. **Update docker-compose.yml**
+3. **Get credentials** - Client ID, Secret, and Directory (tenant) ID
+4. **Update your `.env` file** (or `docker-compose.yml` environment block) with `AUTHTYPE=entra` and `ENTRA_*` variables
 5. **Deploy and test** - Try logging in!
 
 ## FAQ
@@ -292,22 +273,22 @@ OAUTH2_ALLOWED_DOMAINS: "gmail.com,outlook.com,yahoo.com"
 A: No! Free Microsoft accounts work fine.
 
 **Q: Can I use personal Microsoft accounts?**
-A: Yes! If `OAUTH2_ALLOWED_DOMAINS` includes their email domain.
+A: Yes! If your Azure AD app registration's "Supported account types" allows personal Microsoft accounts.
 
 **Q: What if user forgets Office 365 password?**
 A: They reset it via Microsoft account recovery - not your problem!
 
 **Q: Can I mix authentication methods?**
-A: Not currently - either all protected or all open.
+A: Not currently - `AUTHTYPE` is a single global setting (`none`, `basic`, `entra`, or `google`); either all protected or all open.
 
 **Q: Do I need to store passwords?**
 A: No! Office 365 handles authentication.
 
 **Q: How long are sessions?**
-A: Default 1 hour inactivity, 24 hours max. Configurable.
+A: Default 1 hour inactivity, 24 hours max (configurable in `apache-conf/oauth2-entra.conf`).
 
 **Q: Can I revoke access?**
-A: Yes! Remove domain from OAUTH2_ALLOWED_DOMAINS and restart.
+A: Yes! Remove/disable the user's assignment in Azure AD (Enterprise applications), or revoke their account, and restart if needed.
 
 ---
 

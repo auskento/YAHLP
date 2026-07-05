@@ -7,7 +7,7 @@ A complete, production-ready Docker setup for YAHLP (Yet Another HomeLab Portal)
 ✅ **Automatic HTTPS** - Let's Encrypt with auto-renewal  
 ✅ **18 Pre-configured Services** - Sonarr, Radarr, Jellyfin, qBittorrent, Bazarr, Maintainerr, and more  
 ✅ **Flexible Authentication** - None, Basic, Entra ID, or Google OAuth  
-✅ **4 Dashboard Themes** - Modern, Classic, Sleek, or Minimal  
+✅ **5 Dashboard Layouts** - Modern, Classic, Sleek, Minimal, or Mobile  
 ✅ **Custom Service Ordering** - Reorder categories without config changes  
 ✅ **Zero Manual Config** - Service selection via simple env vars  
 ✅ **Auto-renewal** - Certificates renew automatically daily  
@@ -15,7 +15,7 @@ A complete, production-ready Docker setup for YAHLP (Yet Another HomeLab Portal)
 ## Project Structure
 
 ```
-outputs/
+yahlp/
 ├── 📄 Documentation
 │   ├── QUICKSTART-SERVICES.md    ← START HERE for service setup
 │   ├── QUICKSTART.md             ← Original quick start
@@ -28,6 +28,7 @@ outputs/
 │   ├── docker-compose.yml        ← Complete stack (services included!)
 │   ├── docker-entrypoint.sh      ← Container startup script
 │   ├── generate-config.sh        ← Service config generator
+│   ├── generate-html-menu.sh     ← Dashboard menu generator
 │   ├── cert-renewal-cron         ← Auto-renewal cron job
 │   └── .env.example              ← Environment variables template
 │
@@ -35,23 +36,27 @@ outputs/
 │   ├── apache-conf/
 │   │   ├── reverse-proxy.conf.template  ← Main config template
 │   │   ├── ssl-config.conf              ← SSL/TLS settings
-│   │   └── services/                    ← Service-specific configs
+│   │   └── services/                    ← Service-specific configs (17 files)
 │   │       ├── sonarr.conf
 │   │       ├── radarr.conf
 │   │       ├── lidarr.conf
-│   │       ├── readarr.conf
+│   │       ├── whisparr.conf
 │   │       ├── prowlarr.conf
-│   │       ├── overseerr.conf
+│   │       ├── seerr.conf
+│   │       ├── bazarr.conf
 │   │       ├── jellyfin.conf
-│   │       ├── emby.conf
-│   │       ├── plex.conf
 │   │       ├── tautulli.conf
+│   │       ├── maintainerr.conf
 │   │       ├── transmission.conf
-│   │       └── qbittorrent.conf
+│   │       ├── qbittorrent.conf
+│   │       └── ... (5 more: deluge, sabnzbd, nzbget, nzbhydra)
+│   │   (Emby and Plex are proxied via generated VirtualHost configs, not files under services/)
 │
 └── 🎨 Web Assets
     └── html/
-        ├── index.html                    ← Home page
+        ├── master.template               ← Single HTML template for every layout
+        ├── styles/                       ← base.css + layout-<name>.css files
+        ├── templates/                    ← drop custom layout-<name>.css here (README.md guide)
         └── error-pages/
             ├── 502.html                  ← Bad Gateway
             └── 503.html                  ← Service Unavailable
@@ -124,14 +129,14 @@ Add/remove services → Just restart → No manual config editing
 
 ## Available Services (18 Total)
 
-### Media Server Managers (*arr)
-- **Sonarr** - TV show automation at `/sonarr`
-- **Radarr** - Movie automation at `/radarr`
-- **Whisparr** - Adult content collection manager at `/whisparr`
-- **Lidarr** - Music automation at `/lidarr`
-- **Readarr** - Book automation at `/readarr`
-- **Prowlarr** - Indexer manager at `/prowlarr`
-- **Overseerr** - Request manager at `/overseerr`
+### Media Server Managers (*arr) and Search
+- **Sonarr** (SON) - TV show automation at `/sonarr`
+- **Radarr** (RAD) - Movie automation at `/radarr`
+- **Whisparr** (WHI) - Adult content collection manager at `/whisparr`
+- **Lidarr** (LID) - Music automation at `/lidarr`
+- **Prowlarr** (PRO) - Indexer manager at `/prowlarr`
+- **Seerr** (SEE) - Request manager at `/seerr`
+- **Bazarr** (BAZ) - Subtitle management at `/bazarr`
 
 ### Media Centers
 - **Jellyfin** (JEL) - Open-source streaming at `/jellyfin`
@@ -166,8 +171,9 @@ Services on the Docker network can be accessed through the reverse proxy without
 ### 4. WebSocket Support
 Real-time features work out of the box:
 - Sonarr/Radarr SignalR updates
-- Overseerr Socket.io notifications
+- Seerr Socket.io notifications
 - qBittorrent real-time status
+- Jellyfin websocket connections
 
 ### 5. Load Balancing
 
@@ -184,7 +190,7 @@ Real-time features work out of the box:
 ENABLE_SONARR: "true"
 ENABLE_RADARR: "true"
 ENABLE_PROWLARR: "true"
-ENABLE_OVERSEERR: "true"
+ENABLE_SEERR: "true"
 ENABLE_QBITTORRENT: "true"
 ```
 Covers: Grabbing, organizing, and requesting TV/movies
@@ -194,7 +200,7 @@ Covers: Grabbing, organizing, and requesting TV/movies
 ENABLE_SONARR: "true"
 ENABLE_RADARR: "true"
 ENABLE_JELLYFIN: "true"
-ENABLE_OVERSEERR: "true"
+ENABLE_SEERR: "true"
 ENABLE_QBITTORRENT: "true"
 ENABLE_TAUTULLI: "true"
 ```
@@ -231,7 +237,7 @@ Covers: Just TV and movies
 | File | Purpose |
 |------|---------|
 | `cert-renewal-cron` | Cron schedule for certificate renewal |
-| `html/index.html` | Reverse proxy home page |
+| `html/master.template` + `html/styles/layout-*.css` | Dashboard layouts (generated to `html/index.html` and `html/<layout>.html` at container startup) |
 | `html/error-pages/` | Custom error pages (502, 503) |
 | `.env.example` | Template for environment variables |
 
@@ -287,7 +293,7 @@ CUSTOM_BACKEND_URL=http://service:8000
 
 ### Customize Styling
 
-Edit `html/index.html` and `html/error-pages/*.html` directly. Changes apply on container restart.
+Edit a built-in `html/styles/layout-<name>.css` file, or drop your own `layout-<name>.css` into the `./templates` directory (mounted to `/templates`) for a custom layout — see `html/templates/README.md`. Also edit `html/error-pages/*.html` directly if needed. Changes apply on container restart (dashboard HTML is regenerated by `generate-html-menu.sh`).
 
 ### Adjust Timeouts
 

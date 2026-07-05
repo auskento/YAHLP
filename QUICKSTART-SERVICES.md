@@ -136,19 +136,19 @@ docker-compose up -d
 docker-compose logs -f apache-reverse-proxy
 ```
 
-Expected output:
+Expected output (abbreviated):
 ```
-=== Apache & Let's Encrypt Setup ===
+=== Deployment Mode Setup ===
+Access Mode: public
+✓ Public mode - Full features enabled
 Domain: yourdomain.com
+Email: admin@yourdomain.com
 Generating Apache configuration with enabled services...
-  ✓ sonarr
-  ✓ radarr
-  - lidarr (disabled)
-  - prowlarr (disabled)
-  ...
-Generating configuration from template...
+Updated sonarr config to use: http://sonarr:8989
+Updated radarr config to use: http://radarr:7878
 Configuration generated: /etc/apache2/sites-available/reverse-proxy.conf
-=== Starting Apache ===
+Generating dashboard menu based on enabled services...
+✓ Dashboards generated with 2 enabled service(s)
 ```
 
 ## Step 7: Verify It Works
@@ -177,10 +177,12 @@ https://yourdomain.com/sonarr      (if ENABLE_SONARR=true)
 https://yourdomain.com/radarr      (if ENABLE_RADARR=true)
 https://yourdomain.com/lidarr      (if ENABLE_LIDARR=true)
 https://yourdomain.com/prowlarr    (if ENABLE_PROWLARR=true)
-https://yourdomain.com/overseerr   (if ENABLE_OVERSEERR=true)
+https://yourdomain.com/seerr       (if ENABLE_SEERR=true)
 https://yourdomain.com/jellyfin    (if ENABLE_JELLYFIN=true)
 https://yourdomain.com/qbittorrent (if ENABLE_QBITTORRENT=true)
 ```
+
+Note: Emby and Plex are never proxied at a subpath — they always open via subdomain (`EMBY_DOMAIN`/`PLEX_DOMAIN`, public mode only) or directly at their `*_URL` backend address.
 
 ## Changing Services Later
 
@@ -205,15 +207,21 @@ See `SERVICES.md` for complete information on each service:
 - **Sonarr** - TV show automation
 - **Radarr** - Movie automation
 - **Lidarr** - Music automation
-- **Readarr** - Book automation
+- **Whisparr** - Adult content collection manager
 - **Prowlarr** - Indexer manager
-- **Overseerr** - Request manager
+- **Seerr** - Request manager
+- **Bazarr** - Subtitle management
+- **SABnzbd** - Usenet downloader
+- **NZBGet** - Usenet downloader
+- **NZBHydra** - NZB indexer proxy
 - **Jellyfin** - Media streaming
 - **Emby** - Emby media server
 - **Plex** - Plex media server
 - **Tautulli** - Plex monitoring
+- **Maintainerr** - Media library maintenance
 - **Transmission** - Torrent client
 - **qBittorrent** - Advanced torrent client
+- **Deluge** - Torrent client
 
 ## Common Issues & Fixes
 

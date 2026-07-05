@@ -73,15 +73,15 @@ generate_sites_array() {
     for code in "${CODES[@]}"; do
         code=$(echo "$code" | xargs)  # Trim whitespace
 
-        # Extract site data from sites.json using jq
-        site_json=$(jq ".sites[] | select(.code == \"$code\")" "$SITES_JSON" 2>/dev/null)
+        # Extract site data from sites.json using jq with safe argument passing
+        site_json=$(jq --arg code "$code" '.sites[]? | select(.code == $code)' "$SITES_JSON" 2>/dev/null)
         if [ -z "$site_json" ]; then
             continue
         fi
 
-        url=$(echo "$site_json" | jq -r '.url // empty')
-        name=$(echo "$site_json" | jq -r '.name // empty')
-        icon=$(echo "$site_json" | jq -r '.icon // empty')
+        url=$(echo "$site_json" | jq -r '.url // empty' 2>/dev/null)
+        name=$(echo "$site_json" | jq -r '.name // empty' 2>/dev/null)
+        icon=$(echo "$site_json" | jq -r '.icon // empty' 2>/dev/null)
 
         if [ -z "$url" ]; then
             continue

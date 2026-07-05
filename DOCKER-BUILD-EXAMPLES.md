@@ -39,9 +39,9 @@ services:
       DOMAIN: yourdomain.com
       EMAIL: admin@yourdomain.com
       TZ: Australia/Melbourne
-      STYLE: modern
+      DASH_STYLE: modern
       DASHBOARD_NAME: My Homelab
-      DASHBOARD_ICON: /icons/yahlp.png
+      DASHBOARD_ICON_URL: /icons/yahlp.png
       DASHBOARD_LANDING: radarr
       DASHBOARD_ORDER: SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT
       AUTHTYPE: basic
@@ -80,7 +80,7 @@ services:
       DOMAIN: internal-proxy
       EMAIL: admin@local
       TZ: Australia/Melbourne
-      STYLE: sleek
+      DASH_STYLE: sleek
       DASHBOARD_NAME: Family Media
       DASHBOARD_LANDING: ""
       DASHBOARD_ORDER: JEL,EMB,PLX,TAU,MNT,SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ
@@ -115,7 +115,7 @@ services:
       DOMAIN: mycompany.com
       EMAIL: devops@mycompany.com
       TZ: Europe/London
-      STYLE: modern
+      DASH_STYLE: modern
       DASHBOARD_NAME: Company Services
       DASHBOARD_LANDING: radarr/calendar
       DASHBOARD_ORDER: SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT
@@ -157,7 +157,7 @@ services:
       DOMAIN: services.example.com
       EMAIL: admin@example.com
       TZ: America/New_York
-      STYLE: minimal
+      DASH_STYLE: minimal
       DASHBOARD_NAME: Dashboard
       DASHBOARD_LANDING: ""
       DASHBOARD_ORDER: SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT
@@ -230,9 +230,9 @@ ACCESS_MODE=public
 DOMAIN=myservices.com
 EMAIL=admin@myservices.com
 TZ=Australia/Sydney
-STYLE=modern
+DASH_STYLE=modern
 DASHBOARD_NAME=Services Dashboard
-DASHBOARD_ICON=/icons/yahlp.png
+DASHBOARD_ICON_URL=/icons/yahlp.png
 DASHBOARD_LANDING=radarr
 DASHBOARD_ORDER=SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT
 AUTHTYPE=basic
@@ -286,28 +286,30 @@ environment:
 
 ### Example 8: Different Dashboard Styles
 
+Dashboard layouts are built from `html/master.template` plus a `html/styles/layout-*.css` file selected via `DASH_STYLE` (see `generate_css_based_templates()` in `generate-html-menu.sh`).
+
 **Classic Style (Traditional menu):**
 ```yaml
 environment:
-  STYLE: classic
+  DASH_STYLE: classic
 ```
 
-**Modern Style (React, recommended):**
+**Modern Style (recommended default):**
 ```yaml
 environment:
-  STYLE: modern
+  DASH_STYLE: modern
 ```
 
 **Sleek Style (Compact sidebar):**
 ```yaml
 environment:
-  STYLE: sleek
+  DASH_STYLE: sleek
 ```
 
 **Minimal Style (Single column):**
 ```yaml
 environment:
-  STYLE: minimal
+  DASH_STYLE: minimal
 ```
 
 ---
@@ -365,21 +367,31 @@ docker run -d \
 
 ---
 
+## Running Backend Services Alongside YAHLP
+
+`docker-compose.services.yml` (repo root) is an optional example showing how to run backend services (Sonarr, Radarr, Jellyfin, etc.) alongside the reverse proxy in one compose file, instead of pointing `*_URL` at services managed elsewhere. Its header comment documents two ways to use it:
+
+```bash
+# Replace the basic compose file with the services version:
+mv docker-compose.yml docker-compose.basic.yml
+mv docker-compose.services.yml docker-compose.yml
+docker-compose up -d
+
+# Or layer both files together:
+docker-compose -f docker-compose.yml -f docker-compose.services.yml up -d
+```
+
+---
+
 ## Unraid Installation
 
-### Via Community Applications
-1. Search for "YAHLP" in Community Applications
-2. Click Install
-3. Configure environment variables and volumes
-4. Start the container
+YAHLP is not currently published as a Community Applications template. Add it manually instead:
 
-### Manual Template Installation
-1. Navigate to Unraid Dashboard → Docker
-2. Add Container → Template URL
-3. Enter: `https://raw.githubusercontent.com/auskento/yahlp/main/unraid/YAHLP.xml`
-4. Fill in required fields (DOMAIN, EMAIL, authentication)
-5. Configure services
-6. Create
+1. Navigate to Unraid Dashboard → Docker → Add Container
+2. Set Repository to `ghcr.io/auskento/yahlp:latest` (published automatically from this repo's `main` branch)
+3. Fill in required fields (DOMAIN, EMAIL, authentication)
+4. Configure services and volumes (see UNRAID-DEPLOYMENT.md for the full walkthrough)
+5. Create
 
 ---
 

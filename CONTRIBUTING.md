@@ -14,8 +14,8 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/apache-reverse-proxy.git
-cd apache-reverse-proxy
+git clone https://github.com/YOUR_USERNAME/yahlp.git
+cd yahlp
 
 # Create your feature branch
 git checkout -b feature/your-feature-name
@@ -92,10 +92,14 @@ cp apache-conf/services/sonarr.conf apache-conf/services/mynewservice.conf
 
 ```bash
 # Edit generate-config.sh
-# Add: ENABLE_MYNEWSERVICE="${ENABLE_MYNEWSERVICE:-false}"
+# Add: [ "$ENABLE_MYNEWSERVICE" = "true" ] && process_service_config "mynewservice" "8080"
+# Add: MYNEWSERVICE_INCLUDE=$(generate_include "mynewservice" "$ENABLE_MYNEWSERVICE")
+# Add the @@INCLUDE_MYNEWSERVICE@@ substitution alongside the other services
 
 # Edit generate-html-menu.sh
-# Add to SERVICES array: [MYNEWSERVICE]="Service Name|port|#color|Description"
+# Add to SERVICE_CODE_MAP: [XYZ]="MYNEWSERVICE"
+# Add to SERVICES array: [MYNEWSERVICE]="Category|Service Name|Description|/icons/mynewservice.png|/mynewservice/|#color"
+# Add "MYNEWSERVICE" to SERVICE_ORDER in its category
 
 # Edit download-icons.sh
 # Add to ICON_URLS array: [MYNEWSERVICE]="${ICON_URL_MYNEWSERVICE}"
@@ -115,7 +119,7 @@ ENABLE_MYNEWSERVICE=false
 ICON_URL_MYNEWSERVICE=""
 ```
 
-**5. Document in docs/SERVICES.md**
+**5. Document in SERVICES.md**
 
 **6. Test:**
 
@@ -273,7 +277,7 @@ If adding authentication (Authelia, LDAP, OAuth2, etc.):
 1. **Create config template**: `apache-conf/auth-{method}.conf.template`
 2. **Update Dockerfile**: Add required modules
 3. **Update docker-entrypoint.sh**: Add setup logic
-4. **Document**: Create `docs/{METHOD}-AUTH.md`
+4. **Document**: Create `{METHOD}-AUTH.md`
 5. **Update .env.example**: Add all required variables
 6. **Test**: Verify with test credentials
 
@@ -283,15 +287,16 @@ If adding authentication (Authelia, LDAP, OAuth2, etc.):
 
 ### File Organization
 
+Documentation files live at the repository root (no `docs/` subfolder):
+
 ```
-docs/
-├── README.md              # Main documentation index
-├── QUICKSTART.md          # 5-minute setup
-├── SERVICES.md            # All 15 services
-├── {SERVICE}-SETUP.md     # Service-specific guides
-├── {AUTH}-AUTH.md         # Authentication guides
-├── TROUBLESHOOTING.md     # Problem solutions
-└── CONTRIBUTING.md        # This file
+README.md                  # Main documentation index
+QUICKSTART.md              # 5-minute setup
+SERVICES.md                # All 18 services
+{SERVICE}-SETUP.md         # Service-specific guides
+{AUTH}-AUTH.md             # Authentication guides
+TROUBLESHOOTING.md         # Problem solutions
+CONTRIBUTING.md            # This file
 ```
 
 ### Documentation Template
@@ -385,7 +390,7 @@ Any other relevant information.
 
 ## Questions?
 
-- 📖 Check the [Documentation](./docs/)
+- 📖 Check the [Documentation](./README.md)
 - 💬 Open a Discussion on GitHub
 - 🐛 Open an Issue for bugs
 

@@ -23,41 +23,24 @@ This is **YAHLP (Yet Another HomeLab Portal)** - a unified media server dashboar
 
 ## Installation
 
-### Method 1: Via Unraid GUI (Easiest)
+**Note:** This repo does not currently ship a Community Apps template (`YAHLP.xml`) or a published Community Apps listing — if you've seen instructions elsewhere referencing one, they're aspirational, not available today. The method below (adding the pre-built image manually) is the current working path.
 
-1. **Add Repository**
-   - Go to `Settings` → `Docker` 
-   - Add custom registry template URL:
-     ```
-     https://raw.githubusercontent.com/yourusername/unraid-templates/main/
-     ```
-
-2. **Add Container**
-   - Click `Add Container`
-   - Search for `yahlp`
-   - Select it from the template
-   - Fill in required fields:
-     - `DOMAIN`: Your domain (e.g., `media.example.com`)
-     - `EMAIL`: Your email for SSL (e.g., `admin@example.com`)
-   - Click `Apply`
-
-### Method 2: Manual Installation
+### Add Container via Unraid GUI
 
 1. **Create Directories**
    ```bash
-   mkdir -p /mnt/user/appdata/yahlp/{letsencrypt,logs,html}
+   mkdir -p /mnt/user/appdata/yahlp/letsencrypt
+   mkdir -p /mnt/user/appdata/yahlp/logs
    chmod -R 755 /mnt/user/appdata/yahlp
    ```
 
-2. **Download Template**
-   - Download `YAHLP.xml` from the repository
-   - Copy to `/boot/config/plugins/dockerManagement/templates-user/` directory
-
-3. **Add Container**
+2. **Add Container**
    - In Unraid WebUI: `Docker` → `Add Container`
-   - Browse to the template
-   - Configure settings
-   - Click `Create`
+   - Set `Repository` to `ghcr.io/auskento/yahlp:latest` (built automatically from this repo's `main` branch via `.github/workflows/publish-ghcr.yml`) — or `Repository: .` / a local build if you're building the image yourself
+   - Add port mappings for 80, 443, and (if you want direct access to the internal status API) 3000
+   - Add volume mappings: `/mnt/user/appdata/yahlp/letsencrypt` → `/etc/letsencrypt`, `/mnt/user/appdata/yahlp/logs` → `/var/log/apache2`
+   - Add the environment variables described below (`DOMAIN`, `EMAIL`, `ENABLE_*`, etc. — see `.env.example` for the full list)
+   - Click `Apply`
 
 ## Configuration
 
@@ -78,14 +61,22 @@ This is **YAHLP (Yet Another HomeLab Portal)** - a unified media server dashboar
 
 ### Advanced Configuration
 
-#### Office 365 Authentication
+#### Microsoft Entra ID (Azure AD) Authentication
 ```
-ENABLE_AUTH_OFFICE365: true
-OAUTH2_CLIENT_ID: your-azure-app-id
-OAUTH2_CLIENT_SECRET: your-azure-secret
-OAUTH2_REDIRECT_URI: https://media.yourdomain.com/oauth2callback
-OAUTH2_ALLOWED_DOMAINS: yourdomain.com
-OAUTH2_CRYPTO_PASSPHRASE: (generate with: openssl rand -base64 24)
+AUTHTYPE: entra
+ENTRA_CLIENT_ID: your-azure-app-id
+ENTRA_CLIENT_SECRET: your-azure-app-secret
+ENTRA_REDIRECT_URI: https://media.yourdomain.com/auth/oauth2/callback
+ENTRA_PROVIDER_METADATA_URL: https://login.microsoftonline.com/your-tenant-id/v2.0/.well-known/openid-configuration
+ENTRA_CRYPTO_PASSPHRASE: (generate with: openssl rand -base64 24, or leave blank to auto-generate)
+```
+
+#### Google OAuth2 Authentication
+```
+AUTHTYPE: google
+GOOGLE_CLIENT_ID: your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET: your-client-secret
+GOOGLE_REDIRECT_URI: https://media.yourdomain.com
 ```
 
 #### Custom Services
@@ -104,9 +95,9 @@ Edit template to add additional service proxy locations
 
 | Location | Purpose | Notes |
 |----------|---------|-------|
-| `/mnt/user/appdata/apache-reverse-proxy/letsencrypt` | SSL Certificates | Persists across restarts |
-| `/mnt/user/appdata/apache-reverse-proxy/logs` | Apache Logs | View for troubleshooting |
-| `/mnt/user/appdata/apache-reverse-proxy/html` | Dashboard HTML | Customize your UI |
+| `/mnt/user/appdata/apache-reverse-proxy/letsencrypt` (→ `/etc/letsencrypt`) | SSL Certificates | Persists across restarts |
+| `/mnt/user/appdata/apache-reverse-proxy/logs` (→ `/var/log/apache2`) | Apache Logs | View for troubleshooting |
+| `/mnt/user/appdata/apache-reverse-proxy/templates` (→ `/templates`, optional) | Custom `layout-*.css` files | Only needed if you want to add your own dashboard layout |
 
 ## Accessing Services
 
@@ -123,13 +114,13 @@ https://yourdomain.com/qbittorrent  # qBittorrent
 
 ## Dashboard
 
-The included dashboard provides a frame-based interface similar to classic Unraid designs:
+The dashboard HTML is generated automatically at container startup from `html/master.template` combined with a `html/styles/layout-*.css` file, selected via the `DASH_STYLE` environment variable (`classic`, `modern`, `sleek`, `minimal`, or `mobile`). It is baked into the image and regenerated on every start based on your enabled services and settings — there is no `index.html` volume to hand-edit.
 
-- **Top Menu Bar** (140px) - Service icons
-- **Main Content Area** - Service views
-- **Click icons** to load service in main area
+- **Menu** - Service icons, laid out per the selected style and `DASHBOARD_ORDER`
+- **Main Content Area** - Service views load in an iframe/content pane
+- **Click icons** to load a service
 
-Customize by editing `/mnt/user/appdata/apache-reverse-proxy/html/index.html`
+To use a custom layout, add your own `layout-<name>.css` file to the mounted `/templates` volume and set `DASH_STYLE` to match.
 
 ## Troubleshooting
 

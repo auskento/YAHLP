@@ -1,6 +1,8 @@
 # Authentication Setup Guide
 
-YAHLP supports three mutually exclusive authentication methods: **Basic Auth**, **Entra ID (Microsoft)**, and **Google OAuth**. Choose one based on your security and user management needs.
+YAHLP supports four mutually exclusive authentication methods, set via `AUTHTYPE`: **none** (default, no auth), **basic** (Basic Auth), **entra** (Entra ID / Microsoft), and **google** (Google OAuth). Choose one based on your security and user management needs.
+
+**Note:** In private deployment mode (`ACCESS_MODE=private`), only `AUTHTYPE=none` or `AUTHTYPE=basic` are supported — the container will fail to start with `AUTHTYPE=entra` or `AUTHTYPE=google`, since OAuth requires a public domain for the redirect callback. Entra/Google require `ACCESS_MODE=public`.
 
 ## Quick Comparison
 
@@ -24,7 +26,7 @@ Simple username/password authentication. No external services required. **Uses c
 ```env
 AUTHTYPE=basic
 BASIC_AUTH_CREDENTIALS=user1:password1|user2:password2|admin:securepass
-STYLE=classic    # Automatically forced (cannot be changed)
+DASH_STYLE=classic    # Automatically forced (cannot be changed)
 ```
 
 ### Format
@@ -67,6 +69,7 @@ ENTRA_CLIENT_ID=your-client-id-here
 ENTRA_CLIENT_SECRET=your-client-secret-here
 ENTRA_REDIRECT_URI=https://transfers.limosani.au/auth/oauth2/callback
 ENTRA_PROVIDER_METADATA_URL=https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0/.well-known/openid-configuration
+ENTRA_CRYPTO_PASSPHRASE=your-session-encryption-passphrase   # Optional - auto-generated if omitted
 ```
 
 ### Setup Steps
@@ -120,6 +123,8 @@ If you configured service-specific subdomains in `.env` (e.g., `SEERR_DOMAIN`, `
    - `https://emby.yourdomain.com/oauth2callback` (if EMBY_DOMAIN configured)
    - `https://plex.yourdomain.com/oauth2callback` (if PLEX_DOMAIN configured)
 4. Click **Save**
+
+Note: `EMBY_DOMAIN`/`PLEX_DOMAIN` give Emby/Plex their own Apache VirtualHost (public mode only) with a separate OIDC client instance generated from the same `ENTRA_CLIENT_ID`/`ENTRA_CLIENT_SECRET`, using that subdomain's own `_REDIRECT_URI`. Each subdomain therefore needs its own redirect URI registered with Entra, as listed above.
 
 ---
 
@@ -193,11 +198,13 @@ If you configured service-specific subdomains in `.env` (e.g., `SEERR_DOMAIN`, `
 1. Go to **Google Cloud Console → APIs & Services → Credentials**
 2. Click your OAuth 2.0 Client ID (Web application)
 3. Under **Authorized redirect URIs**, add each subdomain:
-   - `https://yourdomain.com` (main YAHLP)
-   - `https://seerr.yourdomain.com/` (if SEERR_DOMAIN configured)
-   - `https://emby.yourdomain.com/` (if EMBY_DOMAIN configured)
-   - `https://plex.yourdomain.com/` (if PLEX_DOMAIN configured)
+   - `https://yourdomain.com` (main YAHLP - matches `GOOGLE_REDIRECT_URI`)
+   - `https://seerr.yourdomain.com/oauth2callback` (matches `SEERR_REDIRECT_URI`, if SEERR_DOMAIN configured)
+   - `https://emby.yourdomain.com/oauth2callback` (matches `EMBY_REDIRECT_URI`, if EMBY_DOMAIN configured)
+   - `https://plex.yourdomain.com/oauth2callback` (matches `PLEX_REDIRECT_URI`, if PLEX_DOMAIN configured)
 4. Click **Save**
+
+Note: `EMBY_DOMAIN`/`PLEX_DOMAIN` give Emby/Plex their own Apache VirtualHost (public mode only) with a separate OIDC client instance generated from the same `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, using that subdomain's own `_REDIRECT_URI`.
 
 ---
 
@@ -216,6 +223,7 @@ ENTRA_CLIENT_ID=...
 ENTRA_CLIENT_SECRET=...
 ENTRA_REDIRECT_URI=https://your-domain/auth/oauth2/callback
 ENTRA_PROVIDER_METADATA_URL=...
+ENTRA_CRYPTO_PASSPHRASE=...       # Optional - auto-generated if omitted
 
 # Option 3: Google
 AUTHTYPE=google
@@ -367,7 +375,7 @@ BASIC_AUTH_CREDENTIALS=admin:SecurePassword123|user:AnotherPassword456
 # AUTHTYPE=google
 # GOOGLE_CLIENT_ID=123456789-abcdefghijklmnop.apps.googleusercontent.com
 # GOOGLE_CLIENT_SECRET=GOCSPX-abc123def456ghi
-# GOOGLE_REDIRECT_URI=https://transfers.limosani.au/auth/oauth2/callback
+# GOOGLE_REDIRECT_URI=https://transfers.limosani.au
 
 # Services (example)
 ENABLE_RADARR=true

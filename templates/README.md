@@ -14,10 +14,12 @@ This folder is mounted as a volume in Docker. Add your custom CSS templates here
 
 **Auto-detection:**
 1. Any file named `layout-*.css` is automatically detected
-2. Docker scans `/templates` on startup
+2. `generate-html-menu.sh`'s `generate_css_based_templates()` copies any `layout-*.css` file from `/templates` into `html/styles/` (which it then scans with `find ... -name "layout-*.css"`), and generates a matching `<name>.html` page
 3. Generated templates appear at `http://your-server/name.html`
 
-**Note:** Built-in examples are in `../html/templates/` (not this folder). They're always available.
+**Important — this runs at container *startup*, not at image build time.** It happens inside `docker-entrypoint.sh` every time the container starts, so once you've added a file to `./templates/`, a plain `docker-compose restart` is enough — you do **not** need `docker-compose up --build`. (A rebuild is only required if you change files that live outside the `./templates/` volume mount, e.g. editing `html/` directly in the repo.)
+
+**Note:** `../html/templates/` in this repo currently ships **only a README** (a deep-dive guide for writing layout CSS) — there are no ready-to-copy example CSS files bundled there today. Don't expect built-in example templates to already exist; you're writing your CSS from scratch or by copying one of the built-in layouts in `../html/styles/`.
 
 ## Quick Start
 
@@ -34,12 +36,13 @@ cat > templates/layout-mytemplate.css << 'EOF'
 EOF
 ```
 
-**2. Rebuild Docker:**
+**2. Restart the container:**
 
 ```bash
-docker-compose down
-docker-compose up --build -d
+docker-compose restart
 ```
+
+(No rebuild needed — the file is picked up from the `./templates:/templates` volume mount at container startup.)
 
 **3. Access your template:**
 
@@ -47,24 +50,23 @@ docker-compose up --build -d
 http://your-server/mytemplate.html
 ```
 
-## Create from Example
+## Create Your Own From a Built-in Layout
 
-**Copy a built-in example:**
-
-```bash
-# Copy from repo's html/templates
-cp html/templates/layout-neon.css templates/layout-myneon.css
-
-# Or from the container after first build
-docker cp apache-reverse-proxy:/var/www/html/templates/layout-neon.css templates/
-```
-
-**Edit and rebuild:**
+There are no pre-made example CSS files shipped yet (no "neon", "dark", etc.) — the fastest starting point is to copy one of the real built-in layouts and modify it:
 
 ```bash
-nano templates/layout-myneon.css
-docker-compose down && docker-compose up --build -d
+# Copy a built-in layout as a starting point
+docker cp apache-reverse-proxy:/var/www/html/styles/layout-classic.css templates/layout-mydesign.css
 ```
+
+**Edit and restart (no rebuild needed):**
+
+```bash
+nano templates/layout-mydesign.css
+docker-compose restart
+```
+
+See `../html/templates/README.md` for a full guide to the HTML structure, CSS selectors, and CSS variables available to style.
 
 ## CSS File Naming
 
@@ -77,15 +79,15 @@ Files must be named `layout-*.css`:
 
 ## Available Template Reference
 
-**Built-in styles** (always available, in `../html/styles/`):
-- `/classic.html` - Horizontal menu bar
-- `/sleek.html` - 2-column sidebar
-- `/minimal.html` - Single-column sidebar
-- `/focus.html` - Modern card-centric design
+**Built-in layouts** (always available, in `../html/styles/`):
+- `/classic.html` - Traditional vertical sidebar with services and sites
+- `/modern.html` - Right-side services frame with left sidebar
+- `/sleek.html` - Clean, minimal 2-column sidebar
+- `/minimal.html` - Minimal, distraction-free single-column layout
+- `/mobile.html` - Mobile-optimized single-column layout
 
 **Built-in examples** (in `../html/templates/`):
-- `/neon.html` - Cyberpunk with glow effects
-- (More examples can be added here)
+- None currently bundled — that folder only contains a documentation guide (`README.md`) today.
 
 **Your custom templates** (in `./templates/`):
 - Add your own `.css` files here
@@ -104,23 +106,23 @@ See `../CUSTOMIZATION.md` for:
 **Template not appearing?**
 - Check filename: must start with `layout-` and end with `.css`
 - Verify file location: `ls -la templates/`
-- Rebuild: `docker-compose down && docker-compose up --build -d`
+- Restart the container: `docker-compose restart` (no rebuild needed — this is a startup-time step in `docker-entrypoint.sh`)
 - Check Docker logs: `docker-compose logs apache-reverse-proxy | grep -i template`
 
-**Can't see changes after rebuild?**
+**Can't see changes after restart?**
 - Hard refresh browser: Ctrl+Shift+R (Windows/Linux) or Cmd+Shift+R (Mac)
 - Clear browser cache completely
-- Verify Docker picked up the file: `docker exec apache-reverse-proxy ls -la /templates/`
+- Verify Docker picked up the file: `docker exec apache-reverse-proxy ls -la /templates/` and `docker exec apache-reverse-proxy ls -la /var/www/html/styles/`
 
 **Docker says template folder doesn't exist?**
 - This is normal if you haven't created `./templates/` yet
 - Create the folder: `mkdir -p ./templates/`
 - Add a CSS file
-- Rebuild Docker
+- Restart the container
 
 ## Examples
 
-Check `../html/templates/` for example CSS files you can copy and customize.
+There are no example CSS files bundled in `../html/templates/` yet — that folder currently only contains a documentation guide (`README.md`). Use `../html/styles/layout-classic.css` (or any other built-in layout) as your starting point, and refer to `../html/templates/README.md` for the full CSS selector/variable reference.
 
 ## Contributing
 
@@ -138,5 +140,5 @@ volumes:
   - ./templates:/templates
 ```
 
-This makes any CSS files you add immediately available to the dashboard builder.
-Only files in this folder are included in the mounted volume—built-in templates in `../html/templates/` are always available separately.
+This makes any CSS files you add available to the dashboard builder as soon as the container (re)starts — no rebuild required, since `generate_css_based_templates()` copies `/templates/layout-*.css` into `html/styles/` at every startup.
+Built-in layouts (classic/modern/sleek/minimal/mobile) always ship in `../html/styles/` regardless of what's in this folder; `../html/templates/` is a separate, currently example-free folder containing only a CSS-authoring guide.

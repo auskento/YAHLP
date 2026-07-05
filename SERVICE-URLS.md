@@ -141,7 +141,7 @@ MAINTAINERR_URL: "http://maintainerr:6246"
 ENABLE_TRANSMISSION: "true"
 TRANSMISSION_URL: "http://transmission:9091"
 ```
-- **Default Port:** 6969
+- **Default Port:** 9091
 - **Docker Container Name:** `transmission`
 - **Path on Dashboard:** `/transmission/`
 
@@ -387,7 +387,6 @@ ENABLE_SONARR: "true"
 ENABLE_RADARR: "true"
 ENABLE_WHISPARR: "true"
 ENABLE_LIDARR: "true"
-ENABLE_READARR: "true"
 ENABLE_PROWLARR: "true"
 ENABLE_JELLYFIN: "true"
 ENABLE_SABNZBD: "true"

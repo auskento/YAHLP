@@ -1,0 +1,41 @@
+{
+  // ============================================================================
+  // Quick Links/Sites Configuration (JSON5 Format)
+  // ============================================================================
+  //
+  // This file defines the quick link sites displayed in the dashboard sidebar.
+  //
+  // To use this configuration:
+  // 1. Copy this file to sites.json5
+  // 2. Add/remove/customize sites as needed
+  // 3. Mount it in Docker: -v $(pwd)/sites.json5:/etc/yahlp/sites.json5
+  //
+  // Sites are displayed as small icons in a row below the service menu.
+  // Each site has a name, URL, and icon URL.
+  //
+  // ============================================================================
+
+  sites: [
+    {
+      name: 'Google',
+      url: 'https://google.com',
+      icon: 'https://www.google.com/favicon.ico',
+    },
+    {
+      name: 'GitHub',
+      url: 'https://github.com',
+      icon: 'https://github.githubassets.com/favicon.ico',
+    },
+    {
+      name: 'Stack Overflow',
+      url: 'https://stackoverflow.com',
+      icon: 'https://stackoverflow.com/favicon.ico',
+    },
+    // Add more sites as needed:
+    // {
+    //   name: 'Example',
+    //   url: 'https://example.com',
+    //   icon: 'https://example.com/favicon.ico',
+    // },
+  ],
+}
