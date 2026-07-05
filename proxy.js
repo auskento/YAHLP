@@ -832,25 +832,34 @@ app.get('/api/maintainerr/api/storage-metrics/library-sizes', async (req, res) =
   }
 });
 
+// Service code mapping
+const codeToService = {
+  'JEL': 'jellyfin', 'PLX': 'plex', 'EMB': 'emby',
+  'SON': 'sonarr', 'RAD': 'radarr', 'LID': 'lidarr', 'WHI': 'whisparr',
+  'QBI': 'qbittorrent', 'TRA': 'transmission', 'GET': 'nzbget', 'SAB': 'sabnzbd',
+  'DEL': 'deluge', 'HYD': 'nzbhydra', 'PRO': 'prowlarr', 'SEE': 'seerr',
+  'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
+};
+
 // Configuration endpoints - serve dashboard and sites configuration
 // These support environment variable overrides
 app.get('/api/config/dashboard', (req, res) => {
   let order = getConfig('dashboard.order', null);
 
-  // Handle DASHBOARD_ORDER environment variable (comma-separated string)
+  // Handle DASHBOARD_ORDER environment variable (comma-separated 3-letter codes)
   if (process.env.DASHBOARD_ORDER) {
-    order = process.env.DASHBOARD_ORDER.split(',').map(s => s.trim());
+    order = process.env.DASHBOARD_ORDER.split(',').map(s => s.trim().toUpperCase());
   }
 
   // Fall back to JSON5 order or default order
   if (!order) {
     order = jsonConfig.dashboard?.order || [
-      'jellyfin', 'plex', 'emby',
-      'sonarr', 'radarr', 'lidarr', 'whisparr',
-      'qbittorrent', 'transmission',
-      'sabnzbd', 'nzbget', 'deluge',
-      'nzbhydra', 'prowlarr', 'seerr',
-      'bazarr', 'tautulli', 'maintainerr',
+      'JEL', 'PLX', 'EMB',
+      'SON', 'RAD', 'LID', 'WHI',
+      'QBI', 'TRA',
+      'SAB', 'GET', 'DEL',
+      'HYD', 'PRO', 'SEE',
+      'BAZ', 'TAU', 'MNT',
     ];
   }
 

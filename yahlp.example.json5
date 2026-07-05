@@ -38,15 +38,18 @@
     // 'dashboard' shows services, 'welcome' shows the welcome screen
     landing: 'dashboard',
 
-    // Service display order on dashboard
+    // Service display order on dashboard (use 3-letter service codes)
     // Arrange services as desired; only enabled services will be shown
+    // JEL=Jellyfin, PLX=Plex, EMB=Emby, SON=Sonarr, RAD=Radarr, LID=Lidarr, WHI=Whisparr
+    // QBI=qBittorrent, TRA=Transmission, SAB=SABnzbd, GET=NZBGet, DEL=Deluge
+    // HYD=NZBHydra, PRO=Prowlarr, SEE=Seerr, BAZ=Bazarr, TAU=Tautulli, MNT=Maintainerr
     order: [
-      'jellyfin', 'plex', 'emby',
-      'sonarr', 'radarr', 'lidarr', 'whisparr',
-      'qbittorrent', 'transmission',
-      'sabnzbd', 'nzbget', 'deluge',
-      'nzbhydra', 'prowlarr', 'seerr',
-      'bazarr', 'tautulli', 'maintainerr',
+      'JEL', 'PLX', 'EMB',
+      'SON', 'RAD', 'LID', 'WHI',
+      'QBI', 'TRA',
+      'SAB', 'GET', 'DEL',
+      'HYD', 'PRO', 'SEE',
+      'BAZ', 'TAU', 'MNT',
     ],
   },
 
