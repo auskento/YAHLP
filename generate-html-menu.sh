@@ -124,36 +124,37 @@ generate_sites_array() {
 }
 
 # Define all available services with metadata
-# Format: SERVICE_KEY="Category|Name|Description|Icon|Href|Accent"
+# Format: SERVICE_KEY="Category|Name|Description|Icon|Href|Accent|Style"
 # Categories: USENET, TORRENTS, CONTENT, SEARCH, MEDIA
+# Styles: comma-separated tags (e.g., "classic,vixens" means shown in both styles)
 declare -A SERVICES=(
     # USENET category
-    [SABNZBD]="USENET|SABnzbd|Usenet downloads|/icons/sabnzbd.png|/sabnzbd/|#f5c20f"
-    [NZBGET]="USENET|NZBGet|Usenet downloads|/icons/nzbget.png|/nzbget/|#3da7e0"
-    [NZBHYDRA]="USENET|NZBHydra|NZB indexer|/icons/nzbhydra.png|/nzbhydra/|#3e9c7d"
+    [SABNZBD]="USENET|SABnzbd|Usenet downloads|/icons/sabnzbd.png|/sabnzbd/|#f5c20f|classic"
+    [NZBGET]="USENET|NZBGet|Usenet downloads|/icons/nzbget.png|/nzbget/|#3da7e0|classic"
+    [NZBHYDRA]="USENET|NZBHydra|NZB indexer|/icons/nzbhydra.png|/nzbhydra/|#3e9c7d|classic"
 
     # TORRENTS category
-    [DELUGE]="TORRENTS|Deluge|Torrent client|/icons/deluge.png|/deluge/|#3aa3e0"
-    [TRANSMISSION]="TORRENTS|Transmission|Torrents|/icons/transmission.png|/transmission/|#343434"
-    [QBITTORRENT]="TORRENTS|qBittorrent|Torrent client|/icons/qbittorrent.png|/qbittorrent/|#3683b6"
+    [DELUGE]="TORRENTS|Deluge|Torrent client|/icons/deluge.png|/deluge/|#3aa3e0|classic"
+    [TRANSMISSION]="TORRENTS|Transmission|Torrents|/icons/transmission.png|/transmission/|#343434|classic"
+    [QBITTORRENT]="TORRENTS|qBittorrent|Torrent client|/icons/qbittorrent.png|/qbittorrent/|#3683b6|classic"
 
     # CONTENT category
-    [SONARR]="CONTENT|Sonarr|TV shows|/icons/sonarr.png|@@SONARR_LANDING@@|#3aa0e0"
-    [RADARR]="CONTENT|Radarr|Movies|/icons/radarr.png|@@RADARR_LANDING@@|#febc2e"
-    [LIDARR]="CONTENT|Lidarr|Music|/icons/lidarr.png|@@LIDARR_LANDING@@|#2ecd6f"
-    [WHISPARR]="CONTENT|Whisparr|Adult content|/icons/whisparr.png|@@WHISPARR_LANDING@@|#ef7e30"
+    [SONARR]="CONTENT|Sonarr|TV shows|/icons/sonarr.png|@@SONARR_LANDING@@|#3aa0e0|classic"
+    [RADARR]="CONTENT|Radarr|Movies|/icons/radarr.png|@@RADARR_LANDING@@|#febc2e|classic"
+    [LIDARR]="CONTENT|Lidarr|Music|/icons/lidarr.png|@@LIDARR_LANDING@@|#2ecd6f|classic"
+    [WHISPARR]="CONTENT|Whisparr|Adult content|/icons/whisparr.png|@@WHISPARR_LANDING@@|#ef7e30|classic"
 
     # SEARCH category
-    [SEERR]="SEARCH|Seerr|Requests|/icons/seerr.png|SUBDOMAIN|#00a4dc"
-    [PROWLARR]="SEARCH|Prowlarr|Indexer manager|/icons/prowlarr.png|/prowlarr/|#e8810e"
-    [BAZARR]="SEARCH|Bazarr|Subtitles|/icons/bazarr.png|/bazarr/|#e91e63"
+    [SEERR]="SEARCH|Seerr|Requests|/icons/seerr.png|SUBDOMAIN|#00a4dc|classic"
+    [PROWLARR]="SEARCH|Prowlarr|Indexer manager|/icons/prowlarr.png|/prowlarr/|#e8810e|classic"
+    [BAZARR]="SEARCH|Bazarr|Subtitles|/icons/bazarr.png|/bazarr/|#e91e63|classic"
 
     # MEDIA category
-    [EMBY]="MEDIA|Emby|Streaming|/icons/emby.png|SUBDOMAIN|#9146FF"
-    [PLEX]="MEDIA|Plex|Streaming|/icons/plex.png|SUBDOMAIN|#e5a00d"
-    [JELLYFIN]="MEDIA|Jellyfin|Streaming|/icons/jellyfin.png|/jellyfin/|#00a4dc"
-    [TAUTULLI]="MEDIA|Tautulli|Analytics|/icons/tautulli.png|/tautulli/|#4a9eff"
-    [MAINTAINERR]="MEDIA|Maintainerr|Media maintenance|/icons/maintainerr.png|/maintainerr/|#1e90ff"
+    [EMBY]="MEDIA|Emby|Streaming|/icons/emby.png|SUBDOMAIN|#9146FF|classic"
+    [PLEX]="MEDIA|Plex|Streaming|/icons/plex.png|SUBDOMAIN|#e5a00d|classic"
+    [JELLYFIN]="MEDIA|Jellyfin|Streaming|/icons/jellyfin.png|/jellyfin/|#00a4dc|classic"
+    [TAUTULLI]="MEDIA|Tautulli|Analytics|/icons/tautulli.png|/tautulli/|#4a9eff|classic"
+    [MAINTAINERR]="MEDIA|Maintainerr|Media maintenance|/icons/maintainerr.png|/maintainerr/|#1e90ff|classic"
 )
 
 # Substitute service landing page variables
@@ -239,10 +240,30 @@ declare -A SERVICE_CODE_MAP=(
 )
 
 # Generate services array respecting DASHBOARD_ORDER (with categories)
+# Also filter by DASHBOARD_STYLE if specified
 generate_services_array() {
     local array=""
     local first=true
     local order_array=()
+
+    # Parse DASHBOARD_STYLE for filtering
+    # Format: "style1,style2" (show only services with those styles)
+    #         "style1:only" (show only style1, hide slider)
+    #         "classic" or empty (show all services)
+    local style_filter=()
+    if [ ! -z "$DASHBOARD_STYLE" ]; then
+        if [[ "$DASHBOARD_STYLE" == *":only" ]]; then
+            # :only format - extract style name before :only
+            local style="${DASHBOARD_STYLE%:only}"
+            style_filter=("$style")
+        elif [[ "$DASHBOARD_STYLE" == *","* ]]; then
+            # Comma-separated list
+            IFS=',' read -ra style_filter <<< "$DASHBOARD_STYLE"
+        else
+            # Single style
+            style_filter=("$DASHBOARD_STYLE")
+        fi
+    fi
 
     # Use DASHBOARD_ORDER if provided, otherwise use SERVICE_ORDER
     if [ ! -z "$DASHBOARD_ORDER" ]; then
@@ -301,8 +322,32 @@ generate_services_array() {
             continue
         fi
 
-        # Parse service metadata (format: category|name|desc|icon|href|accent)
-        IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
+        # Parse service metadata (format: category|name|desc|icon|href|accent|style)
+        IFS='|' read -r category name desc icon href accent style <<< "${SERVICES[$service_key]}"
+
+        # Filter by style if DASHBOARD_STYLE is set
+        if [ ${#style_filter[@]} -gt 0 ]; then
+            local service_styles="$style"
+            local style_match=false
+
+            # Check if service's style matches any of the filter styles
+            IFS=',' read -ra service_style_array <<< "$service_styles"
+            for service_style in "${service_style_array[@]}"; do
+                service_style=$(echo "$service_style" | xargs | tr '[:lower:]' '[:upper:]')
+                for filter_style in "${style_filter[@]}"; do
+                    filter_style=$(echo "$filter_style" | xargs | tr '[:lower:]' '[:upper:]')
+                    if [ "$service_style" = "$filter_style" ]; then
+                        style_match=true
+                        break 2
+                    fi
+                done
+            done
+
+            # Skip service if it doesn't match the style filter
+            if [ "$style_match" = false ]; then
+                continue
+            fi
+        fi
 
         # Find the 3-letter code for this service key
         local id=""
