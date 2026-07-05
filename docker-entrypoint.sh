@@ -235,57 +235,38 @@ if [ "$ACCESS_MODE" = "private" ]; then
     done
 fi
 
-# Get enabled services from yahlp.json5 (or env var overrides)
-echo "Generating service configs for enabled services..."
-ENABLED_SERVICES=$(node /usr/local/bin/scripts/get-enabled-services.js 2>/dev/null || echo '{}')
+# Substitute environment variables in service config files
+echo "Substituting service URLs in config files..."
 
-# Process each enabled service and substitute URLs
-node -e "
-const fs = require('fs');
-let input = '';
-process.stdin.on('data', chunk => { input += chunk; });
-process.stdin.on('end', () => {
-  try {
-    const services = JSON.parse(input);
-    const serviceNames = Object.keys(services);
+# List of all services (matching json5 service names)
+SERVICES="jellyfin plex emby sonarr radarr lidarr whisparr qbittorrent transmission sabnzbd nzbget deluge nzbhydra prowlarr seerr bazarr tautulli maintainerr"
 
-    if (serviceNames.length === 0) {
-      console.log('ℹ No services enabled from yahlp.json5');
-      process.exit(0);
-    }
+for service in $SERVICES; do
+    SERVICE_ENABLED_VAR="${service^^}_ENABLED"  # Convert to UPPERCASE
+    SERVICE_URL_VAR="${service^^}_URL"
 
-    for (const service of serviceNames) {
-      const confPath = \`/etc/apache2/sites-available/services/\${service}.conf\`;
-      const url = services[service].url;
+    # Check if service is enabled (variable exists and is 'true')
+    if [ "${!SERVICE_ENABLED_VAR}" = "true" ]; then
+        SERVICE_URL="${!SERVICE_URL_VAR}"
+        CONF_FILE="/etc/apache2/sites-available/services/${service}.conf"
 
-      if (!fs.existsSync(confPath)) {
-        console.log(\`⚠ Service config not found: \${confPath}\`);
-        continue;
-      }
-
-      let content = fs.readFileSync(confPath, 'utf8');
-
-      // Handle Jellyfin special case (websocket URL needed)
-      if (service === 'jellyfin' && url) {
-        const baseUrl = url.replace(/\/jellyfin\/?$/, '');
-        const wsUrl = baseUrl.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:');
-        content = content.replace(/@@JELLYFIN_URL@@/g, baseUrl);
-        content = content.replace(/@@JELLYFIN_URL_WS@@/g, wsUrl);
-      } else if (url) {
-        // Substitute service URL
-        const placeholder = \`@@\${service.toUpperCase()}_URL@@\`;
-        content = content.replace(new RegExp(placeholder, 'g'), url);
-      }
-
-      fs.writeFileSync(confPath, content);
-      console.log(\`✓ Substituted URLs in \${service}.conf\`);
-    }
-  } catch (err) {
-    console.error('Error processing services:', err.message);
-    process.exit(1);
-  }
-});
-" <<< "$ENABLED_SERVICES"
+        if [ -f "$CONF_FILE" ] && [ ! -z "$SERVICE_URL" ]; then
+            # Handle Jellyfin special case (needs websocket URL)
+            if [ "$service" = "jellyfin" ]; then
+                JELLYFIN_BASE_URL=$(echo "$SERVICE_URL" | sed 's|/jellyfin/?$||')
+                JELLYFIN_URL_WS=$(echo "$JELLYFIN_BASE_URL" | sed 's|^http://|ws://|; s|^https://|wss://|')
+                sed -i "s|@@JELLYFIN_URL@@|$JELLYFIN_BASE_URL|g" "$CONF_FILE"
+                sed -i "s|@@JELLYFIN_URL_WS@@|$JELLYFIN_URL_WS|g" "$CONF_FILE"
+                echo "✓ Configured $service"
+            else
+                # Substitute generic URL placeholder
+                PLACEHOLDER="@@${service^^}_URL@@"
+                sed -i "s|$PLACEHOLDER|$SERVICE_URL|g" "$CONF_FILE"
+                echo "✓ Configured $service"
+            fi
+        fi
+    fi
+done
 
 # Download and resize app icons from provided URLs
 echo ""
