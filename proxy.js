@@ -158,22 +158,6 @@ const services = {
   'maintainerr': { url: getConfigValue('maintainerr', 'url'), key: getConfigValue('maintainerr', 'api_key'), authType: 'header' }
 };
 
-// DEBUG: Log critical env vars and service config for nzbget
-console.log('=== NZBGET Configuration Debug ===');
-console.log('NZBGET_URL env:', process.env.NZBGET_URL);
-console.log('NZBGET_USERNAME env:', process.env.NZBGET_USERNAME);
-console.log('NZBGET_PASSWORD env:', process.env.NZBGET_PASSWORD);
-if (jsonConfig.services?.nzbget) {
-  console.log('JSON5 nzbget config:', {
-    url: jsonConfig.services.nzbget.url,
-    username: jsonConfig.services.nzbget.username,
-    password: '***'
-  });
-} else {
-  console.log('No nzbget in JSON5 services');
-}
-console.log('Loaded nzbget service config:', services.nzbget);
-
 // Check if any services are configured
 // Services that don't require API keys: transmission, qbittorrent
 const noKeyRequired = ['transmission', 'qbittorrent'];
@@ -997,11 +981,25 @@ app.get('/api/config/auth', (req, res) => {
   res.json(safeAuth);
 });
 
+// Helper to check if a service is properly configured based on its auth type
+function isServiceConfigured(serviceName, config) {
+  if (!config.url) return false;
+
+  switch (config.authType) {
+    case 'transmission':
+    case 'qbittorrent': // qBittorrent requires key but check is special
+      return !!config.url;
+    case 'nzbget':
+      return !!config.username && !!config.password;
+    case 'deluge':
+      return !!config.password;
+    default:
+      return !!config.key;
+  }
+}
+
 // Health check
 app.get('/health', (req, res) => {
-  // Services that don't require API keys
-  const noKeyRequired = ['transmission', 'qbittorrent'];
-
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -1010,8 +1008,7 @@ app.get('/health', (req, res) => {
       ttl: cache.getStats().kexpired || 0
     },
     services: Object.keys(services).reduce((acc, svc) => {
-      const needsKey = !noKeyRequired.includes(svc);
-      acc[svc] = { configured: needsKey ? (services[svc].url && services[svc].key) : !!services[svc].url };
+      acc[svc] = { configured: isServiceConfigured(svc, services[svc]) };
       return acc;
     }, {})
   });
@@ -1032,7 +1029,6 @@ server6.listen(PORT, '::');
 
 server.on('listening', () => {
   const addr = server.address();
-  const noKeyRequired = ['transmission', 'qbittorrent'];
   console.log(`🔀 API Aggregator listening on port ${PORT}`);
   console.log(`   IPv4: http://localhost:${PORT}`);
   console.log(`   IPv6: http://[::1]:${PORT}`);
@@ -1040,8 +1036,7 @@ server.on('listening', () => {
   console.log(`   Health check: http://localhost:${PORT}/health`);
   console.log('\nConfigured services:');
   Object.entries(services).forEach(([service, config]) => {
-    const needsKey = !noKeyRequired.includes(service);
-    const status = needsKey ? (config.url && config.key ? '✅' : '⏳') : (config.url ? '✅' : '⏳');
+    const status = isServiceConfigured(service, config) ? '✅' : '⏳';
     console.log(`   ${status} ${service}`);
   });
 });
