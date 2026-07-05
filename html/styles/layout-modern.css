@@ -105,10 +105,7 @@
   flex: 1;
   overflow-y: auto;
   padding: 24px;
-  background: var(--bg-secondary);
-  border-left: 1px solid var(--border-color);
-  border-radius: 12px;
-  margin: 12px;
+  background: transparent;
 }
 
 .dashboard-header {
@@ -129,6 +126,10 @@
   gap: 16px;
   max-width: 1400px;
   width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
 }
 
 .welcome-screen {
