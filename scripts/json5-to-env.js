@@ -43,7 +43,19 @@ try {
     return result;
   }
 
-  const env = flattenConfig(config);
+  let env = flattenConfig(config);
+
+  // Handle services specially - extract to top-level env vars
+  // services.jellyfin.enabled → JELLYFIN_ENABLED (not SERVICES_JELLYFIN_ENABLED)
+  if (config.services) {
+    for (const [serviceName, serviceConfig] of Object.entries(config.services)) {
+      const serviceEnv = flattenConfig(serviceConfig, serviceName.toUpperCase());
+      Object.assign(env, serviceEnv);
+    }
+    // Remove the SERVICES_* variables since we've extracted them
+    const keysToDelete = Object.keys(env).filter(k => k.startsWith('SERVICES_'));
+    keysToDelete.forEach(k => delete env[k]);
+  }
 
   // Output as bash export statements, but only for variables not already set in environment
   // This preserves -e environment variable overrides
