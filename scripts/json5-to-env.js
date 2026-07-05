@@ -49,8 +49,19 @@ try {
   // services.jellyfin.enabled → JELLYFIN_ENABLED (not SERVICES_JELLYFIN_ENABLED)
   if (config.services) {
     for (const [serviceName, serviceConfig] of Object.entries(config.services)) {
-      const serviceEnv = flattenConfig(serviceConfig, serviceName.toUpperCase());
-      Object.assign(env, serviceEnv);
+      // For each service field (enabled, url, api_key, etc.), create top-level env var
+      for (const [fieldName, fieldValue] of Object.entries(serviceConfig)) {
+        if (fieldValue === null || fieldValue === undefined) continue;
+
+        const envKey = `${serviceName.toUpperCase()}_${fieldName.toUpperCase()}`;
+        if (typeof fieldValue === 'boolean') {
+          env[envKey] = fieldValue ? 'true' : 'false';
+        } else if (Array.isArray(fieldValue)) {
+          env[envKey] = fieldValue.join(',');
+        } else {
+          env[envKey] = String(fieldValue);
+        }
+      }
     }
     // Remove the SERVICES_* variables since we've extracted them
     const keysToDelete = Object.keys(env).filter(k => k.startsWith('SERVICES_'));
