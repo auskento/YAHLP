@@ -897,24 +897,24 @@ app.get('/api/config/dashboard', (req, res) => {
   res.json(dashboard);
 });
 
-// Built-in torrent and usenet sites
+// Built-in torrent and usenet sites (icons stored in /var/www/html/sites-icons/)
 const builtInSites = {
-  'TPB': { code: 'TPB', name: 'The Pirate Bay', url: 'https://thepiratebay.org', category: 'torrent' },
-  'FIL': { code: 'FIL', name: 'FileList.io', url: 'https://filelist.io', category: 'torrent' },
-  'HDB': { code: 'HDB', name: 'HDBits', url: 'https://hdbits.org', category: 'torrent' },
-  'IPT': { code: 'IPT', name: 'IP Torrents', url: 'https://iptorrents.com', category: 'torrent' },
-  '1337': { code: '1337', name: '1337x', url: 'https://1337x.to', category: 'torrent' },
-  'YTS': { code: 'YTS', name: 'YTS', url: 'https://yts.torrentbay.st', category: 'torrent' },
-  'LAT': { code: 'LAT', name: 'LimeTorrents', url: 'https://limetorrents.cc', category: 'torrent' },
-  'NYA': { code: 'NYA', name: 'Nyaa', url: 'https://nyaa.si', category: 'torrent' },
-  'PTP': { code: 'PTP', name: 'PassThePopcorn', url: 'https://passthepopcorn.me', category: 'torrent' },
-  'DOG': { code: 'DOG', name: 'DOGnzb', url: 'https://dognzb.cr/browse', category: 'usenet' },
-  'DRS': { code: 'DRS', name: 'DrunkenSlug', url: 'https://www.drunkenslug.com', category: 'usenet' },
-  'NLF': { code: 'NLF', name: 'nzb.life', url: 'https://nzb.life', category: 'usenet' },
-  'NFW': { code: 'NFW', name: 'NZBFinder.ws', url: 'https://nzbfinder.ws', category: 'usenet' },
-  'NGK': { code: 'NGK', name: 'NZBgeek', url: 'https://nzbgeek.info', category: 'usenet' },
-  'PLA': { code: 'PLA', name: 'nzbplanet.net', url: 'https://nzbplanet.net', category: 'usenet' },
-  'TAB': { code: 'TAB', name: 'Tabula Rasa', url: 'https://tabula-rasa.pw', category: 'usenet' },
+  'TPB': { code: 'TPB', name: 'The Pirate Bay', url: 'https://thepiratebay.org', icon: '/sites-icons/TPB.favicon.ico', category: 'torrent' },
+  'FIL': { code: 'FIL', name: 'FileList.io', url: 'https://filelist.io', icon: '/sites-icons/FIL.favicon.ico', category: 'torrent' },
+  'HDB': { code: 'HDB', name: 'HDBits', url: 'https://hdbits.org', icon: '/sites-icons/HDB.favicon.ico', category: 'torrent' },
+  'IPT': { code: 'IPT', name: 'IP Torrents', url: 'https://iptorrents.com', icon: '/sites-icons/IPT.favicon.ico', category: 'torrent' },
+  '1337': { code: '1337', name: '1337x', url: 'https://1337x.to', icon: '/sites-icons/1337.favicon.ico', category: 'torrent' },
+  'YTS': { code: 'YTS', name: 'YTS', url: 'https://yts.torrentbay.st', icon: '/sites-icons/YTS.favicon.ico', category: 'torrent' },
+  'LAT': { code: 'LAT', name: 'LimeTorrents', url: 'https://limetorrents.cc', icon: '/sites-icons/LAT.favicon.ico', category: 'torrent' },
+  'NYA': { code: 'NYA', name: 'Nyaa', url: 'https://nyaa.si', icon: '/sites-icons/NYA.favicon.ico', category: 'torrent' },
+  'PTP': { code: 'PTP', name: 'PassThePopcorn', url: 'https://passthepopcorn.me', icon: '/sites-icons/PTP.favicon.ico', category: 'torrent' },
+  'DOG': { code: 'DOG', name: 'DOGnzb', url: 'https://dognzb.cr/browse', icon: '/sites-icons/DOG.favicon.ico', category: 'usenet' },
+  'DRS': { code: 'DRS', name: 'DrunkenSlug', url: 'https://www.drunkenslug.com', icon: '/sites-icons/DRS.favicon.ico', category: 'usenet' },
+  'NLF': { code: 'NLF', name: 'nzb.life', url: 'https://nzb.life', icon: '/sites-icons/NLF.favicon.ico', category: 'usenet' },
+  'NFW': { code: 'NFW', name: 'NZBFinder.ws', url: 'https://nzbfinder.ws', icon: '/sites-icons/NFW.favicon.ico', category: 'usenet' },
+  'NGK': { code: 'NGK', name: 'NZBgeek', url: 'https://nzbgeek.info', icon: '/sites-icons/NGK.favicon.ico', category: 'usenet' },
+  'PLA': { code: 'PLA', name: 'nzbplanet.net', url: 'https://nzbplanet.net', icon: '/sites-icons/PLA.favicon.ico', category: 'usenet' },
+  'TAB': { code: 'TAB', name: 'Tabula Rasa', url: 'https://tabula-rasa.pw', icon: '/sites-icons/TAB.favicon.ico', category: 'usenet' },
 };
 
 app.get('/api/config/sites', (req, res) => {
