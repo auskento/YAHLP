@@ -267,14 +267,13 @@ PVR services support an optional `landing` option to set the default page/path w
 
 #### Download Clients
 
-**qBittorrent** (requires username + password):
+**qBittorrent** (requires API key):
 ```json5
 {
   qbittorrent: {
     enabled: true,
     url: 'http://qbittorrent.local:8080',
-    username: 'admin',
-    password: 'password',
+    api_key: 'your-api-key',
     icon_url: 'https://qbittorrent.org/favicon.ico',
   },
 }
