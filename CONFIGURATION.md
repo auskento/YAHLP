@@ -45,15 +45,22 @@ volumes:
 ```json5
 {
   dashboard: {
-    name: 'My Dashboard',           // Display name
-    icon_url: 'https://...',        // Logo/icon URL
-    color: '#00A99D',               // Primary color (hex)
-    theme: 'dark',                  // 'dark' or 'light'
-    style: 'classic',               // Layout style (see below)
-    landing: 'dashboard',           // 'dashboard' or 'welcome'
+    name: 'My Dashboard',                 // Display name
+    icon_url: 'https://...',              // Logo/icon URL
+    color: '#00A99D',                     // Primary color (hex)
+    theme: 'dark',                        // 'dark' or 'light'
+    style: 'classic',                     // Layout style (see below)
+    landing: 'dashboard',                 // 'dashboard' or 'welcome'
+    order: [
+      'jellyfin', 'sonarr', 'radarr',    // Service display order
+      'seerr', 'qbittorrent', 'deluge',
+    ],
   },
 }
 ```
+
+**Dashboard Order:**
+The `order` array controls the sequence services appear on the dashboard. Only enabled services will be displayed. Rearrange the service names to customize the layout.
 
 **Available Styles:**
 - `classic` — Sidebar with services and quick links
@@ -341,6 +348,7 @@ services.sonarr.landing  → SONARR_LANDING
 - `DASHBOARD_THEME` — 'dark' or 'light'
 - `DASHBOARD_STYLE` — Layout style
 - `DASHBOARD_LANDING` — 'dashboard' or 'welcome'
+- `DASHBOARD_ORDER` — Service order (comma-separated: jellyfin,sonarr,radarr,seerr,...)
 
 **Access:**
 - `ACCESS_MODE` — 'private' or 'public'
