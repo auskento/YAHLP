@@ -126,9 +126,7 @@
   gap: 16px;
   max-width: 1400px;
   width: 100%;
-  background: radial-gradient(ellipse 1500px 800px at 80% 50%, rgba(0, 169, 157, 0.25), transparent 60%),
-              radial-gradient(ellipse 1200px 700px at 20% 50%, rgba(0, 169, 157, 0.2), transparent 50%),
-              var(--bg-secondary);
+  background: var(--content-bg-color, var(--bg-secondary));
   border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 16px;
