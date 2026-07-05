@@ -100,93 +100,13 @@ const codeToService = {
     'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
 };
 
-// Extract gradient colors from app background and use their midpoint for content panel
+// Use hardcoded gradient midpoint colors (average of the two app gradient colors)
+// Gradient 1: rgba(58, 160, 224, 0.1) - blue
+// Gradient 2: rgba(46, 205, 111, 0.07) - green
+// Midpoint: rgba(52, 182.5, 167.5, 0.085)
 function initDashboardColor() {
-    const app = document.querySelector('.app');
-    if (!app) return;
-
-    const computedStyle = window.getComputedStyle(app);
-    const background = computedStyle.backgroundImage;
-
-    // Extract rgba colors from the gradient
-    const rgbaMatches = background.match(/rgba\([\d\s,\.]+\)/g);
-    if (rgbaMatches && rgbaMatches.length >= 2) {
-        const color1 = parseRgba(rgbaMatches[0]);
-        const color2 = parseRgba(rgbaMatches[1]);
-
-        if (color1 && color2) {
-            // Calculate midpoint color
-            const midpoint = {
-                r: Math.round((color1.r + color2.r) / 2),
-                g: Math.round((color1.g + color2.g) / 2),
-                b: Math.round((color1.b + color2.b) / 2),
-                a: ((color1.a + color2.a) / 2).toFixed(3)
-            };
-
-            const midpointColor = `rgba(${midpoint.r}, ${midpoint.g}, ${midpoint.b}, ${midpoint.a})`;
-            document.documentElement.style.setProperty('--content-bg-color', midpointColor);
-            return;
-        }
-    }
-
-    // Fallback if gradient extraction fails
-    setFallbackContentColor();
-}
-
-function parseRgba(rgbaString) {
-    const match = rgbaString.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
-    if (match) {
-        return {
-            r: parseInt(match[1]),
-            g: parseInt(match[2]),
-            b: parseInt(match[3]),
-            a: parseFloat(match[4])
-        };
-    }
-    return null;
-}
-
-// Fallback: use dashboard color with adjustment
-function setFallbackContentColor() {
-    const styleTag = document.querySelector('style');
-    if (styleTag && styleTag.textContent) {
-        const match = styleTag.textContent.match(/--dashboard-color:\s*([#\w]+)/);
-        if (match) {
-            const hexColor = match[1];
-            const rgb = hexToRgb(hexColor);
-            if (rgb) {
-                const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
-                const adjustedRgb = luminance < 0.5 ? lightenRgb(rgb, 30) : darkenRgb(rgb, 30);
-                const adjustedColor = `rgb(${adjustedRgb.r}, ${adjustedRgb.g}, ${adjustedRgb.b})`;
-                document.documentElement.style.setProperty('--content-bg-color', adjustedColor);
-            }
-        }
-    }
-}
-
-function hexToRgb(hex) {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
-}
-
-function lightenRgb(rgb, percent) {
-    return {
-        r: Math.min(255, Math.round(rgb.r + (255 - rgb.r) * (percent / 100))),
-        g: Math.min(255, Math.round(rgb.g + (255 - rgb.g) * (percent / 100))),
-        b: Math.min(255, Math.round(rgb.b + (255 - rgb.b) * (percent / 100)))
-    };
-}
-
-function darkenRgb(rgb, percent) {
-    return {
-        r: Math.max(0, Math.round(rgb.r * (1 - percent / 100))),
-        g: Math.max(0, Math.round(rgb.g * (1 - percent / 100))),
-        b: Math.max(0, Math.round(rgb.b * (1 - percent / 100)))
-    };
+    const midpointColor = 'rgba(52, 183, 168, 0.085)';
+    document.documentElement.style.setProperty('--content-bg-color', midpointColor);
 }
 
 initDashboardColor();
