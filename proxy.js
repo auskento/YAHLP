@@ -939,6 +939,23 @@ app.get('/api/config/auth', (req, res) => {
   const authType = getConfig('auth.type', 'none');
   // Never send secrets to frontend - only type and provider info
   const safeAuth = { type: authType };
+
+  // Add Google OAuth config (without secrets)
+  if (authType === 'google' || jsonConfig.google?.client_id) {
+    safeAuth.google = {
+      client_id: process.env.GOOGLE_CLIENT_ID || jsonConfig.google?.client_id || '',
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI || jsonConfig.google?.redirect_uri || '',
+    };
+  }
+
+  // Add Entra OAuth config (without secrets)
+  if (authType === 'entra' || jsonConfig.entra?.client_id) {
+    safeAuth.entra = {
+      client_id: process.env.ENTRA_CLIENT_ID || jsonConfig.entra?.client_id || '',
+      redirect_uri: process.env.ENTRA_REDIRECT_URI || jsonConfig.entra?.redirect_uri || '',
+    };
+  }
+
   res.json(safeAuth);
 });
 
