@@ -2,7 +2,9 @@
 
 ## Overview
 
-This guide shows how to protect all your media server services with Office 365 / Azure AD authentication. Users will need to log in with their Microsoft account before accessing any services.
+This guide shows how to protect all your media server services with Office 365 / Azure AD (Microsoft Entra ID) authentication, using YAHLP's `AUTHTYPE=entra` option. Users will need to log in with their Microsoft account before accessing any services.
+
+For the full picture of all supported auth methods (including Basic Auth and Google OAuth), see `AUTHENTICATION-SETUP.md`.
 
 ## Benefits
 
@@ -10,8 +12,8 @@ This guide shows how to protect all your media server services with Office 365 /
 ✅ **Centralized Control** - Manage who can access via Azure AD  
 ✅ **No Password Management** - Uses Office 365 credentials  
 ✅ **Audit Trail** - Azure AD logs all access  
-✅ **Multi-factor Authentication** - Can require MFA for extra security  
-✅ **Domain Restriction** - Only allow users from specific email domains  
+✅ **Multi-factor Authentication** - Can require MFA for extra security (via Azure AD Conditional Access)  
+✅ **Access Restriction** - Scope sign-in via Azure AD app registration settings (org-only, specific tenants, or assigned users/groups)  
 
 ## Prerequisites
 
@@ -40,7 +42,7 @@ Fill in the form:
   - `Accounts in any organizational directory and personal Microsoft accounts` - Anyone
 - **Redirect URI**: 
   - Platform: `Web`
-  - URI: `https://yourdomain.com/oauth2callback`
+  - URI: `https://yourdomain.com/auth/oauth2/callback`
 
 Click **Register**
 
@@ -49,8 +51,8 @@ Click **Register**
 After registration, you'll see the application page:
 
 **Copy these values:**
-1. **Application (client) ID** - You'll need this for `OAUTH2_CLIENT_ID`
-2. **Directory (tenant) ID** - Optional, but useful for specific tenant access
+1. **Application (client) ID** - You'll need this for `ENTRA_CLIENT_ID`
+2. **Directory (tenant) ID** - Required to build `ENTRA_PROVIDER_METADATA_URL` (see Step 2)
 
 ### 1.4 Create Client Secret
 
@@ -60,7 +62,7 @@ After registration, you'll see the application page:
    - **Description**: `Docker Reverse Proxy Secret`
    - **Expires**: Choose duration (24 months recommended)
 4. Click **Add**
-5. **Copy the VALUE** (not the ID) - You'll need this for `OAUTH2_CLIENT_SECRET`
+5. **Copy the VALUE** (not the ID) - You'll need this for `ENTRA_CLIENT_SECRET`
 
 ⚠️ **Important**: Save this secret securely - you won't see it again!
 
@@ -77,42 +79,43 @@ After registration, you'll see the application page:
 6. Click **Add permissions**
 7. Click **Grant admin consent** to approve permissions
 
-## Step 2: Configure Docker Environment Variables
+## Step 2: Configure Environment Variables
 
-Edit `docker-compose.yml` and set:
+Edit your `.env` file (or `docker-compose.yml` environment block) and set:
 
-```yaml
-environment:
-  # Enable Office 365 authentication
-  ENABLE_AUTH_OFFICE365: "true"
-  
-  # From Azure AD app registration
-  OAUTH2_CLIENT_ID: "YOUR_APPLICATION_CLIENT_ID"
-  OAUTH2_CLIENT_SECRET: "YOUR_CLIENT_SECRET"
-  
-  # Where users return after login
-  OAUTH2_REDIRECT_URI: "https://yourdomain.com/oauth2callback"
-  
-  # Email domains allowed to access (comma-separated)
-  OAUTH2_ALLOWED_DOMAINS: "yourdomain.com,company.com"
-  
-  # Random string for session encryption (generate new one)
-  OAUTH2_CRYPTO_PASSPHRASE: "your-random-secure-passphrase-here"
+```env
+# Enable Entra ID (Office 365 / Azure AD) authentication
+AUTHTYPE=entra
+
+# From Azure AD app registration
+ENTRA_CLIENT_ID="YOUR_APPLICATION_CLIENT_ID"
+ENTRA_CLIENT_SECRET="YOUR_CLIENT_SECRET"
+
+# Where users return after login (must match the Redirect URI registered in Azure AD)
+ENTRA_REDIRECT_URI="https://yourdomain.com/auth/oauth2/callback"
+
+# Tenant-specific OIDC metadata endpoint (built from your Directory/tenant ID)
+ENTRA_PROVIDER_METADATA_URL="https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0/.well-known/openid-configuration"
+
+# Random string for session cookie encryption (optional - auto-generated if omitted)
+ENTRA_CRYPTO_PASSPHRASE="your-random-secure-passphrase-here"
 ```
 
-### Generate Secure Passphrase
+Note: There is currently no built-in `OAUTH2_ALLOWED_DOMAINS`-style domain/user restriction — anyone who can authenticate against your Entra tenant/app (as scoped by "Supported account types" in the app registration) will be granted access. Restricting further requires custom Azure AD Conditional Access policies or app role assignment (see Advanced Configuration below).
 
-Use this command to generate a random passphrase:
+### Generate Secure Passphrase (optional)
+
+`ENTRA_CRYPTO_PASSPHRASE` is optional — if left blank, YAHLP generates a random one automatically at container startup. To set your own instead:
 
 ```bash
 openssl rand -base64 24
 ```
 
-Copy the output and set it as `OAUTH2_CRYPTO_PASSPHRASE`.
+Copy the output and set it as `ENTRA_CRYPTO_PASSPHRASE`.
 
 **Example:**
-```yaml
-OAUTH2_CRYPTO_PASSPHRASE: "aBc1dE2fG3hI4jK5lM6nO7pQ8rS9tU=="
+```env
+ENTRA_CRYPTO_PASSPHRASE="aBc1dE2fG3hI4jK5lM6nO7pQ8rS9tU=="
 ```
 
 ## Step 3: Update Redirect URI in Azure AD
@@ -120,15 +123,17 @@ OAUTH2_CRYPTO_PASSPHRASE: "aBc1dE2fG3hI4jK5lM6nO7pQ8rS9tU=="
 The redirect URI must match exactly in both places:
 
 1. **In Azure AD**: Applications → Your app → Authentication
-   - Set Redirect URI to: `https://yourdomain.com/oauth2callback`
+   - Set Redirect URI to: `https://yourdomain.com/auth/oauth2/callback`
    - Mark as Public client: **No**
 
-2. **In docker-compose.yml**:
-   ```yaml
-   OAUTH2_REDIRECT_URI: "https://yourdomain.com/oauth2callback"
+2. **In your `.env` file**:
+   ```env
+   ENTRA_REDIRECT_URI="https://yourdomain.com/auth/oauth2/callback"
    ```
 
 ⚠️ These must match exactly (including protocol https://)!
+
+If you use `EMBY_DOMAIN`/`PLEX_DOMAIN`/`SEERR_DOMAIN` subdomains, each gets its own OIDC client instance (sharing the same `ENTRA_CLIENT_ID`/`ENTRA_CLIENT_SECRET`) using that subdomain's own `_REDIRECT_URI` variable — register those redirect URIs in Azure AD too (see AUTHENTICATION-SETUP.md for details).
 
 ## Step 4: Deploy
 
@@ -143,9 +148,8 @@ docker-compose logs -f apache-reverse-proxy
 
 Check for errors:
 ```
-Office 365 Authentication configured
+✓ Entra ID authentication enabled
   Client ID: YOUR_CLIENT_ID...
-  Redirect URI: https://yourdomain.com/oauth2callback
 ```
 
 ## Step 5: Test Authentication
@@ -164,10 +168,10 @@ Office 365 Authentication configured
 **Problem**: OAuth2 callback returns an error
 
 **Solutions**:
-1. Verify `OAUTH2_REDIRECT_URI` in docker-compose matches Azure AD exactly
-2. Check `OAUTH2_CLIENT_ID` and `OAUTH2_CLIENT_SECRET` are correct
+1. Verify `ENTRA_REDIRECT_URI` matches Azure AD exactly
+2. Check `ENTRA_CLIENT_ID`, `ENTRA_CLIENT_SECRET`, and `ENTRA_PROVIDER_METADATA_URL` are correct
 3. Verify API permissions are granted in Azure AD
-4. Check logs: `docker-compose logs apache-reverse-proxy | grep -i oauth`
+4. Check logs: `docker logs <container> | grep -i oauth` (or `apache2/error.log`)
 
 ### "Invalid client ID" Error
 
@@ -177,8 +181,8 @@ Office 365 Authentication configured
 ### "Secret expired" or "Invalid secret"
 
 - Generate a new client secret in Azure AD
-- Update `OAUTH2_CLIENT_SECRET` in docker-compose
-- Rebuild and restart
+- Update `ENTRA_CLIENT_SECRET`
+- Restart the container
 
 ### "Redirect URI mismatch"
 
@@ -195,19 +199,15 @@ Office 365 Authentication configured
 4. Verify `User.Read` is granted
 5. Check "Grant admin consent" shows a green checkmark
 
-### "Unauthorized" After Login
+### Unwanted Users Can Login
 
-**Problem**: User is from wrong email domain
+**Problem**: Anyone in your tenant (or any Microsoft account, depending on "Supported account types") can log in
 
-**Solution**: Update `OAUTH2_ALLOWED_DOMAINS` to include their domain
-
-```yaml
-OAUTH2_ALLOWED_DOMAINS: "yourdomain.com,otherdomain.com,user@example.com"
-```
+**Solution**: There is no built-in email-domain allow-list in YAHLP. Restrict access using Azure AD itself — either narrow "Supported account types" on the app registration, use Conditional Access policies, or require the app role/group assignment.
 
 ### Session Expires Too Quickly
 
-Adjust in `apache-conf/oauth2-office365.conf`:
+Adjust in `apache-conf/oauth2-entra.conf`:
 
 ```apache
 OIDCSessionInactivityTimeout 3600  # Change to 7200 for 2 hours
@@ -224,11 +224,10 @@ docker-compose up -d
 
 ### Restrict to Specific Users
 
-Instead of allowing all users from a domain, restrict to specific users:
-
-```yaml
-OAUTH2_ALLOWED_DOMAINS: "user1@yourdomain.com,user2@yourdomain.com,admin@yourdomain.com"
-```
+There is no built-in `OAUTH2_ALLOWED_DOMAINS`-style variable for restricting sign-in. To limit who can authenticate, restrict it in Azure AD itself:
+- Set "Supported account types" to your organization only when registering the app, and/or
+- Use "Enterprise applications → assignment required" to require explicit user/group assignment, and/or
+- Use Conditional Access policies (see below)
 
 ### Require Multi-Factor Authentication
 
@@ -240,22 +239,16 @@ In Azure AD:
 
 ### Different Access Levels
 
-You can set up Azure AD groups and assign different permissions:
-
-In `auth-office365-protect.conf`, you can add:
-```apache
-# Only allow users in "Media Server Admins" group
-Require ldap-group cn=Media Server Admins,ou=groups,dc=example,dc=com
-```
+`apache-conf/auth-entra-protect.conf` is the file included when `AUTHTYPE=entra` and controls what's required to access proxied services (currently `Require valid-user` for all locations). Custom `Require` directives (e.g. group-based restrictions) can be added here, but this requires editing the Apache config directly — there is no environment-variable-driven group/role mapping built in.
 
 ### Logout Functionality
 
-Users can logout by accessing:
+Users can end their session via the OAuth2 handler endpoint:
 ```
-https://yourdomain.com/oauth2/logout
+https://yourdomain.com/oauth2
 ```
 
-They'll be logged out and their session cleared.
+The `/oauth2` and `/oauth2callback` locations are handled by `mod_auth_openidc`'s `oauth2-handler`, which manages session logout as well as login. Consult the `mod_auth_openidc` documentation for exact logout URL parameters if you need to link directly to a "Sign out" action.
 
 ## User Experience
 
@@ -280,8 +273,8 @@ When authenticated, these headers are passed to backend services:
 ```
 X-Remote-User: user@domain.com           # Email
 X-Remote-Name: John Doe                  # Full name
-X-Remote-ID: azure-ad-user-id            # Unique ID
-X-Auth-Method: Office365                 # Auth method
+X-Remote-ID: azure-ad-user-id            # Unique ID (OIDC sub claim)
+X-Auth-Method: Entra                     # Auth method
 ```
 
 Some services (Sonarr, Radarr, etc.) can read these headers for user-specific features.
@@ -289,49 +282,42 @@ Some services (Sonarr, Radarr, etc.) can read these headers for user-specific fe
 ## Security Best Practices
 
 1. **Use HTTPS only** - Always use https:// for redirect URI
-2. **Protect your secret** - Never commit OAUTH2_CLIENT_SECRET to git
+2. **Protect your secret** - Never commit `ENTRA_CLIENT_SECRET` to git
 3. **Rotate secrets** - Generate new secrets periodically in Azure AD
 4. **Monitor access** - Check Azure AD logs for suspicious activity
-5. **Use strong passphrase** - Make OAUTH2_CRYPTO_PASSPHRASE long and random
-6. **Limit domains** - Restrict `OAUTH2_ALLOWED_DOMAINS` to your organization
+5. **Use strong passphrase** - Make `ENTRA_CRYPTO_PASSPHRASE` long and random (or leave blank to auto-generate)
+6. **Restrict sign-in** - Since there's no built-in domain allow-list, restrict who can authenticate using Azure AD's own controls (account type scoping, assignment required, Conditional Access)
 7. **Enable MFA** - Require multi-factor authentication in Azure AD
 8. **Review permissions** - Only grant necessary API permissions
 
 ## Disable Authentication
 
-To turn off Office 365 authentication:
+To turn off Entra authentication:
 
-```yaml
-ENABLE_AUTH_OFFICE365: "false"
+```env
+AUTHTYPE=none
 ```
 
-Then restart:
-```bash
-docker-compose restart apache-reverse-proxy
-```
-
-Services will be accessible without login.
+Then restart the container. Services will be accessible without login.
 
 ## Complete Configuration Example
 
-```yaml
-apache-reverse-proxy:
-  environment:
-    DOMAIN: media.example.com
-    EMAIL: admin@example.com
-    
-    # Services
-    ENABLE_SONARR: "true"
-    ENABLE_RADARR: "true"
-    ENABLE_JELLYFIN: "true"
-    
-    # Office 365 Auth ← NEW
-    ENABLE_AUTH_OFFICE365: "true"
-    OAUTH2_CLIENT_ID: "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"
-    OAUTH2_CLIENT_SECRET: "YOUR_SECRET_HERE~abc1234567-_=DEF"
-    OAUTH2_REDIRECT_URI: "https://media.example.com/oauth2callback"
-    OAUTH2_ALLOWED_DOMAINS: "example.com"
-    OAUTH2_CRYPTO_PASSPHRASE: "RandomSecurePassphrase123456="
+```env
+DOMAIN=media.example.com
+EMAIL=admin@example.com
+
+# Services
+ENABLE_SONARR=true
+ENABLE_RADARR=true
+ENABLE_JELLYFIN=true
+
+# Entra ID (Office 365 / Azure AD) Auth
+AUTHTYPE=entra
+ENTRA_CLIENT_ID="1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"
+ENTRA_CLIENT_SECRET="YOUR_SECRET_HERE~abc1234567-_=DEF"
+ENTRA_REDIRECT_URI="https://media.example.com/auth/oauth2/callback"
+ENTRA_PROVIDER_METADATA_URL="https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0/.well-known/openid-configuration"
+ENTRA_CRYPTO_PASSPHRASE="RandomSecurePassphrase123456="
 ```
 
 ## Additional Resources
@@ -345,7 +331,7 @@ apache-reverse-proxy:
 
 If you encounter issues:
 
-1. Check logs: `docker-compose logs -f apache-reverse-proxy | grep -i oauth`
+1. Check logs: `docker logs <container> | grep -i oauth` (or `/var/log/apache2/error.log`)
 2. Verify Azure AD configuration
 3. Ensure domain/DNS is correct
 4. Check that HTTPS is working

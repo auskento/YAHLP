@@ -4,12 +4,12 @@
 
 The reverse proxy can **automatically download and resize icons from URLs**. Just provide icon links in environment variables, and the system handles everything:
 
-- ✅ Downloads icons at container startup
-- ✅ Validates they're real images
-- ✅ Resizes to 100x100 pixels automatically
-- ✅ Converts to PNG format
+- ✅ Downloads icons at container startup (via `download-icons.sh`, run from `docker-entrypoint.sh`)
+- ✅ Validates they're real images (checks the file's MIME type)
+- ✅ Resizes to 100x100 pixels automatically (padded/centered with ImageMagick's `convert`, transparent background)
+- ✅ Saves with the original format's extension preserved (png/jpg/webp/svg/gif) as `/var/www/html/icons/<service>-custom.<ext>`
 - ✅ Shows download status in logs
-- ✅ Falls back to colored placeholders if download fails
+- ✅ Falls back to the bundled default icon, or a colored placeholder, if download fails
 
 # Finding Working Icon URLs
 
@@ -45,12 +45,12 @@ Most services have Docker images with documentation containing logo links:
 No icon URL working? Place icons manually:
 
 ```bash
-# Place icon files in html/icons/ directory
-cp my-sonarr-icon.png html/icons/sonarr.png
-cp my-radarr-icon.png html/icons/radarr.png
+# Place icon files in html/icons/ directory, named <service>-custom.<ext>
+cp my-sonarr-icon.png html/icons/sonarr-custom.png
+cp my-radarr-icon.png html/icons/radarr-custom.png
 
-# Restart (no icon URLs needed)
-docker-compose restart apache-reverse-proxy
+# Rebuild (html/ is baked into the image at build time, no icon URLs needed)
+docker-compose up --build -d
 ```
 
 ## Testing Icon URLs
@@ -86,7 +86,7 @@ ICON_URL_SONARR: ""
 ICON_URL_RADARR: ""
 ```
 
-Menu will display **colored placeholders** instead of photos.  
+Menu will display the **bundled default icon** for each service (if one ships in `html/icons/<service>.png`), or a **colored placeholder** if no bundled default exists.
 This works perfectly fine!
 
 ## Getting Icons Manually
@@ -115,16 +115,16 @@ mkdir -p html/icons
 # Download icons from your preferred sources
 cd html/icons/
 
-# For each service, download an icon
-wget "https://source1/sonarr-icon.png" -O sonarr.png
-wget "https://source2/radarr-icon.png" -O radarr.png
-wget "https://source3/jellyfin-icon.png" -O jellyfin.png
+# For each service, download an icon (use -custom suffix to override the bundled default)
+wget "https://source1/sonarr-icon.png" -O sonarr-custom.png
+wget "https://source2/radarr-icon.png" -O radarr-custom.png
+wget "https://source3/jellyfin-icon.png" -O jellyfin-custom.png
 
 # Verify they exist
 ls -lh
 
-# Restart container
-docker-compose restart apache-reverse-proxy
+# Rebuild the image (html/ is copied in at build time, not bind-mounted by default)
+docker-compose up --build -d
 ```
 
 Dashboard will automatically use the icons!
@@ -195,7 +195,6 @@ ICON_URL_SONARR: "https://raw.githubusercontent.com/Sonarr/Sonarr/develop/Logo/2
 ICON_URL_RADARR: "https://raw.githubusercontent.com/Radarr/Radarr/develop/Logo/256.png"
 ICON_URL_JELLYFIN: "https://raw.githubusercontent.com/jellyfin/jellyfin/master/Logo.png"
 ICON_URL_LIDARR: "https://raw.githubusercontent.com/Lidarr/Lidarr/develop/Logo/256.png"
-ICON_URL_READARR: "https://raw.githubusercontent.com/Readarr/Readarr/develop/Logo/256.png"
 ICON_URL_TRANSMISSION: "https://raw.githubusercontent.com/transmission/transmission-web/master/src/images/logo.png"
 ICON_URL_QBITTORRENT: "https://raw.githubusercontent.com/qbittorrent/qBittorrent/master/src/gui/resources/icons/app/qbittorrent-tray.png"
 ```
@@ -210,9 +209,8 @@ ICON_URL_RADARR: "https://raw.githubusercontent.com/selfhosted/unraid-community-
 ICON_URL_WHISPARR: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/source/community/img/whisparr-icon.png"
 ICON_URL_JELLYFIN: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/source/community/img/jellyfin-icon.png"
 ICON_URL_LIDARR: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/source/community/img/lidarr-icon.png"
-ICON_URL_READARR: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/source/community/img/readarr-icon.png"
 ICON_URL_PROWLARR: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/source/community/img/prowlarr-icon.png"
-ICON_URL_OVERSEERR: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/source/community/img/overseerr-icon.png"
+ICON_URL_SEERR: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/source/community/img/overseerr-icon.png"
 ICON_URL_TAUTULLI: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/source/community/img/tautulli-icon.png"
 ICON_URL_TRANSMISSION: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/source/community/img/transmission-icon.png"
 ICON_URL_QBITTORRENT: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/source/community/img/qbittorrent-icon.png"
@@ -288,13 +286,15 @@ Processing JELLYFIN...
   ✓ Downloaded and resized to 100x100 (5.1K)
 
 ✓ Icon Processing Complete
-  Downloaded: 3 / 3
-  Status: All icons downloaded successfully! ✓
+  Custom (downloaded): 3
+  Default (bundled): 15
+  Using generated SVG: 0
 
 Icon directory contents:
-  /var/www/html/icons/sonarr.png (4.2K)
-  /var/www/html/icons/radarr.png (3.8K)
-  /var/www/html/icons/jellyfin.png (5.1K)
+  /var/www/html/icons/sonarr-custom.png (4.2K)
+  /var/www/html/icons/radarr-custom.png (3.8K)
+  /var/www/html/icons/jellyfin-custom.png (5.1K)
+  ...(plus the bundled default .png for every other service)
 ```
 
 ### Check Downloaded Icons
@@ -306,9 +306,9 @@ docker exec apache-reverse-proxy ls -lh /var/www/html/icons/
 Output:
 ```
 total 13K
--rw-r--r-- 1 root root 4.2K sonarr.png
--rw-r--r-- 1 root root 3.8K radarr.png
--rw-r--r-- 1 root root 5.1K jellyfin.png
+-rw-r--r-- 1 root root 4.2K sonarr-custom.png
+-rw-r--r-- 1 root root 3.8K radarr-custom.png
+-rw-r--r-- 1 root root 5.1K jellyfin-custom.png
 ```
 
 All resized to exactly 100x100 pixels! ✓
@@ -331,26 +331,35 @@ ICON_URL_JELLYFIN       → Jellyfin (Streaming)
 ICON_URL_EMBY           → Emby (Streaming)
 ICON_URL_PLEX           → Plex (Streaming)
 ICON_URL_TAUTULLI       → Tautulli (Analytics)
+ICON_URL_MAINTAINERR    → Maintainerr (Library maintenance)
 ICON_URL_SABNZBD        → SABnzbd (Usenet)
 ICON_URL_NZBGET         → NZBGet (Usenet)
 ICON_URL_NZBHYDRA       → NZBHydra (NZB indexer)
 ICON_URL_TRANSMISSION   → Transmission (Torrents)
 ICON_URL_QBITTORRENT    → qBittorrent (Torrents)
 ICON_URL_DELUGE         → Deluge (Torrents)
+
+DASHBOARD_ICON_URL      → Dashboard logo (not service-specific; see below)
 ```
+
+Note: `download-icons.sh` also defines `ICON_URL_READARR`, but Readarr is not currently one of the 18 proxied services (no `ENABLE_READARR`/`READARR_URL` in `.env.example`), so that variable has no effect today.
+
+### Dashboard Logo
+
+`DASHBOARD_ICON_URL` uses the exact same download/resize/fallback mechanism as the per-service `ICON_URL_*` vars — it downloads to `/var/www/html/icons/dashboard-custom.<ext>`, which `get_icon_path()` in `generate-html-menu.sh` prefers over the bundled `html/icons/yahlp.png` logo.
 
 ---
 
 ## Features
 
 ✅ **Automatic Download** - No manual work needed  
-✅ **Auto-Resize** - All icons resized to exactly 100x100  
-✅ **Format Conversion** - Any format converted to PNG  
+✅ **Auto-Resize** - All icons resized to exactly 100x100 (padded/centered via ImageMagick)  
+✅ **Format Preserved** - Saved with the original image's extension (png/jpg/webp/svg/gif)  
 ✅ **Validation** - Checks files are real images  
-✅ **Fallback** - Uses colored placeholders if download fails  
+✅ **Fallback** - Uses the bundled default icon, or a colored placeholder, if download fails  
 ✅ **Status Logging** - Shows what was downloaded  
-✅ **No Manual Setup** - Just set URLs and restart  
-✅ **Network Friendly** - Downloads only at startup  
+✅ **No Manual Setup** - Just set URLs and rebuild/restart  
+✅ **Network Friendly** - Downloads only at container startup  
 
 ---
 
@@ -416,11 +425,11 @@ Menu shows: Real Sonarr icon + Colored Radarr box + Real Jellyfin icon ✓
 If an icon URL download fails, you can manually place the file:
 
 ```bash
-# Place icon file in icons directory
-cp ~/Downloads/sonarr.png html/icons/sonarr.png
+# Place icon file in icons directory (use the -custom suffix so it takes priority)
+cp ~/Downloads/sonarr.png html/icons/sonarr-custom.png
 
-# Restart container
-docker-compose restart apache-reverse-proxy
+# Rebuild (html/ is baked into the image, not bind-mounted, in the default docker-compose.yml)
+docker-compose up --build -d
 
 # Menu uses manual file instead
 ```
@@ -464,7 +473,7 @@ services:
       ENABLE_RADARR: "true"
       ENABLE_JELLYFIN: "true"
       ENABLE_PROWLARR: "true"
-      ENABLE_OVERSEERR: "true"
+      ENABLE_SEERR: "true"
       ENABLE_QBITTORRENT: "true"
       ENABLE_TAUTULLI: "true"
       
@@ -473,17 +482,17 @@ services:
       ICON_URL_RADARR: "https://github.com/Radarr/Radarr/raw/develop/Logo/256.png"
       ICON_URL_JELLYFIN: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/source/community/img/jellyfin-icon.png"
       ICON_URL_PROWLARR: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/linuxserver.io/img/prowlarr-icon.png"
-      ICON_URL_OVERSEERR: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/linuxserver.io/img/overseerr-icon.png"
+      ICON_URL_SEERR: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/linuxserver.io/img/overseerr-icon.png"
       ICON_URL_QBITTORRENT: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/linuxserver.io/img/qbittorrent-icon.png"
       ICON_URL_TAUTULLI: "https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/linuxserver.io/img/tautulli-icon.png"
       
-      # Optional: Office 365 Auth
-      ENABLE_AUTH_OFFICE365: "false"
+      # Optional: Authentication (AUTHTYPE=none|basic|entra|google — see .env.example)
+      AUTHTYPE: "none"
     
     volumes:
       - ./letsencrypt:/etc/letsencrypt
       - ./logs:/var/log/apache2
-      - ./html:/var/www/html
+      - ./templates:/templates
 
 networks:
   default:

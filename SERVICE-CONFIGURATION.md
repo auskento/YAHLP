@@ -25,8 +25,8 @@ Minimal setup for each service to work with YAHLP reverse proxy. This covers **O
 | **qBittorrent** | QBI | No URL Base needed | None | `ENABLE_QBITTORRENT=true` |
 | **Deluge** | DEL | No URL Base needed | None | `ENABLE_DELUGE=true` |
 | **Jellyfin** | JEL | `/jellyfin` | None | `ENABLE_JELLYFIN=true` |
-| **Emby** | EMB | No URL Base setting | None | `ENABLE_EMBY=true` |
-| **Plex** | PLX | No URL Base setting | None | `ENABLE_PLEX=true` |
+| **Emby** | EMB | No URL Base setting | Subdomain or direct URL only (not a subpath) | `ENABLE_EMBY=true` |
+| **Plex** | PLX | No URL Base setting | Subdomain or direct URL only (not a subpath) | `ENABLE_PLEX=true` |
 | **Tautulli** | TAU | `/tautulli` | None | `ENABLE_TAUTULLI=true` |
 | **Maintainerr** | MNT | No URL Base needed | `BASE_PATH=/maintainerr` env var | `ENABLE_MAINTAINERR=true` |
 
@@ -202,14 +202,18 @@ Access via: `https://yourdomain.com/deluge`
 ### Emby (EMB)
 **YAHLP Setting**: No URL Base configuration needed
 
-Emby does not have a URL Base setting. Access via: `https://yourdomain.com/emby`
+Emby is never proxied at a `/emby` subpath. Instead it opens directly (as a popup) using one of:
+- **Subdomain** (public mode only): if `EMBY_DOMAIN` is set (e.g. `emby.yourdomain.com`), YAHLP generates a dedicated Apache VirtualHost with its own Let's Encrypt certificate, and the dashboard links to `https://emby.yourdomain.com/`
+- **Direct URL** (private mode, or public mode without `EMBY_DOMAIN`): the dashboard links straight to `EMBY_URL`
 
 ---
 
 ### Plex (PLX)
 **YAHLP Setting**: No URL Base configuration needed
 
-Plex does not have a URL Base setting. Access via: `https://yourdomain.com/plex`
+Plex is never proxied at a `/plex` subpath. Instead it opens directly (as a popup) using one of:
+- **Subdomain** (public mode only): if `PLEX_DOMAIN` is set (e.g. `plex.yourdomain.com`), YAHLP generates a dedicated Apache VirtualHost with its own Let's Encrypt certificate, and the dashboard links to `https://plex.yourdomain.com/`
+- **Direct URL** (private mode, or public mode without `PLEX_DOMAIN`): the dashboard links straight to `PLEX_URL`
 
 ---
 
@@ -255,8 +259,8 @@ Access via: `https://yourdomain.com/maintainerr`
 - **qBittorrent**: No URL Base setting
 - **Deluge**: No URL Base setting
 - **Transmission**: Edit `settings.json` → `rpc-url`
-- **Plex**: No URL Base setting
-- **Emby**: No URL Base setting
+- **Plex**: No URL Base setting; always opens via subdomain (`PLEX_DOMAIN`, public mode) or direct URL — never proxied at `/plex`
+- **Emby**: No URL Base setting; always opens via subdomain (`EMBY_DOMAIN`, public mode) or direct URL — never proxied at `/emby`
 - **Maintainerr**: Set Docker environment variable `BASE_PATH=/maintainerr`
 
 

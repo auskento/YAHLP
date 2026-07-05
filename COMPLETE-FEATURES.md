@@ -19,7 +19,7 @@ YAHLP includes **18 pre-configured services** with flexible authentication, cust
 - **Google OAuth** - Google account login
 
 #### 3️⃣ Flexible Dashboard Styling
-- **4 dashboard themes** - modern, classic, sleek, minimal
+- **5 built-in layouts** - modern, classic, sleek, minimal, plus a dedicated mobile layout (always generated)
 - **Landing page customization** - Set default service on startup
 - **Dynamic menu generation** - Built-in, no volume mounts needed
 
@@ -56,7 +56,7 @@ environment:
   DOMAIN: media.example.com
   EMAIL: admin@example.com
   ACCESS_MODE: public
-  STYLE: modern
+  DASH_STYLE: modern
   
   # Enable services
   ENABLE_SONARR: "true"
@@ -100,7 +100,7 @@ environment:
 environment:
   DOMAIN: transfers.example.com
   ACCESS_MODE: public
-  STYLE: modern
+  DASH_STYLE: modern
   
   ENABLE_NZBGET: "true"
   ENABLE_BAZARR: "true"
@@ -154,7 +154,8 @@ apache-reverse-proxy/
 │   ├── ENVIRONMENT-VARIABLES.md     ← All variables explained
 │   ├── SERVICES.md                  ← 18 services explained
 │   ├── SERVICE-URLS.md              ← Backend URL configuration
-│   ├── AUTHENTICATION-SETUP.md      ← Auth methods explained
+│   ├── AUTHENTICATION-SETUP.md      ← All 4 auth methods (none/basic/entra/google)
+│   ├── OFFICE365-AUTH.md            ← Entra ID (Microsoft) auth deep-dive
 │   ├── QUICKSTART.md                ← Quick start guide
 │   ├── TROUBLESHOOTING.md           ← Problem solving
 │   └── ICONS.md                     ← Custom icon setup
@@ -176,17 +177,23 @@ apache-reverse-proxy/
 │   │   │   ├── bazarr.conf          ← NEW!
 │   │   │   ├── nzbget.conf
 │   │   │   ├── jellyfin.conf
-│   │   │   └── ... (11 more services)
+│   │   │   └── ... (12 more services, 17 total)
 │   │   ├── auth-basic.conf
 │   │   ├── auth-entra-protect.conf
 │   │   └── auth-google-protect.conf
 │
 └── 🎨 Web Assets (Generated)
     └── html/
-        ├── dashboard.html           (Modern)
-        ├── classic.template
-        ├── sleek.template
-        ├── minimal.template
+        ├── master.template          (single template for every layout)
+        ├── styles/
+        │   ├── base.css
+        │   ├── layout-classic.css
+        │   ├── layout-modern.css
+        │   ├── layout-sleek.css
+        │   ├── layout-minimal.css
+        │   ├── layout-mobile.css
+        │   └── ... (auto-discovered layout-*.css files)
+        ├── classic.html, modern.html, sleek.html, minimal.html, mobile.html   (generated per layout)
         └── icons/
             └── (service icons auto-generated)
 ```
@@ -208,7 +215,7 @@ apache-reverse-proxy/
 - ✅ Google OAuth for personal use
 
 ### Dashboard Features
-- ✅ 4 theme options (modern, classic, sleek, minimal)
+- ✅ 5 built-in layouts (modern, classic, sleek, minimal, mobile)
 - ✅ Custom landing pages
 - ✅ Custom service ordering
 - ✅ Dynamic menu generation (no volume mounts needed)
@@ -232,8 +239,8 @@ apache-reverse-proxy/
 - [ ] `docker-compose up -d`
 
 ### With Custom Dashboard
-- [ ] Set STYLE (modern, classic, sleek, or minimal)
-- [ ] Set DASHBOARD_NAME and DASHBOARD_ICON
+- [ ] Set DASH_STYLE (modern, classic, sleek, or minimal)
+- [ ] Set DASHBOARD_NAME and DASHBOARD_ICON_URL
 - [ ] Set DASHBOARD_LANDING (optional - default service to load)
 - [ ] Set DASHBOARD_ORDER (optional - customize service display order)
 - [ ] `docker-compose up -d`
@@ -266,7 +273,7 @@ apache-reverse-proxy/
 | Services (18) | ✅ | No | ENABLE_* variables |
 | HTTPS | ✅ | No | Automatic |
 | Authentication | ✅ | No | AUTHTYPE variable |
-| Dashboard themes | ✅ | No | STYLE variable |
+| Dashboard themes | ✅ | No | DASH_STYLE variable |
 | Custom ordering | ✅ | No | DASHBOARD_ORDER |
 | Custom landing | ✅ | No | DASHBOARD_LANDING |
 | Service URLs | ✅ | No | *_URL variables |
@@ -287,10 +294,9 @@ apache-reverse-proxy/
 - All services: `SERVICES.md`
 
 ### Authentication Setup
-- Overview: `AUTHENTICATION-SETUP.md`
-- Entra ID: Section in AUTHENTICATION-SETUP.md
-- Google OAuth: Section in AUTHENTICATION-SETUP.md
-- Basic Auth: Section in AUTHENTICATION-SETUP.md
+- All methods (none/basic/entra/google): `AUTHENTICATION-SETUP.md`
+- Entra ID (Microsoft) deep-dive: `OFFICE365-AUTH.md`
+- `AUTHTYPE` and related variables: `.env.example`
 
 ### Troubleshooting
 - Common issues: `TROUBLESHOOTING.md`
@@ -365,7 +371,7 @@ openssl rand -base64 24  # For ENTRA_CRYPTO_PASSPHRASE
 → Check `SERVICE-URLS.md` and `TROUBLESHOOTING.md`
 
 **Auth not working?**
-→ Read `AUTHENTICATION-SETUP.md`
+→ See `AUTHENTICATION-SETUP.md`, or `OFFICE365-AUTH.md` for Entra ID specifically, and check `AUTHTYPE`/`GOOGLE_*`/`BASIC_AUTH_CREDENTIALS` in `.env.example`
 
 **Docker issues?**
 → Check logs: `docker-compose logs apache-reverse-proxy`
@@ -377,7 +383,7 @@ openssl rand -base64 24  # For ENTRA_CRYPTO_PASSPHRASE
 **Key Capabilities:**
 ✅ 18 services available  
 ✅ 4 authentication methods  
-✅ 4 dashboard themes  
+✅ 5 built-in dashboard layouts  
 ✅ Custom service ordering  
 ✅ Automatic HTTPS  
 ✅ Easy configuration  

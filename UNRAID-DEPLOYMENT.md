@@ -4,20 +4,20 @@ Complete guide for installing and configuring YAHLP via Unraid web UI.
 
 ---
 
+**Note:** This repo does not currently ship a Community Apps template (`unraid/YAHLP.xml`) or a Community Apps listing. There is no template file to copy to your Unraid server — instead, add the container manually and point it at the pre-built image, as described below.
+
 ## TL;DR (5 Minutes)
 
-1. **Copy template to Unraid:**
-   ```bash
-   cp unraid/YAHLP.xml \
-      /boot/config/plugins/dockerManagement/templates-user/
-   ```
+1. **Go to Unraid web UI → Docker → Add Container**
 
-2. **Go to Unraid web UI → Docker → Add Container**
+2. **Set `Repository` to:** `ghcr.io/auskento/yahlp:latest` (published automatically from this repo's `main` branch)
 
 3. **Fill in:**
    - DOMAIN: your-domain.com
    - EMAIL: admin@example.com
    - Enable services (set ENABLE_SONARR, etc. to true)
+   - Port mappings: 80, 443 (and 3000 if you want direct access to the internal status API)
+   - Volume mappings: an appdata path → `/etc/letsencrypt`, another → `/var/log/apache2`
 
 4. **Click APPLY**
 
@@ -27,29 +27,15 @@ Complete guide for installing and configuring YAHLP via Unraid web UI.
 
 ## Step-by-Step Setup
 
-### Step 1: Copy Template to Unraid
-
-You need to get the `YAHLP.xml` file to your Unraid server.
-
-#### Option A: Using SSH/Terminal
+### Step 1: Prepare Unraid Directories
 
 ```bash
 # On Unraid terminal or via SSH:
-mkdir -p /boot/config/plugins/dockerManagement/templates-user
-
-# Copy template from extracted zip
-cp /path/to/yahlp/unraid/YAHLP.xml \
-   /boot/config/plugins/dockerManagement/templates-user/
+mkdir -p /mnt/user/appdata/yahlp/letsencrypt
+mkdir -p /mnt/user/appdata/yahlp/logs
 ```
 
-#### Option B: Manual Copy via Web UI
-
-1. Go to Unraid web UI
-2. Tools → System Devices (or Main)
-3. Share → Boot
-4. Navigate to: `boot/config/plugins/dockerManagement/templates-user/`
-5. Create folder if doesn't exist
-6. Upload `YAHLP.xml`
+These will be mapped as container volumes in Step 3 below.
 
 ---
 
@@ -65,22 +51,19 @@ cp /path/to/yahlp/unraid/YAHLP.xml \
 
 ---
 
-### Step 3: Select Template
+### Step 3: Click "Add Container"
 
-1. Look for **"yahlp"** in the dropdown or search
-2. If not visible, click refresh or search for it
-3. The template should load automatically
+There's no template to select — you're adding the container from scratch by pointing Unraid at the published image.
 
 ---
 
 ### Step 4: Configure Basic Settings
 
 #### Container Name
-Leave default: `auskentos-yahlp`
-(or change if you prefer)
+Choose a name, e.g. `yahlp`
 
 #### Repository (Image)
-Should be auto-filled with the Docker image name
+Set to: `ghcr.io/auskento/yahlp:latest`
 
 #### Network Type
 Select: **custom: dockernet**
@@ -119,15 +102,18 @@ ENABLE_RADARR: true        (Movie automation)
 ENABLE_JELLYFIN: true      (Media streaming)
 ENABLE_WHISPARR: false     (Adult content)
 ENABLE_LIDARR: false       (Music automation)
-ENABLE_READARR: false      (Book automation)
 ENABLE_PROWLARR: false     (Indexer manager)
-ENABLE_OVERSEERR: false    (Request manager)
+ENABLE_SEERR: false        (Request manager)
+ENABLE_BAZARR: false       (Subtitle management)
 ENABLE_EMBY: false         (Media streaming)
 ENABLE_PLEX: false         (Media streaming)
 ENABLE_TAUTULLI: false     (Analytics)
+ENABLE_MAINTAINERR: false  (Library maintenance)
 ENABLE_TRANSMISSION: false (Torrent client)
 ENABLE_QBITTORRENT: false  (Torrent client)
 ENABLE_SABNZBD: false      (Usenet client)
+ENABLE_NZBGET: false       (Usenet client)
+ENABLE_NZBHYDRA: false     (NZB indexer)
 ENABLE_DELUGE: false       (Torrent client)
 ```
 
@@ -139,8 +125,10 @@ ICON_URL_SONARR: https://url/to/icon.png
 
 **Optional - Authentication:**
 ```
-ENABLE_AUTH_OFFICE365: false
-(Set true if you want Office 365 login)
+AUTHTYPE: none
+(Set to basic, entra, or google to require login; see the auth-specific
+ variables in .env.example, e.g. ENTRA_CLIENT_ID/ENTRA_CLIENT_SECRET
+ for Microsoft Entra ID, or GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET for Google)
 ```
 
 ---

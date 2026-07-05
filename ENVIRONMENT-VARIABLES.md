@@ -10,7 +10,7 @@ Complete reference guide for all environment variables supported by YAHLP.
 - **Description:** Deployment mode that determines certificate generation and feature availability
 - **Options:**
   - `public`: Internet-facing deployment with Let's Encrypt HTTPS (requires DOMAIN and EMAIL)
-  - `private`: Internal-only deployment without certificates (DOMAIN/EMAIL still in config but not used)
+  - `private`: Internal-only, HTTP-only deployment without certificates (requires IP instead; DOMAIN/EMAIL are cleared and unused)
 - **Note:** In private mode, only `none` or `basic` authentication types are supported
 
 ## Required Variables (Public Mode Only)
@@ -32,6 +32,19 @@ For `ACCESS_MODE=public`, these **must** be set:
 - **Default:** `admin@example.com`
 - **Note:** You'll receive renewal notifications at this email
 - **Required for:** `ACCESS_MODE=public` only
+
+## Required Variables (Private Mode Only)
+
+### IP
+- **Type:** String
+- **Example:** `192.168.9.244`
+- **Description:** The LAN IP address of the host, used to rewrite service backend URLs (e.g. `https://example.com` placeholders become `http://<IP>`) since no certificate/domain is used in private mode
+- **Required for:** `ACCESS_MODE=private` only (the container exits with an error at startup if not provided)
+
+### TEST
+- **Type:** Boolean (`true` or `false`)
+- **Default:** `false`
+- **Description:** When `true`, passes `--dry-run` to Certbot so no real Let's Encrypt certificate is issued (useful for testing the public-mode flow without hitting rate limits)
 
 ---
 
@@ -56,45 +69,70 @@ For `ACCESS_MODE=public`, these **must** be set:
 - **Description:** Allowed SSL cipher suites
 
 ### Dashboard Customization
-- **Variable:** `STYLE`
-- **Type:** String (classic, modern, sleek, or minimal)
+- **Variable:** `DASH_STYLE`
+- **Type:** String (classic, modern, sleek, minimal, or mobile)
 - **Default:** `modern`
-- **Description:** Dashboard visual style
+- **Description:** Dashboard visual style used as the default (`index.html` / Apache `DirectoryIndex`). All layouts are generated as separate pages (`/classic.html`, `/modern.html`, `/sleek.html`, `/minimal.html`, `/mobile.html`) with a style switcher in the UI so users can freely swap between them.
 - **Options:**
   - `classic`: Original sidebar menu layout
-  - `modern`: React-based UI with full features (recommended)
+  - `modern`: Full-featured layout (recommended)
   - `sleek`: Compact sidebar with gradient styling
   - `minimal`: Minimal single-column design
+  - `mobile`: Layout optimized for small screens (always generated regardless of setting)
+- **Advanced forms:**
+  - `classic:only` — build and lock the dashboard to a single style; disables the in-page style switcher
+  - `classic,modern,sleek` — comma-separated list builds only those styles and shows only them in the switcher (the first one listed becomes the default)
+- **Note:** Basic authentication (`AUTHTYPE=basic`) forces `DASH_STYLE=classic` automatically, since the other layouts require session management that basic auth doesn't provide.
+
+- **Variable:** `DASHBOARD_THEME`
+- **Type:** String (dark or light)
+- **Default:** `dark`
+- **Description:** Color theme applied to the dashboard UI
 
 - **Variable:** `DASHBOARD_NAME`
 - **Type:** String
-- **Default:** `Media Server`
+- **Default:** `YAHLP`
 - **Description:** Display name shown in dashboard header and page title
 - **Example:** `My Homelab`, `Family Media`, `Media Center`
 
-- **Variable:** `DASHBOARD_ICON`
-- **Type:** URL path
-- **Default:** `/icons/yahlp.png`
-- **Description:** Icon displayed in dashboard header (relative path or full URL)
-- **Examples:** `/icons/my-logo.png`, `https://example.com/logo.png`
-- **Note:** Place custom icon files in the `html/icons/` directory
+- **Variable:** `DASHBOARD_COLOR`
+- **Type:** String (6-digit hex code)
+- **Default:** `#1a1a1a`
+- **Description:** Menu/dashboard background color. Only applies to the built-in layouts (classic/modern/sleek/minimal/mobile); custom user-supplied layouts render their own colors and are left at their CSS default.
+
+- **Variable:** `DASHBOARD_ICON_URL`
+- **Type:** URL
+- **Default:** Empty (uses bundled `/icons/yahlp.png`, or a custom `/icons/dashboard-custom.*` file if present)
+- **Description:** Optional URL to download a custom dashboard header icon. Downloaded and resized like the per-service `ICON_URL_*` variables.
+- **Examples:** `https://example.com/logo.png`
+- **Note:** Place custom icon files directly in the icons directory using the `dashboard-custom.<ext>` naming convention as an alternative to a download URL.
 
 - **Variable:** `DASHBOARD_LANDING`
 - **Type:** String (service path or empty)
 - **Default:** Empty (shows welcome screen)
-- **Description:** Default page to load in dashboard iframe on startup
+- **Description:** Default page to load in the dashboard on startup. If the first path segment matches `sonarr`, `radarr`, `lidarr`, or `whisparr`, it also seeds that service's own `*_LANDING` variable (see below) as a convenience default.
 - **Examples:** `sonarr/calendar`, `radarr`, `plex/web`
-- **Note:** Only used in modern, sleek, and minimal dashboard styles
+
+- **Variable:** `SONARR_LANDING` / `RADARR_LANDING` / `LIDARR_LANDING` / `WHISPARR_LANDING`
+- **Type:** String (path, or empty)
+- **Default:** Empty (falls back to the service's own root, e.g. `/sonarr/`, and to `DASHBOARD_LANDING` if that matches the service)
+- **Description:** Overrides the dashboard menu icon's link target for that specific service, letting it deep-link to a subpage (e.g. `/sonarr/series` instead of `/sonarr/`)
+- **Note:** Values are normalized to always start and end with `/`
 
 - **Variable:** `DASHBOARD_ORDER`
-- **Type:** String (comma-separated 3-letter service codes)
+- **Type:** String (comma-separated 3-letter service codes, plus optional separator tokens)
 - **Default:** `SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT`
-- **Description:** Order in which to display services on dashboard
+- **Description:** Order in which to display services on the dashboard
+- **Special tokens:**
+  - `SEP` — invisible gap separator
+  - `VIS` — visible line separator
+  - `LBL:Some Label` — labeled separator / section header
 - **Examples:** 
   - `SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT` (default order)
   - `JEL,EMB,PLX,TAU,MNT,SON,RAD,LID,WHI,PRO,SEE,BAZ,SAB,GET,HYD,TRA,QBI,DEL` (media servers first)
   - `SAB,GET,HYD,TRA,QBI,DEL` (only download clients)
-- **Note:** Use 3-letter codes (see Service Codes Reference below). Codes must be comma-separated with no extra spaces. Only enabled services are displayed.
+  - `LBL:Downloads,SAB,GET,HYD,VIS,LBL:Media,JEL,EMB,PLX` (with section headers and a visible separator)
+- **Note:** Use 3-letter codes (see Service Codes Reference below). Codes must be comma-separated with no extra spaces. Only enabled services are displayed; unrecognized codes are silently skipped.
 
 - **Variable:** `SITES_ENABLED`
 - **Type:** String (comma-separated 3-letter site codes)
@@ -115,10 +153,10 @@ For `ACCESS_MODE=public`, these **must** be set:
 - **Description:** Authentication method for dashboard access
 - **Options:**
   - `none`: No authentication required
-  - `basic`: Simple username/password authentication
+  - `basic`: Simple username/password authentication (forces `DASH_STYLE=classic`)
   - `entra`: Microsoft Entra ID (Azure AD) OAuth
   - `google`: Google OAuth2
-- **Note:** In private deployments (SKIP_CERT_GENERATION=true), only `none` and `basic` are supported
+- **Note:** In private deployments (`ACCESS_MODE=private`), only `none` and `basic` are supported
 
 ---
 
@@ -212,6 +250,35 @@ MAINTAINERR_URL=http://maintainerr:6246
 - Hostname: `http://sonarr.local:8989`
 - Docker container: `http://sonarr:8989`
 
+#### NZBGet Credentials
+
+NZBGet has no URL-base setting, so YAHLP authenticates to it on the backend's behalf:
+
+```
+NZBGET_USER=""
+NZBGET_PASS=""
+```
+
+If both are set, YAHLP injects a base64-encoded HTTP Basic `Authorization` header into the proxied request to NZBGet automatically.
+
+#### Subdomain Services (Emby, Plex, Seerr)
+
+Emby, Plex, and Seerr can optionally be served on their own subdomain (with their own Let's Encrypt certificate) instead of a subpath. This only applies in `ACCESS_MODE=public`:
+
+```
+EMBY_DOMAIN=emby.yourdomain.com
+EMBY_REDIRECT_URI=https://emby.yourdomain.com/oauth2callback
+PLEX_DOMAIN=plex.yourdomain.com
+PLEX_REDIRECT_URI=https://plex.yourdomain.com/oauth2callback
+SEERR_DOMAIN=seerr.yourdomain.com
+SEERR_REDIRECT_URI=https://seerr.yourdomain.com/oauth2callback
+```
+
+- If `*_DOMAIN` is set (and `ACCESS_MODE=public`), the dashboard menu links to `https://<domain>/` and a dedicated Apache VirtualHost with its own certificate is generated for Emby/Plex.
+- If `*_DOMAIN` is not set, the dashboard falls back to the plain `*_URL` value.
+- In `ACCESS_MODE=private`, Emby/Plex always use `*_URL` directly regardless of `*_DOMAIN`.
+- `*_REDIRECT_URI` is only needed when using `entra` or `google` OAuth with a subdomain, so that service gets its own OAuth callback separate from the main dashboard's.
+
 ---
 
 ### Service Icon URLs
@@ -233,6 +300,7 @@ ICON_URL_TRANSMISSION=
 ICON_URL_QBITTORRENT=
 ICON_URL_DELUGE=
 ICON_URL_JELLYFIN=
+ICON_URL_EMBY=
 ICON_URL_PLEX=
 ICON_URL_TAUTULLI=
 ICON_URL_MAINTAINERR=
@@ -245,10 +313,11 @@ ICON_URL_MAINTAINERR=
 - `https://github.com/Sonarr/Sonarr/raw/develop/Logo/256.png`
 
 **Smart System:**
-1. If custom URL provided → Downloads and uses it
-2. If custom URL fails → Falls back to bundled PNG
-3. If no custom URL → Uses bundled PNG default
-4. If no PNG available → Generates SVG placeholder
+1. If custom URL provided → Downloads and resizes it to 100x100, saved as `<service>-custom.<ext>`
+2. If custom URL fails to download → Falls back to the bundled default icon
+3. If no custom URL → Uses the bundled default icon
+
+See **[ICONS.md](ICONS.md)** for full details on the icon resolution and download mechanics.
 
 ---
 
@@ -269,40 +338,35 @@ The `GOOGLE_REDIRECT_URI` **must exactly match** the authorized redirect URI con
 
 ---
 
-## Office 365 / Azure AD Authentication (Optional)
+## Microsoft Entra ID (Azure AD) Authentication (Optional)
 
-### Enable/Disable
-- **Variable:** `ENABLE_AUTH_OFFICE365`
-- **Type:** Boolean (`true` or `false`)
-- **Default:** `false`
-- **Description:** Enable Office 365 authentication
+Set `AUTHTYPE=entra` to enable. There is no separate enable flag.
 
 ### Configuration
-- **Variable:** `OAUTH2_CLIENT_ID`
+- **Variable:** `ENTRA_CLIENT_ID`
 - **Type:** String
-- **Description:** Azure AD Application Client ID
-- **Required if:** `ENABLE_AUTH_OFFICE365=true`
+- **Description:** Entra ID (Azure AD) Application Client ID
+- **Required if:** `AUTHTYPE=entra`
 
-- **Variable:** `OAUTH2_CLIENT_SECRET`
+- **Variable:** `ENTRA_CLIENT_SECRET`
 - **Type:** String
-- **Description:** Azure AD Application Client Secret
-- **Required if:** `ENABLE_AUTH_OFFICE365=true`
+- **Description:** Entra ID (Azure AD) Application Client Secret
+- **Required if:** `AUTHTYPE=entra`
 - **Security:** Keep this secret!
 
-- **Variable:** `OAUTH2_REDIRECT_URI`
+- **Variable:** `ENTRA_PROVIDER_METADATA_URL`
 - **Type:** URL
-- **Default:** `https://yourdomain.com/oauth2callback`
-- **Description:** OAuth2 callback URL (must match Azure AD config)
+- **Description:** OpenID Connect discovery/metadata URL for your Entra tenant
+- **Required if:** `AUTHTYPE=entra`
 
-- **Variable:** `OAUTH2_ALLOWED_DOMAINS`
-- **Type:** String (comma-separated)
-- **Default:** `example.com`
-- **Example:** `company.com,partner.com`
-- **Description:** Email domains allowed to authenticate
+- **Variable:** `ENTRA_REDIRECT_URI`
+- **Type:** URL
+- **Default:** `https://yourdomain.com/auth/oauth2/callback`
+- **Description:** OAuth2 callback URL (must match the redirect URI registered in Entra ID)
 
-- **Variable:** `OAUTH2_CRYPTO_PASSPHRASE`
+- **Variable:** `ENTRA_CRYPTO_PASSPHRASE`
 - **Type:** String
-- **Default:** Auto-generated if empty
+- **Default:** Auto-generated at startup if empty
 - **Description:** Session encryption passphrase (for security)
 
 ---
@@ -321,12 +385,12 @@ environment:
   
   # Optional - Timezone and dashboard customization
   TZ: Australia/Melbourne
-  STYLE: modern
+  DASH_STYLE: modern
   DASHBOARD_NAME: My Homelab
-  DASHBOARD_ICON: /icons/yahlp.png
+  DASHBOARD_ICON_URL: ""
   DASHBOARD_LANDING: sonarr/calendar
   
-  # Authentication
+  # Authentication (note: basic auth forces DASH_STYLE=classic)
   AUTHTYPE: basic
   BASIC_AUTH_CREDENTIALS: "user1:password1|user2:password2"
   
@@ -353,15 +417,14 @@ environment:
   # Deployment mode - private disables certificate generation
   ACCESS_MODE: private
   
-  # DOMAIN and EMAIL required in config but not used for certificates
-  DOMAIN: internal-proxy
-  EMAIL: admin@local
+  # IP is required in private mode (used to rewrite backend URLs)
+  IP: 192.168.9.244
   
   # Dashboard customization
   TZ: Australia/Melbourne
-  STYLE: modern
+  DASH_STYLE: modern
   DASHBOARD_NAME: Family Media
-  DASHBOARD_ICON: /icons/yahlp.png
+  DASHBOARD_ICON_URL: ""
   DASHBOARD_LANDING: ""
   
   # Authentication - only none or basic allowed in private mode
@@ -388,9 +451,9 @@ EMAIL=admin@yourdomain.com
 TZ=Australia/Melbourne
 
 # Dashboard customization
-STYLE=modern
+DASH_STYLE=modern
 DASHBOARD_NAME=My Homelab
-DASHBOARD_ICON=/icons/yahlp.png
+DASHBOARD_ICON_URL=
 DASHBOARD_LANDING=sonarr/calendar
 
 # Authentication
@@ -413,13 +476,13 @@ ICON_URL_RADARR=https://example.com/radarr.png
 
 ## Environment Variable Validation
 
-The system will verify:
-- ✅ `DOMAIN` is not `example.com`
-- ✅ `EMAIL` is a valid email format
-- ✅ `TZ` is a valid timezone (if provided)
-- ✅ `ENABLE_*` are boolean (`true` or `false`)
-- ✅ `*_URL` are valid URLs (if provided)
-- ✅ `ICON_URL_*` are valid URLs (if provided)
+The entrypoint script validates at startup and exits with an error if:
+- ✅ `ACCESS_MODE` is not `public` or `private`
+- ✅ `IP` is missing when `ACCESS_MODE=private`
+- ✅ `AUTHTYPE` is something other than `none`/`basic` when `ACCESS_MODE=private`
+- ✅ `BASIC_AUTH_CREDENTIALS` is missing (or malformed) when `AUTHTYPE=basic`
+- ✅ `ENTRA_CLIENT_ID` / `ENTRA_CLIENT_SECRET` / `ENTRA_PROVIDER_METADATA_URL` are missing when `AUTHTYPE=entra`
+- ✅ `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` are missing when `AUTHTYPE=google`
 
 If validation fails, check the container logs:
 ```bash

@@ -18,69 +18,21 @@ chmod 777 /var/log/apache2/sites || {
     exit 1
 }
 
-# Load persistent dashboard configuration if it exists
+# Generate yahlp.json5 from environment variables if it doesn't exist
+# This provides a base configuration that can be overridden by environment variables
+if ! [ -f /etc/yahlp/yahlp.json5 ]; then
+    echo "Generating yahlp.json5 from environment variables..."
+    node /app/scripts/generate-config.js
+else
+    echo "✓ yahlp.json5 already exists"
+    echo "  Note: Environment variables will override JSON5 values"
+fi
+
+# Load persistent dashboard configuration if it exists (legacy support)
 # This allows changing UI style and landing page without rebuilding the image
 if [ -f /etc/apache2/dashboard.conf ]; then
     echo "Loading persistent dashboard configuration..."
     source /etc/apache2/dashboard.conf
-fi
-
-# Load mounted yahlp.json configuration file if it exists
-# This is the primary configuration source, env vars are fallback
-if [ -f /etc/yahlp/yahlp.json ]; then
-    echo "Loading configuration from yahlp.json..."
-
-    # Use jq to extract values from JSON if available
-    if command -v jq &> /dev/null; then
-        # Extract top-level settings
-        ACCESS_MODE=$(jq -r '.access_mode // empty' /etc/yahlp/yahlp.json)
-        DOMAIN=$(jq -r '.domain // empty' /etc/yahlp/yahlp.json)
-        EMAIL=$(jq -r '.email // empty' /etc/yahlp/yahlp.json)
-        IP=$(jq -r '.ip // empty' /etc/yahlp/yahlp.json)
-
-        # Extract dashboard settings
-        DASHBOARD_NAME=$(jq -r '.dashboard.name // empty' /etc/yahlp/yahlp.json)
-        DASHBOARD_ICON_URL=$(jq -r '.dashboard.icon_url // empty' /etc/yahlp/yahlp.json)
-        DASHBOARD_COLOR=$(jq -r '.dashboard.color // empty' /etc/yahlp/yahlp.json)
-        DASHBOARD_THEME=$(jq -r '.dashboard.theme // empty' /etc/yahlp/yahlp.json)
-        DASH_STYLE=$(jq -r '.dashboard.style // empty' /etc/yahlp/yahlp.json)
-        DASHBOARD_LANDING=$(jq -r '.dashboard.landing // empty' /etc/yahlp/yahlp.json)
-
-        # Extract auth settings
-        AUTHTYPE=$(jq -r '.auth.type // empty' /etc/yahlp/yahlp.json)
-        BASIC_AUTH_CREDENTIALS=$(jq -r '.auth.basic_credentials // empty' /etc/yahlp/yahlp.json)
-
-        # Extract Google OAuth settings
-        GOOGLE_CLIENT_ID=$(jq -r '.google.client_id // empty' /etc/yahlp/yahlp.json)
-        GOOGLE_CLIENT_SECRET=$(jq -r '.google.client_secret // empty' /etc/yahlp/yahlp.json)
-        GOOGLE_REDIRECT_URI=$(jq -r '.google.redirect_uri // empty' /etc/yahlp/yahlp.json)
-
-        # Extract Entra OAuth settings
-        ENTRA_CLIENT_ID=$(jq -r '.entra.client_id // empty' /etc/yahlp/yahlp.json)
-        ENTRA_CLIENT_SECRET=$(jq -r '.entra.client_secret // empty' /etc/yahlp/yahlp.json)
-        ENTRA_REDIRECT_URI=$(jq -r '.entra.redirect_uri // empty' /etc/yahlp/yahlp.json)
-        ENTRA_PROVIDER_METADATA_URL=$(jq -r '.entra.provider_metadata_url // empty' /etc/yahlp/yahlp.json)
-        ENTRA_CRYPTO_PASSPHRASE=$(jq -r '.entra.crypto_passphrase // empty' /etc/yahlp/yahlp.json)
-
-        echo "✓ Configuration loaded from yahlp.json"
-    else
-        echo "⚠ jq not found - yahlp.json will not be parsed"
-    fi
-fi
-
-# Load yahlp.sites.json if it exists
-if [ -f /etc/yahlp/yahlp.sites.json ]; then
-    echo "Loading sites configuration from yahlp.sites.json..."
-
-    if command -v jq &> /dev/null; then
-        # Extract site codes from sites array
-        SITES_ENABLED=$(jq -r '.sites[]? | select(.enabled != false) | .code' /etc/yahlp/yahlp.sites.json | paste -sd ',' -)
-        if [ ! -z "$SITES_ENABLED" ]; then
-            echo "✓ Sites loaded: $SITES_ENABLED"
-        fi
-    else
-        echo "⚠ jq not found - yahlp.sites.json will not be parsed"
-    fi
 fi
 
 # Load env.local/env file for additional overrides (if it exists)

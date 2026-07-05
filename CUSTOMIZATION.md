@@ -1,19 +1,23 @@
 # Creating Custom Templates
 
-YAHLP now uses a **CSS-only customization system**. All templates use the same HTML/JavaScript code—only CSS differs.
+YAHLP uses a **CSS-only customization system**. All templates render from the same `html/master.template` markup — only the CSS differs per layout.
 
 ## File Structure
 
 ```
 html/
-  master.template          # Single React component (all templates use this)
+  master.template          # Single template (all layouts use this)
   styles/
     base.css              # Common styles, variables, typography
     layout-classic.css    # Classic menu bar layout
+    layout-modern.css     # Right-side services frame with left sidebar
     layout-sleek.css      # Sleek 2-column sidebar
     layout-minimal.css    # Minimal single-column sidebar
+    layout-mobile.css     # Mobile-optimized single-column layout
     layout-custom.css     # Your custom template (create this)
 ```
+
+Layout selection happens via a `data-layout="<name>"` attribute on the `.app` div — `generate-html-menu.sh` auto-discovers every `layout-*.css` file under `html/styles/` (via `find "$BUILTIN_STYLES" -name "layout-*.css"`) and builds a corresponding `<name>.html` page at container startup. No core files need editing to add a new layout.
 
 ## Creating a Custom Template
 
@@ -67,23 +71,18 @@ Edit `layout-custom.css` to customize:
 /* Add more customizations... */
 ```
 
-### Step 2: Update the Shell Script
+### Step 2: Make It Available to the Container
 
-In `generate-html-menu.sh`, add your template to the list:
+No shell script edits are needed — `generate_css_based_templates()` in `generate-html-menu.sh` auto-discovers any `layout-*.css` file under `html/styles/` at container startup.
 
-```bash
-# Line ~1078, in generate_css_based_templates()
-for layout in classic sleek minimal custom; do
-    # ... generation code ...
-done
-```
+- If you're editing the repo directly (e.g. adding `html/styles/layout-custom.css` before building the image), just rebuild:
+  ```bash
+  docker-compose down
+  docker-compose up --build -d
+  ```
+- If you'd rather not touch the repo, drop `layout-custom.css` into the `./templates/` folder at the repo root instead (mounted to `/templates` in `docker-compose.yml`). It gets copied into `html/styles/` automatically at container startup — see `templates/README.md` for details. Since this copy happens in the entrypoint (not at image build time), a plain `docker-compose restart` picks it up; no rebuild required.
 
-### Step 3: Rebuild Docker
-
-```bash
-docker-compose down
-docker-compose up --build -d
-```
+### Step 3: View Your Template
 
 Access your template at: `http://your-server/custom.html`
 
@@ -113,6 +112,7 @@ All customizable elements use semantic class names:
 - `.menu-item` - Individual service button
 - `.menu-icon` - Service icon
 - `.menu-label` - Service name label
+- `.menu-separator` / `.menu-separator-visible` / `.menu-separator-label` / `.menu-separator-invisible` - Dividers between service groups (see `html/templates/README.md` for the full reference)
 
 ### Dashboard
 

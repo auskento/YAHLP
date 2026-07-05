@@ -4,23 +4,27 @@ const cors = require('cors');
 const NodeCache = require('node-cache');
 const fs = require('fs');
 const path = require('path');
+const JSON5 = require('json5');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PROXY_PORT || 3000;
 const cache = new NodeCache({ stdTTL: 30, checkperiod: 10 });
 
-// Load configuration from mounted yahlp.json if it exists
-// yahlp.json takes precedence over environment variables
-const configPath = '/etc/yahlp/yahlp.json';
+// Load configuration from mounted yahlp.json5 and sites.json5
+// Configuration priority: Environment variables > JSON5 files > Defaults
+// JSON5 format allows comments and provides the base configuration
+const configPath = '/etc/yahlp/yahlp.json5';
+const sitesPath = '/etc/yahlp/sites.json5';
 let jsonConfig = {};
+let sitesConfig = { sites: [] };
 
 if (fs.existsSync(configPath)) {
   try {
-    jsonConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    console.log('✓ Configuration loaded from yahlp.json');
+    jsonConfig = JSON5.parse(fs.readFileSync(configPath, 'utf8'));
+    console.log('✓ Configuration loaded from yahlp.json5');
+    console.log('  Note: Environment variables will override JSON5 values');
 
     // Log what's configured
     const hasServices = jsonConfig.services && Object.keys(jsonConfig.services).length > 0;
@@ -29,27 +33,65 @@ if (fs.existsSync(configPath)) {
     const hasEntraAuth = jsonConfig.entra?.client_id;
     const hasDashboard = jsonConfig.dashboard?.name;
 
-    console.log('  Services in JSON:', hasServices ? Object.keys(jsonConfig.services).length : '0');
+    console.log('  Services in JSON5:', hasServices ? Object.keys(jsonConfig.services).length : '0');
     console.log('  Auth configured:', hasAuth || 'none');
     if (hasGoogleAuth) console.log('  Google OAuth: configured');
     if (hasEntraAuth) console.log('  Entra OAuth: configured');
     if (hasDashboard) console.log('  Dashboard: ' + jsonConfig.dashboard.name);
   } catch (err) {
-    console.error('Error loading yahlp.json:', err.message);
+    console.error('Error loading yahlp.json5:', err.message);
+  }
+} else {
+  console.warn('⚠ yahlp.json5 not found at', configPath);
+}
+
+if (fs.existsSync(sitesPath)) {
+  try {
+    sitesConfig = JSON5.parse(fs.readFileSync(sitesPath, 'utf8'));
+    console.log('✓ Sites loaded from sites.json5:', (sitesConfig.sites || []).length, 'sites');
+  } catch (err) {
+    console.error('Error loading sites.json5:', err.message);
   }
 }
 
-// Helper function to get config value: JSON takes precedence, fall back to env var
-function getConfigValue(service, key) {
-  const jsonValue = jsonConfig.services?.[service]?.[key];
-  if (jsonValue) return jsonValue;
-
-  const envKey = `${service.toUpperCase()}_${key.toUpperCase()}`;
-  return process.env[envKey];
+// Helper function to get nested config value from JSON object
+function getNestedValue(obj, path) {
+  return path.split('.').reduce((current, key) => current?.[key], obj);
 }
 
-// Service URL and key configuration
-// Values from yahlp.json take precedence over environment variables
+// Helper function to get config value: env vars override JSON5, which overrides defaults
+function getConfigValue(service, key) {
+  // Check environment variable first (highest priority)
+  const envKey = `${service.toUpperCase()}_${key.toUpperCase()}`;
+  const envValue = process.env[envKey];
+  if (envValue !== undefined) return envValue;
+
+  // Fall back to JSON5 config
+  const jsonValue = jsonConfig.services?.[service]?.[key];
+  if (jsonValue !== undefined) return jsonValue;
+
+  return undefined;
+}
+
+// Helper function to get any config value with env var override support
+function getConfig(path, defaultValue) {
+  // Check environment variable first (highest priority)
+  // Convert path like 'dashboard.name' to 'DASHBOARD_NAME'
+  const envKey = path.toUpperCase().replace(/\./g, '_');
+  const envValue = process.env[envKey];
+  if (envValue !== undefined) return envValue;
+
+  // Fall back to JSON5 config
+  const jsonValue = getNestedValue(jsonConfig, path);
+  if (jsonValue !== undefined) return jsonValue;
+
+  return defaultValue;
+}
+
+// API Proxy port - hardcoded as 3000, not configurable
+const PORT = 3000;
+
+// Service URL and key configuration - all from yahlp.json5
 const services = {
   'jellyfin': { url: getConfigValue('jellyfin', 'url'), key: getConfigValue('jellyfin', 'api_key'), authType: 'mediabrowser' },
   'plex': { url: getConfigValue('plex', 'url'), key: getConfigValue('plex', 'api_key'), authType: 'plex' },
@@ -58,10 +100,15 @@ const services = {
   'radarr': { url: getConfigValue('radarr', 'url'), key: getConfigValue('radarr', 'api_key'), authType: 'header' },
   'lidarr': { url: getConfigValue('lidarr', 'url'), key: getConfigValue('lidarr', 'api_key'), authType: 'header' },
   'whisparr': { url: getConfigValue('whisparr', 'url'), key: getConfigValue('whisparr', 'api_key'), authType: 'header' },
-  'qbittorrent': { url: getConfigValue('qbittorrent', 'url'), key: getConfigValue('qbittorrent', 'api_key'), authType: 'query' },
-  'transmission': { url: getConfigValue('transmission', 'url'), key: getConfigValue('transmission', 'password'), authType: 'transmission' },
+  'qbittorrent': {
+    url: getConfigValue('qbittorrent', 'url'),
+    username: getConfigValue('qbittorrent', 'username'),
+    password: getConfigValue('qbittorrent', 'password'),
+    authType: 'qbittorrent'
+  },
+  'transmission': { url: getConfigValue('transmission', 'url'), authType: 'transmission' },
   'sabnzbd': { url: getConfigValue('sabnzbd', 'url'), key: getConfigValue('sabnzbd', 'api_key'), authType: 'query' },
-  'nzbget': { url: getConfigValue('nzbget', 'url'), key: getConfigValue('nzbget', 'pass'), user: getConfigValue('nzbget', 'user'), authType: 'nzbget' },
+  'nzbget': { url: getConfigValue('nzbget', 'url'), username: getConfigValue('nzbget', 'username'), password: getConfigValue('nzbget', 'password'), authType: 'nzbget' },
   'deluge': { url: getConfigValue('deluge', 'url'), key: getConfigValue('deluge', 'password'), authType: 'deluge' },
   'nzbhydra': { url: getConfigValue('nzbhydra', 'url'), key: getConfigValue('nzbhydra', 'api_key'), authType: 'header' },
   'prowlarr': { url: getConfigValue('prowlarr', 'url'), key: getConfigValue('prowlarr', 'api_key'), authType: 'header' },
@@ -72,11 +119,19 @@ const services = {
 };
 
 // Check if any services are configured
-const configuredServices = Object.keys(services).filter(key => services[key].url && services[key].key);
+// Services that don't require API keys: transmission, qbittorrent
+const noKeyRequired = ['transmission', 'qbittorrent'];
+const configuredServices = Object.keys(services).filter(key => {
+  const svc = services[key];
+  if (noKeyRequired.includes(key)) {
+    return !!svc.url;
+  }
+  return svc.url && svc.key;
+});
 const hasConfiguredServices = configuredServices.length > 0;
 
 if (!hasConfiguredServices) {
-  console.warn('[Proxy] No services configured with API keys. Proxy will be limited.');
+  console.warn('[Proxy] No services configured. Proxy will have limited functionality.');
 }
 
 // Generic request helper
@@ -108,7 +163,12 @@ async function makeRequest(serviceKey, endpoint, options = {}) {
       headers['X-API-KEY'] = config.key;
       break;
     case 'transmission':
-      headers['X-Transmission-Session-Id'] = config.key;
+      // Transmission uses session ID from server response, no auth needed for status check
+      break;
+    case 'qbittorrent':
+      // qBittorrent uses basic auth with username/password
+      const basicAuth = Buffer.from(`${config.username}:${config.password}`).toString('base64');
+      headers['Authorization'] = `Basic ${basicAuth}`;
       break;
   }
 
@@ -463,7 +523,7 @@ app.post('/api/nzbget/stats', async (req, res) => {
     if (cached) return res.json(cached);
 
     const config = services['nzbget'];
-    if (!config.url || !config.key || !config.user) {
+    if (!config.url || !config.username || !config.password) {
       throw new Error('NZBGet not configured');
     }
 
@@ -474,7 +534,7 @@ app.post('/api/nzbget/stats', async (req, res) => {
       id: 1
     };
 
-    const basicAuth = Buffer.from(config.user + ':' + config.key).toString('base64');
+    const basicAuth = Buffer.from(config.username + ':' + config.password).toString('base64');
     const response = await fetch(`${config.url}/jsonrpc`, {
       method: 'POST',
       headers: {
@@ -731,10 +791,44 @@ app.get('/api/maintainerr/api/storage-metrics/library-sizes', async (req, res) =
   }
 });
 
+// Configuration endpoints - serve dashboard and sites configuration
+// These support environment variable overrides
+app.get('/api/config/dashboard', (req, res) => {
+  const dashboard = {
+    name: getConfig('dashboard.name', 'YAHLP Dashboard'),
+    icon_url: getConfig('dashboard.icon_url', 'https://via.placeholder.com/64'),
+    color: getConfig('dashboard.color', '#00A99D'),
+    theme: getConfig('dashboard.theme', 'dark'),
+    style: getConfig('dashboard.style', 'classic'),
+    landing: getConfig('dashboard.landing', 'dashboard')
+  };
+  res.json(dashboard);
+});
+
+app.get('/api/config/sites', (req, res) => {
+  res.json(sitesConfig.sites || []);
+});
+
+app.get('/api/config/access', (req, res) => {
+  const access = {
+    mode: getConfig('access.mode', 'localhost'),
+    domain: getConfig('access.domain', 'localhost:3000'),
+    protocol: getConfig('access.protocol', 'http')
+  };
+  res.json(access);
+});
+
+app.get('/api/config/auth', (req, res) => {
+  const authType = getConfig('auth.type', 'none');
+  // Never send secrets to frontend - only type and provider info
+  const safeAuth = { type: authType };
+  res.json(safeAuth);
+});
+
 // Health check
 app.get('/health', (req, res) => {
-  // Transmission doesn't require a password - session ID is obtained from server
-  const noPasswordRequired = ['transmission'];
+  // Services that don't require API keys
+  const noKeyRequired = ['transmission', 'qbittorrent'];
 
   res.json({
     status: 'ok',
@@ -744,8 +838,8 @@ app.get('/health', (req, res) => {
       ttl: cache.getStats().kexpired || 0
     },
     services: Object.keys(services).reduce((acc, svc) => {
-      const needsPassword = !noPasswordRequired.includes(svc);
-      acc[svc] = { configured: needsPassword ? (services[svc].url && services[svc].key) : !!services[svc].url };
+      const needsKey = !noKeyRequired.includes(svc);
+      acc[svc] = { configured: needsKey ? (services[svc].url && services[svc].key) : !!services[svc].url };
       return acc;
     }, {})
   });
@@ -766,6 +860,7 @@ server6.listen(PORT, '::');
 
 server.on('listening', () => {
   const addr = server.address();
+  const noKeyRequired = ['transmission', 'qbittorrent'];
   console.log(`🔀 API Aggregator listening on port ${PORT}`);
   console.log(`   IPv4: http://localhost:${PORT}`);
   console.log(`   IPv6: http://[::1]:${PORT}`);
@@ -773,7 +868,8 @@ server.on('listening', () => {
   console.log(`   Health check: http://localhost:${PORT}/health`);
   console.log('\nConfigured services:');
   Object.entries(services).forEach(([service, config]) => {
-    const status = config.url && config.key ? '✅' : '⏳';
+    const needsKey = !noKeyRequired.includes(service);
+    const status = needsKey ? (config.url && config.key ? '✅' : '⏳') : (config.url ? '✅' : '⏳');
     console.log(`   ${status} ${service}`);
   });
 });

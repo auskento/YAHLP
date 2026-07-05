@@ -12,9 +12,10 @@ The HTML dashboard menu is **automatically generated based on which services you
 ## How It Works
 
 ### 1. Template System
-- **Template file**: `html/index.html.template`
+- **Master template**: `html/master.template` — shared markup/JS used by every layout
+- **Layout CSS files**: `html/styles/layout-*.css` (e.g. `layout-classic.css`, `layout-modern.css`, `layout-sleek.css`, `layout-minimal.css`, `layout-mobile.css`) — each discovered CSS file becomes a selectable dashboard style
 - **Generator script**: `generate-html-menu.sh`
-- **Output file**: `html/index.html` (auto-generated, don't edit!)
+- **Output files**: one HTML page per discovered layout (`/var/www/html/classic.html`, `modern.html`, `sleek.html`, `minimal.html`, `mobile.html`, plus any custom layouts), and `index.html` (auto-generated, don't edit!)
 
 ### 2. Generation Process
 
@@ -25,22 +26,24 @@ docker-entrypoint.sh runs
     ↓
 docker-entrypoint.sh calls generate-html-menu.sh
     ↓
-Script reads ENABLE_* environment variables
+Script reads ENABLE_* environment variables and builds a services array
     ↓
-Script reads template and generates placeholders
+Script scans html/styles for layout-*.css files
     ↓
-Dynamic index.html created with only enabled services
+Script substitutes the services array + sites array into master.template
     ↓
-Apache serves the custom dashboard
+One HTML page is generated per discovered layout, plus index.html (default: DASH_STYLE)
+    ↓
+Apache serves the custom dashboard (DASH_STYLE.html via DirectoryIndex)
 ```
 
 ### 3. Service Menu Items
 
 Each enabled service gets:
-- **Colored icon** - Auto-generated SVG with service color
-- **Service name** - Links to `/servicename/`
-- **Tooltip** - Shows full service name and description
-- **Responsive layout** - Wraps on mobile devices
+- **Icon** — bundled PNG (`/icons/<service>.png`), a custom override (`/icons/<service>-custom.<ext>`), or one downloaded via `ICON_URL_<SERVICE>`
+- **Service name and description** — pulled from the service's metadata in `generate-html-menu.sh`
+- **Link target** — the service's subpath (e.g. `/sonarr/`), a subdomain (Emby/Plex/Seerr when `*_DOMAIN` is set), or a direct backend URL; some open as an in-page panel, others as a popup window (external/subdomain links, and qBittorrent, always pop up)
+- **Responsive layout** — a dedicated `mobile` layout is always generated in addition to the desktop styles
 
 ## Enabling/Disabling Services
 
@@ -67,32 +70,40 @@ docker-compose restart apache-reverse-proxy
 
 ```bash
 # Verify menu was generated
-docker-compose logs apache-reverse-proxy | grep "Generated dashboard"
+docker-compose logs apache-reverse-proxy | grep -i "dashboard"
 ```
 
 Example output:
 ```
 Generating dashboard menu based on enabled services...
-✓ Dashboard generated with 5 enabled service(s)
+Generating dashboards for DASH_STYLE=modern...
+✓ Dashboards generated with 5 enabled service(s)
 ```
 
 ## Services Supported
 
-| Service | Enable Variable | Port | Category |
-|---------|---|---|---|
-| Prowlarr | ENABLE_PROWLARR | 9696 | Indexer Manager |
-| Sonarr | ENABLE_SONARR | 8989 | TV Automation |
-| Radarr | ENABLE_RADARR | 7878 | Movie Automation |
-| Whisparr | ENABLE_WHISPARR | 6969 | Adult Collections |
-| Lidarr | ENABLE_LIDARR | 8686 | Music Automation |
-| Readarr | ENABLE_READARR | 8787 | Book Automation |
-| Overseerr | ENABLE_OVERSEERR | 5055 | Request Manager |
-| Jellyfin | ENABLE_JELLYFIN | 8096 | Media Streaming |
-| Emby | ENABLE_EMBY | 8096 | Media Streaming |
-| Plex | ENABLE_PLEX | 32400 | Media Streaming |
-| Tautulli | ENABLE_TAUTULLI | 8181 | Analytics |
-| Transmission | ENABLE_TRANSMISSION | 6969 | Torrent Client |
-| qBittorrent | ENABLE_QBITTORRENT | 8080 | Torrent Client |
+All 18 services, grouped by category (matches `DASHBOARD_ORDER` default grouping):
+
+| Service | Enable Variable | Category |
+|---------|---|---|
+| SABnzbd | ENABLE_SABNZBD | USENET |
+| NZBGet | ENABLE_NZBGET | USENET |
+| NZBHydra | ENABLE_NZBHYDRA | USENET |
+| Deluge | ENABLE_DELUGE | TORRENTS |
+| Transmission | ENABLE_TRANSMISSION | TORRENTS |
+| qBittorrent | ENABLE_QBITTORRENT | TORRENTS |
+| Sonarr | ENABLE_SONARR | CONTENT |
+| Radarr | ENABLE_RADARR | CONTENT |
+| Lidarr | ENABLE_LIDARR | CONTENT |
+| Whisparr | ENABLE_WHISPARR | CONTENT |
+| Seerr | ENABLE_SEERR | SEARCH |
+| Prowlarr | ENABLE_PROWLARR | SEARCH |
+| Bazarr | ENABLE_BAZARR | SEARCH |
+| Emby | ENABLE_EMBY | MEDIA |
+| Plex | ENABLE_PLEX | MEDIA |
+| Jellyfin | ENABLE_JELLYFIN | MEDIA |
+| Tautulli | ENABLE_TAUTULLI | MEDIA |
+| Maintainerr | ENABLE_MAINTAINERR | MEDIA |
 
 ## Quick Examples
 
@@ -109,7 +120,7 @@ Menu shows: 2 icons
 ENABLE_SONARR: "true"
 ENABLE_RADARR: "true"
 ENABLE_PROWLARR: "true"
-ENABLE_OVERSEERR: "true"
+ENABLE_SEERR: "true"
 ENABLE_JELLYFIN: "true"
 ENABLE_QBITTORRENT: "true"
 ENABLE_TAUTULLI: "true"
@@ -151,32 +162,37 @@ Menu shows: 2 torrent icons only
 
 ## Service Menu Colors
 
-Each service has a unique color for quick identification:
+Each service has a unique accent color (used for its icon border/highlight), defined per-service in the `SERVICES` array in `generate-html-menu.sh`:
 
 ```
-Prowlarr      - #4a9eff (Blue)
-Sonarr        - #08a3d4 (Teal)
-Radarr        - #65b342 (Green)
-Whisparr      - #d45ba0 (Pink)
-Lidarr        - #d45b9d (Magenta)
-Readarr       - #d48d4c (Orange)
-Overseerr     - #00a4dc (Cyan)
-Jellyfin      - #00a4dc (Cyan)
-Emby          - #9146FF (Purple)
-Plex          - #e5a00d (Gold)
-Tautulli      - #4a9eff (Blue)
-Transmission  - #343434 (Gray)
-qBittorrent   - #3683b6 (Blue-Gray)
+SABnzbd       - #f5c20f
+NZBGet        - #3da7e0
+NZBHydra      - #3e9c7d
+Deluge        - #3aa3e0
+Transmission  - #343434
+qBittorrent   - #3683b6
+Sonarr        - #3aa0e0
+Radarr        - #febc2e
+Lidarr        - #2ecd6f
+Whisparr      - #ef7e30
+Seerr         - #00a4dc
+Prowlarr      - #e8810e
+Bazarr        - #e91e63
+Emby          - #9146FF
+Plex          - #e5a00d
+Jellyfin      - #00a4dc
+Tautulli      - #4a9eff
+Maintainerr   - #1e90ff
 ```
 
 ## Customization
 
 ### Change Service Colors
 
-Edit `generate-html-menu.sh` and modify the SERVICES array:
+Edit `generate-html-menu.sh` and modify the `SERVICES` array (format: `category|name|desc|icon|href|accent`):
 
 ```bash
-[SONARR]="Sonarr|8989|#FF0000|TV Shows"  # Change color to #FF0000 (red)
+[SONARR]="CONTENT|Sonarr|TV shows|/icons/sonarr.png|@@SONARR_LANDING@@|#FF0000"  # Change accent to #FF0000 (red)
 ```
 
 Then restart:
@@ -184,40 +200,20 @@ Then restart:
 docker-compose restart apache-reverse-proxy
 ```
 
-### Change Menu Height
+### Change Menu Height / Icon Size / Overall Layout
 
-Edit `html/index.html.template` CSS section:
-
-```css
-.header {
-    min-height: 140px;  /* Change this value */
-}
-```
-
-Then restart to regenerate.
-
-### Change Icon Size
-
-Edit `html/index.html.template` CSS:
-
-```css
-.menu-item img {
-    max-width: 100px;   /* Increase from 80px */
-    max-height: 75px;   /* Increase from 60px */
-}
-```
-
-Then restart.
+Layout appearance (header height, icon size, spacing, etc.) is controlled by the per-style CSS files in `html/styles/layout-*.css` (or custom CSS dropped into the mounted `/templates` directory), not by editing `master.template` directly. Edit the relevant `layout-*.css` file and restart to regenerate.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `html/index.html.template` | Menu template with placeholders |
-| `generate-html-menu.sh` | Generator script (reads env vars) |
-| `html/index.html` | Generated output (auto-created) |
-| `docker-entrypoint.sh` | Calls generator at startup |
-| `Dockerfile` | Copies scripts and template |
+| `html/master.template` | Shared dashboard markup/JS used by every layout |
+| `html/styles/layout-*.css` | Per-style CSS (classic, modern, sleek, minimal, mobile, or custom) |
+| `generate-html-menu.sh` | Generator script (reads env vars, builds services/sites arrays, renders each layout) |
+| `/var/www/html/<style>.html` | Generated output per layout (auto-created) |
+| `docker-entrypoint.sh` | Calls the generator at startup |
+| `Dockerfile` | Copies scripts and templates into the image |
 
 ## Troubleshooting
 
@@ -259,7 +255,7 @@ docker-compose logs apache-reverse-proxy -f
 
 ### Text is Hard to Read on Small Screens
 
-Edit CSS in template:
+A dedicated `mobile` layout (`html/styles/layout-mobile.css`) is always generated for small screens — try switching to it in the dashboard's style switcher. If you need further tweaks, edit `layout-mobile.css` (or the relevant `layout-*.css`) directly and restart to regenerate:
 ```css
 @media (max-width: 768px) {
     .menu-item .label {
@@ -271,8 +267,8 @@ Edit CSS in template:
 
 ## Performance
 
-- **Generation time**: <100ms
-- **File size**: ~5-10KB
+- **Generation time**: <100ms per layout
+- **File size**: ~5-10KB per generated HTML page
 - **Browser load**: <1 second
 - **No impact on proxy performance**
 
@@ -280,8 +276,8 @@ Edit CSS in template:
 
 ✅ Server-side generation (safe)  
 ✅ Service paths validated  
-✅ SVG icons (no external scripts)  
-✅ HTTPS enforced  
+✅ Icons are bundled PNGs or downloaded/resized server-side (no external scripts loaded client-side)  
+✅ HTTPS enforced (public mode)  
 ✅ No sensitive data exposed  
 
 ## Advanced: Add Custom Service
@@ -290,9 +286,9 @@ To add a new service to the system:
 
 ### 1. Edit generate-html-menu.sh
 
-Add to SERVICES array:
+Add an entry to the `SERVICES` array (format: `category|name|desc|icon|href|accent`) and to `SERVICE_ORDER` / `SERVICE_CODE_MAP` if you want it addressable via `DASHBOARD_ORDER`:
 ```bash
-[MYSERVICE]="My Service|9999|#FF00FF|My Service Description"
+[MYSERVICE]="CONTENT|My Service|My Service Description|/icons/myservice.png|/myservice/|#FF00FF"
 ```
 
 ### 2. Create Service Config
@@ -307,14 +303,18 @@ Create `apache-conf/services/myservice.conf`:
 </Location>
 ```
 
-### 3. Update Environment
+### 3. Wire Up generate-config.sh
+
+Add `ENABLE_MYSERVICE` handling to `generate-config.sh` (a `process_service_config` call and a `generate_include` call) and add the corresponding `@@INCLUDE_MYSERVICE@@` placeholder to `reverse-proxy.conf.template`.
+
+### 4. Update Environment
 
 Add to docker-compose.yml:
 ```yaml
 ENABLE_MYSERVICE: "true"
 ```
 
-### 4. Rebuild
+### 5. Rebuild
 
 ```bash
 docker-compose build

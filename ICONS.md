@@ -10,14 +10,13 @@ The dashboard supports **custom icons for each service**. You can use:
 
 ## How It Works
 
-The system checks for icon files in this order:
+For each service, the menu generator (`get_service_icon_path()` in `generate-html-menu.sh`) checks for an icon in this order:
 
-1. **Custom PNG** - `html/icons/servicename.png`
-2. **Custom JPG** - `html/icons/servicename.jpg`
-3. **Custom SVG** - `html/icons/servicename.svg`
-4. **Fallback** - Auto-generated colored SVG
+1. **Custom override** - `html/icons/<service>-custom.<ext>` (any extension — png, jpg, svg, webp, gif, etc. all work, whichever is present is used)
+2. **Bundled default** - `html/icons/<service>.png` (ships with the container for all 18 services)
+3. **Fallback** - Auto-generated colored placeholder if neither exists
 
-If a custom icon exists, it's used. Otherwise, a colored placeholder is auto-generated.
+If a custom override exists, it's used. Otherwise the bundled default PNG is used. If somehow neither exists, a colored placeholder is generated.
 
 ## Quick Start: Add Icons
 
@@ -27,50 +26,58 @@ Download icons for your services (see sources below).
 
 ### Step 2: Place Icons
 
-Put icons in the `html/icons/` directory:
+Put icons in the `html/icons/` directory, named `<service>-custom.<ext>` so they take priority over the bundled defaults:
 
 ```
 html/icons/
-├── sonarr.png          # Icon for Sonarr
-├── radarr.png          # Icon for Radarr
-├── jellyfin.png        # Icon for Jellyfin
-├── prowlarr.png        # Icon for Prowlarr
-├── bazarr.png          # Icon for Bazarr
-├── radarr.jpg          # JPG also works
-└── plex.svg            # SVG also works
+├── sonarr-custom.png       # Override for Sonarr
+├── radarr-custom.png       # Override for Radarr
+├── jellyfin-custom.png     # Override for Jellyfin
+├── prowlarr-custom.png     # Override for Prowlarr
+├── bazarr-custom.png       # Override for Bazarr
+├── radarr-custom.jpg       # JPG also works
+└── plex-custom.svg         # SVG also works
 ```
 
-### Step 3: Restart
+### Step 3: Rebuild
+
+The shipped `docker-compose.yml` builds the image from this repo (`build: .`) and does **not** bind-mount `html/` into the container, so editing `html/icons/` on the host requires a rebuild — a plain restart will not pick up the new file:
 
 ```bash
-docker-compose restart apache-reverse-proxy
+docker-compose up --build -d
 ```
+
+(If you've added your own bind mount for `./html:/var/www/html` — see Method 3 below — a `docker-compose restart` is enough instead.)
 
 Icons are now displayed in the menu!
 
 ## Icon Naming Convention
 
-Each service has a specific filename pattern. Use **lowercase** service names:
+Each service has a specific filename pattern. Use **lowercase** service names with the `-custom` suffix; any file extension is accepted:
 
 | Service | Icon Filename |
 |---------|---|
-| Sonarr | `sonarr.png` or `sonarr.jpg` or `sonarr.svg` |
-| Radarr | `radarr.png` or `radarr.jpg` or `radarr.svg` |
-| Whisparr | `whisparr.png` or `whisparr.jpg` or `whisparr.svg` |
-| Lidarr | `lidarr.png` or `lidarr.jpg` or `lidarr.svg` |
-| Prowlarr | `prowlarr.png` or `prowlarr.jpg` or `prowlarr.svg` |
-| Seerr | `seerr.png` or `seerr.jpg` or `seerr.svg` |
-| Bazarr | `bazarr.png` or `bazarr.jpg` or `bazarr.svg` |
-| Jellyfin | `jellyfin.png` or `jellyfin.jpg` or `jellyfin.svg` |
-| Emby | `emby.png` or `emby.jpg` or `emby.svg` |
-| Plex | `plex.png` or `plex.jpg` or `plex.svg` |
-| Tautulli | `tautulli.png` or `tautulli.jpg` or `tautulli.svg` |
-| SABnzbd | `sabnzbd.png` or `sabnzbd.jpg` or `sabnzbd.svg` |
-| NZBGet | `nzbget.png` or `nzbget.jpg` or `nzbget.svg` |
-| NZBHydra | `nzbhydra.png` or `nzbhydra.jpg` or `nzbhydra.svg` |
-| Transmission | `transmission.png` or `transmission.jpg` or `transmission.svg` |
-| qBittorrent | `qbittorrent.png` or `qbittorrent.jpg` or `qbittorrent.svg` |
-| Deluge | `deluge.png` or `deluge.jpg` or `deluge.svg` |
+| Sonarr | `sonarr-custom.png` (or `.jpg`, `.svg`, etc.) |
+| Radarr | `radarr-custom.png` |
+| Whisparr | `whisparr-custom.png` |
+| Lidarr | `lidarr-custom.png` |
+| Prowlarr | `prowlarr-custom.png` |
+| Seerr | `seerr-custom.png` |
+| Bazarr | `bazarr-custom.png` |
+| Jellyfin | `jellyfin-custom.png` |
+| Emby | `emby-custom.png` |
+| Plex | `plex-custom.png` |
+| Tautulli | `tautulli-custom.png` |
+| Maintainerr | `maintainerr-custom.png` |
+| SABnzbd | `sabnzbd-custom.png` |
+| NZBGet | `nzbget-custom.png` |
+| NZBHydra | `nzbhydra-custom.png` |
+| Transmission | `transmission-custom.png` |
+| qBittorrent | `qbittorrent-custom.png` |
+| Deluge | `deluge-custom.png` |
+| Dashboard logo | `dashboard-custom.png` |
+
+The bundled default icons (used when no `-custom` override is present) live at `html/icons/<service>.png` — e.g. `html/icons/sonarr.png`, `html/icons/radarr.png`, etc.
 
 ## Icon Sources
 
@@ -148,46 +155,40 @@ You can use PNG, JPG, and SVG together:
 
 ```bash
 html/icons/
-├── sonarr.png          # Official PNG
-├── radarr.svg          # Official SVG
-└── jellyfin.jpg        # Custom JPG
+├── sonarr-custom.png       # Official PNG
+├── radarr-custom.svg       # Official SVG
+└── jellyfin-custom.jpg     # Custom JPG
 ```
 
 Each service will use whatever format you provide.
 
 ## Viewing Icon Status
 
-When the container starts, it shows which icons are being used:
+If you set `ICON_URL_<SERVICE>` env vars, the container logs download progress at startup (see `ICON-URLS.md` for details):
 
 ```bash
-docker-compose logs apache-reverse-proxy | grep -A 20 "Icon Status"
+docker-compose logs apache-reverse-proxy | grep -A 20 "Downloading and Processing"
 ```
 
-Output example:
-```
-Icon Status:
-  SONARR: ✓ PNG icon found
-  RADARR: ✓ PNG icon found
-  JELLYFIN: ❌ Using generated SVG
-  PLEX: ✓ PNG icon found
-```
+For manually-placed icon files (no `ICON_URL_*` set), there is no separate "Icon Status" log — simply check the file exists:
 
-Green checkmark = custom icon found  
-Red X = using auto-generated placeholder
+```bash
+docker exec apache-reverse-proxy ls -la /var/www/html/icons/
+```
 
 ## Installation Methods
 
 ### Method 1: Manual Download (Easiest)
 
 1. Download icons to your computer
-2. Place in `html/icons/` directory
-3. Restart container
+2. Place in `html/icons/` directory, named `<service>-custom.<ext>`
+3. Rebuild the container (`docker-compose up --build -d`) — `html/` is baked into the image, so a plain restart won't see the new file
 
 ### Method 2: Docker Copy
 
 ```bash
 # Copy icon file into running container
-docker cp my-icon.png apache-reverse-proxy:/var/www/html/icons/sonarr.png
+docker cp my-icon.png apache-reverse-proxy:/var/www/html/icons/sonarr-custom.png
 
 # Restart to regenerate menu
 docker-compose restart apache-reverse-proxy
@@ -202,7 +203,7 @@ volumes:
 
 Then edit icons directly on your host:
 ```bash
-cp ~/Downloads/sonarr.png html/icons/
+cp ~/Downloads/sonarr.png html/icons/sonarr-custom.png
 docker-compose restart apache-reverse-proxy
 ```
 
@@ -229,7 +230,7 @@ docker-compose up -d
 
 ```bash
 # Copy icon into container
-docker cp sonarr.png apache-reverse-proxy:/var/www/html/icons/
+docker cp sonarr.png apache-reverse-proxy:/var/www/html/icons/sonarr-custom.png
 
 # Restart container (menu regenerates)
 docker-compose restart apache-reverse-proxy
@@ -239,19 +240,20 @@ docker-compose restart apache-reverse-proxy
 
 ```bash
 # Copy new version
-docker cp new-radarr.png apache-reverse-proxy:/var/www/html/icons/radarr.png
+docker cp new-radarr.png apache-reverse-proxy:/var/www/html/icons/radarr-custom.png
 
 # Restart
 docker-compose restart apache-reverse-proxy
 ```
 
-### Remove Icon (Fall Back to SVG)
+### Remove Icon (Fall Back to Bundled Default)
 
 ```bash
-# Delete icon file
-docker exec apache-reverse-proxy rm /var/www/html/icons/jellyfin.png
+# Delete the custom override
+docker exec apache-reverse-proxy rm /var/www/html/icons/jellyfin-custom.png
 
-# Restart (will use generated SVG)
+# Restart (will fall back to the bundled html/icons/jellyfin.png,
+# or a generated placeholder if no bundled default exists)
 docker-compose restart apache-reverse-proxy
 ```
 
@@ -264,14 +266,14 @@ docker-compose restart apache-reverse-proxy
 docker exec apache-reverse-proxy ls -la /var/www/html/icons/
 ```
 
-**Check icon status in logs:**
+**Check icon download logs (only relevant if using `ICON_URL_*`):**
 ```bash
-docker-compose logs apache-reverse-proxy | grep "Icon Status" -A 20
+docker-compose logs apache-reverse-proxy | grep "Downloading and Processing" -A 20
 ```
 
 **Verify permissions:**
 ```bash
-docker exec apache-reverse-proxy stat /var/www/html/icons/sonarr.png
+docker exec apache-reverse-proxy stat /var/www/html/icons/sonarr-custom.png
 # Should show readable by www-data user
 ```
 
@@ -288,10 +290,9 @@ docker exec apache-reverse-proxy stat /var/www/html/icons/sonarr.png
 **Problem:** Icon file exists but isn't showing
 
 **Causes:**
-1. Wrong filename (must be lowercase)
+1. Wrong filename (must be lowercase and end in `-custom.<ext>`, e.g. `sonarr-custom.png`)
 2. Wrong directory (`html/icons/` not `html/` or elsewhere)
-3. Wrong format (must be .png, .jpg, or .svg)
-4. File permissions (must be readable by www-data)
+3. File permissions (must be readable by www-data)
 
 **Solution:**
 ```bash
@@ -305,13 +306,13 @@ docker exec apache-reverse-proxy chmod 644 /var/www/html/icons/*.png
 docker-compose restart apache-reverse-proxy
 ```
 
-### Mixed Icons and SVG Placeholders
+### Mixed Icons and Placeholders
 
 This is normal! You can have:
-- Sonarr: PNG icon
-- Radarr: PNG icon
-- Jellyfin: Generated SVG (no icon provided)
-- Plex: PNG icon
+- Sonarr: custom override icon
+- Radarr: bundled default icon
+- Jellyfin: generated placeholder (no icon found at all)
+- Plex: custom override icon
 
 All coexist perfectly.
 
@@ -340,11 +341,11 @@ All coexist perfectly.
 ### Downloading Pre-packaged Collections
 
 ```bash
-# Download Linuxserver pack
+# Download Linuxserver pack (rename to <service>-custom.<ext> as you go)
 cd html/icons/
-wget https://github.com/linuxserver/docker-templates/raw/master/linuxserver.io/img/sonarr-icon.png
-wget https://github.com/linuxserver/docker-templates/raw/master/linuxserver.io/img/radarr-icon.png
-wget https://github.com/linuxserver/docker-templates/raw/master/linuxserver.io/img/jellyfin-icon.png
+wget -O sonarr-custom.png https://github.com/linuxserver/docker-templates/raw/master/linuxserver.io/img/sonarr-icon.png
+wget -O radarr-custom.png https://github.com/linuxserver/docker-templates/raw/master/linuxserver.io/img/radarr-icon.png
+wget -O jellyfin-custom.png https://github.com/linuxserver/docker-templates/raw/master/linuxserver.io/img/jellyfin-icon.png
 # ... and more
 ```
 
@@ -357,7 +358,7 @@ A: No! Auto-generated SVG placeholders work fine. Custom icons are optional for 
 A: Yes! Any service without a custom icon will use the colored placeholder.
 
 **Q: What if I add icons after deployment?**
-A: Restart the container - menu regenerates automatically and will use new icons.
+A: Rebuild the image (`docker-compose up --build -d`) unless you've bind-mounted `html/` — the menu regenerates automatically at container startup and will use the new icons.
 
 **Q: Can I use different formats for different services?**
 A: Yes! Use PNG for some, JPG for others, SVG for others - all supported.
@@ -379,31 +380,22 @@ A: Technically yes, but it's not recommended (uses more resources, can be distra
 # 1. Create icons directory (if not exists)
 mkdir -p html/icons
 
-# 2. Download icons
+# 2. Download icons (note the -custom suffix so they override the bundled defaults)
 cd html/icons/
-curl -o sonarr.png https://github.com/Sonarr/Sonarr/raw/develop/Logo/256.png
-curl -o radarr.png https://github.com/Radarr/Radarr/raw/develop/Logo/256.png
-curl -o jellyfin.png https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/source/community/img/jellyfin-icon.png
-curl -o plex.png https://plex.tv/downloads/Plex-icon.png
+curl -o sonarr-custom.png https://github.com/Sonarr/Sonarr/raw/develop/Logo/256.png
+curl -o radarr-custom.png https://github.com/Radarr/Radarr/raw/develop/Logo/256.png
+curl -o jellyfin-custom.png https://raw.githubusercontent.com/selfhosted/unraid-community-apps/master/source/community/img/jellyfin-icon.png
+curl -o plex-custom.png https://plex.tv/downloads/Plex-icon.png
 
 # 3. Verify files
 ls -la
 
-# 4. Start container
+# 4. Rebuild and start the container (required since html/ is baked in at build time)
 cd ../..
-docker-compose up -d
+docker-compose up --build -d
 
-# 5. Check logs
-docker-compose logs apache-reverse-proxy | grep "Icon Status" -A 20
-```
-
-Expected output:
-```
-Icon Status:
-  SONARR: ✓ PNG icon found
-  RADARR: ✓ PNG icon found
-  JELLYFIN: ✓ PNG icon found
-  PLEX: ✓ PNG icon found
+# 5. Verify the files landed in the image
+docker exec apache-reverse-proxy ls -la /var/www/html/icons/
 ```
 
 Then visit `https://yourdomain.com` and see your custom icons in the menu!

@@ -1,0 +1,265 @@
+{
+  // ============================================================================
+  // YAHLP Configuration File (JSON5 Format)
+  // ============================================================================
+  //
+  // This is the primary configuration file for YAHLP. It defines all settings
+  // for the dashboard, services, authentication, and more.
+  //
+  // To use this configuration:
+  // 1. Copy this file to yahlp.json5
+  // 2. Update values for your environment
+  // 3. Mount it in Docker: -v $(pwd)/yahlp.json5:/etc/yahlp/yahlp.json5
+  //
+  // All configuration is read from this file when the proxy starts.
+  // Environment variables can override any value in this file.
+  //
+  // ============================================================================
+
+  // Dashboard UI Configuration
+  dashboard: {
+    // Name displayed in the browser title and welcome screen
+    name: 'My Dashboard',
+
+    // Icon URL displayed in the dashboard header
+    icon_url: 'https://via.placeholder.com/64',
+
+    // Primary color used in the UI
+    color: '#00A99D',
+
+    // Theme: 'dark' or 'light'
+    theme: 'dark',
+
+    // Layout style: 'classic', 'modern', 'sleek', 'minimal', 'neon', 'focus'
+    // or custom template name (e.g., 'vixens', 'storm', 'storm-violet')
+    style: 'classic',
+
+    // Landing page: 'dashboard' or 'welcome'
+    // 'dashboard' shows services, 'welcome' shows the welcome screen
+    landing: 'dashboard',
+  },
+
+  // Access Mode Configuration
+  access: {
+    // Mode: 'private' (localhost only) or 'public' (domain with HTTPS)
+    mode: 'private',
+
+    // Only required when mode is 'public':
+    // Domain name for the dashboard (used with Let's Encrypt SSL)
+    // domain: 'dashboard.example.com',
+
+    // Only required when mode is 'public':
+    // Email for Let's Encrypt certificate registration
+    // email: 'admin@example.com',
+  },
+
+  // Authentication Configuration
+  auth: {
+    // Type: 'none', 'basic', 'google', or 'entra'
+    type: 'none',
+
+    // For basic auth, include credentials:
+    // basic_credentials: 'username:password',
+  },
+
+  // Google OAuth Configuration (if auth.type is 'google')
+  /*
+  google: {
+    client_id: 'your-google-client-id',
+    client_secret: 'your-google-client-secret',
+    redirect_uri: 'http://localhost:3000/auth/callback',
+  },
+  */
+
+  // Entra/Azure AD Configuration (if auth.type is 'entra')
+  /*
+  entra: {
+    client_id: 'your-entra-client-id',
+    client_secret: 'your-entra-client-secret',
+    redirect_uri: 'http://localhost:3000/auth/callback',
+    provider_metadata_url: 'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration',
+    crypto_passphrase: 'your-secret-passphrase',
+  },
+  */
+
+  // Service Configurations
+  // Each service can be enabled/disabled with the 'enabled' field
+  // Services have different required parameters based on type
+  services: {
+    // ========== Media Servers ==========
+
+    // Jellyfin: Media Server
+    jellyfin: {
+      enabled: true,
+      url: 'http://jellyfin.local:8096',
+      api_key: 'your-jellyfin-api-key-here',
+      icon_url: 'https://jellyfin.org/images/logo.svg',
+    },
+
+    // Plex: Media Server
+    // Requires: domain_name and redirect_uri for authentication
+    plex: {
+      enabled: true,
+      url: 'http://plex.local:32400',
+      api_key: 'your-plex-api-key-here',
+      icon_url: 'https://plex.tv/favicon.ico',
+      domain_name: 'plex.example.com',
+      redirect_uri: 'http://localhost:3000/auth/plex/callback',
+    },
+
+    // Emby: Media Server
+    // Requires: domain_name and redirect_uri for authentication
+    emby: {
+      enabled: false,
+      url: 'http://emby.local:8096',
+      api_key: 'your-emby-api-key-here',
+      icon_url: 'https://emby.media/favicon.ico',
+      domain_name: 'emby.example.com',
+      redirect_uri: 'http://localhost:3000/auth/emby/callback',
+    },
+
+    // ========== PVR Services ==========
+
+    // Sonarr: TV Show Management
+    // Optional landing option to set default page (e.g., calendar)
+    sonarr: {
+      enabled: true,
+      url: 'http://sonarr.local:8989',
+      api_key: 'your-sonarr-api-key-here',
+      icon_url: 'https://sonarr.tv/favicon.ico',
+      // landing: 'calendar', // Opens to /calendar by default instead of /
+    },
+
+    // Radarr: Movie Management
+    // Optional landing option to set default page (e.g., movies, history)
+    radarr: {
+      enabled: true,
+      url: 'http://radarr.local:7878',
+      api_key: 'your-radarr-api-key-here',
+      icon_url: 'https://radarr.video/favicon.ico',
+      // landing: 'movies', // Opens to /movies by default instead of /
+    },
+
+    // Lidarr: Music Management
+    // Optional landing option to set default page (e.g., albums, wanted)
+    lidarr: {
+      enabled: true,
+      url: 'http://lidarr.local:8686',
+      api_key: 'your-lidarr-api-key-here',
+      icon_url: 'https://lidarr.audio/favicon.ico',
+      // landing: 'albums', // Opens to /albums by default instead of /
+    },
+
+    // Whisparr: Adult Content Management
+    // Optional landing option to set default page
+    whisparr: {
+      enabled: false,
+      url: 'http://whisparr.local:6969',
+      api_key: 'your-whisparr-api-key-here',
+      icon_url: 'https://whisparr.example.com/favicon.ico',
+      // landing: 'calendar', // Opens to /calendar by default instead of /
+    },
+
+    // ========== Download Clients ==========
+
+    // qBittorrent: Torrent Client
+    // Requires: username + password (no API key)
+    qbittorrent: {
+      enabled: false,
+      url: 'http://qbittorrent.local:8080',
+      username: 'admin',
+      password: 'adminPassword',
+      icon_url: 'https://qbittorrent.org/favicon.ico',
+    },
+
+    // Transmission: Torrent Client
+    // Requires: URL only (no authentication needed)
+    transmission: {
+      enabled: false,
+      url: 'http://transmission.local:6969',
+      icon_url: 'https://transmissionbt.com/favicon.ico',
+    },
+
+    // SABnzbd: Usenet Client
+    sabnzbd: {
+      enabled: false,
+      url: 'http://sabnzbd.local:8080',
+      api_key: 'your-sabnzbd-api-key-here',
+      icon_url: 'https://sabnzbd.org/favicon.ico',
+    },
+
+    // NZBGet: Usenet Client
+    // Requires: username + password (not api_key)
+    nzbget: {
+      enabled: false,
+      url: 'http://nzbget.local:6789',
+      username: 'nzbget',
+      password: 'tegbzn6789',
+      icon_url: 'https://nzbget.net/favicon.ico',
+    },
+
+    // Deluge: Torrent Client
+    // Requires: password (for web UI login)
+    deluge: {
+      enabled: false,
+      url: 'http://deluge.local:8112',
+      password: 'your-deluge-password',
+      icon_url: 'https://deluge-torrent.org/favicon.ico',
+    },
+
+    // ========== Search & Indexers ==========
+
+    // NZBHydra2: Usenet Search
+    nzbhydra: {
+      enabled: false,
+      url: 'http://nzbhydra.local:5076',
+      api_key: 'your-nzbhydra-api-key-here',
+      icon_url: 'https://github.com/theotherp/nzbhydra2/raw/master/other/nzbhydra.png',
+    },
+
+    // Prowlarr: Indexer Manager
+    prowlarr: {
+      enabled: true,
+      url: 'http://prowlarr.local:9696',
+      api_key: 'your-prowlarr-api-key-here',
+      icon_url: 'https://prowlarr.com/favicon.ico',
+    },
+
+    // Seerr: Request Manager
+    // Requires: domain_name and redirect_uri for authentication
+    seerr: {
+      enabled: true,
+      url: 'http://seerr.local:5055',
+      api_key: 'your-seerr-api-key-here',
+      icon_url: 'https://seerr.dev/favicon.ico',
+      domain_name: 'seerr.example.com',
+      redirect_uri: 'http://localhost:3000/auth/seerr/callback',
+    },
+
+    // ========== Support Services ==========
+
+    // Bazarr: Subtitle Manager
+    bazarr: {
+      enabled: true,
+      url: 'http://bazarr.local:6767',
+      api_key: 'your-bazarr-api-key-here',
+      icon_url: 'https://www.bazarr.media/favicon.ico',
+    },
+
+    // Tautulli: Analytics & Monitoring
+    tautulli: {
+      enabled: true,
+      url: 'http://tautulli.local:8181',
+      api_key: 'your-tautulli-api-key-here',
+      icon_url: 'https://tautulli.com/favicon.ico',
+    },
+
+    // Maintainerr: Database Maintenance
+    maintainerr: {
+      enabled: false,
+      url: 'http://maintainerr.local:6246',
+      api_key: 'your-maintainerr-api-key-here',
+      icon_url: 'https://docs.maintainerr.info/favicon.png',
+    },
+  },
+}

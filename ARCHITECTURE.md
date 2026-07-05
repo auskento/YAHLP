@@ -16,7 +16,7 @@
 - **Base**: Debian 13 slim + Apache 2.4
 - **HTTPS**: Let's Encrypt (Certbot) with automatic daily renewal
 - **Reverse Proxy**: Apache mod_proxy + mod_ssl
-- **Dashboards**: 4 themes (Modern, Classic, Sleek, Minimal) + Mobile
+- **Dashboards**: 5 layouts (Classic, Modern, Sleek, Minimal, Mobile)
 - **Authentication**: None / Basic Auth / Entra ID (Azure) / Google OAuth
 
 ### Key Design Principles
@@ -61,13 +61,18 @@ apache-conf/
 
 ```
 html/
-├── classic.template     # Sidebar menu, fixed sizing
-├── modern.template      # React-based, feature-rich
-├── sleek.template       # Compact with gradients
-├── minimal.template     # Single-column vertical
-├── mobile.template      # Mobile-optimized layout
+├── master.template          # Single HTML template for every layout
+├── styles/
+│   ├── base.css             # Shared base styles
+│   ├── layout-classic.css   # Sidebar menu, fixed sizing
+│   ├── layout-modern.css    # Right-side services frame with left sidebar
+│   ├── layout-sleek.css     # Compact with gradients
+│   ├── layout-minimal.css   # Single-column vertical
+│   └── layout-mobile.css    # Mobile-optimized layout
 └── (generated at runtime: *.html)
 ```
+
+Each layout is selected via the `data-layout` attribute on the `.app` element and its matching `layout-<name>.css` file — `generate-html-menu.sh` auto-discovers any `layout-*.css` file under `html/styles/`, so adding a new layout is just adding a new CSS file (see `html/templates/README.md` for the custom layout guide).
 
 ---
 
@@ -75,16 +80,16 @@ html/
 
 ### 1. Service Code System (SERVICE_CODE_MAP)
 
-Located in `generate-config.sh` and `docker-entrypoint.sh`:
+Declared in `generate-html-menu.sh` (maps 3-letter codes to the internal `SERVICES` array keys) and mirrored in spirit by `docker-entrypoint.sh`'s `ENABLE_*`/`*_URL` variables and `.env.example`. `generate-config.sh` does not declare its own `SERVICE_CODE_MAP` — it enables services directly via `ENABLE_<NAME>` checks:
 
 ```bash
 declare -A SERVICE_CODE_MAP=(
-    [SAB]="sabnzbd"      [GET]="nzbget"      [HYD]="nzbhydra2"
-    [TRA]="transmission" [QBI]="qbittorrent" [DEL]="deluge"
-    [SON]="sonarr"       [RAD]="radarr"      [LID]="lidarr"    [WHI]="whisparr"
-    [PRO]="prowlarr"     [SEE]="seerr"       [BAZ]="bazarr"
-    [JEL]="jellyfin"     [EMB]="emby"        [PLX]="plex"
-    [TAU]="tautulli"     [MNT]="maintainerr"
+    [SAB]="SABNZBD"      [GET]="NZBGET"      [HYD]="NZBHYDRA"
+    [TRA]="TRANSMISSION" [QBI]="QBITTORRENT" [DEL]="DELUGE"
+    [SON]="SONARR"       [RAD]="RADARR"      [LID]="LIDARR"    [WHI]="WHISPARR"
+    [PRO]="PROWLARR"     [SEE]="SEERR"       [BAZ]="BAZARR"
+    [JEL]="JELLYFIN"     [EMB]="EMBY"        [PLX]="PLEX"
+    [TAU]="TAUTULLI"     [MNT]="MAINTAINERR"
 )
 ```
 
@@ -92,7 +97,7 @@ declare -A SERVICE_CODE_MAP=(
 
 ### 2. Private vs Public Mode Separation
 
-**Logic in `docker-entrypoint.sh` (lines 177-182, 489-533)**:
+**Logic in `docker-entrypoint.sh`** (TEST/dry-run handling and the `ACCESS_MODE` branch, illustrative — not a verbatim excerpt):
 
 ```bash
 # TEST mode for Let's Encrypt dry-run
@@ -133,15 +138,19 @@ fi
 - Minimal: Larger sizing (single column) - 0.8× for 18+ services
 - Mobile: Compact sizing (mobile grid) - 0.65× for 18+ services
 
-**Theme System**:
-- 4 themes + mobile variant
+**Layout System**:
+- 4 built-in layouts + mobile variant (classic, modern, sleek, minimal, mobile)
 - `DASH_STYLE` variable: `classic`, `modern`, `sleek`, `minimal`
 - Optional `:only` suffix to disable style switcher: `classic:only`
 - DirectoryIndex automatically strips `:only` suffix for filename
 
 **Color Customization**:
-- `DASHBOARD_COLOR`: 6-digit hex code for menu/header background (default: `#1a1a1a`)
-- `DASHBOARD_THEME`: `dark` or `light` mode toggle
+- `DASHBOARD_COLOR`: 6-digit hex code for menu/header background (default: `#1a1a1a`), applied only to built-in layouts via `@@DASHBOARD_COLOR_OVERRIDE@@`
+
+**Dark/Light Mode**:
+- Purely client-side: a footer toggle button flips the `data-theme` attribute (`dark`/`light`) on the `.app` element and persists the choice in the browser (localStorage)
+- `master.template` hardcodes `data-theme="dark"` as the initial value; there is no build-time substitution for it
+- The `DASHBOARD_THEME` env var is written to `env.conf` but is not currently consumed by `generate-html-menu.sh` or `master.template`
 
 ### 5. Authentication Methods
 
@@ -165,15 +174,22 @@ NZBGET_AUTH_HEADER_LINE="    RequestHeader set Authorization 'Basic $AUTH_BASIC'
 
 ### 7. Template Variable Substitution
 
-All templates use `@@PLACEHOLDER@@` format replaced in `generate_all_styles()` function:
+`html/master.template` uses `@@PLACEHOLDER@@` format replaced once per layout in `generate_css_based_templates()`:
 
 ```bash
+html_content="${html_content//@@TEMPLATE_TYPE@@/$layout}"
+html_content="${html_content//@@AVAILABLE_TEMPLATES@@/$templates_js}"
+html_content="${html_content//@@SERVICES_ARRAY@@/$services_array}"
+html_content="${html_content//@@SITES_ARRAY@@/$sites_array}"
 html_content="${html_content//@@DASHBOARD_NAME@@/${DASHBOARD_NAME:-Media Server}}"
-html_content="${html_content//@@DASHBOARD_COLOR@@/${DASHBOARD_COLOR:-#1a1a1a}}"
-html_content="${html_content//@@DASHBOARD_THEME@@/${DASHBOARD_THEME:-dark}}"
+html_content="${html_content//@@DASHBOARD_ICON@@/$DASHBOARD_ICON_PATH}"
+html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
+html_content="${html_content//@@DASHBOARD_COLOR_OVERRIDE@@/$dashboard_color_override}"
 ```
 
-**Note**: Placeholders must exist in template for substitution to work.
+`@@DASHBOARD_COLOR_OVERRIDE@@` is only populated for the built-in layouts (classic/modern/sleek/minimal/mobile) — it injects an inline `:root { --bg-secondary: ... }` block so custom layouts keep their own colors instead of inheriting DASHBOARD_COLOR. The dashboard theme (dark/light) is controlled client-side via the `data-theme` attribute and a footer toggle, not a build-time placeholder.
+
+**Note**: Placeholders must exist in the template for substitution to work.
 
 ---
 
@@ -188,11 +204,10 @@ EMAIL=admin@yourdomain.com
 ACCESS_MODE=public                    # public or private
 
 # Dashboard
-STYLE=modern                          # modern, classic, sleek, minimal
+DASH_STYLE=modern                     # modern, classic, sleek, minimal (mobile always available)
 DASHBOARD_NAME="My Homelab"           # Display name
-DASHBOARD_ICON="/icons/yahlp.png"     # Icon path
-DASHBOARD_COLOR="#1a1a1a"             # 6-digit hex, menu background
-DASHBOARD_THEME=dark                  # dark or light
+DASHBOARD_ICON_URL=""                 # Optional: URL to download custom icon
+DASHBOARD_COLOR="#1a1a1a"             # 6-digit hex, menu background (built-in layouts only)
 DASHBOARD_LANDING=""                  # Default service on load
 DASHBOARD_ORDER="SAB,GET,HYD,TRA,QBI,DEL,SON,RAD,LID,WHI,PRO,SEE,BAZ,JEL,EMB,PLX,TAU,MNT"  # Service code order
 
@@ -231,10 +246,12 @@ See `.env.example` and `ENVIRONMENT-VARIABLES.md` for complete list.
 
 ### Adding a New Service
 
-1. **Update SERVICE_CODE_MAP** in `generate-config.sh`:
+1. **Update SERVICE_CODE_MAP and SERVICES** in `generate-html-menu.sh`:
    ```bash
-   [XYZ]="myservice"
+   [XYZ]="MYSERVICE"          # in SERVICE_CODE_MAP
+   [MYSERVICE]="CATEGORY|My Service|Description|/icons/myservice.png|/myservice/|#hexcolor"   # in SERVICES
    ```
+   Also add an `ENABLE_MYSERVICE` check in `generate-config.sh` alongside the other `process_service_config`/`generate_include` calls.
 
 2. **Create Apache config** at `apache-conf/services/myservice.conf`:
    ```apache
@@ -251,25 +268,25 @@ See `.env.example` and `ENVIRONMENT-VARIABLES.md` for complete list.
 
 ### Modifying Dashboard Theme
 
-1. Edit template file (e.g., `html/classic.template`)
-2. Ensure all `@@PLACEHOLDER@@` are defined
+1. Edit the layout's CSS file (e.g., `html/styles/layout-classic.css`), or add a new `layout-<name>.css` for a custom layout (see `html/templates/README.md`)
+2. `html/master.template` provides the shared HTML structure and `@@PLACEHOLDER@@` substitutions — only edit it if the change applies to every layout
 3. Run `generate-html-menu.sh` to regenerate
-4. Template is processed by `generate_all_styles()` in `generate-html-menu.sh`
+4. Templates are built by `generate_css_based_templates()` in `generate-html-menu.sh`, which auto-discovers `layout-*.css` files under `html/styles/`
 
 ### Debugging
 
 ```bash
 # View generated Apache config
-docker-compose exec yahlp cat /etc/apache2/sites-enabled/reverse-proxy.conf
+docker-compose exec apache-reverse-proxy cat /etc/apache2/sites-enabled/reverse-proxy.conf
 
 # Check dashboard generation
-docker-compose logs yahlp | grep "Generating dashboards"
+docker-compose logs apache-reverse-proxy | grep "Generating dashboards"
 
 # Test Apache syntax
-docker-compose exec yahlp apache2ctl configtest
+docker-compose exec apache-reverse-proxy apache2ctl configtest
 
 # Verify substitution (check generated HTML)
-docker-compose exec yahlp grep "DASHBOARD_COLOR" /var/www/html/classic.html
+docker-compose exec apache-reverse-proxy grep "DASHBOARD_COLOR" /var/www/html/classic.html
 ```
 
 ---
@@ -278,15 +295,14 @@ docker-compose exec yahlp grep "DASHBOARD_COLOR" /var/www/html/classic.html
 
 ### DASHBOARD_COLOR Not Applying
 
-**Issue**: Color placeholder shows in generated HTML instead of hex value.
+**Issue**: DASHBOARD_COLOR doesn't change the sidebar/header/footer background on a built-in layout.
 
-**Cause**: Variable substitution in `generate_all_styles()` requires placeholder in template AND variable set in environment.
+**Cause**: `generate_css_based_templates()` only injects a `:root { --bg-secondary: ... }` override (via `@@DASHBOARD_COLOR_OVERRIDE@@`) for the built-in layouts (classic/modern/sleek/minimal/mobile). Custom layouts intentionally keep their own colors and never receive this override.
 
 **Fix**:
-1. Verify template has `@@DASHBOARD_COLOR@@` placeholder
-2. Verify `generate_all_styles()` has substitution line (all templates now included)
-3. Check `.env` file has `DASHBOARD_COLOR=` set
-4. Rebuild: `docker-compose build`
+1. Confirm you're on a built-in layout, not a custom one — custom layouts ignore DASHBOARD_COLOR by design
+2. Check `.env` file has `DASHBOARD_COLOR=` set to a 6-digit hex value
+3. Rebuild: `docker-compose build`
 
 ### 502 Bad Gateway
 
@@ -294,7 +310,7 @@ docker-compose exec yahlp grep "DASHBOARD_COLOR" /var/www/html/classic.html
 
 **Debug**:
 ```bash
-docker-compose exec yahlp curl -v http://sonarr:8989/sonarr
+docker-compose exec apache-reverse-proxy curl -v http://sonarr:8989/sonarr
 # Should return 200 or 401, not connection refused
 ```
 
@@ -309,7 +325,7 @@ docker-compose exec yahlp curl -v http://sonarr:8989/sonarr
 **Debug**:
 1. Check `TEST` is not set to `true`
 2. Verify domain is publicly accessible
-3. Check logs: `docker-compose logs yahlp | grep certbot`
+3. Check logs: `docker-compose logs apache-reverse-proxy | grep certbot`
 4. Try `TEST=true` for dry-run to debug issues
 
 ---
@@ -332,10 +348,11 @@ docker-compose exec yahlp curl -v http://sonarr:8989/sonarr
 ✅ WebSocket support  
 
 ### Recent Changes
-- Fixed DASHBOARD_COLOR substitution in all templates (moved to generate_all_styles function)
-- Added DASHBOARD_THEME support to all templates
+- Fixed DASHBOARD_COLOR substitution in all templates (at the time, handled in the now-removed per-style `generate_all_styles` function; this logic now lives in `generate_css_based_templates()`)
+- Added DASHBOARD_THEME environment variable plumbing (not currently wired into template output — see Theme System note above)
 - Fixed DirectoryIndex to strip `:only` suffix
 - Applied DASHBOARD_COLOR to mobile template main background
+- Removed the dead per-style template generators (`generate_all_styles()`, `generate_style_dashboard()`) and the old `html/*.template` files (classic/modern/modern-api/sleek/minimal/mobile/basic) in favor of the single CSS-based `master.template` + `layout-*.css` system described above
 
 ---
 
@@ -348,16 +365,16 @@ docker-compose exec yahlp curl -v http://sonarr:8989/sonarr
 - Dashboard HTML is fully generated at runtime
 
 ### Critical Paths
-- Service code mapping: `generate-config.sh` line ~30 (SERVICE_CODE_MAP)
-- Dashboard generation: `generate-html-menu.sh` function `generate_all_styles()` (line 767)
+- Service code mapping: `generate-html-menu.sh` (`SERVICE_CODE_MAP`, near the `SERVICES` array)
+- Dashboard generation: `generate-html-menu.sh` function `generate_css_based_templates()`
 - Apache config template: `apache-conf/reverse-proxy.conf.template`
 - Docker startup: `docker-entrypoint.sh` (orchestrates all scripts)
 
 ### Review Checklist for PRs
 - [ ] SERVICE_CODE_MAP updated if service added
-- [ ] All templates have `@@PLACEHOLDER@@` if introducing new variable
-- [ ] `generate_all_styles()` has substitution for all new placeholders
-- [ ] Template works in all 5 themes (modern, classic, sleek, minimal, mobile)
+- [ ] `html/master.template` has `@@PLACEHOLDER@@` if introducing new shared variable
+- [ ] `generate_css_based_templates()` has substitution for all new placeholders
+- [ ] Layout works across all built-in `layout-*.css` files (classic, modern, sleek, minimal, mobile)
 - [ ] Private/Public mode separation maintained
 - [ ] Documentation updated in ENVIRONMENT-VARIABLES.md
 
@@ -373,22 +390,22 @@ docker-compose build
 docker-compose up -d
 
 # Logs
-docker-compose logs -f yahlp
+docker-compose logs -f apache-reverse-proxy
 
 # Restart after .env change
-docker-compose restart yahlp
+docker-compose restart apache-reverse-proxy
 
 # Shell access
-docker-compose exec yahlp bash
+docker-compose exec apache-reverse-proxy bash
 
 # Check Apache config
-docker-compose exec yahlp apache2ctl configtest
+docker-compose exec apache-reverse-proxy apache2ctl configtest
 
 # View generated config
-docker-compose exec yahlp cat /etc/apache2/sites-enabled/reverse-proxy.conf
+docker-compose exec apache-reverse-proxy cat /etc/apache2/sites-enabled/reverse-proxy.conf
 
 # View generated dashboard
-docker-compose exec yahlp cat /var/www/html/classic.html
+docker-compose exec apache-reverse-proxy cat /var/www/html/classic.html
 ```
 
 ---

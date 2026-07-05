@@ -16,7 +16,7 @@ A production-ready reverse proxy system for managing 18 homelab applications wit
 ### Core Capabilities
 - ✅ **HTTPS/TLS** - Automatic via Let's Encrypt
 - ✅ **Authentication** - 4 methods (none, basic, Entra ID, Google OAuth)
-- ✅ **Dashboard** - 4 themes (modern, classic, sleek, minimal)
+- ✅ **Dashboard** - 5 layouts (modern, classic, sleek, minimal, mobile)
 - ✅ **Service Ordering** - Customize category order
 - ✅ **Auto-Renewal** - Daily certificate renewal
 - ✅ **WebSocket Support** - Real-time updates for services
@@ -68,7 +68,7 @@ docker-compose up -d
 
 ```bash
 # Check logs
-docker-compose logs -f yahlp
+docker-compose logs -f apache-reverse-proxy
 
 # Access dashboard
 https://yourdomain.com
@@ -174,17 +174,17 @@ ENTRA_PROVIDER_METADATA_URL: "https://login.microsoftonline.com/your-tenant/v2.0
 ### Change Theme
 
 ```yaml
-STYLE: modern      # Recommended: React-based, feature-rich
-STYLE: classic     # Original sidebar layout
-STYLE: sleek       # Compact with gradient
-STYLE: minimal     # Single-column design
+DASH_STYLE: modern      # Right-side services frame with left sidebar
+DASH_STYLE: classic     # Original sidebar layout
+DASH_STYLE: sleek       # Compact with gradient
+DASH_STYLE: minimal     # Single-column design
 ```
 
 ### Custom Dashboard Name & Icon
 
 ```yaml
 DASHBOARD_NAME: "My Homelab"
-DASHBOARD_ICON: "/icons/yahlp.png"
+DASHBOARD_ICON_URL: "https://example.com/my-logo.png"   # optional: auto-downloaded and used in place of the default yahlp icon
 ```
 
 ### Custom Landing Page
@@ -253,10 +253,17 @@ yahlp/
 │
 └── 🎨 Web Assets (Generated at runtime)
     └── html/
-        ├── dashboard.html             (Modern theme)
-        ├── classic.template
-        ├── sleek.template
-        ├── minimal.template
+        ├── master.template            (single template for every layout)
+        ├── styles/
+        │   ├── base.css               # Shared base styles
+        │   ├── layout-classic.css
+        │   ├── layout-modern.css
+        │   ├── layout-sleek.css
+        │   ├── layout-minimal.css
+        │   ├── layout-mobile.css
+        │   └── ... (auto-discovered layout-*.css files)
+        ├── templates/                 # Drop custom layout-<name>.css here (see html/templates/README.md)
+        ├── classic.html, modern.html, sleek.html, minimal.html, mobile.html   (generated per layout)
         └── icons/
             └── (service icons)
 ```
@@ -314,7 +321,7 @@ EMAIL: admin@yourdomain.com
 ACCESS_MODE: public              # public or private
 
 # Dashboard
-STYLE: modern                     # modern, classic, sleek, minimal
+DASH_STYLE: modern                # modern, classic, sleek, minimal (mobile is always available)
 DASHBOARD_NAME: "My Media Server"
 DASHBOARD_LANDING: ""             # Default service on startup
 DASHBOARD_ORDER: "CONTENT,SEARCH,USENET,TORRENTS,MEDIA"
@@ -362,13 +369,13 @@ docker-compose exec apache-reverse-proxy cat /etc/apache2/sites-available/revers
 
 ```bash
 # Apache error logs
-docker-compose logs -f yahlp | grep error
+docker-compose logs -f apache-reverse-proxy | grep error
 
 # Service health check logs
-docker-compose logs -f yahlp | grep -E "(502|503|FAIL)"
+docker-compose logs -f apache-reverse-proxy | grep -E "(502|503|FAIL)"
 
 # Auth logs
-docker-compose logs -f yahlp | grep -i auth
+docker-compose logs -f apache-reverse-proxy | grep -i auth
 ```
 
 ### Test Configuration Syntax
@@ -497,8 +504,8 @@ ENABLE_JELLYFIN: "true"
 ## 📦 Version Info - YAHLP (Yet Another HomeLab Portal)
 
 - **Project**: YAHLP (Yet Another HomeLab Portal) - Unified Media Server Dashboard
-- **Current Version**: 2.2.0
-- **Release Date**: 2026-06-29
+- **Current Version**: 1.0.0
+- **Release Date**: 2026-06-30
 - **Services**: 18 total (added Maintainerr)
 - **Categories**: 5 (CONTENT, SEARCH, USENET, TORRENTS, MEDIA)
 - **Docker Image**: Apache 2.4 + Certbot + mod_proxy

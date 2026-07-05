@@ -13,19 +13,26 @@ environment:
   ENABLE_RADARR: "true"      # /radarr - Movie automation
   ENABLE_WHISPARR: "false"   # /whisparr - Adult content collection manager
   ENABLE_LIDARR: "false"     # /lidarr - Music automation
-  ENABLE_READARR: "false"    # /readarr - Book automation
   ENABLE_PROWLARR: "false"   # /prowlarr - Indexer manager
-  ENABLE_OVERSEERR: "false"  # /overseerr - Request manager
+  ENABLE_SEERR: "false"      # /seerr - Request manager
+  ENABLE_BAZARR: "false"     # /bazarr - Subtitle management
   
   # Media Centers
   ENABLE_JELLYFIN: "false"   # /jellyfin - Open-source media server
-  ENABLE_EMBY: "false"       # /emby - Emby media server
-  ENABLE_PLEX: "false"       # /plex - Plex media server
+  ENABLE_EMBY: "false"       # Emby media server (subdomain or direct URL, not a subpath)
+  ENABLE_PLEX: "false"       # Plex media server (subdomain or direct URL, not a subpath)
   ENABLE_TAUTULLI: "false"   # /tautulli - Plex monitoring
+  ENABLE_MAINTAINERR: "false" # /maintainerr - Media library maintenance
+  
+  # Usenet Clients
+  ENABLE_SABNZBD: "false"      # /sabnzbd - Usenet downloader
+  ENABLE_NZBGET: "false"       # /nzbget - Usenet downloader
+  ENABLE_NZBHYDRA: "false"     # /nzbhydra - NZB indexer proxy
   
   # Torrent Clients
   ENABLE_TRANSMISSION: "false" # /transmission - Transmission client
   ENABLE_QBITTORRENT: "false"  # /qbittorrent - qBittorrent client
+  ENABLE_DELUGE: "false"       # /deluge - Deluge client
 ```
 
 ## Available Services (18 Total)
@@ -39,7 +46,7 @@ All services use 3-letter codes for dashboard configuration:
 | **SAB** | SABnzbd | USENET | 8080 |
 | **GET** | NZBGet | USENET | 6789 |
 | **HYD** | NZBHydra | USENET | 5076 |
-| **TRA** | Transmission | TORRENTS | 6969 |
+| **TRA** | Transmission | TORRENTS | 9091 |
 | **QBI** | qBittorrent | TORRENTS | 8080 |
 | **DEL** | Deluge | TORRENTS | 8112 |
 | **SON** | Sonarr | CONTENT | 8989 |
@@ -135,15 +142,6 @@ whisparr:
   - Artist management
   - Quality control
 
-#### Readarr - Book Automation
-- **URL Path**: `/readarr`
-- **Port**: 8787
-- **Enable**: `ENABLE_READARR=true`
-- **Features**:
-  - Book/magazine automation
-  - Author tracking
-  - Download management
-
 #### Prowlarr - Indexer Manager
 - **URL Path**: `/prowlarr`
 - **Port**: 9696
@@ -183,7 +181,7 @@ whisparr:
   - Web interface and apps
 
 #### Emby - Emby Media Server
-- **URL Path**: `/emby`
+- **URL Path**: None — Emby is never proxied at a subpath. It opens via subdomain (`EMBY_DOMAIN`, public mode, its own Apache VirtualHost + certificate) or directly at `EMBY_URL` (private mode, or public mode without `EMBY_DOMAIN`)
 - **Port**: 8096
 - **Enable**: `ENABLE_EMBY=true`
 - **Features**:
@@ -192,7 +190,7 @@ whisparr:
   - Multi-platform support
 
 #### Plex - Plex Media Server
-- **URL Path**: `/plex`
+- **URL Path**: None — Plex is never proxied at a subpath. It opens via subdomain (`PLEX_DOMAIN`, public mode, its own Apache VirtualHost + certificate) or directly at `PLEX_URL` (private mode, or public mode without `PLEX_DOMAIN`)
 - **Port**: 32400
 - **Enable**: `ENABLE_PLEX=true`
 - **Features**:
@@ -238,8 +236,8 @@ maintainerr:
 ### Torrent Clients
 
 #### Transmission
-- **URL Path**: `/transmission`
-- **Port**: 6969
+- **URL Path**: `/transmission` (RPC endpoint at `/transmission/rpc`)
+- **Port**: 9091
 - **Enable**: `ENABLE_TRANSMISSION=true`
 - **Features**:
   - Lightweight torrent client
@@ -254,6 +252,15 @@ maintainerr:
   - Advanced torrent client
   - Web UI with search
   - API support
+
+#### Deluge
+- **URL Path**: `/deluge`
+- **Port**: 8112
+- **Enable**: `ENABLE_DELUGE=true`
+- **Features**:
+  - Lightweight torrent client
+  - Plugin support
+  - Web UI
 
 ## Custom Backend Service
 
@@ -293,21 +300,30 @@ When using docker-compose with the provided services, they're connected via the 
 | Sonarr | 8989 | 8989 | Optional: expose if needed |
 | Radarr | 7878 | 7878 | Optional: expose if needed |
 | Lidarr | 8686 | 8686 | Optional: expose if needed |
-| Readarr | 8787 | 8787 | Optional: expose if needed |
+| Whisparr | 6969 | 6969 | Optional: expose if needed |
 | Prowlarr | 9696 | 9696 | Optional: expose if needed |
-| Overseerr | 5055 | 5055 | Optional: expose if needed |
+| Seerr | 5055 | 5055 | Optional: expose if needed |
+| Bazarr | 6767 | 6767 | Optional: expose if needed |
 | Jellyfin | 8096 | 8096 | Optional: expose if needed |
+| Emby | 8096 | 8096 | Optional: expose if needed |
 | Plex | 32400 | 32400 | Optional: expose if needed |
-| Transmission | 6969 | 6969 | Optional: expose if needed |
+| Tautulli | 8181 | 8181 | Optional: expose if needed |
+| Maintainerr | 6246 | 6246 | Optional: expose if needed |
+| Transmission | 9091 | 9091 | Optional: expose if needed |
 | qBittorrent | 8080 | 8080 | Optional: expose if needed |
+| Deluge | 8112 | 8112 | Optional: expose if needed |
+| SABnzbd | 8080 | 8080 | Optional: expose if needed |
+| NZBGet | 6789 | 6789 | Optional: expose if needed |
+| NZBHydra | 5076 | 5076 | Optional: expose if needed |
 
 ## WebSocket Support
 
 Services that use WebSockets for real-time updates are automatically configured:
-- **Sonarr, Radarr, Lidarr, Readarr**: SignalR updates
-- **Overseerr**: Socket.io notifications
+- **Sonarr, Radarr, Lidarr, Whisparr**: SignalR updates
+- **Seerr**: Socket.io notifications
 - **Jellyfin/Emby**: WebSocket connections
 - **qBittorrent**: Real-time status updates
+- **Maintainerr**: WebSocket support via `mod_proxy_wstunnel`
 
 ## Adding Custom Services
 
@@ -426,7 +442,7 @@ environment:
   ENABLE_SONARR: "true"
   ENABLE_RADARR: "true"
   ENABLE_PROWLARR: "true"
-  ENABLE_OVERSEERR: "true"
+  ENABLE_SEERR: "true"
   ENABLE_JELLYFIN: "true"
   ENABLE_TAUTULLI: "true"
   ENABLE_QBITTORRENT: "true"
@@ -436,7 +452,7 @@ After restart, access at:
 - `https://media.example.com/sonarr` - Sonarr
 - `https://media.example.com/radarr` - Radarr
 - `https://media.example.com/prowlarr` - Prowlarr
-- `https://media.example.com/overseerr` - Overseerr
+- `https://media.example.com/seerr` - Seerr
 - `https://media.example.com/jellyfin` - Jellyfin
 - `https://media.example.com/tautulli` - Tautulli
 - `https://media.example.com/qbittorrent` - qBittorrent

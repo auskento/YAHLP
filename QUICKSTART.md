@@ -66,9 +66,10 @@ docker-compose logs -f apache-reverse-proxy
 
 You should see:
 ```
-=== Setting up Office 365 Authentication === (if enabled)
-=== Apache & Let's Encrypt Setup ===
+=== Setting up Entra ID (Microsoft) Authentication === (if AUTHTYPE=entra)
+=== Deployment Mode Setup ===
 Domain: yourdomain.com
+=== Obtaining Let's Encrypt Certificate ===
 Requesting certificate from Let's Encrypt...
 === Starting Apache ===
 Apache is running!
