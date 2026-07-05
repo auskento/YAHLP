@@ -182,8 +182,26 @@ if (!hasConfiguredServices) {
 // Generic request helper
 async function makeRequest(serviceKey, endpoint, options = {}) {
   const config = services[serviceKey];
-  if (!config.url || !config.key) {
+  if (!config || !config.url) {
     throw new Error(`Service ${serviceKey} not configured`);
+  }
+
+  // Check for required authentication based on auth type
+  switch (config.authType) {
+    case 'qbittorrent':
+    case 'nzbget':
+      if (!config.username || !config.password) {
+        throw new Error(`Service ${serviceKey} not configured`);
+      }
+      break;
+    case 'transmission':
+      // Transmission doesn't require auth for stats
+      break;
+    default:
+      // All other services require an API key
+      if (!config.key) {
+        throw new Error(`Service ${serviceKey} not configured`);
+      }
   }
 
   const url = `${config.url}${endpoint}`;
