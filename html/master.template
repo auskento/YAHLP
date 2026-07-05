@@ -467,6 +467,7 @@ async function buildSitesGrid() {
     const app = document.querySelector('.app');
     const layout = app.getAttribute('data-layout');
     const isMobile = layout === 'mobile';
+    const isFocusLayout = layout === 'focus';
     const isSidebarLayout = isSidebarStyleLayout();
 
     let sites = [];
@@ -502,7 +503,7 @@ async function buildSitesGrid() {
         `;
     });
 
-    if (isSidebarLayout) {
+    if (isSidebarLayout && !isFocusLayout) {
         const sidebarSitesGrid = document.getElementById('sidebar-sites-grid');
         const sidebarSitesSection = document.getElementById('sidebar-sites-section');
         sidebarSitesGrid.innerHTML = html;
