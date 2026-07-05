@@ -521,8 +521,10 @@ async function buildSitesGrid() {
             e.preventDefault();
             const href = link.getAttribute('data-href');
             const shouldPopup = link.getAttribute('data-popup') === 'true';
+            const isExternalUrl = href.startsWith('http://') || href.startsWith('https://');
 
-            if (shouldPopup) {
+            // Open external URLs in new window (avoid X-Frame-Options blocking), or if popup flag is set
+            if (shouldPopup || isExternalUrl) {
                 window.open(href, '_blank', 'width=1200,height=800,resizable=yes,scrollbars=yes');
             } else {
                 frame.src = href;
