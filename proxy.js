@@ -149,6 +149,14 @@ const services = {
   'transmission': { url: getConfigValue('transmission', 'url'), authType: 'transmission' },
   'sabnzbd': { url: getConfigValue('sabnzbd', 'url'), key: getConfigValue('sabnzbd', 'api_key'), authType: 'query' },
   'nzbget': { url: getConfigValue('nzbget', 'url'), username: getConfigValue('nzbget', 'username'), password: getConfigValue('nzbget', 'password'), authType: 'nzbget' },
+  'deluge': { url: getConfigValue('deluge', 'url'), key: getConfigValue('deluge', 'password'), authType: 'deluge' },
+  'nzbhydra': { url: getConfigValue('nzbhydra', 'url'), key: getConfigValue('nzbhydra', 'api_key'), authType: 'header' },
+  'prowlarr': { url: getConfigValue('prowlarr', 'url'), key: getConfigValue('prowlarr', 'api_key'), authType: 'header' },
+  'seerr': { url: getConfigValue('seerr', 'url'), key: getConfigValue('seerr', 'api_key'), authType: 'header' },
+  'bazarr': { url: getConfigValue('bazarr', 'url'), key: getConfigValue('bazarr', 'api_key'), authType: 'bazarr' },
+  'tautulli': { url: getConfigValue('tautulli', 'url'), key: getConfigValue('tautulli', 'api_key'), authType: 'query' },
+  'maintainerr': { url: getConfigValue('maintainerr', 'url'), key: getConfigValue('maintainerr', 'api_key'), authType: 'header' }
+};
 
 // DEBUG: Log critical env vars and service config for nzbget
 console.log('=== NZBGET Configuration Debug ===');
@@ -165,14 +173,6 @@ if (jsonConfig.services?.nzbget) {
   console.log('No nzbget in JSON5 services');
 }
 console.log('Loaded nzbget service config:', services.nzbget);
-  'deluge': { url: getConfigValue('deluge', 'url'), key: getConfigValue('deluge', 'password'), authType: 'deluge' },
-  'nzbhydra': { url: getConfigValue('nzbhydra', 'url'), key: getConfigValue('nzbhydra', 'api_key'), authType: 'header' },
-  'prowlarr': { url: getConfigValue('prowlarr', 'url'), key: getConfigValue('prowlarr', 'api_key'), authType: 'header' },
-  'seerr': { url: getConfigValue('seerr', 'url'), key: getConfigValue('seerr', 'api_key'), authType: 'header' },
-  'bazarr': { url: getConfigValue('bazarr', 'url'), key: getConfigValue('bazarr', 'api_key'), authType: 'bazarr' },
-  'tautulli': { url: getConfigValue('tautulli', 'url'), key: getConfigValue('tautulli', 'api_key'), authType: 'query' },
-  'maintainerr': { url: getConfigValue('maintainerr', 'url'), key: getConfigValue('maintainerr', 'api_key'), authType: 'header' }
-};
 
 // Check if any services are configured
 // Services that don't require API keys: transmission, qbittorrent
