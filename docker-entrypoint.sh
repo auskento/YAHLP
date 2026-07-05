@@ -23,27 +23,49 @@ chmod 777 /var/log/apache2/sites || {
 # 2. These become the defaults for the entire startup process
 # 3. Any -e environment variables passed to Docker override these defaults
 # 4. If no yahlp.json5, use environment variables only
-if [ -f /etc/yahlp/yahlp.json5 ]; then
-    echo "✓ yahlp.json5 found - converting to environment variables"
-    echo "  Explicit -e environment variables will override JSON5 values"
 
-    # Convert yahlp.json5 to environment variables using a temp file (more reliable than process substitution)
+echo "=== Configuration Loading ==="
+echo "Checking for /etc/yahlp/yahlp.json5..."
+
+if [ -f /etc/yahlp/yahlp.json5 ]; then
+    echo "✓ yahlp.json5 found ($(wc -c < /etc/yahlp/yahlp.json5) bytes)"
+    echo "Converting to environment variables..."
+
+    # Convert yahlp.json5 to environment variables using a temp file
     JSON5_ENV_FILE="/tmp/yahlp.env"
+
+    # Run the script and capture output
     if node /usr/local/bin/json5-to-env.js > "$JSON5_ENV_FILE" 2>&1; then
-        set -a
-        source "$JSON5_ENV_FILE"
-        set +a
-        echo "✓ Loaded $(grep -c '^export' "$JSON5_ENV_FILE" || echo 0) variables from yahlp.json5"
+        EXPORT_COUNT=$(grep -c '^export' "$JSON5_ENV_FILE" 2>/dev/null || echo 0)
+
+        if [ "$EXPORT_COUNT" -gt 0 ]; then
+            echo "✓ Script generated $EXPORT_COUNT export statements"
+            echo "Sample exports:"
+            head -5 "$JSON5_ENV_FILE" | sed 's/^/  /'
+
+            # Source the exports
+            set -a
+            source "$JSON5_ENV_FILE"
+            set +a
+            echo "✓ Sourced environment variables from yahlp.json5"
+        else
+            echo "⚠ Script ran but generated no export statements"
+            echo "Full output:"
+            cat "$JSON5_ENV_FILE" | sed 's/^/  /'
+        fi
         rm -f "$JSON5_ENV_FILE"
     else
-        echo "✗ Failed to parse yahlp.json5:"
-        cat "$JSON5_ENV_FILE"
+        echo "✗ json5-to-env.js failed:"
+        cat "$JSON5_ENV_FILE" | sed 's/^/  /'
         rm -f "$JSON5_ENV_FILE"
         exit 1
     fi
 else
-    echo "ℹ yahlp.json5 not found - using -e environment variables only"
+    echo "ℹ /etc/yahlp/yahlp.json5 not found"
+    echo "  If using yahlp.json5, mount it to /etc/yahlp/yahlp.json5:ro"
+    echo "  Otherwise, configure services via -e environment variables"
 fi
+echo ""
 
 # Load persistent dashboard configuration if it exists (legacy support)
 # This allows changing UI style and landing page without rebuilding the image
