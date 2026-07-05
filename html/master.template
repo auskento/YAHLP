@@ -100,6 +100,34 @@ const codeToService = {
     'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
 };
 
+// Extract dashboard color from CSS and set it as a CSS variable for gradients
+function initDashboardColor() {
+    const styleTag = document.querySelector('style');
+    if (styleTag && styleTag.textContent) {
+        const match = styleTag.textContent.match(/--dashboard-color:\s*([#\w]+)/);
+        if (match) {
+            const hexColor = match[1];
+            // Convert hex to RGB and create rgba
+            const rgb = hexToRgb(hexColor);
+            if (rgb) {
+                const rgbaColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+                document.documentElement.style.setProperty('--dashboard-color-rgba', rgbaColor);
+            }
+        }
+    }
+}
+
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
+initDashboardColor();
+
 const frame = document.getElementById('service-frame');
 const dashboardView = document.getElementById('dashboard-view');
 const content = document.getElementById('dashboard-content');
