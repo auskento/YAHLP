@@ -149,6 +149,22 @@ const services = {
   'transmission': { url: getConfigValue('transmission', 'url'), authType: 'transmission' },
   'sabnzbd': { url: getConfigValue('sabnzbd', 'url'), key: getConfigValue('sabnzbd', 'api_key'), authType: 'query' },
   'nzbget': { url: getConfigValue('nzbget', 'url'), username: getConfigValue('nzbget', 'username'), password: getConfigValue('nzbget', 'password'), authType: 'nzbget' },
+
+// DEBUG: Log critical env vars and service config for nzbget
+console.log('=== NZBGET Configuration Debug ===');
+console.log('NZBGET_URL env:', process.env.NZBGET_URL);
+console.log('NZBGET_USERNAME env:', process.env.NZBGET_USERNAME);
+console.log('NZBGET_PASSWORD env:', process.env.NZBGET_PASSWORD);
+if (jsonConfig.services?.nzbget) {
+  console.log('JSON5 nzbget config:', {
+    url: jsonConfig.services.nzbget.url,
+    username: jsonConfig.services.nzbget.username,
+    password: '***'
+  });
+} else {
+  console.log('No nzbget in JSON5 services');
+}
+console.log('Loaded nzbget service config:', services.nzbget);
   'deluge': { url: getConfigValue('deluge', 'url'), key: getConfigValue('deluge', 'password'), authType: 'deluge' },
   'nzbhydra': { url: getConfigValue('nzbhydra', 'url'), key: getConfigValue('nzbhydra', 'api_key'), authType: 'header' },
   'prowlarr': { url: getConfigValue('prowlarr', 'url'), key: getConfigValue('prowlarr', 'api_key'), authType: 'header' },
