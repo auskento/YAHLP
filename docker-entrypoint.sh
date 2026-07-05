@@ -25,8 +25,13 @@ if ! [ -f /etc/yahlp/yahlp.json5 ]; then
     node /app/scripts/generate-config.js
 else
     echo "✓ yahlp.json5 already exists"
-    echo "  Note: Environment variables will override JSON5 values"
 fi
+
+# Load environment variables from yahlp.json5
+# Any env vars already set will take precedence over JSON5 values
+echo "Loading configuration from yahlp.json5..."
+eval "$(node /app/scripts/json5-to-env.js)"
+echo "✓ Configuration loaded (env vars take precedence over JSON5)"
 
 # Load persistent dashboard configuration if it exists (legacy support)
 # This allows changing UI style and landing page without rebuilding the image
