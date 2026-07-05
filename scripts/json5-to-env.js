@@ -5,8 +5,8 @@
  * Usage: eval "$(node json5-to-env.js)"
  */
 
-const fs = require('fs');
-const JSON5 = require('json5');
+import fs from 'fs';
+import JSON5 from 'json5';
 
 const configPath = '/etc/yahlp/yahlp.json5';
 
