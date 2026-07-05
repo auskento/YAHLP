@@ -19,14 +19,21 @@ chmod 777 /var/log/apache2/sites || {
 }
 
 # Configuration loading:
-# 1. If yahlp.json5 is provided (mounted), read it as base config
-# 2. Environment variables override/supplement JSON5 settings
-# 3. If no yahlp.json5, environment variables are the only source
+# 1. If yahlp.json5 is provided (mounted), convert it to environment variables
+# 2. These become the defaults for the entire startup process
+# 3. Any -e environment variables passed to Docker override these defaults
+# 4. If no yahlp.json5, use environment variables only
 if [ -f /etc/yahlp/yahlp.json5 ]; then
-    echo "✓ yahlp.json5 found - using as base configuration"
-    echo "  Environment variables will override JSON5 values"
+    echo "✓ yahlp.json5 found - converting to environment variables"
+    echo "  Explicit -e environment variables will override JSON5 values"
+
+    # Convert yahlp.json5 to environment variables
+    # Create a temporary file with env var assignments from JSON5
+    set -a
+    source <(node /usr/local/bin/json5-to-env.js 2>/dev/null || true)
+    set +a
 else
-    echo "ℹ yahlp.json5 not found - using environment variables only"
+    echo "ℹ yahlp.json5 not found - using -e environment variables only"
 fi
 
 # Load persistent dashboard configuration if it exists (legacy support)
