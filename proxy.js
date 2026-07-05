@@ -875,35 +875,49 @@ app.get('/api/config/dashboard', (req, res) => {
   res.json(dashboard);
 });
 
+// Built-in torrent and usenet sites
+const builtInSites = {
+  'TPB': { code: 'TPB', name: 'The Pirate Bay', url: 'https://thepiratebay.org', category: 'torrent' },
+  'FIL': { code: 'FIL', name: 'FileList.io', url: 'https://filelist.io', category: 'torrent' },
+  'HDB': { code: 'HDB', name: 'HDBits', url: 'https://hdbits.org', category: 'torrent' },
+  'IPT': { code: 'IPT', name: 'IP Torrents', url: 'https://iptorrents.com', category: 'torrent' },
+  '1337': { code: '1337', name: '1337x', url: 'https://1337x.to', category: 'torrent' },
+  'YTS': { code: 'YTS', name: 'YTS', url: 'https://yts.torrentbay.st', category: 'torrent' },
+  'LAT': { code: 'LAT', name: 'LimeTorrents', url: 'https://limetorrents.cc', category: 'torrent' },
+  'NYA': { code: 'NYA', name: 'Nyaa', url: 'https://nyaa.si', category: 'torrent' },
+  'PTP': { code: 'PTP', name: 'PassThePopcorn', url: 'https://passthepopcorn.me', category: 'torrent' },
+  'DOG': { code: 'DOG', name: 'DOGnzb', url: 'https://dognzb.cr/browse', category: 'usenet' },
+  'DRS': { code: 'DRS', name: 'DrunkenSlug', url: 'https://www.drunkenslug.com', category: 'usenet' },
+  'NLF': { code: 'NLF', name: 'nzb.life', url: 'https://nzb.life', category: 'usenet' },
+  'NFW': { code: 'NFW', name: 'NZBFinder.ws', url: 'https://nzbfinder.ws', category: 'usenet' },
+  'NGK': { code: 'NGK', name: 'NZBgeek', url: 'https://nzbgeek.info', category: 'usenet' },
+  'PLA': { code: 'PLA', name: 'nzbplanet.net', url: 'https://nzbplanet.net', category: 'usenet' },
+  'TAB': { code: 'TAB', name: 'Tabula Rasa', url: 'https://tabula-rasa.pw', category: 'usenet' },
+};
+
 app.get('/api/config/sites', (req, res) => {
-  let sites = sitesConfig.sites || [];
   const allSites = [];
-  const seenSites = new Set();
 
-  // First, add enabled sites from sites.json5
-  sites.forEach(site => {
-    if (site.enabled !== false) {
-      allSites.push(site);
-      seenSites.add((site.code || site.name).toUpperCase());
-    }
-  });
-
-  // Then, if DASHBOARD_SITES env var is set, add those sites too (even if disabled in file)
+  // Get DASHBOARD_SITES from environment variable
   const envDashboardSites = process.env.DASHBOARD_SITES ?
-    process.env.DASHBOARD_SITES.split(',').map(s => s.trim()) : [];
+    process.env.DASHBOARD_SITES.split(',').map(s => s.trim().toUpperCase()) : [];
 
+  // Add built-in sites if DASHBOARD_SITES is set
   if (envDashboardSites.length > 0) {
-    envDashboardSites.forEach(siteRef => {
-      const site = sites.find(s =>
-        (s.code && s.code.toUpperCase() === siteRef.toUpperCase()) ||
-        (s.name && s.name.toUpperCase() === siteRef.toUpperCase())
-      );
-      if (site && !seenSites.has((site.code || site.name).toUpperCase())) {
-        allSites.push(site);
-        seenSites.add((site.code || site.name).toUpperCase());
+    envDashboardSites.forEach(code => {
+      if (builtInSites[code]) {
+        allSites.push(builtInSites[code]);
       }
     });
   }
+
+  // Add custom sites from sites.json5 (those with enabled: true)
+  const customSites = sitesConfig.sites || [];
+  customSites.forEach(site => {
+    if (site.enabled !== false) {
+      allSites.push(site);
+    }
+  });
 
   res.json(allSites);
 });
