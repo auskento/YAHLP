@@ -7,17 +7,26 @@
  */
 
 const fs = require('fs');
-const JSON5 = require('json5');
+const path = require('path');
+
+let JSON5;
+try {
+  JSON5 = require('json5');
+} catch (e) {
+  console.error('Error: json5 module not found. Make sure it is installed in /opt/proxy/node_modules');
+  process.exit(1);
+}
 
 const configPath = '/etc/yahlp/yahlp.json5';
 
 try {
   if (!fs.existsSync(configPath)) {
-    // No config file, output nothing
+    // No config file, exit silently
     process.exit(0);
   }
 
-  const config = JSON5.parse(fs.readFileSync(configPath, 'utf8'));
+  const fileContent = fs.readFileSync(configPath, 'utf8');
+  const config = JSON5.parse(fileContent);
 
   // Helper to flatten nested objects and convert to SCREAMING_SNAKE_CASE
   function flattenConfig(obj, prefix = '') {

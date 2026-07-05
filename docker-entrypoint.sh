@@ -27,11 +27,20 @@ if [ -f /etc/yahlp/yahlp.json5 ]; then
     echo "✓ yahlp.json5 found - converting to environment variables"
     echo "  Explicit -e environment variables will override JSON5 values"
 
-    # Convert yahlp.json5 to environment variables
-    # Create a temporary file with env var assignments from JSON5
-    set -a
-    source <(node /usr/local/bin/json5-to-env.js 2>/dev/null || true)
-    set +a
+    # Convert yahlp.json5 to environment variables using a temp file (more reliable than process substitution)
+    JSON5_ENV_FILE="/tmp/yahlp.env"
+    if node /usr/local/bin/json5-to-env.js > "$JSON5_ENV_FILE" 2>&1; then
+        set -a
+        source "$JSON5_ENV_FILE"
+        set +a
+        echo "✓ Loaded $(grep -c '^export' "$JSON5_ENV_FILE" || echo 0) variables from yahlp.json5"
+        rm -f "$JSON5_ENV_FILE"
+    else
+        echo "✗ Failed to parse yahlp.json5:"
+        cat "$JSON5_ENV_FILE"
+        rm -f "$JSON5_ENV_FILE"
+        exit 1
+    fi
 else
     echo "ℹ yahlp.json5 not found - using -e environment variables only"
 fi
