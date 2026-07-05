@@ -242,15 +242,20 @@ echo "Substituting service URLs in config files..."
 SERVICES="jellyfin plex emby sonarr radarr lidarr whisparr qbittorrent transmission sabnzbd nzbget deluge nzbhydra prowlarr seerr bazarr tautulli maintainerr"
 
 for service in $SERVICES; do
-    SERVICE_ENABLED_VAR="${service^^}_ENABLED"  # Convert to UPPERCASE
-    SERVICE_URL_VAR="${service^^}_URL"
+    # Use tr for portable uppercase conversion (${var^^} doesn't work in all bash versions)
+    SERVICE_UPPER=$(echo "$service" | tr '[:lower:]' '[:upper:]')
+    SERVICE_ENABLED_VAR="${SERVICE_UPPER}_ENABLED"
+    SERVICE_URL_VAR="${SERVICE_UPPER}_URL"
 
-    # Check if service is enabled (variable exists and is 'true')
-    if [ "${!SERVICE_ENABLED_VAR}" = "true" ]; then
-        SERVICE_URL="${!SERVICE_URL_VAR}"
+    # Get the actual variable values using indirect expansion
+    eval "SERVICE_ENABLED=\$$SERVICE_ENABLED_VAR"
+    eval "SERVICE_URL=\$$SERVICE_URL_VAR"
+
+    # Check if service is enabled
+    if [ "$SERVICE_ENABLED" = "true" ] && [ ! -z "$SERVICE_URL" ]; then
         CONF_FILE="/etc/apache2/sites-available/services/${service}.conf"
 
-        if [ -f "$CONF_FILE" ] && [ ! -z "$SERVICE_URL" ]; then
+        if [ -f "$CONF_FILE" ]; then
             # Handle Jellyfin special case (needs websocket URL)
             if [ "$service" = "jellyfin" ]; then
                 JELLYFIN_BASE_URL=$(echo "$SERVICE_URL" | sed 's|/jellyfin/?$||')
@@ -260,7 +265,7 @@ for service in $SERVICES; do
                 echo "✓ Configured $service"
             else
                 # Substitute generic URL placeholder
-                PLACEHOLDER="@@${service^^}_URL@@"
+                PLACEHOLDER="@@${SERVICE_UPPER}_URL@@"
                 sed -i "s|$PLACEHOLDER|$SERVICE_URL|g" "$CONF_FILE"
                 echo "✓ Configured $service"
             fi
