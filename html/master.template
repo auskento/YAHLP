@@ -10,6 +10,33 @@
 <link rel="stylesheet" href="/styles/base.css">
 <link rel="stylesheet" href="/styles/layout-@@TEMPLATE_TYPE@@.css">
 <style>@@DASHBOARD_COLOR_OVERRIDE@@</style>
+<script>
+// Immediately calculate average color for content panel
+document.addEventListener('DOMContentLoaded', function() {
+    const styleTag = document.querySelector('style');
+    if (styleTag) {
+        const match = styleTag.textContent.match(/--dashboard-color:\s*([#\w]+)/);
+        if (match) {
+            const dashColor = match[1];
+            const dashRgb = {
+                r: parseInt(dashColor.substring(1, 3), 16),
+                g: parseInt(dashColor.substring(3, 5), 16),
+                b: parseInt(dashColor.substring(5, 7), 16)
+            };
+            const bgRgb = { r: 8, g: 9, b: 12 }; // #08090c
+            const avgRgb = {
+                r: Math.round((dashRgb.r + bgRgb.r) / 2),
+                g: Math.round((dashRgb.g + bgRgb.g) / 2),
+                b: Math.round((dashRgb.b + bgRgb.b) / 2)
+            };
+            const avgHex = '#' + [avgRgb.r, avgRgb.g, avgRgb.b]
+                .map(x => x.toString(16).padStart(2, '0'))
+                .join('');
+            document.documentElement.style.setProperty('--content-bg-color', avgHex);
+        }
+    }
+});
+</script>
 </head>
 <body>
 <div class="app" data-layout="@@TEMPLATE_TYPE@@" data-theme="dark" style="padding-bottom: 48px;">
