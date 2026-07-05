@@ -878,33 +878,21 @@ app.get('/api/config/dashboard', (req, res) => {
 app.get('/api/config/sites', (req, res) => {
   let sites = sitesConfig.sites || [];
 
-  // Add built-in sites from dashboard.sites configuration (3-letter codes)
-  const dashboardSites = jsonConfig.dashboard?.sites || [];
+  // Filter sites by enabled flag
+  sites = sites.filter(site => site.enabled !== false);
+
+  // If DASHBOARD_SITES env var is set, further filter by codes
   const envDashboardSites = process.env.DASHBOARD_SITES ?
     process.env.DASHBOARD_SITES.split(',').map(s => s.trim().toUpperCase()) : [];
 
-  const siteCodes = envDashboardSites.length > 0 ? envDashboardSites : dashboardSites;
+  if (envDashboardSites.length > 0) {
+    sites = sites.filter(site =>
+      envDashboardSites.includes((site.code || site.name).toUpperCase())
+    );
+  }
 
-  // Map service codes to site objects
-  const builtInSites = siteCodes
-    .map(code => {
-      const service = codeToService[code];
-      if (!service || !jsonConfig.services?.[service]?.url) {
-        return null;
-      }
-
-      return {
-        name: service.charAt(0).toUpperCase() + service.slice(1),
-        url: jsonConfig.services[service].url,
-        icon: jsonConfig.services[service].icon_url || '',
-        code: code
-      };
-    })
-    .filter(s => s !== null);
-
-  // Combine built-in sites with custom sites
-  const allSites = [...builtInSites, ...sites];
-  res.json(allSites);
+  // Maintain order from sites.json5
+  res.json(sites);
 });
 
 app.get('/api/config/access', (req, res) => {
