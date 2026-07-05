@@ -126,7 +126,9 @@
   gap: 16px;
   max-width: 1400px;
   width: 100%;
-  background: var(--bg-secondary);
+  background: radial-gradient(1200px 700px at 82% 110%, var(--dashboard-color-rgba, rgba(0, 169, 157, 0.08)), transparent 50%),
+              radial-gradient(900px 600px at 0% -10%, var(--dashboard-color-rgba, rgba(0, 169, 157, 0.06)), transparent 45%),
+              var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 16px;
