@@ -100,13 +100,39 @@ const codeToService = {
     'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
 };
 
-// Use hardcoded gradient midpoint colors (average of the two app gradient colors)
-// Gradient 1: rgba(58, 160, 224, 0.1) - blue
-// Gradient 2: rgba(46, 205, 111, 0.07) - green
-// Midpoint: rgba(52, 182.5, 167.5, 0.085)
+// Extract dashboard color and darken it for content panel background
 function initDashboardColor() {
-    const midpointColor = 'rgba(52, 183, 168, 0.085)';
-    document.documentElement.style.setProperty('--content-bg-color', midpointColor);
+    const styleTag = document.querySelector('style');
+    if (styleTag && styleTag.textContent) {
+        const match = styleTag.textContent.match(/--dashboard-color:\s*([#\w]+)/);
+        if (match) {
+            const hexColor = match[1];
+            const rgb = hexToRgb(hexColor);
+            if (rgb) {
+                // Darken the dashboard color by 40%
+                const darkenedRgb = darkenRgb(rgb, 40);
+                const darkenedColor = `rgb(${darkenedRgb.r}, ${darkenedRgb.g}, ${darkenedRgb.b})`;
+                document.documentElement.style.setProperty('--content-bg-color', darkenedColor);
+            }
+        }
+    }
+}
+
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
+function darkenRgb(rgb, percent) {
+    return {
+        r: Math.max(0, Math.round(rgb.r * (1 - percent / 100))),
+        g: Math.max(0, Math.round(rgb.g * (1 - percent / 100))),
+        b: Math.max(0, Math.round(rgb.b * (1 - percent / 100)))
+    };
 }
 
 initDashboardColor();
