@@ -100,8 +100,54 @@ const codeToService = {
     'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
 };
 
-// Extract dashboard color and create a darkened/lightened version for content background
+// Extract gradient colors from app background and use their midpoint for content panel
 function initDashboardColor() {
+    const app = document.querySelector('.app');
+    if (!app) return;
+
+    const computedStyle = window.getComputedStyle(app);
+    const background = computedStyle.backgroundImage;
+
+    // Extract rgba colors from the gradient
+    const rgbaMatches = background.match(/rgba\([\d\s,\.]+\)/g);
+    if (rgbaMatches && rgbaMatches.length >= 2) {
+        const color1 = parseRgba(rgbaMatches[0]);
+        const color2 = parseRgba(rgbaMatches[1]);
+
+        if (color1 && color2) {
+            // Calculate midpoint color
+            const midpoint = {
+                r: Math.round((color1.r + color2.r) / 2),
+                g: Math.round((color1.g + color2.g) / 2),
+                b: Math.round((color1.b + color2.b) / 2),
+                a: ((color1.a + color2.a) / 2).toFixed(3)
+            };
+
+            const midpointColor = `rgba(${midpoint.r}, ${midpoint.g}, ${midpoint.b}, ${midpoint.a})`;
+            document.documentElement.style.setProperty('--content-bg-color', midpointColor);
+            return;
+        }
+    }
+
+    // Fallback if gradient extraction fails
+    setFallbackContentColor();
+}
+
+function parseRgba(rgbaString) {
+    const match = rgbaString.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+    if (match) {
+        return {
+            r: parseInt(match[1]),
+            g: parseInt(match[2]),
+            b: parseInt(match[3]),
+            a: parseFloat(match[4])
+        };
+    }
+    return null;
+}
+
+// Fallback: use dashboard color with adjustment
+function setFallbackContentColor() {
     const styleTag = document.querySelector('style');
     if (styleTag && styleTag.textContent) {
         const match = styleTag.textContent.match(/--dashboard-color:\s*([#\w]+)/);
@@ -109,13 +155,9 @@ function initDashboardColor() {
             const hexColor = match[1];
             const rgb = hexToRgb(hexColor);
             if (rgb) {
-                // Calculate luminance to determine if color is light or dark
                 const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
-
-                // If dark (luminance < 0.5), lighten it; if light, darken it
                 const adjustedRgb = luminance < 0.5 ? lightenRgb(rgb, 30) : darkenRgb(rgb, 30);
                 const adjustedColor = `rgb(${adjustedRgb.r}, ${adjustedRgb.g}, ${adjustedRgb.b})`;
-
                 document.documentElement.style.setProperty('--content-bg-color', adjustedColor);
             }
         }
