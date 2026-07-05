@@ -524,7 +524,7 @@ generate_css_based_templates() {
 
     # Determine if style switcher should be locked (when :only is used)
     local dashboard_locked="false"
-    if [[ "$DASHBOARD_STYLE" == *":only" ]]; then
+    if [[ "$STYLE_CONFIG" == *":only" ]]; then
         dashboard_locked="true"
     fi
 
@@ -576,7 +576,10 @@ generate_css_based_templates() {
 
 # Main generation function
 generate_html() {
-    echo "Generating dashboards for DASH_STYLE=$DASH_STYLE..."
+    # Use DASHBOARD_STYLE if set, otherwise fall back to DASH_STYLE
+    STYLE_CONFIG="${DASHBOARD_STYLE:-${DASH_STYLE:-classic}}"
+
+    echo "Generating dashboards for DASHBOARD_STYLE=$STYLE_CONFIG..."
     echo ""
 
     # Count enabled services
@@ -588,7 +591,7 @@ generate_html() {
         fi
     done
 
-    # Parse DASH_STYLE options
+    # Parse DASHBOARD_STYLE options
     # Format: "classic" (build all, use classic as default)
     #         "classic:only" (build only classic, lock to it)
     #         "classic,modern,sleek" (build only these, show only in slider)
@@ -596,19 +599,19 @@ generate_html() {
     local STYLES_TO_BUILD=()
     local DEFAULT_STYLE=""
 
-    if [[ "$DASH_STYLE" == *","* ]]; then
+    if [[ "$STYLE_CONFIG" == *","* ]]; then
         # Comma-separated list: build only these styles
-        IFS=',' read -ra STYLES_TO_BUILD <<< "$DASH_STYLE"
+        IFS=',' read -ra STYLES_TO_BUILD <<< "$STYLE_CONFIG"
         DEFAULT_STYLE="${STYLES_TO_BUILD[0]}"
         echo "Building specific styles: ${STYLES_TO_BUILD[*]}"
-    elif [[ "$DASH_STYLE" == *":only"* ]]; then
+    elif [[ "$STYLE_CONFIG" == *":only"* ]]; then
         # Single style with :only suffix: build only this, lock to it
-        DEFAULT_STYLE="${DASH_STYLE%:only}"
+        DEFAULT_STYLE="${STYLE_CONFIG%:only}"
         STYLES_TO_BUILD=("$DEFAULT_STYLE")
         echo "Style locked to: $DEFAULT_STYLE (style switcher disabled)"
     else
         # Single style: build all, use this as default
-        DEFAULT_STYLE="$DASH_STYLE"
+        DEFAULT_STYLE="$STYLE_CONFIG"
         echo "Building all styles, default: $DEFAULT_STYLE"
     fi
 
@@ -618,14 +621,14 @@ generate_html() {
     echo ""
     echo "✓ Dashboards generated with $count enabled service(s)"
     echo ""
-    echo "Available dashboards (Apache DirectoryIndex = $DASH_STYLE.html):"
+    echo "Available dashboards (Apache DirectoryIndex = $DEFAULT_STYLE.html):"
     echo "  /classic.html"
     echo "  /modern.html"
     echo "  /sleek.html"
     echo "  /minimal.html"
     echo "  /mobile.html"
     echo ""
-    echo "Primary: /$DASH_STYLE.html (via DirectoryIndex)"
+    echo "Primary: /$DEFAULT_STYLE.html (via DirectoryIndex)"
 }
 
 # Run generation
