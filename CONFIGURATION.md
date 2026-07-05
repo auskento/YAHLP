@@ -160,6 +160,36 @@ When mode is 'public':
 
 ## Service Configuration
 
+### Enabling/Disabling Services
+
+Each service is controlled by the `enabled` field in the JSON5 configuration:
+
+**JSON5 Field:** `services.{service}.enabled` (boolean: `true` or `false`)
+**Environment Variable Override:** `{SERVICE}_ENABLED` (e.g., `JELLYFIN_ENABLED=true`)
+
+**Priority:**
+1. Environment variable `{SERVICE}_ENABLED` (highest priority)
+2. JSON5 field `services.{service}.enabled`
+3. Default: `false` (if not specified)
+
+**Examples:**
+```json5
+// In yahlp.json5
+services: {
+  jellyfin: { enabled: true, ... },    // Enabled via JSON5
+  sonarr: { enabled: false, ... },     // Disabled via JSON5
+  radarr: { enabled: true, ... },      // Enabled via JSON5
+}
+```
+
+```bash
+# Environment variable overrides
+JELLYFIN_ENABLED=false    # Overrides JSON5 (disables despite JSON5 saying true)
+SONARR_ENABLED=true       # Overrides JSON5 (enables despite JSON5 saying false)
+```
+
+### Common Service Fields
+
 Each service has these common fields:
 - `enabled` — boolean to enable/disable the service
 - `url` — Service URL
