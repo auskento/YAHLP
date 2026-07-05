@@ -987,12 +987,13 @@ function isServiceConfigured(serviceName, config) {
 
   switch (config.authType) {
     case 'transmission':
-    case 'qbittorrent': // qBittorrent requires key but check is special
       return !!config.url;
+    case 'qbittorrent':
+      return !!config.url && !!config.key;
     case 'nzbget':
       return !!config.username && !!config.password;
     case 'deluge':
-      return !!config.password;
+      return !!config.url && !!config.key;
     default:
       return !!config.key;
   }
