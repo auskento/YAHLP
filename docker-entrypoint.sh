@@ -228,20 +228,57 @@ if [ "$ACCESS_MODE" = "private" ]; then
     done
 fi
 
-# Substitute environment variables in service config files
-echo "Substituting environment variables in service configs..."
-if [ ! -z "$JELLYFIN_URL" ]; then
-    # Remove trailing /jellyfin if present
-    JELLYFIN_BASE_URL=$(echo "$JELLYFIN_URL" | sed 's|/jellyfin/?$||')
-    # Convert http to ws protocol for websocket
-    JELLYFIN_URL_WS=$(echo "$JELLYFIN_BASE_URL" | sed 's|^http://|ws://|; s|^https://|wss://|')
-    sed -i "s|@@JELLYFIN_URL@@|$JELLYFIN_BASE_URL|g" /etc/apache2/sites-available/services/jellyfin.conf
-    sed -i "s|@@JELLYFIN_URL_WS@@|$JELLYFIN_URL_WS|g" /etc/apache2/sites-available/services/jellyfin.conf
-fi
+# Get enabled services from yahlp.json5 (or env var overrides)
+echo "Generating service configs for enabled services..."
+ENABLED_SERVICES=$(node /usr/local/bin/scripts/get-enabled-services.js 2>/dev/null || echo '{}')
 
-if [ ! -z "$MAINTAINERR_URL" ]; then
-    sed -i "s|@@MAINTAINERR_URL@@|$MAINTAINERR_URL|g" /etc/apache2/sites-available/services/maintainerr.conf
-fi
+# Process each enabled service and substitute URLs
+node -e "
+const fs = require('fs');
+let input = '';
+process.stdin.on('data', chunk => { input += chunk; });
+process.stdin.on('end', () => {
+  try {
+    const services = JSON.parse(input);
+    const serviceNames = Object.keys(services);
+
+    if (serviceNames.length === 0) {
+      console.log('ℹ No services enabled from yahlp.json5');
+      process.exit(0);
+    }
+
+    for (const service of serviceNames) {
+      const confPath = \`/etc/apache2/sites-available/services/\${service}.conf\`;
+      const url = services[service].url;
+
+      if (!fs.existsSync(confPath)) {
+        console.log(\`⚠ Service config not found: \${confPath}\`);
+        continue;
+      }
+
+      let content = fs.readFileSync(confPath, 'utf8');
+
+      // Handle Jellyfin special case (websocket URL needed)
+      if (service === 'jellyfin' && url) {
+        const baseUrl = url.replace(/\/jellyfin\/?$/, '');
+        const wsUrl = baseUrl.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:');
+        content = content.replace(/@@JELLYFIN_URL@@/g, baseUrl);
+        content = content.replace(/@@JELLYFIN_URL_WS@@/g, wsUrl);
+      } else if (url) {
+        // Substitute service URL
+        const placeholder = \`@@\${service.toUpperCase()}_URL@@\`;
+        content = content.replace(new RegExp(placeholder, 'g'), url);
+      }
+
+      fs.writeFileSync(confPath, content);
+      console.log(\`✓ Substituted URLs in \${service}.conf\`);
+    }
+  } catch (err) {
+    console.error('Error processing services:', err.message);
+    process.exit(1);
+  }
+});
+" <<< "$ENABLED_SERVICES"
 
 # Download and resize app icons from provided URLs
 echo ""

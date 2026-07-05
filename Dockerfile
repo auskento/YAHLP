@@ -78,6 +78,10 @@ RUN cd /opt/proxy && npm install --production
 # Copy proxy application
 COPY proxy.js /opt/proxy/
 
+# Copy utility scripts
+COPY scripts/ /usr/local/bin/scripts/
+RUN chmod +x /usr/local/bin/scripts/*.js
+
 # Set working directory to root
 WORKDIR /
 
