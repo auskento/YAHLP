@@ -100,30 +100,38 @@ const codeToService = {
     'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
 };
 
-// Extract dashboard color and darken it for content panel background
+// Extract dashboard color from computed style and darken it
 function initDashboardColor() {
-    const styleTag = document.querySelector('style');
-    if (!styleTag) return;
+    // Wait a moment for styles to be applied
+    setTimeout(() => {
+        const htmlElement = document.documentElement;
+        const computedStyle = window.getComputedStyle(htmlElement);
 
-    const content = styleTag.textContent;
-    const match = content.match(/--dashboard-color:\s*([#\w]+)/);
+        // Try to get the dashboard color CSS variable
+        let dashboardColor = computedStyle.getPropertyValue('--dashboard-color').trim();
 
-    if (match) {
-        const hexColor = match[1];
-        const rgb = hexToRgb(hexColor);
-        if (rgb) {
-            // Darken the dashboard color by 40%
-            const darkenedRgb = darkenRgb(rgb, 40);
-            const darkenedColor = `rgb(${darkenedRgb.r}, ${darkenedRgb.g}, ${darkenedRgb.b})`;
-            document.documentElement.style.setProperty('--content-bg-color', darkenedColor);
-            console.log('Dashboard color set:', darkenedColor);
-            return;
+        if (!dashboardColor) {
+            // Try to find it in the style tag directly
+            const styleTag = document.querySelector('style');
+            if (styleTag) {
+                const match = styleTag.textContent.match(/--dashboard-color:\s*([#\w]+)/);
+                if (match) dashboardColor = match[1];
+            }
         }
-    }
 
-    // Fallback: use a darker teal (40% darker than #00A99D)
-    console.log('Could not extract dashboard color, using fallback darker teal');
-    document.documentElement.style.setProperty('--content-bg-color', 'rgb(0, 101, 94)');
+        if (dashboardColor) {
+            const rgb = hexToRgb(dashboardColor);
+            if (rgb) {
+                const darkenedRgb = darkenRgb(rgb, 40);
+                const darkenedColor = `rgb(${darkenedRgb.r}, ${darkenedRgb.g}, ${darkenedRgb.b})`;
+                document.documentElement.style.setProperty('--content-bg-color', darkenedColor);
+                return;
+            }
+        }
+
+        // If all else fails, use bg-secondary as fallback
+        document.documentElement.style.setProperty('--content-bg-color', 'var(--bg-secondary)');
+    }, 100);
 }
 
 function hexToRgb(hex) {
