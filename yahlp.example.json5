@@ -53,6 +53,13 @@
     ],
   },
 
+  // Built-in Quick Link Sites (via DASHBOARD_SITES environment variable)
+  // Enable torrent/usenet sites by setting DASHBOARD_SITES to comma-separated codes
+  // Torrent sites: TPB, FIL, HDB, IPT, 1337, YTS, LAT, NYA, PTP
+  // Usenet sites: DOG, DRS, NLF, NFW, NGK, PLA, TAB
+  // Example: DASHBOARD_SITES=TPB,DOG,NLF shows The Pirate Bay, DOGnzb, nzb.life
+  // Custom sites are configured separately in sites.json5 (enabled: true/false)
+
   // Access Mode Configuration
   access: {
     // Mode: 'private' (localhost only) or 'public' (domain with HTTPS)
