@@ -52,15 +52,25 @@ volumes:
     style: 'classic',                     // Layout style (see below)
     landing: 'dashboard',                 // 'dashboard' or 'welcome'
     order: [
-      'jellyfin', 'sonarr', 'radarr',    // Service display order
-      'seerr', 'qbittorrent', 'deluge',
+      'JEL', 'SON', 'RAD',    // Service display order (3-letter codes)
+      'SEE', 'QBI', 'DEL',
     ],
   },
 }
 ```
 
 **Dashboard Order:**
-The `order` array controls the sequence services appear on the dashboard. Only enabled services will be displayed. Rearrange the service names to customize the layout.
+The `order` array controls the sequence services appear on the dashboard. Only enabled services will be displayed. Use 3-letter service codes to specify the order.
+
+**Service Codes:**
+```
+JEL = Jellyfin          PLX = Plex              EMB = Emby
+SON = Sonarr            RAD = Radarr            LID = Lidarr            WHI = Whisparr
+QBI = qBittorrent       TRA = Transmission
+SAB = SABnzbd           GET = NZBGet            DEL = Deluge
+HYD = NZBHydra          PRO = Prowlarr          SEE = Seerr
+BAZ = Bazarr            TAU = Tautulli          MNT = Maintainerr
+```
 
 **Available Styles:**
 - `classic` — Sidebar with services and quick links
@@ -348,7 +358,7 @@ services.sonarr.landing  → SONARR_LANDING
 - `DASHBOARD_THEME` — 'dark' or 'light'
 - `DASHBOARD_STYLE` — Layout style
 - `DASHBOARD_LANDING` — 'dashboard' or 'welcome'
-- `DASHBOARD_ORDER` — Service order (comma-separated: jellyfin,sonarr,radarr,seerr,...)
+- `DASHBOARD_ORDER` — Service order (comma-separated 3-letter codes: JEL,SON,RAD,SEE,...)
 
 **Access:**
 - `ACCESS_MODE` — 'private' or 'public'
