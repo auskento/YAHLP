@@ -218,7 +218,10 @@ echo "=== Environment Configuration Loaded ==="
 echo ""
 
 # Source env.conf to load defaults for variables not set in environment
+# Use set -a to export all variables so they're available to child processes
+set -a
 source /etc/apache2/env.conf
+set +a
 
 echo ""
 echo "=== Setting Global ServerName ==="
