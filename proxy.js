@@ -876,7 +876,35 @@ app.get('/api/config/dashboard', (req, res) => {
 });
 
 app.get('/api/config/sites', (req, res) => {
-  res.json(sitesConfig.sites || []);
+  let sites = sitesConfig.sites || [];
+
+  // Add built-in sites from dashboard.sites configuration (3-letter codes)
+  const dashboardSites = jsonConfig.dashboard?.sites || [];
+  const envDashboardSites = process.env.DASHBOARD_SITES ?
+    process.env.DASHBOARD_SITES.split(',').map(s => s.trim().toUpperCase()) : [];
+
+  const siteCodes = envDashboardSites.length > 0 ? envDashboardSites : dashboardSites;
+
+  // Map service codes to site objects
+  const builtInSites = siteCodes
+    .map(code => {
+      const service = codeToService[code];
+      if (!service || !jsonConfig.services?.[service]?.url) {
+        return null;
+      }
+
+      return {
+        name: service.charAt(0).toUpperCase() + service.slice(1),
+        url: jsonConfig.services[service].url,
+        icon: jsonConfig.services[service].icon_url || '',
+        code: code
+      };
+    })
+    .filter(s => s !== null);
+
+  // Combine built-in sites with custom sites
+  const allSites = [...builtInSites, ...sites];
+  res.json(allSites);
 });
 
 app.get('/api/config/access', (req, res) => {
