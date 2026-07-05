@@ -327,11 +327,14 @@ Define quick link sites displayed in the dashboard sidebar. Each site has an `en
 ```
 
 **Site Visibility:**
-- Sites with `enabled: true` are shown by default
-- Sites with `enabled: false` are hidden unless specifically enabled via `DASHBOARD_SITES`
-- If `DASHBOARD_SITES` is set, ONLY those sites are shown
-- Sites are displayed in the order they appear in the file
+- Sites with `enabled: true` are always shown
+- Sites with `enabled: false` are hidden by default
+- If `DASHBOARD_SITES` is set (environment variable), those sites are also shown (even if `enabled: false` in the file)
+- Sites are displayed in file order (enabled sites first, then `DASHBOARD_SITES` additions)
 - You can enable hidden sites by specifying their name or code in `DASHBOARD_SITES`
+
+**Example:**
+If sites.json5 has Google (enabled), GitHub (enabled), TPB (disabled), and you set `DASHBOARD_SITES=TPB`, the dashboard will show: Google, GitHub, TPB
 
 ## Configuration Priority
 
@@ -369,7 +372,7 @@ services.sonarr.landing  → SONARR_LANDING
 - `DASHBOARD_STYLE` — Layout style
 - `DASHBOARD_LANDING` — 'dashboard' or 'welcome'
 - `DASHBOARD_ORDER` — Service order (comma-separated 3-letter codes: JEL,SON,RAD,SEE,...)
-- `DASHBOARD_SITES` — Quick links filter (comma-separated site names/codes from sites.json5; if set, ONLY these sites are shown; if empty, all enabled sites are shown)
+- `DASHBOARD_SITES` — Additional quick links to enable (comma-separated site names/codes from sites.json5; adds to enabled sites)
 
 **Access:**
 - `ACCESS_MODE` — 'private' or 'public'

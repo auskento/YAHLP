@@ -877,22 +877,35 @@ app.get('/api/config/dashboard', (req, res) => {
 
 app.get('/api/config/sites', (req, res) => {
   let sites = sitesConfig.sites || [];
+  const allSites = [];
+  const seenSites = new Set();
 
-  // Filter sites by enabled flag
-  sites = sites.filter(site => site.enabled !== false);
+  // First, add enabled sites from sites.json5
+  sites.forEach(site => {
+    if (site.enabled !== false) {
+      allSites.push(site);
+      seenSites.add((site.code || site.name).toUpperCase());
+    }
+  });
 
-  // If DASHBOARD_SITES env var is set, further filter by codes
+  // Then, if DASHBOARD_SITES env var is set, add those sites too (even if disabled in file)
   const envDashboardSites = process.env.DASHBOARD_SITES ?
-    process.env.DASHBOARD_SITES.split(',').map(s => s.trim().toUpperCase()) : [];
+    process.env.DASHBOARD_SITES.split(',').map(s => s.trim()) : [];
 
   if (envDashboardSites.length > 0) {
-    sites = sites.filter(site =>
-      envDashboardSites.includes((site.code || site.name).toUpperCase())
-    );
+    envDashboardSites.forEach(siteRef => {
+      const site = sites.find(s =>
+        (s.code && s.code.toUpperCase() === siteRef.toUpperCase()) ||
+        (s.name && s.name.toUpperCase() === siteRef.toUpperCase())
+      );
+      if (site && !seenSites.has((site.code || site.name).toUpperCase())) {
+        allSites.push(site);
+        seenSites.add((site.code || site.name).toUpperCase());
+      }
+    });
   }
 
-  // Maintain order from sites.json5
-  res.json(sites);
+  res.json(allSites);
 });
 
 app.get('/api/config/access', (req, res) => {
