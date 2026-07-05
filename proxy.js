@@ -42,9 +42,13 @@ if (!configValidation.valid) {
   validationErrors.push(configValidation.error);
 }
 
-const sitesValidation = validateJSON5(sitesPath, 'sites.json5');
-if (!sitesValidation.valid) {
-  validationErrors.push(sitesValidation.error);
+// Only validate sites.json5 if it exists (optional file)
+let sitesValidation = { valid: true, error: null };
+if (fs.existsSync(sitesPath)) {
+  sitesValidation = validateJSON5(sitesPath, 'sites.json5');
+  if (!sitesValidation.valid) {
+    validationErrors.push(sitesValidation.error);
+  }
 }
 
 if (validationErrors.length > 0) {
