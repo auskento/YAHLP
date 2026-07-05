@@ -14,7 +14,9 @@
 // Immediately calculate average color for content panel
 document.addEventListener('DOMContentLoaded', function() {
     const styleTag = document.querySelector('style');
-    if (styleTag) {
+    const dashContentEl = document.getElementById('dashboard-content');
+
+    if (styleTag && dashContentEl) {
         const match = styleTag.textContent.match(/--dashboard-color:\s*([#\w]+)/);
         if (match) {
             const dashColor = match[1];
@@ -32,7 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const avgHex = '#' + [avgRgb.r, avgRgb.g, avgRgb.b]
                 .map(x => x.toString(16).padStart(2, '0'))
                 .join('');
-            document.documentElement.style.setProperty('--content-bg-color', avgHex);
+
+            // Set inline style directly on the element
+            dashContentEl.style.backgroundColor = avgHex;
         }
     }
 });
