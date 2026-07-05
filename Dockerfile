@@ -75,6 +75,9 @@ COPY apache-conf/services/ /etc/apache2/sites-available/services/
 COPY package.json /opt/proxy/
 RUN cd /opt/proxy && npm install --production
 
+# Install json5 globally (needed by json5-to-env.js script)
+RUN npm install -g json5
+
 # Copy proxy application
 COPY proxy.js /opt/proxy/
 
