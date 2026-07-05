@@ -12,11 +12,52 @@ app.use(express.json());
 
 const cache = new NodeCache({ stdTTL: 30, checkperiod: 10 });
 
+// JSON5 Validation Function
+function validateJSON5(filePath, fileName) {
+  if (!fs.existsSync(filePath)) {
+    return { valid: false, error: `File not found: ${filePath}` };
+  }
+
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    JSON5.parse(content);
+    return { valid: true, error: null };
+  } catch (err) {
+    const lineMatch = err.message.match(/line (\d+)/);
+    const line = lineMatch ? lineMatch[1] : 'unknown';
+    return {
+      valid: false,
+      error: `${fileName} - Line ${line}: ${err.message.replace(/^Error: /, '')}`
+    };
+  }
+}
+
+// Validate configuration files on startup
+const configPath = '/etc/yahlp/yahlp.json5';
+const sitesPath = '/etc/yahlp/sites.json5';
+const validationErrors = [];
+
+const configValidation = validateJSON5(configPath, 'yahlp.json5');
+if (!configValidation.valid) {
+  validationErrors.push(configValidation.error);
+}
+
+const sitesValidation = validateJSON5(sitesPath, 'sites.json5');
+if (!sitesValidation.valid) {
+  validationErrors.push(sitesValidation.error);
+}
+
+if (validationErrors.length > 0) {
+  console.error('❌ JSON5 Validation Errors:');
+  validationErrors.forEach(error => {
+    console.error(`   ${error}`);
+  });
+  console.error('\nPlease fix the errors above and restart the application.');
+}
+
 // Load configuration from mounted yahlp.json5 and sites.json5
 // Configuration priority: Environment variables > JSON5 files > Defaults
 // JSON5 format allows comments and provides the base configuration
-const configPath = '/etc/yahlp/yahlp.json5';
-const sitesPath = '/etc/yahlp/sites.json5';
 let jsonConfig = {};
 let sitesConfig = { sites: [] };
 
