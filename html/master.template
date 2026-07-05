@@ -103,19 +103,27 @@ const codeToService = {
 // Extract dashboard color and darken it for content panel background
 function initDashboardColor() {
     const styleTag = document.querySelector('style');
-    if (styleTag && styleTag.textContent) {
-        const match = styleTag.textContent.match(/--dashboard-color:\s*([#\w]+)/);
-        if (match) {
-            const hexColor = match[1];
-            const rgb = hexToRgb(hexColor);
-            if (rgb) {
-                // Darken the dashboard color by 40%
-                const darkenedRgb = darkenRgb(rgb, 40);
-                const darkenedColor = `rgb(${darkenedRgb.r}, ${darkenedRgb.g}, ${darkenedRgb.b})`;
-                document.documentElement.style.setProperty('--content-bg-color', darkenedColor);
-            }
+    if (!styleTag) return;
+
+    const content = styleTag.textContent;
+    const match = content.match(/--dashboard-color:\s*([#\w]+)/);
+
+    if (match) {
+        const hexColor = match[1];
+        const rgb = hexToRgb(hexColor);
+        if (rgb) {
+            // Darken the dashboard color by 40%
+            const darkenedRgb = darkenRgb(rgb, 40);
+            const darkenedColor = `rgb(${darkenedRgb.r}, ${darkenedRgb.g}, ${darkenedRgb.b})`;
+            document.documentElement.style.setProperty('--content-bg-color', darkenedColor);
+            console.log('Dashboard color set:', darkenedColor);
+            return;
         }
     }
+
+    // Fallback: use a darker teal (40% darker than #00A99D)
+    console.log('Could not extract dashboard color, using fallback darker teal');
+    document.documentElement.style.setProperty('--content-bg-color', 'rgb(0, 101, 94)');
 }
 
 function hexToRgb(hex) {
