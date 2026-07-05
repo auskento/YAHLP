@@ -445,6 +445,9 @@ case "${AUTHTYPE}" in
             exit 1
         fi
 
+        # Replace placeholder in reverse-proxy.conf with include statement
+        sed -i 's|@@INCLUDE_BASIC_AUTH@@|Include /etc/apache2/conf-enabled/auth-basic.conf|g' /etc/apache2/sites-available/reverse-proxy.conf
+
         # Disable OAuth2
         a2disconf oauth2-office365 2>/dev/null || true
         a2disconf auth-office365-protect 2>/dev/null || true
@@ -567,9 +570,17 @@ case "${AUTHTYPE}" in
         rm -f /etc/apache2/conf-enabled/auth-basic.conf
         rm -f /etc/apache2/.htpasswd
 
+        # Remove basic auth placeholder from reverse-proxy.conf
+        sed -i 's|@@INCLUDE_BASIC_AUTH@@||g' /etc/apache2/sites-available/reverse-proxy.conf
+
         echo "✓ No authentication required"
         ;;
 esac
+
+# For entra/google auth types, also remove the basic auth placeholder
+if [ "$AUTHTYPE" != "basic" ]; then
+    sed -i 's|@@INCLUDE_BASIC_AUTH@@||g' /etc/apache2/sites-available/reverse-proxy.conf
+fi
 
 # Function to wait for certificate
 wait_for_cert() {
