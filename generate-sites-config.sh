@@ -123,11 +123,11 @@ else
 fi
 
 # Fetch favicons for enabled sites
-if [ ! -z "$SITES_ENABLED" ]; then
+if [ ! -z "$DASHBOARD_SITES" ]; then
     echo "Fetching favicons for enabled sites..."
 
-    # Parse SITES_ENABLED and fetch favicon for each
-    IFS=',' read -ra CODES <<< "$SITES_ENABLED"
+    # Parse DASHBOARD_SITES and fetch favicon for each
+    IFS=',' read -ra CODES <<< "$DASHBOARD_SITES"
     for code in "${CODES[@]}"; do
         code=$(echo "$code" | xargs)  # Trim whitespace
 

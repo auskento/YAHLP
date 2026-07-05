@@ -62,19 +62,6 @@ volumes:
 **Dashboard Order:**
 The `order` array controls the sequence services appear on the dashboard. Only enabled services will be displayed. Use 3-letter service codes to specify the order.
 
-**Dashboard Sites (Built-in URLs):**
-The `sites` array enables quick links for services using their configured URLs. Instead of manually entering URLs in sites.json5, you can reference service codes to automatically create links.
-
-```json5
-{
-  dashboard: {
-    sites: ['JEL', 'PLX', 'SEE'],  // Jellyfin, Plex, Seerr as quick links
-  },
-}
-```
-
-Built-in sites are added before custom sites from sites.json5, using the service's configured URL and icon.
-
 **Service Codes:**
 ```
 JEL = Jellyfin          PLX = Plex              EMB = Emby
@@ -317,7 +304,7 @@ PVR services support an optional `landing` option to set the default page/path w
 
 ## Quick Links (sites.json5)
 
-Define quick link sites displayed in the dashboard sidebar:
+Define quick link sites displayed in the dashboard sidebar. Each site has an `enabled` flag and optional `code` field:
 
 ```json5
 {
@@ -326,15 +313,25 @@ Define quick link sites displayed in the dashboard sidebar:
       name: 'Google',
       url: 'https://google.com',
       icon: 'https://www.google.com/favicon.ico',
+      enabled: true,
     },
     {
-      name: 'GitHub',
-      url: 'https://github.com',
-      icon: 'https://github.githubassets.com/favicon.ico',
+      code: 'TPB',
+      name: 'The Pirate Bay',
+      url: 'https://thepiratebay.org',
+      icon: 'https://thepiratebay.org/favicon.ico',
+      enabled: false,  // Hidden by default
     },
   ],
 }
 ```
+
+**Site Visibility:**
+- Sites with `enabled: true` are shown by default
+- Sites with `enabled: false` are hidden unless specifically enabled via `DASHBOARD_SITES`
+- If `DASHBOARD_SITES` is set, ONLY those sites are shown
+- Sites are displayed in the order they appear in the file
+- You can enable hidden sites by specifying their name or code in `DASHBOARD_SITES`
 
 ## Configuration Priority
 
@@ -372,7 +369,7 @@ services.sonarr.landing  → SONARR_LANDING
 - `DASHBOARD_STYLE` — Layout style
 - `DASHBOARD_LANDING` — 'dashboard' or 'welcome'
 - `DASHBOARD_ORDER` — Service order (comma-separated 3-letter codes: JEL,SON,RAD,SEE,...)
-- `DASHBOARD_SITES` — Quick links (comma-separated service codes: JEL,PLX,SEE,...)
+- `DASHBOARD_SITES` — Quick links filter (comma-separated site names/codes from sites.json5; if set, ONLY these sites are shown; if empty, all enabled sites are shown)
 
 **Access:**
 - `ACCESS_MODE` — 'private' or 'public'

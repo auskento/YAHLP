@@ -51,13 +51,6 @@
       'HYD', 'PRO', 'SEE',
       'BAZ', 'TAU', 'MNT',
     ],
-
-    // Built-in site URLs (3-letter service codes)
-    // Automatically creates quick links for selected services
-    // Example: ['JEL', 'PLX', 'SEE'] adds Jellyfin, Plex, and Seerr as quick links
-    sites: [
-      // 'JEL', 'PLX', 'SEE',
-    ],
   },
 
   // Access Mode Configuration
