@@ -18,14 +18,15 @@ chmod 777 /var/log/apache2/sites || {
     exit 1
 }
 
-# Generate yahlp.json5 from environment variables if it doesn't exist
-# This provides a base configuration that can be overridden by environment variables
-if ! [ -f /etc/yahlp/yahlp.json5 ]; then
-    echo "Generating yahlp.json5 from environment variables..."
-    node /app/scripts/generate-config.js
+# Configuration loading:
+# 1. If yahlp.json5 is provided (mounted), read it as base config
+# 2. Environment variables override/supplement JSON5 settings
+# 3. If no yahlp.json5, environment variables are the only source
+if [ -f /etc/yahlp/yahlp.json5 ]; then
+    echo "✓ yahlp.json5 found - using as base configuration"
+    echo "  Environment variables will override JSON5 values"
 else
-    echo "✓ yahlp.json5 already exists"
-    echo "  Note: Environment variables will override JSON5 values"
+    echo "ℹ yahlp.json5 not found - using environment variables only"
 fi
 
 # Load persistent dashboard configuration if it exists (legacy support)
