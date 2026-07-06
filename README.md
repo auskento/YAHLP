@@ -134,8 +134,10 @@ services:
       SONARR_URL: http://sonarr:8989
       # ... more services
     volumes:
-      - ./appdata:/etc/letsencrypt
-      - ./config:/etc/yahlp
+      - ./appdata/letsencrypt:/etc/letsencrypt      # SSL certificates
+      - ./appdata/yahlp:/etc/yahlp                   # Configuration
+      - ./appdata/templates:/templates               # Custom layouts
+      - ./appdata/logs:/var/log/apache2              # Apache logs
     networks:
       - homelab
 
@@ -165,14 +167,27 @@ networks:
 | 80 | HTTP (auto-redirects to HTTPS in public mode) |
 | 443 | HTTPS |
 
-## 📝 Configuration Files
+## 📝 Persistent Data
 
-Generated at runtime:
-- `/etc/letsencrypt/` - SSL certificates
-- `/etc/yahlp/yahlp.json5` - Main configuration
-- `/etc/yahlp/sites.json5` - Custom sites
-- `/var/www/html/*.html` - Dashboard files
-- `/etc/apache2/sites-available/reverse-proxy.conf` - Reverse proxy config
+⚠️ **These folders MUST be mapped to external volumes to preserve data:**
+
+| Path | Purpose | Persist? |
+|------|---------|----------|
+| `/etc/letsencrypt/` | SSL certificates (auto-renewed) | **YES** |
+| `/etc/yahlp/` | Configuration files (yahlp.json5, sites.json5) | **YES** |
+| `/templates/` | Custom dashboard layouts (CSS) | **YES** |
+| `/var/log/apache2/` | Apache access/error logs | **YES** |
+
+**Docker Compose:**
+```yaml
+volumes:
+  - ./appdata/letsencrypt:/etc/letsencrypt
+  - ./appdata/yahlp:/etc/yahlp
+  - ./appdata/templates:/templates
+  - ./appdata/logs:/var/log/apache2
+```
+
+See [INSTALLATION.md](INSTALLATION.md) for complete setup.
 
 ## 🚨 Troubleshooting
 

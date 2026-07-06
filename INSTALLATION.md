@@ -82,7 +82,44 @@ docker-compose logs -f yahlp
 docker-compose down
 ```
 
-### Step 6: Verify Installation
+### Step 6: Configure Persistent Storage (Volumes)
+
+**Important:** To preserve data across container restarts, map these folders to external storage:
+
+```yaml
+version: '3'
+services:
+  yahlp:
+    build: .
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # SSL certificates (Let's Encrypt)
+      - ./appdata/letsencrypt:/etc/letsencrypt
+      
+      # Configuration files
+      - ./appdata/yahlp:/etc/yahlp
+      
+      # Custom layouts (CSS templates)
+      - ./appdata/templates:/templates
+      
+      # Apache logs
+      - ./appdata/logs:/var/log/apache2
+      
+    environment:
+      DOMAIN: yourdomain.com
+      EMAIL: admin@yourdomain.com
+      # ... more settings
+```
+
+**What each volume stores:**
+- `/etc/letsencrypt` - SSL certificates (renewed automatically)
+- `/etc/yahlp` - Configuration: `yamlp.json5`, `sites.json5`, generated configs
+- `/templates` - Custom dashboard layouts (CSS files)
+- `/var/log/apache2` - Apache access/error logs
+
+### Step 7: Verify Installation
 ```bash
 # Check container is running
 docker-compose ps
@@ -106,8 +143,10 @@ docker run -d \
   --name yahlp \
   -p 80:80 \
   -p 443:443 \
-  -v appdata:/etc/letsencrypt \
-  -v config:/etc/yahlp \
+  -v ./appdata/letsencrypt:/etc/letsencrypt \
+  -v ./appdata/yahlp:/etc/yahlp \
+  -v ./appdata/templates:/templates \
+  -v ./appdata/logs:/var/log/apache2 \
   -e DOMAIN=yourdomain.com \
   -e EMAIL=admin@yourdomain.com \
   -e ACCESS_MODE=public \
@@ -116,10 +155,18 @@ docker run -d \
   auskento/yahlp
 ```
 
+**Create volume directories first:**
+```bash
+mkdir -p appdata/letsencrypt appdata/yahlp appdata/templates appdata/logs
+```
+
 ### With Docker Network
 ```bash
 # Create network
 docker network create homelab
+
+# Create volume directories
+mkdir -p appdata/letsencrypt appdata/yahlp appdata/templates appdata/logs
 
 # Run YAHLP
 docker run -d \
@@ -127,8 +174,10 @@ docker run -d \
   --network homelab \
   -p 80:80 \
   -p 443:443 \
-  -v appdata:/etc/letsencrypt \
-  -v config:/etc/yahlp \
+  -v ./appdata/letsencrypt:/etc/letsencrypt \
+  -v ./appdata/yahlp:/etc/yahlp \
+  -v ./appdata/templates:/templates \
+  -v ./appdata/logs:/var/log/apache2 \
   -e DOMAIN=yourdomain.com \
   -e EMAIL=admin@yourdomain.com \
   -e ACCESS_MODE=public \
