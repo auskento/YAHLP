@@ -107,10 +107,10 @@ DASHBOARD_STYLE=modern,sleek
 
 ## 🎨 Dashboard Layouts
 
-- **Classic** - Sidebar with service menu on left
-- **Modern** - API-inspired with sidebar + right panel
-- **Sleek** - Compact gradient design
-- **Minimal** - Single-column ultra-simple
+- **Classic** - Topbar with services listed horizontally
+- **Modern** - Left service bar with main content on right
+- **Sleek** - Left service bar, compact gradient design
+- **Minimal** - Left service bar, single-column layout
 - **Mobile** - Auto-loaded on small screens
 
 See [DASHBOARD-CUSTOMIZATION.md](DASHBOARD-CUSTOMIZATION.md) for details.
