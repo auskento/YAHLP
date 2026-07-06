@@ -93,22 +93,29 @@ generate_include() {
     local service_name=$1
     local enable_flag=$2
 
-    # In public mode: Skip Emby and Plex - they use subdomain VirtualHosts instead
-    # In private mode: Include them via service proxy configs
-    if [ "$ACCESS_MODE" = "public" ]; then
-        if [ "$service_name" = "emby" ] || [ "$service_name" = "plex" ]; then
+    # For Emby, Plex, Seerr: Check if vhost exists (public mode with domain configured)
+    # Otherwise use service proxy config (private mode or no domain set)
+    if [ "$service_name" = "emby" ]; then
+        if [ -f "/etc/apache2/sites-available/emby-vhost.conf" ]; then
+            echo "# Emby using vhost ($(basename /etc/apache2/sites-available/emby-vhost.conf))"
             return
         fi
-
-        # In public mode: Skip Seerr if it has a subdomain configured (uses vhost)
-        if [ "$service_name" = "seerr" ] && [ ! -z "$SEERR_DOMAIN" ]; then
+    elif [ "$service_name" = "plex" ]; then
+        if [ -f "/etc/apache2/sites-available/plex-vhost.conf" ]; then
+            echo "# Plex using vhost ($(basename /etc/apache2/sites-available/plex-vhost.conf))"
+            return
+        fi
+    elif [ "$service_name" = "seerr" ]; then
+        # Check for seerr vhost (created when SEERR_DOMAIN is set in public mode)
+        if [ -f "/etc/apache2/sites-available/seerr-vhost.conf" ]; then
+            echo "# Seerr using vhost ($(basename /etc/apache2/sites-available/seerr-vhost.conf))"
             return
         fi
     fi
 
     local service_file="/etc/apache2/sites-available/services/${service_name}.conf"
 
-    if [ "$enable_flag" = "true" ]; then
+    if [ "$enable_flag" = "true" ] && [ -f "$service_file" ]; then
         echo "Include $service_file"
     fi
 }
