@@ -672,6 +672,8 @@ app.get('/api/deluge/login', async (req, res) => {
       throw new Error('Deluge not configured');
     }
 
+    console.log('[DELUGE-LOGIN] Attempting login to:', config.url);
+
     const authPayload = {
       method: 'auth.login',
       params: [config.key],
@@ -685,18 +687,25 @@ app.get('/api/deluge/login', async (req, res) => {
       timeout: 10000
     });
 
+    console.log('[DELUGE-LOGIN] Response status:', response.status);
+
     if (!response.ok) {
       throw new Error(`Deluge auth HTTP ${response.status}`);
     }
 
     const authData = await response.json();
+    console.log('[DELUGE-LOGIN] Auth response:', authData);
+
     if (!authData || !authData.result) {
       throw new Error('Deluge auth failed');
     }
 
     // Extract session cookie
     const setCookie = response.headers.get('set-cookie');
+    console.log('[DELUGE-LOGIN] Set-Cookie header:', setCookie);
+
     const sessionCookie = setCookie ? setCookie.split(';')[0] : '';
+    console.log('[DELUGE-LOGIN] Extracted cookie:', sessionCookie);
 
     res.json({
       success: true,
