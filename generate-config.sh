@@ -41,7 +41,7 @@ process_service_config() {
 
     # If no path, default to the service name (except services that proxy to root)
     if [ -z "$service_path" ]; then
-        if [ "$service_name" = "deluge" ] || [ "$service_name" = "qbittorrent" ] || [ "$service_name" = "seerr" ] || [ "$service_name" = "nzbget" ]; then
+        if [ "$service_name" = "deluge" ] || [ "$service_name" = "qbittorrent" ] || [ "$service_name" = "seerr" ] || [ "$service_name" = "nzbget" ] || [ "$service_name" = "jackett" ]; then
             service_path="/"
         else
             service_path="/$service_name"
@@ -50,7 +50,7 @@ process_service_config() {
 
     # Replace ProxyPass URLs, preserving the path
     # Special handling for services that proxy to root (/)
-    if [ "$service_name" = "deluge" ] || [ "$service_name" = "qbittorrent" ] || [ "$service_name" = "seerr" ] || [ "$service_name" = "nzbget" ]; then
+    if [ "$service_name" = "deluge" ] || [ "$service_name" = "qbittorrent" ] || [ "$service_name" = "seerr" ] || [ "$service_name" = "nzbget" ] || [ "$service_name" = "jackett" ]; then
         sed -i "s|http://${service_name}:${template_port}|http://${service_host_with_port}|g" "$service_file"
         sed -i "s|ws://${service_name}:${template_port}|ws://${service_host_with_port}|g" "$service_file"
     else
@@ -75,8 +75,7 @@ process_service_config() {
 [ "$ENABLE_PROWLARR" = "true" ] && process_service_config "prowlarr" "9696"
 [ "$ENABLE_SEERR" = "true" ] && process_service_config "seerr" "5055"
 [ "$ENABLE_JELLYFIN" = "true" ] && process_service_config "jellyfin" "8096"
-[ "$ENABLE_EMBY" = "true" ] && process_service_config "emby" "8096"
-[ "$ENABLE_PLEX" = "true" ] && process_service_config "plex" "32400"
+# Emby and Plex use vhost configs, not service configs - skip here
 [ "$ENABLE_TAUTULLI" = "true" ] && process_service_config "tautulli" "8181"
 [ "$ENABLE_MAINTAINERR" = "true" ] && process_service_config "maintainerr" "6246"
 [ "$ENABLE_TRANSMISSION" = "true" ] && process_service_config "transmission" "9091"
@@ -85,6 +84,7 @@ process_service_config() {
 [ "$ENABLE_DELUGE" = "true" ] && process_service_config "deluge" "8112"
 [ "$ENABLE_NZBGET" = "true" ] && process_service_config "nzbget" "6789"
 [ "$ENABLE_NZBHYDRA" = "true" ] && process_service_config "nzbhydra" "5076"
+[ "$ENABLE_JACKETT" = "true" ] && process_service_config "jackett" "9117"
 [ "$ENABLE_BAZARR" = "true" ] && process_service_config "bazarr" "6767"
 
 
@@ -139,6 +139,7 @@ SABNZBD_INCLUDE=$(generate_include "sabnzbd" "$ENABLE_SABNZBD")
 DELUGE_INCLUDE=$(generate_include "deluge" "$ENABLE_DELUGE")
 NZBGET_INCLUDE=$(generate_include "nzbget" "$ENABLE_NZBGET")
 NZBHYDRA_INCLUDE=$(generate_include "nzbhydra" "$ENABLE_NZBHYDRA")
+JACKETT_INCLUDE=$(generate_include "jackett" "$ENABLE_JACKETT")
 BAZARR_INCLUDE=$(generate_include "bazarr" "$ENABLE_BAZARR")
 
 # Generate auth includes based on AUTHTYPE (mutually exclusive)
@@ -248,6 +249,7 @@ CONFIG="${CONFIG//@@INCLUDE_SABNZBD@@/$SABNZBD_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_DELUGE@@/$DELUGE_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_NZBGET@@/$NZBGET_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_NZBHYDRA@@/$NZBHYDRA_INCLUDE}"
+CONFIG="${CONFIG//@@INCLUDE_JACKETT@@/$JACKETT_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_BAZARR@@/$BAZARR_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_CUSTOM_BACKEND@@/$CUSTOM_BACKEND_INCLUDE}"
 

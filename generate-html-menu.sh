@@ -628,7 +628,14 @@ generate_html() {
         fi
     done
     # Always include mobile at the end
-    if [ "${layouts[@]}" != *"mobile"* ]; then
+    local has_mobile=false
+    for layout in "${layouts[@]}"; do
+        if [ "$layout" = "mobile" ]; then
+            has_mobile=true
+            break
+        fi
+    done
+    if [ "$has_mobile" = false ]; then
         directory_index="$directory_index mobile.html"
     fi
 
