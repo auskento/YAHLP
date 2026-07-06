@@ -365,10 +365,14 @@ app.get('/api/jackett/health', async (req, res) => {
       ? `${config.url}/api/v2.0/indexers?apikey=${encodeURIComponent(config.key)}`
       : `${config.url}/api/v2.0/indexers`;
 
+    console.log('[Jackett Health Check]', { url: healthUrl, hasKey: !!config.key });
+
     const response = await fetch(healthUrl);
 
     if (!response.ok) {
-      return res.status(response.status).json({ error: 'Jackett offline' });
+      const errorBody = await response.text();
+      console.log('[Jackett Health Check Error]', { status: response.status, body: errorBody });
+      return res.status(response.status).json({ error: 'Jackett offline', details: errorBody });
     }
 
     const data = await response.json();
@@ -376,6 +380,7 @@ app.get('/api/jackett/health', async (req, res) => {
     cache.set('jackett-health', result);
     res.json(result);
   } catch (err) {
+    console.log('[Jackett Health Check Exception]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
