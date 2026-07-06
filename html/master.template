@@ -9,7 +9,29 @@
 <script src="support.js"></script>
 <link rel="stylesheet" href="/styles/base.css">
 <link rel="stylesheet" href="/styles/layout-@@TEMPLATE_TYPE@@.css">
-<style>@@DASHBOARD_COLOR_OVERRIDE@@</style>
+<style>
+@@DASHBOARD_COLOR_OVERRIDE@@
+
+/* Dynamic icon sizing */
+:root {
+    --dynamic-icon-size: 100px;
+}
+
+.service-card-icon img,
+.menu-icon,
+.service-icon-only img {
+    width: var(--dynamic-icon-size);
+    height: var(--dynamic-icon-size);
+    object-fit: contain;
+    image-rendering: crisp-edges;
+}
+
+/* Smooth transitions when resizing */
+.service-card-icon img,
+.service-icon-only img {
+    transition: width 0.3s ease, height 0.3s ease;
+}
+</style>
 <script>
 // Set dashboard lock state if DASHBOARD_STYLE=style:only is used
 if (@@DASHBOARD_LOCKED@@) {
@@ -135,6 +157,13 @@ const codeToService = {
     'DEL': 'deluge', 'HYD': 'nzbhydra', 'PRO': 'prowlarr', 'SEE': 'seerr',
     'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr', 'JAC': 'jackett'
 };
+
+// Convert icon path to SVG when available, fallback to PNG
+function getIconPath(iconPath) {
+    if (!iconPath) return iconPath;
+    // Replace .png with .svg, keep everything else as-is
+    return iconPath.replace(/\.png$/i, '.svg');
+}
 
 // Calculate average color between dashboard color and bg-primary
 function initDashboardColor() {
@@ -330,6 +359,76 @@ async function fetchServiceStatus(service, app) {
     }
 }
 
+function calculateDynamicIconSize() {
+    const contentEl = document.getElementById('dashboard-content');
+    if (!contentEl) return;
+
+    // Get available width and height
+    const rect = contentEl.getBoundingClientRect();
+    const availableWidth = rect.width;
+    const availableHeight = rect.height;
+
+    // Count visible service cards
+    const serviceCards = contentEl.querySelectorAll('.service-card');
+    const iconCount = serviceCards.length;
+
+    if (iconCount === 0) return;
+
+    // Calculate optimal icon size based on grid layout
+    // Assume responsive grid: ~2 cols mobile, ~3 cols tablet, ~4 cols desktop
+    let colsPerRow;
+    if (availableWidth < 600) {
+        colsPerRow = 1;
+    } else if (availableWidth < 1000) {
+        colsPerRow = 2;
+    } else if (availableWidth < 1400) {
+        colsPerRow = 3;
+    } else {
+        colsPerRow = 4;
+    }
+
+    // Calculate rows needed
+    const rowsNeeded = Math.ceil(iconCount / colsPerRow);
+
+    // Base margins/padding per card
+    const cardPaddingX = 16; // left/right padding
+    const cardPaddingY = 16; // top/bottom padding
+    const gapBetweenCards = 12; // gap between grid items
+
+    // Available space per card
+    const cardWidthAvailable = (availableWidth / colsPerRow) - (gapBetweenCards + cardPaddingX);
+    const cardHeightAvailable = (availableHeight / Math.max(rowsNeeded, 2)) - (gapBetweenCards + cardPaddingY);
+
+    // Icon should be ~40-60% of card width/height
+    const iconSizeFromWidth = cardWidthAvailable * 0.5;
+    const iconSizeFromHeight = cardHeightAvailable * 0.6;
+
+    // Use the smaller to fit both dimensions
+    let iconSize = Math.min(iconSizeFromWidth, iconSizeFromHeight);
+
+    // Clamp to reasonable bounds
+    iconSize = Math.max(48, Math.min(200, iconSize));
+
+    // Round to nearest multiple of 4 for clean sizing
+    iconSize = Math.round(iconSize / 4) * 4;
+
+    // Set CSS variable for icon sizing
+    document.documentElement.style.setProperty('--dynamic-icon-size', iconSize + 'px');
+
+    console.log('[Icon Sizing]', {
+        availableSpace: `${availableWidth}x${availableHeight}`,
+        iconCount,
+        colsPerRow,
+        rowsNeeded,
+        calculatedIconSize: iconSize
+    });
+}
+
+// Recalculate on window resize
+window.addEventListener('resize', () => {
+    calculateDynamicIconSize();
+});
+
 async function loadDashboard() {
     // Get health status to know which services are configured
     let configuredServices = {};
@@ -377,7 +476,7 @@ async function loadDashboard() {
                     <div class="service-card" data-service-href="${status.href}" data-service-popup="${status.popup}" data-service-name="${status.name}">
                         <div class="service-card-header">
                             <div class="service-card-icon">
-                                <img src="${status.icon}" alt="${status.name}" />
+                                <img src="${getIconPath(status.icon)}" alt="${status.name}" />
                             </div>
                             <div class="service-card-title">${status.name}</div>
                             <div class="service-card-status">
@@ -397,7 +496,7 @@ async function loadDashboard() {
                 // Unconfigured service - show icon only
                 html += `
                     <div class="service-icon-only" data-service-name="${app.name}" data-service-icon="${app.icon}" title="Not configured">
-                        <img src="${app.icon}" alt="${app.name}" />
+                        <img src="${getIconPath(app.icon)}" alt="${app.name}" />
                     </div>
                 `;
             }
@@ -420,7 +519,7 @@ async function loadDashboard() {
                     <div class="service-card" data-service-href="${status.href}" data-service-popup="${status.popup}" data-service-name="${status.name}">
                         <div class="service-card-header">
                             <div class="service-card-icon">
-                                <img src="${status.icon}" alt="${status.name}" />
+                                <img src="${getIconPath(status.icon)}" alt="${status.name}" />
                             </div>
                             <div class="service-card-title">${status.name}</div>
                             <div class="service-card-status">
@@ -442,7 +541,7 @@ async function loadDashboard() {
                     <div class="service-card service-card-unconfigured" title="Not configured - add API key to enable">
                         <div class="service-card-header">
                             <div class="service-card-icon">
-                                <img src="${app.icon}" alt="${app.name}" />
+                                <img src="${getIconPath(app.icon)}" alt="${app.name}" />
                             </div>
                             <div class="service-card-title">${app.name}</div>
                             <div class="service-card-status">
@@ -457,6 +556,9 @@ async function loadDashboard() {
     }
 
     content.innerHTML = html || '<div class="no-services">No configured services</div>';
+
+    // Calculate dynamic icon sizing based on available space and icon count
+    calculateDynamicIconSize();
 
     document.querySelectorAll('.service-card').forEach((card) => {
         card.addEventListener('click', async (e) => {
@@ -517,7 +619,7 @@ async function buildServiceMenu() {
 
         html += `
             <button class="menu-item" title="${app.name}" data-href="${app.href}" data-popup="${app.popup}" data-service-name="${app.name}">
-                <img src="${app.icon}" alt="${app.name}" class="menu-icon">
+                <img src="${getIconPath(app.icon)}" alt="${app.name}" class="menu-icon">
                 <span class="menu-label">${app.name}</span>
             </button>
         `;
