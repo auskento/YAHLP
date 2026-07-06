@@ -45,20 +45,20 @@ DASHBOARD_STYLE=modern:only
 ### Available Layouts
 
 #### Classic
-Traditional sidebar with menu on left, services in main area.
+Topbar with services listed horizontally across the top.
 
 **Best for:**
 - Lots of services (15+)
 - Desktop-first viewing
-- Familiar interface
+- Wide screens
 
 **Features:**
-- Large sidebar with service icons + names
-- Service grid on right
-- Dedicated health status display
+- Horizontal service bar at top
+- Service grid below
+- Full-width content area
 
 #### Modern
-API-inspired design with left sidebar and right content panel.
+Left service bar with main content panel on the right.
 
 **Best for:**
 - Balanced service count
@@ -66,12 +66,12 @@ API-inspired design with left sidebar and right content panel.
 - Developer preference
 
 **Features:**
-- Compact service menu on left
+- Service menu on left sidebar
 - Main content on right
 - API-style sidebar navigation
 
 #### Sleek
-Compact gradient design with high information density.
+Left service bar with compact gradient design and high information density.
 
 **Best for:**
 - Limited screen space
@@ -79,12 +79,13 @@ Compact gradient design with high information density.
 - 5-10 services
 
 **Features:**
+- Left sidebar service menu
 - Gradient background
 - Compact cards
 - Minimal chrome
 
 #### Minimal
-Ultra-simple single-column design.
+Left service bar with ultra-simple single-column layout.
 
 **Best for:**
 - Mobile-first
@@ -92,9 +93,9 @@ Ultra-simple single-column design.
 - Quick access only
 
 **Features:**
+- Left sidebar service menu
 - One column layout
 - Large, tappable buttons
-- No sidebar
 
 #### Mobile
 Automatically loaded on phones/tablets (included with all builds).
