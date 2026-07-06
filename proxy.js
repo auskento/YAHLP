@@ -359,20 +359,20 @@ app.get('/api/jackett/health', async (req, res) => {
       return res.status(404).json({ error: 'Jackett not configured' });
     }
 
-    // Jackett uses /api/v2.0/server/stats for health check
+    // Jackett API endpoint with apikey as query parameter
     const baseUrl = config.url.endsWith('/jackett') ? config.url : `${config.url}/jackett`;
-    const healthUrl = `${baseUrl}/api/v2.0/server/stats`;
+    const healthUrl = config.key
+      ? `${baseUrl}/api/v2.0/indexers?apikey=${encodeURIComponent(config.key)}`
+      : `${baseUrl}/api/v2.0/indexers`;
 
-    const response = await fetch(healthUrl, {
-      headers: config.key ? { 'X-API-Key': config.key } : {}
-    });
+    const response = await fetch(healthUrl);
 
     if (!response.ok) {
       return res.status(response.status).json({ error: 'Jackett offline' });
     }
 
     const data = await response.json();
-    const result = { status: 'ok', version: data.version };
+    const result = { status: 'ok', indexers: Array.isArray(data) ? data.length : 0 };
     cache.set('jackett-health', result);
     res.json(result);
   } catch (err) {
