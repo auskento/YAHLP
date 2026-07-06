@@ -151,6 +151,7 @@ const services = {
   'nzbget': { url: getConfigValue('nzbget', 'url'), username: getConfigValue('nzbget', 'username'), password: getConfigValue('nzbget', 'password'), authType: 'nzbget' },
   'deluge': { url: getConfigValue('deluge', 'url'), key: getConfigValue('deluge', 'password'), authType: 'deluge' },
   'nzbhydra': { url: getConfigValue('nzbhydra', 'url'), key: getConfigValue('nzbhydra', 'api_key'), authType: 'header' },
+  'jackett': { url: getConfigValue('jackett', 'url'), key: getConfigValue('jackett', 'api_key'), authType: 'query' },
   'prowlarr': { url: getConfigValue('prowlarr', 'url'), key: getConfigValue('prowlarr', 'api_key'), authType: 'header' },
   'seerr': { url: getConfigValue('seerr', 'url'), key: getConfigValue('seerr', 'api_key'), authType: 'header' },
   'bazarr': { url: getConfigValue('bazarr', 'url'), key: getConfigValue('bazarr', 'api_key'), authType: 'bazarr' },
@@ -859,7 +860,7 @@ const codeToService = {
   'JEL': 'jellyfin', 'PLX': 'plex', 'EMB': 'emby',
   'SON': 'sonarr', 'RAD': 'radarr', 'LID': 'lidarr', 'WHI': 'whisparr',
   'QBI': 'qbittorrent', 'TRA': 'transmission', 'GET': 'nzbget', 'SAB': 'sabnzbd',
-  'DEL': 'deluge', 'HYD': 'nzbhydra', 'PRO': 'prowlarr', 'SEE': 'seerr',
+  'DEL': 'deluge', 'HYD': 'nzbhydra', 'JAC': 'jackett', 'PRO': 'prowlarr', 'SEE': 'seerr',
   'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
 };
 
