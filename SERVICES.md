@@ -176,11 +176,18 @@ seerr:
 ENABLE_SEERR=true
 SEERR_URL=http://seerr:5055
 SEERR_API_KEY=your-api-key  # Optional
-# Optional - for public subdomain
+# For public subdomain
 SEERR_DOMAIN=seerr.example.com
+# For Google/Entra OAuth (required if using OAuth with Seerr)
+SEERR_REDIRECT_URI=https://seerr.example.com/oauth2callback
 ```
 
-**URL:** `https://yourdomain.com/seerr`
+**OAuth Setup (Optional):**
+- If using Google or Entra authentication, Seerr can be accessed via its own subdomain with OAuth
+- Requires `SEERR_DOMAIN` and `SEERR_REDIRECT_URI` to be set
+- Add `https://seerr.example.com/oauth2callback` to your OAuth provider's redirect URIs
+
+**URL:** `https://yourdomain.com/seerr` or `https://seerr.example.com` (if OAuth enabled)
 
 ---
 
@@ -489,9 +496,16 @@ EMBY_URL=http://emby:8096
 EMBY_API_KEY=your-api-key  # Optional
 # For public subdomain
 EMBY_DOMAIN=emby.example.com
+# For Google/Entra OAuth (required if using OAuth with Emby)
+EMBY_REDIRECT_URI=https://emby.example.com/oauth2callback
 ```
 
-**URL:** `https://yourdomain.com/emby`
+**OAuth Setup (Optional):**
+- If using Google or Entra authentication, Emby can be accessed via its own subdomain with OAuth
+- Requires `EMBY_DOMAIN` and `EMBY_REDIRECT_URI` to be set
+- Add `https://emby.example.com/oauth2callback` to your OAuth provider's redirect URIs
+
+**URL:** `https://yourdomain.com/emby` or `https://emby.example.com` (if OAuth enabled)
 
 ---
 
@@ -521,9 +535,16 @@ PLEX_URL=http://plex:32400
 PLEX_API_KEY=your-api-key  # Optional
 # For public subdomain
 PLEX_DOMAIN=plex.example.com
+# For Google/Entra OAuth (required if using OAuth with Plex)
+PLEX_REDIRECT_URI=https://plex.example.com/oauth2callback
 ```
 
-**URL:** `https://yourdomain.com/plex`
+**OAuth Setup (Optional):**
+- If using Google or Entra authentication, Plex can be accessed via its own subdomain with OAuth
+- Requires `PLEX_DOMAIN` and `PLEX_REDIRECT_URI` to be set
+- Add `https://plex.example.com/oauth2callback` to your OAuth provider's redirect URIs
+
+**URL:** `https://yourdomain.com/plex` or `https://plex.example.com` (if OAuth enabled)
 
 ---
 
