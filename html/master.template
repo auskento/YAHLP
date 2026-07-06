@@ -39,8 +39,13 @@
 [data-layout="storm"] .menu-label,
 [data-layout="storm-violet"] .menu-label,
 [data-layout="vixens"] .menu-label {
-    writing-mode: vertical-lr;
-    text-orientation: upright;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    word-break: break-all;
+    width: 1em;
+    line-height: 1;
 }
 </style>
 <script>
