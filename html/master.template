@@ -133,7 +133,7 @@ const codeToService = {
     'SON': 'sonarr', 'RAD': 'radarr', 'LID': 'lidarr', 'WHI': 'whisparr',
     'QBI': 'qbittorrent', 'TRA': 'transmission', 'GET': 'nzbget', 'SAB': 'sabnzbd',
     'DEL': 'deluge', 'HYD': 'nzbhydra', 'PRO': 'prowlarr', 'SEE': 'seerr',
-    'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr'
+    'BAZ': 'bazarr', 'TAU': 'tautulli', 'MNT': 'maintainerr', 'JAC': 'jackett'
 };
 
 // Calculate average color between dashboard color and bg-primary
@@ -259,6 +259,8 @@ async function fetchServiceStatus(service, app) {
             url = `${apiBase}/${service}/status`;
         } else if (service === 'prowlarr') {
             url = `${apiBase}/prowlarr/health`;
+        } else if (service === 'jackett') {
+            url = `${apiBase}/jackett/health`;
         } else {
             return null;
         }
@@ -317,6 +319,8 @@ async function fetchServiceStatus(service, app) {
         } else if (service === 'prowlarr') {
             const issues = Array.isArray(data) ? data.length : 0;
             stats = [{ label: 'Health Issues', value: issues }];
+        } else if (service === 'jackett') {
+            stats = [{ label: 'Version', value: data.version || 'N/A' }];
         }
 
         return { ...app, status: 'Online', stats };
