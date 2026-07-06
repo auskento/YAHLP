@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Container version="2">
-  <Name>YAHLP</Name>
+  <Name>YAHLP-Full</Name>
   <Repository>auskento/yahlp</Repository>
-  <Registry>https://hub.docker.com/r/auskento/yahlp</Registry>
+  <Registry>https://hub.docker.com</Registry>
   <Network>bridge</Network>
   <MyIP/>
   <Shell>bash</Shell>
@@ -14,8 +14,8 @@
   <Icon>https://raw.githubusercontent.com/auskento/YAHLP/main/html/icons/yahlp.png</Icon>
   <WebUI>https://[IP]:[PORT:443]</WebUI>
   <CloudSync>false</CloudSync>
-  <Description>YAHLP - Yet Another Home Lab Portal. Complete dashboard with ALL services and settings available.</Description>
-  <Overview>YAHLP Dashboard - Complete Master Template with ALL available configuration options for services, authentication, and dashboard customization.</Overview>
+  <Description>YAHLP - Complete Master Template with ALL configuration options visible</Description>
+  <Overview>YAHLP - Yet Another HomeLab Portal - Full Configuration Template with all 19 services and complete settings</Overview>
 
   <Networking>
     <Mode>bridge</Mode>
@@ -49,19 +49,16 @@
       <HostDir>/mnt/user/appdata/yahlp/config</HostDir>
       <ContainerDir>/etc/yahlp</ContainerDir>
       <Mode>rw</Mode>
-      <Description>Configuration Files</Description>
+      <Description>Configuration</Description>
       <Access>rw</Access>
     </Volume>
   </Data>
 
   <Environment>
-    <!-- TESTING -->
     <Variable>
       <Name>TEST_MODE</Name>
       <Value>false</Value>
     </Variable>
-
-    <!-- DEPLOYMENT SETTINGS -->
     <Variable>
       <Name>ACCESS_MODE</Name>
       <Value>private</Value>
@@ -78,8 +75,6 @@
       <Name>IP</Name>
       <Value></Value>
     </Variable>
-
-    <!-- DASHBOARD SETTINGS -->
     <Variable>
       <Name>DASHBOARD_NAME</Name>
       <Value>YAHLP Dashboard</Value>
@@ -104,8 +99,6 @@
       <Name>DASHBOARD_LANDING</Name>
       <Value></Value>
     </Variable>
-
-    <!-- AUTHENTICATION SETTINGS -->
     <Variable>
       <Name>AUTHTYPE</Name>
       <Value>none</Value>
@@ -146,8 +139,6 @@
       <Name>ENTRA_REDIRECT_URI</Name>
       <Value></Value>
     </Variable>
-
-    <!-- MEDIA SERVERS -->
     <Variable>
       <Name>ENABLE_JELLYFIN</Name>
       <Value>false</Value>
@@ -172,8 +163,6 @@
       <Name>EMBY_URL</Name>
       <Value>http://emby:8096</Value>
     </Variable>
-
-    <!-- PVR MANAGERS -->
     <Variable>
       <Name>ENABLE_SONARR</Name>
       <Value>false</Value>
@@ -206,8 +195,6 @@
       <Name>WHISPARR_URL</Name>
       <Value>http://whisparr:6969</Value>
     </Variable>
-
-    <!-- INDEXERS & SEARCH -->
     <Variable>
       <Name>ENABLE_PROWLARR</Name>
       <Value>false</Value>
@@ -232,8 +219,6 @@
       <Name>JACKETT_API_KEY</Name>
       <Value></Value>
     </Variable>
-
-    <!-- REQUEST MANAGEMENT -->
     <Variable>
       <Name>ENABLE_SEERR</Name>
       <Value>false</Value>
@@ -246,8 +231,6 @@
       <Name>SEERR_API_KEY</Name>
       <Value></Value>
     </Variable>
-
-    <!-- TORRENT CLIENTS -->
     <Variable>
       <Name>ENABLE_QBITTORRENT</Name>
       <Value>false</Value>
@@ -280,8 +263,6 @@
       <Name>DELUGE_API_KEY</Name>
       <Value></Value>
     </Variable>
-
-    <!-- USENET CLIENTS -->
     <Variable>
       <Name>ENABLE_SABNZBD</Name>
       <Value>false</Value>
@@ -322,8 +303,6 @@
       <Name>NZBHYDRA_API_KEY</Name>
       <Value></Value>
     </Variable>
-
-    <!-- MANAGEMENT TOOLS -->
     <Variable>
       <Name>ENABLE_TAUTULLI</Name>
       <Value>false</Value>
@@ -352,12 +331,89 @@
       <Name>BAZARR_URL</Name>
       <Value>http://bazarr:6767</Value>
     </Variable>
-
-    <!-- ENVIRONMENT -->
     <Variable>
       <Name>TZ</Name>
       <Value>Etc/UTC</Value>
     </Variable>
   </Environment>
+
+  <!-- TEST -->
+  <Config Name="Test Mode" Target="TEST_MODE" Default="false" Mode="" Description="Enable test mode for debugging" Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <!-- DEPLOYMENT -->
+  <Config Name="Access Mode" Target="ACCESS_MODE" Default="private" Mode="" Description="private or public" Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="Domain" Target="DOMAIN" Default="" Mode="" Description="Domain for public mode" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Email" Target="EMAIL" Default="" Mode="" Description="Email for SSL (public mode)" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="IP Address" Target="IP" Default="" Mode="" Description="Server IP (private mode)" Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <!-- DASHBOARD -->
+  <Config Name="Dashboard Name" Target="DASHBOARD_NAME" Default="YAHLP Dashboard" Mode="" Description="Dashboard title" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Dashboard Color" Target="DASHBOARD_COLOR" Default="#00A99D" Mode="" Description="Hex color code" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Dashboard Style" Target="DASHBOARD_STYLE" Default="modern" Mode="" Description="Layout: classic, modern, storm, storm-violet, neon, focus, vixens, minimal" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Dashboard Locked" Target="DASHBOARD_LOCKED" Default="false" Mode="" Description="Lock layout switching" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Dashboard Order" Target="DASHBOARD_ORDER" Default="JEL,PLX,EMB,SON,RAD,LID,WHI,QBI,TRA,SAB,GET,DEL,HYD,PRO,SEE,JAC,BAZ,TAU,MNT" Mode="" Description="Service display order (codes)" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Dashboard Landing" Target="DASHBOARD_LANDING" Default="" Mode="" Description="Default page path (empty for grid)" Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <!-- AUTHENTICATION -->
+  <Config Name="Auth Type" Target="AUTHTYPE" Default="none" Mode="" Description="none, basic, google, entra" Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="Basic Auth User" Target="BASIC_AUTH_USER" Default="" Mode="" Description="Username for basic auth" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Basic Auth Password" Target="BASIC_AUTH_PASS" Default="" Mode="" Description="Password for basic auth" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Google Client ID" Target="GOOGLE_CLIENT_ID" Default="" Mode="" Description="Google OAuth Client ID" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Google Client Secret" Target="GOOGLE_CLIENT_SECRET" Default="" Mode="" Description="Google OAuth Client Secret" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Google Redirect URI" Target="GOOGLE_REDIRECT_URI" Default="" Mode="" Description="Google OAuth Redirect URI" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Entra Client ID" Target="ENTRA_CLIENT_ID" Default="" Mode="" Description="Azure Entra Client ID" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Entra Client Secret" Target="ENTRA_CLIENT_SECRET" Default="" Mode="" Description="Azure Entra Client Secret" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Entra Tenant ID" Target="ENTRA_TENANT_ID" Default="" Mode="" Description="Azure Entra Tenant ID" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Entra Redirect URI" Target="ENTRA_REDIRECT_URI" Default="" Mode="" Description="Azure Entra Redirect URI" Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <!-- SERVICES -->
+  <Config Name="Enable Jellyfin" Target="ENABLE_JELLYFIN" Default="false" Mode="" Description="Enable Jellyfin media server" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Jellyfin URL" Target="JELLYFIN_URL" Default="http://jellyfin:8096" Mode="" Description="Jellyfin service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Enable Plex" Target="ENABLE_PLEX" Default="false" Mode="" Description="Enable Plex media server" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Plex URL" Target="PLEX_URL" Default="http://plex:32400" Mode="" Description="Plex service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Enable Emby" Target="ENABLE_EMBY" Default="false" Mode="" Description="Enable Emby media server" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Emby URL" Target="EMBY_URL" Default="http://emby:8096" Mode="" Description="Emby service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Enable Sonarr" Target="ENABLE_SONARR" Default="false" Mode="" Description="Enable Sonarr TV manager" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Sonarr URL" Target="SONARR_URL" Default="http://sonarr:8989" Mode="" Description="Sonarr service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Enable Radarr" Target="ENABLE_RADARR" Default="false" Mode="" Description="Enable Radarr movie manager" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Radarr URL" Target="RADARR_URL" Default="http://radarr:7878" Mode="" Description="Radarr service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Enable Lidarr" Target="ENABLE_LIDARR" Default="false" Mode="" Description="Enable Lidarr music manager" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Lidarr URL" Target="LIDARR_URL" Default="http://lidarr:8686" Mode="" Description="Lidarr service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Enable Whisparr" Target="ENABLE_WHISPARR" Default="false" Mode="" Description="Enable Whisparr audiobook manager" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Whisparr URL" Target="WHISPARR_URL" Default="http://whisparr:6969" Mode="" Description="Whisparr service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Enable Prowlarr" Target="ENABLE_PROWLARR" Default="false" Mode="" Description="Enable Prowlarr indexer manager" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Prowlarr URL" Target="PROWLARR_URL" Default="http://prowlarr:9696" Mode="" Description="Prowlarr service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Prowlarr API Key" Target="PROWLARR_API_KEY" Default="" Mode="" Description="Prowlarr API key" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Enable Jackett" Target="ENABLE_JACKETT" Default="false" Mode="" Description="Enable Jackett indexer aggregator" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Jackett URL" Target="JACKETT_URL" Default="http://jackett:9117" Mode="" Description="Jackett service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Jackett API Key" Target="JACKETT_API_KEY" Default="" Mode="" Description="Jackett API key" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Enable Seerr" Target="ENABLE_SEERR" Default="false" Mode="" Description="Enable Seerr media requests" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Seerr URL" Target="SEERR_URL" Default="http://seerr:5055" Mode="" Description="Seerr service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Seerr API Key" Target="SEERR_API_KEY" Default="" Mode="" Description="Seerr API key" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Enable qBittorrent" Target="ENABLE_QBITTORRENT" Default="false" Mode="" Description="Enable qBittorrent torrent client" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="qBittorrent URL" Target="QBITTORRENT_URL" Default="http://qbittorrent:8080" Mode="" Description="qBittorrent service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="qBittorrent API Key" Target="QBITTORRENT_API_KEY" Default="" Mode="" Description="qBittorrent API key" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Enable Transmission" Target="ENABLE_TRANSMISSION" Default="false" Mode="" Description="Enable Transmission torrent client" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Transmission URL" Target="TRANSMISSION_URL" Default="http://transmission:9091" Mode="" Description="Transmission service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Enable Deluge" Target="ENABLE_DELUGE" Default="false" Mode="" Description="Enable Deluge torrent client" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Deluge URL" Target="DELUGE_URL" Default="http://deluge:8112" Mode="" Description="Deluge service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Deluge API Key" Target="DELUGE_API_KEY" Default="" Mode="" Description="Deluge password" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Enable SABnzbd" Target="ENABLE_SABNZBD" Default="false" Mode="" Description="Enable SABnzbd usenet client" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="SABnzbd URL" Target="SABNZBD_URL" Default="http://sabnzbd:8080" Mode="" Description="SABnzbd service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="SABnzbd API Key" Target="SABNZBD_API_KEY" Default="" Mode="" Description="SABnzbd API key" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Enable NZBget" Target="ENABLE_NZBGET" Default="false" Mode="" Description="Enable NZBget usenet client" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBget URL" Target="NZBGET_URL" Default="http://nzbget:6789" Mode="" Description="NZBget service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBget Username" Target="NZBGET_USER" Default="nzbget" Mode="" Description="NZBget username" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBget Password" Target="NZBGET_PASS" Default="" Mode="" Description="NZBget password" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Enable NZBHydra" Target="ENABLE_NZBHYDRA" Default="false" Mode="" Description="Enable NZBHydra2 usenet meta-search" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBHydra URL" Target="NZBHYDRA_URL" Default="http://nzbhydra:5076" Mode="" Description="NZBHydra service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBHydra API Key" Target="NZBHYDRA_API_KEY" Default="" Mode="" Description="NZBHydra API key" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Enable Tautulli" Target="ENABLE_TAUTULLI" Default="false" Mode="" Description="Enable Tautulli Plex monitoring" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Tautulli URL" Target="TAUTULLI_URL" Default="http://tautulli:8181" Mode="" Description="Tautulli service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Tautulli API Key" Target="TAUTULLI_API_KEY" Default="" Mode="" Description="Tautulli API key" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Enable Maintainerr" Target="ENABLE_MAINTAINERR" Default="false" Mode="" Description="Enable Maintainerr library maintenance" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Maintainerr URL" Target="MAINTAINERR_URL" Default="http://maintainerr:6246" Mode="" Description="Maintainerr service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Enable Bazarr" Target="ENABLE_BAZARR" Default="false" Mode="" Description="Enable Bazarr subtitle manager" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Bazarr URL" Target="BAZARR_URL" Default="http://bazarr:6767" Mode="" Description="Bazarr service URL" Type="Variable" Display="always" Required="false" Mask="false"/>
 
 </Container>
