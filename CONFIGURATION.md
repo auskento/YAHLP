@@ -73,27 +73,34 @@ Complete list of all environment variables and settings for YAHLP.
 | Style with `:only` | Build single, lock layout, hide slider | `modern:only` |
 
 **Available Layouts:**
-- `classic` - Sidebar with menu on left
-- `modern` - API-inspired, sidebar + right panel
-- `sleek` - Compact gradient design
-- `minimal` - Single-column ultra-simple
+- `classic` - Topbar with services listed horizontally
+- `modern` - Left sidebar, API-inspired design
+- `sleek` - Left sidebar, compact gradient design
+- `minimal` - Left sidebar, ultra-simple single-column
+- Plus any **custom layouts** from `/templates` folder (see below)
 
 **Examples:**
 ```bash
 DASHBOARD_STYLE=modern           # All layouts, modern default
 DASHBOARD_STYLE=modern,sleek     # Only modern/sleek in slider
 DASHBOARD_STYLE=modern:only      # Lock to modern, hide switcher
+DASHBOARD_STYLE=modern,custom1   # Built-in modern + custom1 layout
 ```
 
 ### DASHBOARD_ORDER
-- **Type:** Comma-separated 3-letter service codes
+- **Type:** Comma-separated 3-letter service codes with optional separators
 - **Default:** `JEL,PLX,EMB,SON,RAD,LID,WHI,QBI,TRA,SAB,GET,DEL,HYD,PRO,SEE,BAZ,TAU,MNT`
 - **Description:** Order services appear in dashboard
 - **Service codes:** JEL (Jellyfin), PLX (Plex), EMB (Emby), SON (Sonarr), RAD (Radarr), LID (Lidarr), WHI (Whisparr), QBI (qBittorrent), TRA (Transmission), SAB (SABnzbd), GET (NZBGet), DEL (Deluge), HYD (NZBHydra), PRO (Prowlarr), SEE (Seerr), BAZ (Bazarr), TAU (Tautulli), MNT (Maintainerr)
+- **Special codes:**
+  - `SEP` - Invisible separator/spacing gap
+  - `VIS` - Visible separator line
+  - `LBL:SectionName` - Labeled section header (e.g., `LBL:Media Servers`)
 - **Examples:**
   ```bash
   DASHBOARD_ORDER=JEL,PLX,SON,RAD,QBI
-  DASHBOARD_ORDER=TRA,QBI,SAB,GET,SON,RAD
+  DASHBOARD_ORDER=LBL:Media,JEL,PLX,SEP,LBL:Content,SON,RAD,SEP,LBL:Downloads,QBI,TRA,SAB
+  DASHBOARD_ORDER=JEL,PLX,VIS,SON,RAD,VIS,QBI,TRA,SAB
   ```
 
 ### DASHBOARD_LANDING

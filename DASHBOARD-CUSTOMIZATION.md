@@ -4,10 +4,11 @@ Customize the look, feel, and layout of your YAHLP dashboard.
 
 ## Table of Contents
 1. [Layouts](#layouts)
-2. [Color & Appearance](#color--appearance)
-3. [Service Organization](#service-organization)
-4. [Landing Pages](#landing-pages)
-5. [Built-in Sites](#built-in-sites)
+2. [Custom Templates](#custom-templates)
+3. [Color & Appearance](#color--appearance)
+4. [Service Organization](#service-organization)
+5. [Landing Pages](#landing-pages)
+6. [Built-in Sites](#built-in-sites)
 
 ---
 
@@ -129,6 +130,120 @@ https://yourdomain.com/mobile.html
 
 ---
 
+## Custom Templates
+
+Create your own dashboard layouts by providing custom CSS templates.
+
+### Adding Custom Templates
+
+Mount a folder to `/templates` in the container:
+
+**Docker Compose:**
+```yaml
+volumes:
+  - ./custom-layouts:/templates
+```
+
+**Docker CLI:**
+```bash
+docker run -v ./custom-layouts:/templates ...
+```
+
+**Unraid:**
+1. Container settings → Add another Path
+2. Container Path: `/templates`
+3. Host Path: `/mnt/user/appdata/yahlp/custom-layouts`
+
+### Creating a Custom Layout
+
+1. **Create CSS file:** `layout-myname.css`
+2. **Copy to `/templates` folder:** `./custom-layouts/layout-myname.css`
+3. **Restart container**
+4. **Layout appears as "myname"** in settings and slider
+
+### Custom Layout Structure
+
+Example `layout-custom.css`:
+
+```css
+:root {
+  /* Override colors */
+  --bg-primary: #0a0e27;
+  --bg-secondary: #1a1f3a;
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --accent: #00ff88;
+}
+
+/* Your custom layout styles */
+.dashboard-container {
+  display: grid;
+  /* ... */
+}
+
+.service-grid {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  /* ... */
+}
+```
+
+### Example: Monitor-Focused Layout
+
+```css
+:root {
+  --bg-primary: #1a1a1a;
+  --accent: #00ff00;
+}
+
+.service-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.service-card {
+  height: 60px;
+  padding: 8px;
+  font-size: 14px;
+}
+```
+
+### Using Custom Templates
+
+Once created and mounted, use like built-in layouts:
+
+```bash
+# Include custom layout with built-ins
+DASHBOARD_STYLE=modern,custom
+
+# Lock to custom layout only
+DASHBOARD_STYLE=custom:only
+
+# Mix in DASHBOARD_ORDER
+DASHBOARD_ORDER=JEL,PLX,SEP,SON,RAD,QBI,TRA,SAB
+```
+
+### File Naming
+
+Templates must be named `layout-{name}.css`:
+- ✅ `layout-custom.css` → shows as "custom"
+- ✅ `layout-neon.css` → shows as "neon"
+- ❌ `custom.css` → won't be detected
+- ❌ `template-custom.css` → won't be detected
+
+### Built-in Template Examples
+
+Built-in templates are copied to `/templates` on first run:
+- `layout-classic.css`
+- `layout-modern.css`
+- `layout-sleek.css`
+- `layout-minimal.css`
+- `layout-mobile.css`
+
+Edit these files directly or use as reference for your custom layouts.
+
+---
+
 ## Color & Appearance
 
 ### Dashboard Color
@@ -185,31 +300,49 @@ Dark theme is currently the default and only theme. Light theme support may be a
 
 Control the order services appear in the dashboard using 3-letter service codes.
 
+#### Service Codes
+
+- JEL (Jellyfin), PLX (Plex), EMB (Emby), SON (Sonarr), RAD (Radarr), LID (Lidarr), WHI (Whisparr)
+- QBI (qBittorrent), TRA (Transmission), DEL (Deluge)
+- SAB (SABnzbd), GET (NZBGet), HYD (NZBHydra)
+- PRO (Prowlarr), SEE (Seerr), BAZ (Bazarr)
+- TAU (Tautulli), MNT (Maintainerr)
+
+#### Special Codes
+
+- **SEP** - Invisible separator/spacing gap
+- **VIS** - Visible separator line
+- **LBL:Name** - Section label/header (e.g., `LBL:Media Servers`)
+
 #### Default Order
 ```bash
 DASHBOARD_ORDER=JEL,PLX,EMB,SON,RAD,LID,WHI,QBI,TRA,SAB,GET,DEL,HYD,PRO,SEE,BAZ,TAU,MNT
 ```
 
-Shows services in: Jellyfin, Plex, Emby, Sonarr, Radarr, Lidarr, Whisparr, qBittorrent, Transmission, SABnzbd, NZBGet, Deluge, NZBHydra, Prowlarr, Seerr, Bazarr, Tautulli, Maintainerr
-
 #### Custom Order Examples
+
+**With Labeled Sections:**
+```bash
+DASHBOARD_ORDER=LBL:Media,JEL,PLX,EMB,SEP,LBL:Content,SON,RAD,LID,WHI,SEP,LBL:Downloads,QBI,TRA,SAB,GET,DEL,HYD
+# Shows: Media section → Content section → Downloads section with spacing
+```
+
+**With Visible Separators:**
+```bash
+DASHBOARD_ORDER=JEL,PLX,VIS,SON,RAD,VIS,QBI,TRA,SAB
+# Shows: Media servers → [line] → Content → [line] → Downloads
+```
 
 **Media First:**
 ```bash
-DASHBOARD_ORDER=JEL,PLX,EMB,SON,RAD,QBI
-# Shows: Media servers first, then content, then download client
+DASHBOARD_ORDER=JEL,PLX,EMB,SEP,SON,RAD,QBI
+# Shows: Media servers → spacing gap → Content/Downloads
 ```
 
 **Download-Focused:**
 ```bash
-DASHBOARD_ORDER=QBI,TRA,SAB,GET,DEL,SON,RAD,JEL
-# Shows: Download clients first (qBittorrent, Transmission, SABnzbd, NZBGet, Deluge), then content, then media
-```
-
-**Content to Media:**
-```bash
-DASHBOARD_ORDER=SON,RAD,JEL,PLX,QBI
-# Shows: Get content (Sonarr, Radarr) → watch it (Jellyfin, Plex) → download
+DASHBOARD_ORDER=QBI,TRA,SAB,GET,DEL,HYD,SEP,SON,RAD,JEL,PLX
+# Shows: Download clients → spacing gap → Content/Media
 ```
 
 #### Partial Order
@@ -217,8 +350,8 @@ DASHBOARD_ORDER=SON,RAD,JEL,PLX,QBI
 You don't need all services:
 
 ```bash
-DASHBOARD_ORDER=JEL,SON,RAD,QBI
-# Shows these 4 services in this order
+DASHBOARD_ORDER=LBL:My Apps,JEL,SON,RAD,QBI
+# Shows only these 4 services under "My Apps" label
 ```
 
 Services not in the list still appear (at the end, in default order).
@@ -371,15 +504,15 @@ Sites must have `enabled: true` to show.
 ## Complete Customization Example
 
 ```bash
-# Modern layout with curated options
-DASHBOARD_STYLE=modern,sleek
+# Modern layout with custom template option
+DASHBOARD_STYLE=modern,sleek,custom
 
 # Branded name and color
 DASHBOARD_NAME="My Media Server"
 DASHBOARD_COLOR=#FF6B6B
 
-# Services in download order: Downloads first, then content, then media
-DASHBOARD_ORDER=QBI,TRA,SAB,SON,RAD,JEL,PLX
+# Organized services with labels and separators
+DASHBOARD_ORDER=LBL:Media Servers,JEL,PLX,EMB,SEP,LBL:Content,SON,RAD,LID,WHI,VIS,LBL:Downloads,QBI,TRA,SAB,GET,DEL,HYD
 
 # Load Sonarr calendar by default
 DASHBOARD_LANDING=sonarr/calendar
@@ -389,11 +522,13 @@ DASHBOARD_SITES=TPB,YTS,DOG,DRS,NLF
 ```
 
 Result:
-- Modern or sleek layout (user can switch)
+- Modern, sleek, or custom layout (user can switch)
 - Red accent color
-- Download clients first (qBittorrent, Transmission, SABnzbd), then content (Sonarr, Radarr), then media (Jellyfin, Plex)
+- Services organized with visible labels and separators
 - Sonarr calendar appears on load
 - Site shortcuts for popular trackers
+
+**With custom layout mounted to `/templates/layout-custom.css`**
 
 ---
 
