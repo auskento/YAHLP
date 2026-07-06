@@ -119,7 +119,14 @@ AUTHTYPE=google
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-client-secret
 GOOGLE_REDIRECT_URI=https://yourdomain.com
+GOOGLE_CRYPTO_PASSPHRASE=your-passphrase-or-leave-blank
 ```
+
+**About GOOGLE_CRYPTO_PASSPHRASE:**
+- Used to encrypt session cookies
+- **Auto-generated** on first run if left empty (recommended for most users)
+- Set only if you need a **persistent** passphrase (e.g., to keep sessions valid across container restarts)
+- Generate with: `openssl rand -base64 24`
 
 ### Step 3: Deploy
 
@@ -197,7 +204,14 @@ ENTRA_CLIENT_ID=your-client-id
 ENTRA_CLIENT_SECRET=your-client-secret
 ENTRA_REDIRECT_URI=https://yourdomain.com/auth/oauth2/callback
 ENTRA_PROVIDER_METADATA_URL=https://login.microsoftonline.com/{tenant-id}/v2.0/.well-known/openid-configuration
+ENTRA_CRYPTO_PASSPHRASE=your-passphrase-or-leave-blank
 ```
+
+**About ENTRA_CRYPTO_PASSPHRASE:**
+- Used to encrypt session cookies
+- **Auto-generated** on first run if left empty (recommended for most users)
+- Set only if you need a **persistent** passphrase (e.g., to keep sessions valid across container restarts)
+- Generate with: `openssl rand -base64 24`
 
 ### Step 5: Deploy
 
