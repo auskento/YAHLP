@@ -360,10 +360,10 @@ app.get('/api/jackett/health', async (req, res) => {
     }
 
     // Jackett API endpoint with apikey as query parameter
-    const baseUrl = config.url.endsWith('/jackett') ? config.url : `${config.url}/jackett`;
+    // config.url should be the full URL including baseURL if needed (e.g., http://jackett:9117/jackett)
     const healthUrl = config.key
-      ? `${baseUrl}/api/v2.0/indexers?apikey=${encodeURIComponent(config.key)}`
-      : `${baseUrl}/api/v2.0/indexers`;
+      ? `${config.url}/api/v2.0/indexers?apikey=${encodeURIComponent(config.key)}`
+      : `${config.url}/api/v2.0/indexers`;
 
     const response = await fetch(healthUrl);
 
