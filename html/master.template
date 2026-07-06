@@ -248,6 +248,27 @@ const content = document.getElementById('dashboard-content');
 const welcomeScreen = document.getElementById('welcome-screen');
 const serviceMenu = document.getElementById('serviceMenu');
 
+// Pre-fetch Deluge session early on page load
+async function initDelugeSession() {
+    try {
+        console.log('[Deluge] Pre-fetching session on page load...');
+        const response = await fetch(`/api/deluge/login`);
+        const data = await response.json();
+        console.log('[Deluge] Session pre-fetch response:', data);
+
+        if (data.success && data.cookie) {
+            console.log('[Deluge] Pre-setting cookie on page load');
+            document.cookie = data.cookie;
+            console.log('[Deluge] Cookie pre-set, document.cookie:', document.cookie);
+        }
+    } catch (err) {
+        console.warn('[Deluge] Pre-fetch failed (will retry on click):', err);
+    }
+}
+
+// Call early on page load
+initDelugeSession();
+
 function updateDateTime() {
     const now = new Date();
     const timeEl = document.getElementById('currentTime');
