@@ -296,7 +296,8 @@ SABNZBD_API_KEY=your-api-key  # Optional
 ```bash
 ENABLE_NZBGET=true
 NZBGET_URL=http://nzbget:6789
-NZBGET_API_KEY=your-api-key  # Optional
+NZBGET_USERNAME=your-username  # Optional
+NZBGET_PASSWORD=your-password  # Optional
 ```
 
 #### NZBHydra (HYD)
