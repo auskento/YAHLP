@@ -320,7 +320,7 @@ async function fetchServiceStatus(service, app) {
             const issues = Array.isArray(data) ? data.length : 0;
             stats = [{ label: 'Health Issues', value: issues }];
         } else if (service === 'jackett') {
-            stats = [{ label: 'Indexers', value: data.indexers || 0 }];
+            stats = [{ label: 'Results', value: data.results || 0 }];
         }
 
         return { ...app, status: 'Online', stats };
