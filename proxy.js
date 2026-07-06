@@ -355,17 +355,20 @@ app.get('/api/jackett/health', async (req, res) => {
     if (cached) return res.json(cached);
 
     const config = services['jackett'];
-    if (!config || !config.url) {
+    if (!config || !config.url || !config.key) {
       return res.status(404).json({ error: 'Jackett not configured' });
     }
 
-    // Jackett API endpoint with apikey as query parameter
-    // config.url should be the full URL including baseURL if needed (e.g., http://jackett:9117/jackett)
-    const healthUrl = config.key
-      ? `${config.url}/api/v2.0/indexers?apikey=${encodeURIComponent(config.key)}`
-      : `${config.url}/api/v2.0/indexers`;
+    // Strip /jackett from URL if present (API calls don't use baseURL)
+    let baseUrl = config.url;
+    if (baseUrl.endsWith('/jackett')) {
+      baseUrl = baseUrl.slice(0, -8); // Remove '/jackett'
+    }
 
-    console.log('[Jackett Health Check]', { url: healthUrl, hasKey: !!config.key });
+    // Jackett API endpoint for health check
+    const healthUrl = `${baseUrl}/api/v2.0/indexers/all/results?apikey=${encodeURIComponent(config.key)}&Query=test`;
+
+    console.log('[Jackett Health Check]', { url: healthUrl });
 
     const response = await fetch(healthUrl);
 
@@ -376,7 +379,7 @@ app.get('/api/jackett/health', async (req, res) => {
     }
 
     const data = await response.json();
-    const result = { status: 'ok', indexers: Array.isArray(data) ? data.length : 0 };
+    const result = { status: 'ok', results: data.Results ? data.Results.length : 0 };
     cache.set('jackett-health', result);
     res.json(result);
   } catch (err) {
