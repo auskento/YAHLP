@@ -20,8 +20,10 @@
 .service-card-icon img,
 .menu-icon,
 .service-icon-only img {
-    width: var(--dynamic-icon-size);
-    height: var(--dynamic-icon-size);
+    max-width: var(--dynamic-icon-size);
+    max-height: var(--dynamic-icon-size);
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     image-rendering: crisp-edges;
 }
