@@ -704,12 +704,21 @@ app.get('/api/deluge/login', async (req, res) => {
     const setCookie = response.headers.get('set-cookie');
     console.log('[DELUGE-LOGIN] Set-Cookie header:', setCookie);
 
-    const sessionCookie = setCookie ? setCookie.split(';')[0] : '';
+    if (!setCookie) {
+      throw new Error('No session cookie received from Deluge');
+    }
+
+    // Parse cookie and attributes
+    const cookieParts = setCookie.split(';').map(s => s.trim());
+    const sessionCookie = cookieParts[0]; // name=value
     console.log('[DELUGE-LOGIN] Extracted cookie:', sessionCookie);
+
+    // Build cookie string for client with necessary attributes
+    const cookieString = `${sessionCookie}; path=/; SameSite=Lax`;
 
     res.json({
       success: true,
-      cookie: sessionCookie,
+      cookie: cookieString,
       url: `${config.url}/`
     });
   } catch (err) {
