@@ -86,14 +86,14 @@ DASHBOARD_STYLE=modern:only      # Lock to modern, hide switcher
 ```
 
 ### DASHBOARD_ORDER
-- **Type:** Comma-separated categories
-- **Default:** `CONTENT,SEARCH,USENET,TORRENTS,MEDIA`
-- **Available:** `CONTENT`, `SEARCH`, `USENET`, `TORRENTS`, `MEDIA`
+- **Type:** Comma-separated 3-letter service codes
+- **Default:** `JEL,PLX,EMB,SON,RAD,LID,WHI,QBI,TRA,SAB,GET,DEL,HYD,PRO,SEE,BAZ,TAU,MNT`
 - **Description:** Order services appear in dashboard
+- **Service codes:** JEL (Jellyfin), PLX (Plex), EMB (Emby), SON (Sonarr), RAD (Radarr), LID (Lidarr), WHI (Whisparr), QBI (qBittorrent), TRA (Transmission), SAB (SABnzbd), GET (NZBGet), DEL (Deluge), HYD (NZBHydra), PRO (Prowlarr), SEE (Seerr), BAZ (Bazarr), TAU (Tautulli), MNT (Maintainerr)
 - **Examples:**
   ```bash
-  DASHBOARD_ORDER=MEDIA,CONTENT,SEARCH,USENET,TORRENTS
-  DASHBOARD_ORDER=TORRENTS,USENET,CONTENT
+  DASHBOARD_ORDER=JEL,PLX,SON,RAD,QBI
+  DASHBOARD_ORDER=TRA,QBI,SAB,GET,SON,RAD
   ```
 
 ### DASHBOARD_LANDING
@@ -387,7 +387,7 @@ EMAIL=admin@example.com
 DASHBOARD_NAME="My Media Server"
 DASHBOARD_COLOR="#FF6B6B"
 DASHBOARD_STYLE=modern,sleek
-DASHBOARD_ORDER=MEDIA,CONTENT,SEARCH,USENET,TORRENTS
+DASHBOARD_ORDER=JEL,PLX,SON,RAD,QBI,SAB
 DASHBOARD_LANDING=jellyfin
 
 # Services

@@ -183,47 +183,42 @@ Dark theme is currently the default and only theme. Light theme support may be a
 
 ### Service Ordering
 
-Control the order services appear in the dashboard.
+Control the order services appear in the dashboard using 3-letter service codes.
 
 #### Default Order
 ```bash
-DASHBOARD_ORDER=CONTENT,SEARCH,USENET,TORRENTS,MEDIA
+DASHBOARD_ORDER=JEL,PLX,EMB,SON,RAD,LID,WHI,QBI,TRA,SAB,GET,DEL,HYD,PRO,SEE,BAZ,TAU,MNT
 ```
 
-Shows services grouped by:
-1. Content (Sonarr, Radarr, Lidarr, Whisparr)
-2. Search (Seerr, Prowlarr, Bazarr)
-3. Usenet (SABnzbd, NZBGet, NZBHydra)
-4. Torrents (Transmission, qBittorrent, Deluge)
-5. Media (Jellyfin, Emby, Plex, Tautulli, Maintainerr)
+Shows services in: Jellyfin, Plex, Emby, Sonarr, Radarr, Lidarr, Whisparr, qBittorrent, Transmission, SABnzbd, NZBGet, Deluge, NZBHydra, Prowlarr, Seerr, Bazarr, Tautulli, Maintainerr
 
 #### Custom Order Examples
 
 **Media First:**
 ```bash
-DASHBOARD_ORDER=MEDIA,CONTENT,SEARCH,USENET,TORRENTS
-# Shows: Media servers first, then content, then everything else
+DASHBOARD_ORDER=JEL,PLX,EMB,SON,RAD,QBI
+# Shows: Media servers first, then content, then download client
 ```
 
 **Download-Focused:**
 ```bash
-DASHBOARD_ORDER=USENET,TORRENTS,SEARCH,CONTENT,MEDIA
-# Shows: Downloads first (usenet + torrents), then search, content, media
+DASHBOARD_ORDER=QBI,TRA,SAB,GET,DEL,SON,RAD,JEL
+# Shows: Download clients first (qBittorrent, Transmission, SABnzbd, NZBGet, Deluge), then content, then media
 ```
 
 **Content to Media:**
 ```bash
-DASHBOARD_ORDER=CONTENT,MEDIA,SEARCH,TORRENTS,USENET
-# Shows: Get content → watch it (media) → find more (search) → download
+DASHBOARD_ORDER=SON,RAD,JEL,PLX,QBI
+# Shows: Get content (Sonarr, Radarr) → watch it (Jellyfin, Plex) → download
 ```
 
 #### Partial Order
 
-You don't need all categories:
+You don't need all services:
 
 ```bash
-DASHBOARD_ORDER=MEDIA,CONTENT
-# Shows only media and content services
+DASHBOARD_ORDER=JEL,SON,RAD,QBI
+# Shows these 4 services in this order
 ```
 
 Services not in the list still appear (at the end, in default order).
@@ -383,8 +378,8 @@ DASHBOARD_STYLE=modern,sleek
 DASHBOARD_NAME="My Media Server"
 DASHBOARD_COLOR=#FF6B6B
 
-# Services in download order
-DASHBOARD_ORDER=TORRENTS,USENET,SEARCH,CONTENT,MEDIA
+# Services in download order: Downloads first, then content, then media
+DASHBOARD_ORDER=QBI,TRA,SAB,SON,RAD,JEL,PLX
 
 # Load Sonarr calendar by default
 DASHBOARD_LANDING=sonarr/calendar
@@ -396,7 +391,7 @@ DASHBOARD_SITES=TPB,YTS,DOG,DRS,NLF
 Result:
 - Modern or sleek layout (user can switch)
 - Red accent color
-- Torrents first, then usenet, search, content, media
+- Download clients first (qBittorrent, Transmission, SABnzbd), then content (Sonarr, Radarr), then media (Jellyfin, Plex)
 - Sonarr calendar appears on load
 - Site shortcuts for popular trackers
 
