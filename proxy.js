@@ -348,6 +348,38 @@ app.get('/api/prowlarr/health', async (req, res) => {
   }
 });
 
+// Jackett health check
+app.get('/api/jackett/health', async (req, res) => {
+  try {
+    const cached = cache.get('jackett-health');
+    if (cached) return res.json(cached);
+
+    const config = services['jackett'];
+    if (!config || !config.url) {
+      return res.status(404).json({ error: 'Jackett not configured' });
+    }
+
+    // Jackett uses /api/v2.0/server/stats for health check
+    const baseUrl = config.url.endsWith('/jackett') ? config.url : `${config.url}/jackett`;
+    const healthUrl = `${baseUrl}/api/v2.0/server/stats`;
+
+    const response = await fetch(healthUrl, {
+      headers: config.key ? { 'X-API-Key': config.key } : {}
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Jackett offline' });
+    }
+
+    const data = await response.json();
+    const result = { status: 'ok', version: data.version };
+    cache.set('jackett-health', result);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // NZBHydra endpoints (GET/POST for compatibility)
 // Just checks if nzbhydra is online - returns empty object since caps endpoint returns XML
 const nzbhydraHandler = async (req, res) => {
