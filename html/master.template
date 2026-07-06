@@ -39,13 +39,11 @@
 [data-layout="storm"] .menu-label,
 [data-layout="storm-violet"] .menu-label,
 [data-layout="vixens"] .menu-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
+    display: block;
+    max-width: 1ch;
+    line-height: 1.2;
+    text-align: center;
     word-break: break-all;
-    width: 1em;
-    line-height: 1;
 }
 </style>
 <script>
