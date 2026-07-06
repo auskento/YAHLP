@@ -586,13 +586,20 @@ async function loadDashboard() {
             // Special handling for Deluge - get session cookie before opening
             if (serviceName === 'Deluge' || href?.includes('8112')) {
                 try {
+                    console.log('[Deluge] Fetching session cookie...');
                     const response = await fetch(`/api/deluge/login`);
                     const data = await response.json();
+                    console.log('[Deluge] Login response:', data);
+
                     if (data.success && data.cookie) {
-                        document.cookie = data.cookie + '; path=/';
+                        console.log('[Deluge] Setting cookie:', data.cookie);
+                        document.cookie = data.cookie;
+                        console.log('[Deluge] Document cookies now:', document.cookie);
+                    } else {
+                        console.warn('[Deluge] Login failed or no cookie:', data);
                     }
                 } catch (err) {
-                    console.warn('Deluge pre-auth failed:', err);
+                    console.error('[Deluge] Pre-auth error:', err);
                 }
             }
 
