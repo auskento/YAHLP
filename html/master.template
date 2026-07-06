@@ -409,7 +409,7 @@ function calculateDynamicIconSize() {
     let iconSize = Math.min(iconSizeFromWidth, iconSizeFromHeight);
 
     // Clamp to reasonable bounds
-    iconSize = Math.max(24, Math.min(200, iconSize));
+    iconSize = Math.max(48, Math.min(200, iconSize));
 
     // Round to nearest multiple of 4 for clean sizing
     iconSize = Math.round(iconSize / 4) * 4;
