@@ -103,7 +103,7 @@ docker run -d \
 | **DASHBOARD_NAME** | Display name | `YAHLP Dashboard` |
 | **DASHBOARD_COLOR** | Hex color | `#00A99D` |
 | **DASHBOARD_STYLE** | Layout option | `modern` |
-| **DASHBOARD_ORDER** | Category order | `CONTENT,SEARCH,USENET,TORRENTS,MEDIA` |
+| **DASHBOARD_ORDER** | Service code order | `JEL,PLX,EMB,SON,RAD,LID,WHI,QBI,TRA,SAB,GET,DEL,HYD,PRO,SEE,BAZ,TAU,MNT` |
 | **DASHBOARD_LANDING** | Default service | Empty (show grid) |
 
 See [DASHBOARD-CUSTOMIZATION.md](DASHBOARD-CUSTOMIZATION.md) for options.
