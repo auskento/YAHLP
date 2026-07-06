@@ -362,14 +362,10 @@ app.get('/api/jackett/health', async (req, res) => {
     // Jackett API endpoint for health check (assumes /jackett baseURL like other proxies)
     const healthUrl = `${config.url}/jackett/api/v2.0/indexers/all/results?apikey=${encodeURIComponent(config.key)}&Query=test`;
 
-    console.log('[Jackett Health Check]', { url: healthUrl });
-
     const response = await fetch(healthUrl);
 
     if (!response.ok) {
-      const errorBody = await response.text();
-      console.log('[Jackett Health Check Error]', { status: response.status, body: errorBody });
-      return res.status(response.status).json({ error: 'Jackett offline', details: errorBody });
+      return res.status(response.status).json({ error: 'Jackett offline' });
     }
 
     const data = await response.json();
