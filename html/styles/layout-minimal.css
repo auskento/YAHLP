@@ -53,6 +53,23 @@
   color: var(--text-primary);
 }
 
+/* Hide separators in minimal layout */
+.menu-separator {
+  display: none !important;
+}
+
+.menu-separator-invisible {
+  display: none !important;
+}
+
+.menu-separator-visible {
+  display: none !important;
+}
+
+.menu-separator-label {
+  display: none !important;
+}
+
 .app-content {
   flex: 1;
   display: flex;
