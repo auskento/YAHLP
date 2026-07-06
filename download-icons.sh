@@ -21,7 +21,6 @@ declare -A ICON_URLS=(
     [RADARR]="${ICON_URL_RADARR}"
     [WHISPARR]="${ICON_URL_WHISPARR}"
     [LIDARR]="${ICON_URL_LIDARR}"
-    [READARR]="${ICON_URL_READARR}"
     [PROWLARR]="${ICON_URL_PROWLARR}"
     [SEERR]="${ICON_URL_SEERR}"
     [JELLYFIN]="${ICON_URL_JELLYFIN}"
@@ -153,6 +152,14 @@ for service_key in "${!ICON_URLS[@]}"; do
         fi
     fi
 done
+
+# DASHBOARD icon special handling - fall back to yahlp.png if not found
+if [ ! -f "$ICONS_DIR/dashboard.png" ] && [ ! -f "$ICONS_DIR/dashboard-custom.png" ] && [ ! -f "$ICONS_DIR/dashboard-custom.jpg" ]; then
+    if [ -f "$ICONS_DIR/yahlp.png" ]; then
+        ln -sf yahlp.png "$ICONS_DIR/dashboard.png" 2>/dev/null || cp "$ICONS_DIR/yahlp.png" "$ICONS_DIR/dashboard.png"
+        echo "  ✓ DASHBOARD: Using default yahlp icon"
+    fi
+fi
 
 echo ""
 
