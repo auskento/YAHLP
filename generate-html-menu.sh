@@ -131,6 +131,7 @@ declare -A SERVICES=(
     [SABNZBD]="USENET|SABnzbd|Usenet downloads|/icons/sabnzbd.png|/sabnzbd/|#f5c20f"
     [NZBGET]="USENET|NZBGet|Usenet downloads|/icons/nzbget.png|/nzbget/|#3da7e0"
     [NZBHYDRA]="USENET|NZBHydra|NZB indexer|/icons/nzbhydra.png|/nzbhydra/|#3e9c7d"
+    [JACKETT]="USENET|Jackett|Torrent/Usenet indexer|/icons/jackett.png|/jackett/|#0d47a1"
 
     # TORRENTS category
     [DELUGE]="TORRENTS|Deluge|Torrent client|/icons/deluge.png|/deluge/|#3aa3e0"
@@ -205,7 +206,7 @@ SERVICES[WHISPARR]="CONTENT|Whisparr|Adult content|/icons/whisparr.png|$WHISPARR
 # Service display order (same order for both menus)
 declare -a SERVICE_ORDER=(
     # USENET
-    "SABNZBD" "NZBGET" "NZBHYDRA"
+    "SABNZBD" "NZBGET" "NZBHYDRA" "JACKETT"
     # TORRENTS
     "DELUGE" "TRANSMISSION" "QBITTORRENT"
     # CONTENT
