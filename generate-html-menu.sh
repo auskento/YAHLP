@@ -221,6 +221,7 @@ declare -A SERVICE_CODE_MAP=(
     [SAB]="SABNZBD"
     [GET]="NZBGET"
     [HYD]="NZBHYDRA"
+    [JAC]="JACKETT"
     [TRA]="TRANSMISSION"
     [QBI]="QBITTORRENT"
     [DEL]="DELUGE"

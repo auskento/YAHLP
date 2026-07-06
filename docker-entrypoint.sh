@@ -108,6 +108,7 @@ ENABLE_SABNZBD="${SABNZBD_ENABLED:-false}"
 ENABLE_NZBGET="${NZBGET_ENABLED:-false}"
 ENABLE_DELUGE="${DELUGE_ENABLED:-false}"
 ENABLE_NZBHYDRA="${NZBHYDRA_ENABLED:-false}"
+ENABLE_JACKETT="${JACKETT_ENABLED:-false}"
 ENABLE_PROWLARR="${PROWLARR_ENABLED:-false}"
 ENABLE_SEERR="${SEERR_ENABLED:-false}"
 ENABLE_BAZARR="${BAZARR_ENABLED:-false}"
@@ -188,6 +189,8 @@ NZBGET_USERNAME="${NZBGET_USERNAME:-}"
 NZBGET_PASSWORD="${NZBGET_PASSWORD:-}"
 NZBHYDRA_URL="${NZBHYDRA_URL:-}"
 NZBHYDRA_API_KEY="${NZBHYDRA_API_KEY:-}"
+JACKETT_URL="${JACKETT_URL:-}"
+JACKETT_API_KEY="${JACKETT_API_KEY:-}"
 PROWLARR_URL="${PROWLARR_URL:-}"
 PROWLARR_API_KEY="${PROWLARR_API_KEY:-}"
 SEERR_URL="${SEERR_URL:-}"
@@ -313,7 +316,7 @@ fi
 echo "Substituting service URLs in config files..."
 
 # List of all services (matching json5 service names)
-SERVICES="jellyfin plex emby sonarr radarr lidarr whisparr qbittorrent transmission sabnzbd nzbget deluge nzbhydra prowlarr seerr bazarr tautulli maintainerr"
+SERVICES="jellyfin plex emby sonarr radarr lidarr whisparr qbittorrent transmission sabnzbd nzbget deluge nzbhydra jackett prowlarr seerr bazarr tautulli maintainerr"
 
 for service in $SERVICES; do
     # Use tr for portable uppercase conversion (${var^^} doesn't work in all bash versions)
