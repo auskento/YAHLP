@@ -4,519 +4,18 @@
   <Repository>auskento/yahlp</Repository>
   <Registry>https://hub.docker.com/r/auskento/yahlp</Registry>
   <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
   <Privileged>false</Privileged>
-  <Support>https://github.com/auskento/YAHLP/issues</Support>
-  <Overview>YAHLP - Yet Another Home Lab Portal. A reverse proxy dashboard for managing home lab services with API integrations, authentication, and custom styling.</Overview>
-  <Category>Network:Proxy</Category>
-  <WebUI>https://[IP]:[PORT:443]</WebUI>
+  <Support>https://github.com/auskento/YAHLP</Support>
+  <Project>https://github.com/auskento/YAHLP</Project>
+  <Category>Network:Web</Category>
   <TemplateURL>https://raw.githubusercontent.com/auskento/YAHLP/main/unraid/yahlp-full.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/auskento/YAHLP/main/html/icons/yahlp.png</Icon>
-  <Description>YAHLP Dashboard - Complete configuration with all available services and settings</Description>
-
-  <Variables>
-    <!-- TESTING -->
-    <Variable>
-      <Name>TEST_MODE</Name>
-      <Description>Enable test mode for debugging</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <!-- DEPLOYMENT SETTINGS -->
-    <Variable>
-      <Name>ACCESS_MODE</Name>
-      <Description>Deployment mode: public (internet) or private (internal network)</Description>
-      <Default>private</Default>
-      <Type>dropdown</Type>
-      <Value>public</Value>
-      <Value>private</Value>
-    </Variable>
-
-    <Variable>
-      <Name>DOMAIN</Name>
-      <Description>Domain name for public mode</Description>
-      <Default></Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>EMAIL</Name>
-      <Description>Email for SSL certificates (public mode)</Description>
-      <Default></Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>IP</Name>
-      <Description>Server IP address (private mode)</Description>
-      <Default></Default>
-      <Type>string</Type>
-    </Variable>
-
-    <!-- DASHBOARD SETTINGS -->
-    <Variable>
-      <Name>DASHBOARD_NAME</Name>
-      <Description>Dashboard display name</Description>
-      <Default>YAHLP Dashboard</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>DASHBOARD_COLOR</Name>
-      <Description>Dashboard color (hex format)</Description>
-      <Default>#00A99D</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>DASHBOARD_STYLE</Name>
-      <Description>Dashboard layout style</Description>
-      <Default>modern</Default>
-      <Type>dropdown</Type>
-      <Value>classic</Value>
-      <Value>modern</Value>
-      <Value>storm</Value>
-      <Value>storm-violet</Value>
-      <Value>neon</Value>
-      <Value>focus</Value>
-      <Value>vixens</Value>
-      <Value>minimal</Value>
-    </Variable>
-
-    <Variable>
-      <Name>DASHBOARD_LOCKED</Name>
-      <Description>Lock dashboard style (prevent layout switching)</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>DASHBOARD_ORDER</Name>
-      <Description>Service display order (comma-separated codes)</Description>
-      <Default>JEL,PLX,EMB,SON,RAD,LID,WHI,QBI,TRA,SAB,GET,DEL,HYD,PRO,SEE,JAC,BAZ,TAU,MNT</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>DASHBOARD_LANDING</Name>
-      <Description>Default landing page (service path or empty for grid)</Description>
-      <Default></Default>
-      <Type>string</Type>
-    </Variable>
-
-    <!-- AUTHENTICATION SETTINGS -->
-    <Variable>
-      <Name>AUTHTYPE</Name>
-      <Description>Authentication method</Description>
-      <Default>none</Default>
-      <Type>dropdown</Type>
-      <Value>none</Value>
-      <Value>basic</Value>
-      <Value>google</Value>
-      <Value>entra</Value>
-    </Variable>
-
-    <Variable>
-      <Name>BASIC_AUTH_USER</Name>
-      <Description>Basic auth username (if AUTHTYPE=basic)</Description>
-      <Default></Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>BASIC_AUTH_PASS</Name>
-      <Description>Basic auth password (if AUTHTYPE=basic)</Description>
-      <Default></Default>
-      <Type>password</Type>
-    </Variable>
-
-    <Variable>
-      <Name>GOOGLE_CLIENT_ID</Name>
-      <Description>Google OAuth Client ID (if AUTHTYPE=google)</Description>
-      <Default></Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>GOOGLE_CLIENT_SECRET</Name>
-      <Description>Google OAuth Client Secret (if AUTHTYPE=google)</Description>
-      <Default></Default>
-      <Type>password</Type>
-    </Variable>
-
-    <Variable>
-      <Name>GOOGLE_REDIRECT_URI</Name>
-      <Description>Google OAuth Redirect URI (if AUTHTYPE=google)</Description>
-      <Default></Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENTRA_CLIENT_ID</Name>
-      <Description>Azure Entra Client ID (if AUTHTYPE=entra)</Description>
-      <Default></Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENTRA_CLIENT_SECRET</Name>
-      <Description>Azure Entra Client Secret (if AUTHTYPE=entra)</Description>
-      <Default></Default>
-      <Type>password</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENTRA_TENANT_ID</Name>
-      <Description>Azure Entra Tenant ID (if AUTHTYPE=entra)</Description>
-      <Default></Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENTRA_REDIRECT_URI</Name>
-      <Description>Azure Entra Redirect URI (if AUTHTYPE=entra)</Description>
-      <Default></Default>
-      <Type>string</Type>
-    </Variable>
-
-    <!-- SERVICE SETTINGS -->
-    <Variable>
-      <Name>ENABLE_JELLYFIN</Name>
-      <Description>Enable Jellyfin media server</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>JELLYFIN_URL</Name>
-      <Description>Jellyfin service URL</Description>
-      <Default>http://jellyfin:8096</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_PLEX</Name>
-      <Description>Enable Plex media server</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>PLEX_URL</Name>
-      <Description>Plex service URL</Description>
-      <Default>http://plex:32400</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_EMBY</Name>
-      <Description>Enable Emby media server</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>EMBY_URL</Name>
-      <Description>Emby service URL</Description>
-      <Default>http://emby:8096</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_SONARR</Name>
-      <Description>Enable Sonarr TV management</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>SONARR_URL</Name>
-      <Description>Sonarr service URL</Description>
-      <Default>http://sonarr:8989</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_RADARR</Name>
-      <Description>Enable Radarr movie management</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>RADARR_URL</Name>
-      <Description>Radarr service URL</Description>
-      <Default>http://radarr:7878</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_LIDARR</Name>
-      <Description>Enable Lidarr music management</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>LIDARR_URL</Name>
-      <Description>Lidarr service URL</Description>
-      <Default>http://lidarr:8686</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_WHISPARR</Name>
-      <Description>Enable Whisparr audiobook management</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>WHISPARR_URL</Name>
-      <Description>Whisparr service URL</Description>
-      <Default>http://whisparr:6969</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_PROWLARR</Name>
-      <Description>Enable Prowlarr indexer management</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>PROWLARR_URL</Name>
-      <Description>Prowlarr service URL</Description>
-      <Default>http://prowlarr:9696</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>PROWLARR_API_KEY</Name>
-      <Description>Prowlarr API key</Description>
-      <Default></Default>
-      <Type>password</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_JACKETT</Name>
-      <Description>Enable Jackett indexer aggregator</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>JACKETT_URL</Name>
-      <Description>Jackett service URL (without /jackett path)</Description>
-      <Default>http://jackett:9117</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>JACKETT_API_KEY</Name>
-      <Description>Jackett API key</Description>
-      <Default></Default>
-      <Type>password</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_SEERR</Name>
-      <Description>Enable Seerr media requests</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>SEERR_URL</Name>
-      <Description>Seerr service URL</Description>
-      <Default>http://seerr:5055</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>SEERR_API_KEY</Name>
-      <Description>Seerr API key</Description>
-      <Default></Default>
-      <Type>password</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_QBITTORRENT</Name>
-      <Description>Enable qBittorrent torrent client</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>QBITTORRENT_URL</Name>
-      <Description>qBittorrent service URL</Description>
-      <Default>http://qbittorrent:8080</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>QBITTORRENT_API_KEY</Name>
-      <Description>qBittorrent API key</Description>
-      <Default></Default>
-      <Type>password</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_TRANSMISSION</Name>
-      <Description>Enable Transmission torrent client</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>TRANSMISSION_URL</Name>
-      <Description>Transmission service URL</Description>
-      <Default>http://transmission:9091</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_DELUGE</Name>
-      <Description>Enable Deluge torrent client</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>DELUGE_URL</Name>
-      <Description>Deluge service URL</Description>
-      <Default>http://deluge:8112</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>DELUGE_API_KEY</Name>
-      <Description>Deluge password (for authentication)</Description>
-      <Default></Default>
-      <Type>password</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_SABNZBD</Name>
-      <Description>Enable SABnzbd usenet client</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>SABNZBD_URL</Name>
-      <Description>SABnzbd service URL</Description>
-      <Default>http://sabnzbd:8080</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>SABNZBD_API_KEY</Name>
-      <Description>SABnzbd API key</Description>
-      <Default></Default>
-      <Type>password</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_NZBGET</Name>
-      <Description>Enable NZBget usenet client</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>NZBGET_URL</Name>
-      <Description>NZBget service URL</Description>
-      <Default>http://nzbget:6789</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>NZBGET_USER</Name>
-      <Description>NZBget username</Description>
-      <Default>nzbget</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>NZBGET_PASS</Name>
-      <Description>NZBget password</Description>
-      <Default></Default>
-      <Type>password</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_NZBHYDRA</Name>
-      <Description>Enable NZBHydra2 usenet meta-search</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>NZBHYDRA_URL</Name>
-      <Description>NZBHydra service URL</Description>
-      <Default>http://nzbhydra:5076</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>NZBHYDRA_API_KEY</Name>
-      <Description>NZBHydra API key</Description>
-      <Default></Default>
-      <Type>password</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_TAUTULLI</Name>
-      <Description>Enable Tautulli Plex monitoring</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>TAUTULLI_URL</Name>
-      <Description>Tautulli service URL</Description>
-      <Default>http://tautulli:8181</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>TAUTULLI_API_KEY</Name>
-      <Description>Tautulli API key</Description>
-      <Default></Default>
-      <Type>password</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_MAINTAINERR</Name>
-      <Description>Enable Maintainerr library maintenance</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>MAINTAINERR_URL</Name>
-      <Description>Maintainerr service URL</Description>
-      <Default>http://maintainerr:6246</Default>
-      <Type>string</Type>
-    </Variable>
-
-    <Variable>
-      <Name>ENABLE_BAZARR</Name>
-      <Description>Enable Bazarr subtitle management</Description>
-      <Default>false</Default>
-      <Type>boolean</Type>
-    </Variable>
-
-    <Variable>
-      <Name>BAZARR_URL</Name>
-      <Description>Bazarr service URL</Description>
-      <Default>http://bazarr:6767</Default>
-      <Type>string</Type>
-    </Variable>
-
-  </Variables>
+  <WebUI>https://[IP]:[PORT:443]</WebUI>
+  <CloudSync>false</CloudSync>
+  <Description>YAHLP - Yet Another Home Lab Portal. Complete dashboard with ALL services and settings available.</Description>
+  <Overview>YAHLP Dashboard - Complete Master Template with ALL available configuration options for services, authentication, and dashboard customization.</Overview>
 
   <Networking>
     <Mode>bridge</Mode>
@@ -525,36 +24,340 @@
         <HostPort>80</HostPort>
         <ContainerPort>80</ContainerPort>
         <Protocol>tcp</Protocol>
+        <Description>HTTP</Description>
+        <Access>External</Access>
       </Port>
       <Port>
         <HostPort>443</HostPort>
         <ContainerPort>443</ContainerPort>
         <Protocol>tcp</Protocol>
+        <Description>HTTPS</Description>
+        <Access>External</Access>
       </Port>
     </Publish>
   </Networking>
 
   <Data>
     <Volume>
-      <HostPath>/mnt/user/appdata/yahlp</HostPath>
-      <ContainerPath>/etc/letsencrypt</ContainerPath>
+      <HostDir>/mnt/user/appdata/yahlp/letsencrypt</HostDir>
+      <ContainerDir>/etc/letsencrypt</ContainerDir>
       <Mode>rw</Mode>
+      <Description>SSL Certificates</Description>
+      <Access>rw</Access>
     </Volume>
     <Volume>
-      <HostPath>/mnt/user/appdata/yahlp/config</HostPath>
-      <ContainerPath>/etc/yahlp</ContainerPath>
+      <HostDir>/mnt/user/appdata/yahlp/config</HostDir>
+      <ContainerDir>/etc/yahlp</ContainerDir>
       <Mode>rw</Mode>
+      <Description>Configuration Files</Description>
+      <Access>rw</Access>
     </Volume>
   </Data>
 
   <Environment>
+    <!-- TESTING -->
+    <Variable>
+      <Name>TEST_MODE</Name>
+      <Value>false</Value>
+    </Variable>
+
+    <!-- DEPLOYMENT SETTINGS -->
+    <Variable>
+      <Name>ACCESS_MODE</Name>
+      <Value>private</Value>
+    </Variable>
+    <Variable>
+      <Name>DOMAIN</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>EMAIL</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>IP</Name>
+      <Value></Value>
+    </Variable>
+
+    <!-- DASHBOARD SETTINGS -->
+    <Variable>
+      <Name>DASHBOARD_NAME</Name>
+      <Value>YAHLP Dashboard</Value>
+    </Variable>
+    <Variable>
+      <Name>DASHBOARD_COLOR</Name>
+      <Value>#00A99D</Value>
+    </Variable>
+    <Variable>
+      <Name>DASHBOARD_STYLE</Name>
+      <Value>modern</Value>
+    </Variable>
+    <Variable>
+      <Name>DASHBOARD_LOCKED</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>DASHBOARD_ORDER</Name>
+      <Value>JEL,PLX,EMB,SON,RAD,LID,WHI,QBI,TRA,SAB,GET,DEL,HYD,PRO,SEE,JAC,BAZ,TAU,MNT</Value>
+    </Variable>
+    <Variable>
+      <Name>DASHBOARD_LANDING</Name>
+      <Value></Value>
+    </Variable>
+
+    <!-- AUTHENTICATION SETTINGS -->
+    <Variable>
+      <Name>AUTHTYPE</Name>
+      <Value>none</Value>
+    </Variable>
+    <Variable>
+      <Name>BASIC_AUTH_USER</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>BASIC_AUTH_PASS</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>GOOGLE_CLIENT_ID</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>GOOGLE_CLIENT_SECRET</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>GOOGLE_REDIRECT_URI</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>ENTRA_CLIENT_ID</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>ENTRA_CLIENT_SECRET</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>ENTRA_TENANT_ID</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>ENTRA_REDIRECT_URI</Name>
+      <Value></Value>
+    </Variable>
+
+    <!-- MEDIA SERVERS -->
+    <Variable>
+      <Name>ENABLE_JELLYFIN</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>JELLYFIN_URL</Name>
+      <Value>http://jellyfin:8096</Value>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_PLEX</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>PLEX_URL</Name>
+      <Value>http://plex:32400</Value>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_EMBY</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>EMBY_URL</Name>
+      <Value>http://emby:8096</Value>
+    </Variable>
+
+    <!-- PVR MANAGERS -->
+    <Variable>
+      <Name>ENABLE_SONARR</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>SONARR_URL</Name>
+      <Value>http://sonarr:8989</Value>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_RADARR</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>RADARR_URL</Name>
+      <Value>http://radarr:7878</Value>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_LIDARR</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>LIDARR_URL</Name>
+      <Value>http://lidarr:8686</Value>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_WHISPARR</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>WHISPARR_URL</Name>
+      <Value>http://whisparr:6969</Value>
+    </Variable>
+
+    <!-- INDEXERS & SEARCH -->
+    <Variable>
+      <Name>ENABLE_PROWLARR</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>PROWLARR_URL</Name>
+      <Value>http://prowlarr:9696</Value>
+    </Variable>
+    <Variable>
+      <Name>PROWLARR_API_KEY</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_JACKETT</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>JACKETT_URL</Name>
+      <Value>http://jackett:9117</Value>
+    </Variable>
+    <Variable>
+      <Name>JACKETT_API_KEY</Name>
+      <Value></Value>
+    </Variable>
+
+    <!-- REQUEST MANAGEMENT -->
+    <Variable>
+      <Name>ENABLE_SEERR</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>SEERR_URL</Name>
+      <Value>http://seerr:5055</Value>
+    </Variable>
+    <Variable>
+      <Name>SEERR_API_KEY</Name>
+      <Value></Value>
+    </Variable>
+
+    <!-- TORRENT CLIENTS -->
+    <Variable>
+      <Name>ENABLE_QBITTORRENT</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>QBITTORRENT_URL</Name>
+      <Value>http://qbittorrent:8080</Value>
+    </Variable>
+    <Variable>
+      <Name>QBITTORRENT_API_KEY</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_TRANSMISSION</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>TRANSMISSION_URL</Name>
+      <Value>http://transmission:9091</Value>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_DELUGE</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>DELUGE_URL</Name>
+      <Value>http://deluge:8112</Value>
+    </Variable>
+    <Variable>
+      <Name>DELUGE_API_KEY</Name>
+      <Value></Value>
+    </Variable>
+
+    <!-- USENET CLIENTS -->
+    <Variable>
+      <Name>ENABLE_SABNZBD</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>SABNZBD_URL</Name>
+      <Value>http://sabnzbd:8080</Value>
+    </Variable>
+    <Variable>
+      <Name>SABNZBD_API_KEY</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_NZBGET</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>NZBGET_URL</Name>
+      <Value>http://nzbget:6789</Value>
+    </Variable>
+    <Variable>
+      <Name>NZBGET_USER</Name>
+      <Value>nzbget</Value>
+    </Variable>
+    <Variable>
+      <Name>NZBGET_PASS</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_NZBHYDRA</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>NZBHYDRA_URL</Name>
+      <Value>http://nzbhydra:5076</Value>
+    </Variable>
+    <Variable>
+      <Name>NZBHYDRA_API_KEY</Name>
+      <Value></Value>
+    </Variable>
+
+    <!-- MANAGEMENT TOOLS -->
+    <Variable>
+      <Name>ENABLE_TAUTULLI</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>TAUTULLI_URL</Name>
+      <Value>http://tautulli:8181</Value>
+    </Variable>
+    <Variable>
+      <Name>TAUTULLI_API_KEY</Name>
+      <Value></Value>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_MAINTAINERR</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>MAINTAINERR_URL</Name>
+      <Value>http://maintainerr:6246</Value>
+    </Variable>
+    <Variable>
+      <Name>ENABLE_BAZARR</Name>
+      <Value>false</Value>
+    </Variable>
+    <Variable>
+      <Name>BAZARR_URL</Name>
+      <Value>http://bazarr:6767</Value>
+    </Variable>
+
+    <!-- ENVIRONMENT -->
     <Variable>
       <Name>TZ</Name>
       <Value>Etc/UTC</Value>
     </Variable>
   </Environment>
-
-  <LogPath>/var/log/apache2</LogPath>
-  <Shell>sh</Shell>
 
 </Container>
