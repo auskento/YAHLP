@@ -14,7 +14,7 @@ Complete setup guides for all 18 supported services.
 | PRO | Prowlarr | Search | 9696 | Optional API Key |
 | BAZ | Bazarr | Search | 6767 | Optional API Key |
 | SAB | SABnzbd | Usenet | 8080 | Optional API Key |
-| GET | NZBGet | Usenet | 6789 | Optional API Key |
+| GET | NZBGet | Usenet | 6789 | Optional Username/Password |
 | HYD | NZBHydra | Usenet | 5076 | Optional API Key |
 | TRA | Transmission | Torrents | 6969 | None |
 | QBI | qBittorrent | Torrents | 8080 | Required API Key |
@@ -295,8 +295,15 @@ nzbget:
 ```bash
 ENABLE_NZBGET=true
 NZBGET_URL=http://nzbget:6789
-NZBGET_API_KEY=your-api-key  # Optional
+NZBGET_USERNAME=your-username  # Optional
+NZBGET_PASSWORD=your-password  # Optional
 ```
+
+**Authentication:**
+- NZBGet uses HTTP Basic Authentication
+- Username and password are from NZBGet's settings
+- Default: `nzbget` / `tegbzn6789` (change in NZBGet web UI)
+- Leave empty if auth disabled in NZBGet
 
 **URL:** `https://yourdomain.com/nzbget`
 
