@@ -131,7 +131,6 @@ declare -A SERVICES=(
     [SABNZBD]="USENET|SABnzbd|Usenet downloads|/icons/sabnzbd.png|/sabnzbd/|#f5c20f"
     [NZBGET]="USENET|NZBGet|Usenet downloads|/icons/nzbget.png|/nzbget/|#3da7e0"
     [NZBHYDRA]="USENET|NZBHydra|NZB indexer|/icons/nzbhydra.png|/nzbhydra/|#3e9c7d"
-    [JACKETT]="USENET|Jackett|Torrent/Usenet indexer|/icons/jackett.png|/jackett/|#0d47a1"
 
     # TORRENTS category
     [DELUGE]="TORRENTS|Deluge|Torrent client|/icons/deluge.png|/deluge/|#3aa3e0"
@@ -146,6 +145,7 @@ declare -A SERVICES=(
 
     # SEARCH category
     [SEERR]="SEARCH|Seerr|Requests|/icons/seerr.png|SUBDOMAIN|#00a4dc"
+    [JACKETT]="SEARCH|Jackett|Indexer aggregator|/icons/jackett.png|/jackett/|#0d47a1"
     [PROWLARR]="SEARCH|Prowlarr|Indexer manager|/icons/prowlarr.png|/prowlarr/|#e8810e"
     [BAZARR]="SEARCH|Bazarr|Subtitles|/icons/bazarr.png|/bazarr/|#e91e63"
 
@@ -206,13 +206,13 @@ SERVICES[WHISPARR]="CONTENT|Whisparr|Adult content|/icons/whisparr.png|$WHISPARR
 # Service display order (same order for both menus)
 declare -a SERVICE_ORDER=(
     # USENET
-    "SABNZBD" "NZBGET" "NZBHYDRA" "JACKETT"
+    "SABNZBD" "NZBGET" "NZBHYDRA"
     # TORRENTS
     "DELUGE" "TRANSMISSION" "QBITTORRENT"
     # CONTENT
     "SONARR" "RADARR" "LIDARR" "WHISPARR"
     # SEARCH
-    "SEERR" "PROWLARR" "BAZARR"
+    "SEERR" "JACKETT" "PROWLARR" "BAZARR"
     # MEDIA
     "EMBY" "PLEX" "JELLYFIN" "TAUTULLI" "MAINTAINERR"
 )
