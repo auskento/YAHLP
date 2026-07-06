@@ -451,14 +451,6 @@ function calculateDynamicIconSize() {
 
     // Set CSS variable for icon sizing
     document.documentElement.style.setProperty('--dynamic-icon-size', iconSize + 'px');
-
-    console.log('[Icon Sizing]', {
-        availableSpace: `${availableWidth}x${availableHeight}`,
-        iconCount,
-        colsPerRow,
-        rowsNeeded,
-        calculatedIconSize: iconSize
-    });
 }
 
 // Recalculate on window resize
