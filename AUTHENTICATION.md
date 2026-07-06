@@ -152,6 +152,27 @@ By default, YAHLP accepts any Google account. To restrict to specific accounts:
 - Edit Apache auth config manually
 - Or request additional configuration support
 
+### Service-Specific OAuth (Emby, Plex, Seerr)
+
+If using Google OAuth, you can configure individual services to have their own OAuth subdomains:
+
+```bash
+# Add these to your OAuth provider's redirect URIs
+https://emby.example.com/oauth2callback
+https://plex.example.com/oauth2callback
+https://seerr.example.com/oauth2callback
+
+# And configure in YAHLP
+EMBY_DOMAIN=emby.example.com
+EMBY_REDIRECT_URI=https://emby.example.com/oauth2callback
+PLEX_DOMAIN=plex.example.com
+PLEX_REDIRECT_URI=https://plex.example.com/oauth2callback
+SEERR_DOMAIN=seerr.example.com
+SEERR_REDIRECT_URI=https://seerr.example.com/oauth2callback
+```
+
+Users can then access these services directly at their subdomains with single sign-on.
+
 ---
 
 ## Entra ID / Azure AD
@@ -238,6 +259,27 @@ To allow only users in a specific Azure AD group:
 2. Add users to the group
 3. Note the group ID
 4. Modify Apache auth to check group membership (advanced)
+
+### Service-Specific OAuth (Emby, Plex, Seerr)
+
+If using Entra ID OAuth, you can configure individual services to have their own OAuth subdomains:
+
+```bash
+# Add these to your Azure app's redirect URIs
+https://emby.example.com/oauth2callback
+https://plex.example.com/oauth2callback
+https://seerr.example.com/oauth2callback
+
+# And configure in YAHLP
+EMBY_DOMAIN=emby.example.com
+EMBY_REDIRECT_URI=https://emby.example.com/oauth2callback
+PLEX_DOMAIN=plex.example.com
+PLEX_REDIRECT_URI=https://plex.example.com/oauth2callback
+SEERR_DOMAIN=seerr.example.com
+SEERR_REDIRECT_URI=https://seerr.example.com/oauth2callback
+```
+
+Users can then access these services directly at their subdomains with single sign-on using their Entra ID credentials.
 
 ---
 

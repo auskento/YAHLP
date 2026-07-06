@@ -267,6 +267,7 @@ ENABLE_SEERR=true
 SEERR_URL=http://seerr:5055
 SEERR_API_KEY=your-api-key  # Optional
 SEERR_DOMAIN=seerr.example.com  # For public subdomain
+SEERR_REDIRECT_URI=https://seerr.example.com/oauth2callback  # For Google/Entra OAuth
 ```
 
 #### Prowlarr (PRO)
@@ -345,6 +346,7 @@ ENABLE_EMBY=true
 EMBY_URL=http://emby:8096
 EMBY_API_KEY=your-api-key  # Optional
 EMBY_DOMAIN=emby.example.com  # For public subdomain
+EMBY_REDIRECT_URI=https://emby.example.com/oauth2callback  # For Google/Entra OAuth
 ```
 
 #### Plex (PLX)
@@ -353,6 +355,7 @@ ENABLE_PLEX=true
 PLEX_URL=http://plex:32400
 PLEX_API_KEY=your-api-key  # Optional
 PLEX_DOMAIN=plex.example.com  # For public subdomain
+PLEX_REDIRECT_URI=https://plex.example.com/oauth2callback  # For Google/Entra OAuth
 ```
 
 #### Tautulli (TAU)
