@@ -35,6 +35,7 @@ declare -A ICON_URLS=(
     [DELUGE]="${ICON_URL_DELUGE}"
     [NZBGET]="${ICON_URL_NZBGET}"
     [NZBHYDRA]="${ICON_URL_NZBHYDRA}"
+    [JACKETT]="${ICON_URL_JACKETT}"
 )
 
 # Service name to lowercase path converter
@@ -144,10 +145,10 @@ for service_key in "${!ICON_URLS[@]}"; do
     else
         # No custom URL provided, check for default bundled PNG
         if [ -f "$default_file" ]; then
-            echo "  ✓ Using default icon"
+            echo "  ✓ $service_name: Using bundled icon"
             ((default_count++))
         else
-            echo "  (no custom URL, default icon not found - will use generated SVG)"
+            echo "  ⚠️  $service_name: No bundled icon found - will use generated SVG"
             ((missing_count++))
         fi
     fi
