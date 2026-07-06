@@ -1,0 +1,388 @@
+# Authentication Guide
+
+Complete setup instructions for all authentication methods.
+
+## Table of Contents
+1. [No Authentication](#no-authentication)
+2. [Basic Authentication](#basic-authentication)
+3. [Google OAuth](#google-oauth)
+4. [Entra ID / Azure AD](#entra-id--azure-ad)
+5. [Troubleshooting](#troubleshooting)
+
+---
+
+## No Authentication
+
+No login required. All users can access all services.
+
+**Best for:** Personal home labs, trusted home networks.
+
+### Configuration
+```bash
+AUTHTYPE=none
+```
+
+### What's Protected
+- All services accessible without login
+- Apache reverse proxy still active
+- Services still private from external internet (if using firewall)
+
+### Deploy
+```bash
+docker-compose up -d
+# Access dashboard immediately at https://yourdomain.com or https://192.168.x.x
+```
+
+---
+
+## Basic Authentication
+
+Simple username/password authentication. Users prompted for credentials on login.
+
+**Best for:** Family setups, small team, simple protection.
+
+### Configuration
+
+#### Single User
+```bash
+AUTHTYPE=basic
+BASIC_AUTH_CREDENTIALS=admin:secretpassword123
+```
+
+#### Multiple Users
+Separate credentials with pipe `|`:
+```bash
+AUTHTYPE=basic
+BASIC_AUTH_CREDENTIALS=alice:password1|bob:password2|charlie:password3
+```
+
+### Deploy
+```bash
+# Update .env with credentials
+AUTHTYPE=basic
+BASIC_AUTH_CREDENTIALS=myuser:mypassword
+
+# Restart to apply
+docker-compose up -d
+```
+
+### Access
+- Navigate to `https://yourdomain.com`
+- Browser prompts for username/password
+- Enter credentials set in BASIC_AUTH_CREDENTIALS
+- Dashboard loads
+
+### Change Credentials
+```bash
+# Edit .env
+BASIC_AUTH_CREDENTIALS=newuser:newpassword
+
+# Restart
+docker-compose restart yahlp
+```
+
+### Password Requirements
+- Avoid special characters that might break shell parsing
+- Use quotes if necessary: `BASIC_AUTH_CREDENTIALS="user:pass@word"`
+
+---
+
+## Google OAuth
+
+Secure login using Google accounts. Users sign in with their Google credentials.
+
+**Best for:** Personal use, Google Workspace integration.
+
+### Prerequisites
+- Google Cloud Console access
+- Google account or Google Workspace domain
+
+### Step 1: Create Google OAuth Credentials
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create new project: "YAHLP"
+3. Enable OAuth 2.0:
+   - Search for "Google+ API"
+   - Click "ENABLE"
+4. Create OAuth 2.0 credentials:
+   - Click "Create Credentials" → "OAuth client ID"
+   - Choose "Web application"
+   - Add authorized redirect URIs:
+     - `https://yourdomain.com/auth/oauth2/callback`
+     - `https://yourdomain.com` (if it fails redirect)
+   - Copy Client ID and Client Secret
+
+### Step 2: Configure YAHLP
+
+```bash
+AUTHTYPE=google
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+GOOGLE_REDIRECT_URI=https://yourdomain.com
+```
+
+### Step 3: Deploy
+
+```bash
+# Update .env with your values
+vim .env
+
+# Restart
+docker-compose up -d
+```
+
+### Access
+
+1. Navigate to `https://yourdomain.com`
+2. Redirects to Google login
+3. Sign in with Google account
+4. Authorize YAHLP access
+5. Redirected to dashboard
+
+### Allow Multiple Google Accounts
+
+By default, YAHLP accepts any Google account. To restrict to specific accounts:
+- Edit Apache auth config manually
+- Or request additional configuration support
+
+---
+
+## Entra ID / Azure AD
+
+Enterprise SSO using Microsoft Azure Active Directory.
+
+**Best for:** Enterprise networks, Microsoft 365/Office 365 integration, company-wide access.
+
+### Prerequisites
+- Azure subscription or Microsoft 365 admin access
+- Active Directory domain
+
+### Step 1: Register Application in Azure
+
+1. Go to [Azure Portal](https://portal.azure.com)
+2. Navigate to: Azure Active Directory → App registrations
+3. Click "New registration"
+4. Fill in:
+   - **Name:** YAHLP
+   - **Supported account types:** "Accounts in this organizational directory only"
+   - **Redirect URI:** 
+     - Platform: Web
+     - URI: `https://yourdomain.com/auth/oauth2/callback`
+5. Click "Register"
+
+### Step 2: Get Credentials
+
+In the app registration page:
+
+1. **Client ID** - shown in Overview tab
+2. **Client Secret** - Create new:
+   - Go to "Certificates & secrets"
+   - Click "New client secret"
+   - Copy the secret value (only visible once)
+
+### Step 3: Get Metadata URL
+
+1. In app registration, go to "Endpoints"
+2. Copy "OpenID Connect metadata document"
+3. Should look like:
+   ```
+   https://login.microsoftonline.com/{tenant-id}/v2.0/.well-known/openid-configuration
+   ```
+
+### Step 4: Configure YAHLP
+
+```bash
+AUTHTYPE=entra
+ENTRA_CLIENT_ID=your-client-id
+ENTRA_CLIENT_SECRET=your-client-secret
+ENTRA_REDIRECT_URI=https://yourdomain.com/auth/oauth2/callback
+ENTRA_PROVIDER_METADATA_URL=https://login.microsoftonline.com/{tenant-id}/v2.0/.well-known/openid-configuration
+```
+
+### Step 5: Deploy
+
+```bash
+# Update .env with your values
+vim .env
+
+# Restart
+docker-compose up -d
+```
+
+### Access
+
+1. Navigate to `https://yourdomain.com`
+2. Redirects to Microsoft login page
+3. Sign in with Office 365/Azure AD credentials
+4. Approve YAHLP access (first time only)
+5. Redirected to dashboard
+
+### Restrict to Specific Groups (Optional)
+
+To allow only users in a specific Azure AD group:
+1. Create security group in Azure AD
+2. Add users to the group
+3. Note the group ID
+4. Modify Apache auth to check group membership (advanced)
+
+---
+
+## Switching Authentication Methods
+
+### From No Auth → Basic Auth
+```bash
+# Edit .env
+AUTHTYPE=basic
+BASIC_AUTH_CREDENTIALS=user:password
+
+# Restart
+docker-compose up -d
+
+# Next access will require login
+```
+
+### From Basic Auth → Google
+```bash
+# Edit .env
+AUTHTYPE=google
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+GOOGLE_REDIRECT_URI=https://yourdomain.com
+
+# Restart
+docker-compose up -d
+
+# Next access will redirect to Google login
+```
+
+### From OAuth → No Auth
+```bash
+# Edit .env
+AUTHTYPE=none
+
+# Restart
+docker-compose up -d
+
+# No login required immediately
+```
+
+---
+
+## Troubleshooting
+
+### Login Not Working
+
+**Problem:** OAuth redirects to login but never returns to dashboard
+
+**Solutions:**
+1. Verify redirect URI in OAuth app matches exactly:
+   - Should be: `https://yourdomain.com/auth/oauth2/callback`
+   - Check trailing slashes, http vs https
+2. Verify domain DNS resolves: `nslookup yourdomain.com`
+3. Verify domain certificate is valid: Check browser address bar
+4. Check logs: `docker-compose logs yahlp | grep -i auth`
+
+### "Invalid Client ID" or "Client ID Not Found"
+
+**Problem:** OAuth provider rejects client credentials
+
+**Solutions:**
+1. Verify client ID is copied correctly (no extra spaces)
+2. Verify in correct OAuth app settings
+3. Regenerate client secret if needed
+4. Ensure credentials are in .env, not hardcoded in docker-compose.yml
+
+### Basic Auth Not Prompting
+
+**Problem:** Set `AUTHTYPE=basic` but no password prompt appears
+
+**Solutions:**
+1. Wait 2-5 minutes for container to restart
+2. Force refresh: Ctrl+Shift+R (hard refresh)
+3. Clear browser cookies/cache for the domain
+4. Check credentials format: `username:password`
+5. Verify no special shell characters: Use quotes if needed
+
+### "Access Denied" After Login
+
+**Problem:** Successfully logged in but can't access services
+
+**Solutions:**
+1. Check service is actually running: `docker-compose ps`
+2. Check service URL in .env is correct
+3. Check Apache logs: `docker-compose logs yahlp | grep denied`
+4. Verify network connectivity between YAHLP and service
+
+### Google Says "Redirect URI Mismatch"
+
+**Problem:** Google OAuth shows redirect URI mismatch error
+
+**Solutions:**
+1. Verify redirect URI in Google Cloud Console exactly matches:
+   - Should match: `https://yourdomain.com/auth/oauth2/callback`
+   - Add both with and without trailing slash if needed
+2. Verify domain name doesn't have typos
+3. Verify HTTPS is working (certificate valid)
+
+### Entra/Azure AD Not Redirecting
+
+**Problem:** Click login but nothing happens
+
+**Solutions:**
+1. Verify metadata URL is correct and accessible:
+   ```bash
+   curl "https://login.microsoftonline.com/your-tenant-id/v2.0/.well-known/openid-configuration"
+   ```
+2. Verify client ID and secret are correct
+3. Check app registration allows the redirect URI
+4. Verify user has access (check Azure AD assignments)
+
+---
+
+## Session Management
+
+### Login Session Timeout
+
+Sessions expire after browser closes or if idle for extended period (depends on OAuth provider).
+
+To re-login: Simply navigate to dashboard again.
+
+### Logout
+
+For OAuth methods, logout means clearing browser cookies. Reloading dashboard will require re-login.
+
+For basic auth, use private/incognito browsing to test logout.
+
+### Concurrent Users
+
+All authentication methods support multiple concurrent users:
+- Each user gets their own session
+- Sessions are independent
+- No session limit
+
+---
+
+## Security Best Practices
+
+✅ **DO:**
+- Use HTTPS (automatic with public mode)
+- Use strong passwords for basic auth
+- Review OAuth app permissions in cloud console
+- Monitor access logs regularly
+- Use OAuth2 for multi-user setups
+- Restrict Azure AD to specific groups if possible
+
+❌ **DON'T:**
+- Store credentials in docker-compose.yml (use .env)
+- Use simple passwords (basic auth)
+- Share OAuth client secrets
+- Mix auth methods (use one)
+- Expose services without authentication
+
+---
+
+## See Also
+
+- [CONFIGURATION.md](CONFIGURATION.md) - Auth configuration reference
+- [INSTALLATION.md](INSTALLATION.md) - Initial setup
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - General troubleshooting
