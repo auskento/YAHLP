@@ -174,6 +174,20 @@ DASHBOARD_STYLE=modern,custom1   # Built-in modern + custom1 layout
 - **Required for:** `AUTHTYPE=entra`
 - **Format:** `https://login.microsoftonline.com/{tenant-id}/v2.0/.well-known/openid-configuration`
 
+### ENTRA_CRYPTO_PASSPHRASE
+- **Type:** String (base64 passphrase)
+- **Required for:** `AUTHTYPE=entra`
+- **Default:** Auto-generated on first run
+- **Description:** Encrypts session cookies for OAuth2 sessions
+- **When to set:**
+  - Leave empty for auto-generation (recommended)
+  - Set if you need persistent passphrase across container restarts
+- **Generate:** `openssl rand -base64 24`
+- **Example:**
+  ```bash
+  ENTRA_CRYPTO_PASSPHRASE=abc123def456ghi789jkl012mnopqrstuv=
+  ```
+
 ### GOOGLE_CLIENT_ID
 - **Type:** String
 - **Required for:** `AUTHTYPE=google`
@@ -190,6 +204,16 @@ DASHBOARD_STYLE=modern,custom1   # Built-in modern + custom1 layout
 - **Type:** URL
 - **Required for:** `AUTHTYPE=google`
 - **Format:** `https://yourdomain.com` (must match Google Console)
+
+### GOOGLE_CRYPTO_PASSPHRASE
+- **Type:** String (base64 passphrase)
+- **Required for:** `AUTHTYPE=google`
+- **Default:** Auto-generated on first run
+- **Description:** Encrypts session cookies for OAuth2 sessions
+- **When to set:**
+  - Leave empty for auto-generation (recommended)
+  - Set if you need persistent passphrase across container restarts
+- **Generate:** `openssl rand -base64 24`
 
 See [AUTHENTICATION.md](AUTHENTICATION.md) for detailed setup.
 
