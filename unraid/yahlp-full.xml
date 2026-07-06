@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Container version="2">
+  <Name>YAHLP</Name>
+  <Repository>auskento/yahlp</Repository>
+  <Registry>https://hub.docker.com/r/auskento/yahlp</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/auskento/YAHLP</Support>
+  <Project>https://github.com/auskento/YAHLP</Project>
+  <Overview>YAHLP - Yet Another HomeLab Portal. A production-ready reverse proxy dashboard for managing homelab applications with automatic HTTPS, flexible authentication, and customizable layouts.</Overview>
+  <Category>Network:Web</Category>
+  <WebUI>https://[IP]:[PORT:443]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/auskento/YAHLP/main/unraid/yahlp-full.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/auskento/YAHLP/main/yahlp-256.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <DonateText/>
+  <DonateLink/>
+  <Description>
+YAHLP provides a unified dashboard and reverse proxy for your homelab services including Sonarr, Radarr, Jellyfin, Plex, qBittorrent, and more.
+
+Key Features:
+- Automatic HTTPS via Let's Encrypt
+- Multiple authentication methods (Basic, Entra ID, Google OAuth)
+- 5 customizable dashboard layouts
+- Service health monitoring
+- 18 supported services
+- Custom service ordering
+  </Description>
+
+  <!-- DEPLOYMENT MODE -->
+  <Variable Name="ACCESS_MODE" Value="public" Label="Access Mode" Description="public (internet-accessible) or private (internal only)">
+    <Value>public</Value>
+    <Value>private</Value>
+  </Variable>
+
+  <!-- DOMAIN & EMAIL (Public Mode) -->
+  <Variable Name="DOMAIN" Value="" Label="Domain Name" Description="Your domain name (e.g., example.com) - Required for public mode" />
+  <Variable Name="EMAIL" Value="" Label="Email Address" Description="Email for Let's Encrypt certificate notifications" />
+  <Variable Name="IP" Value="" Label="IP Address" Description="Internal IP for private mode (e.g., 192.168.1.100) - Required for private mode" />
+
+  <!-- DASHBOARD CUSTOMIZATION -->
+  <Variable Name="DASHBOARD_NAME" Value="YAHLP Dashboard" Label="Dashboard Name" Description="Display name for your dashboard" />
+  <Variable Name="DASHBOARD_COLOR" Value="#00A99D" Label="Dashboard Color" Description="Accent color in hex format (e.g., #00A99D)" />
+  <Variable Name="DASHBOARD_STYLE" Value="modern" Label="Dashboard Style" Description="Comma-separated list of styles to build (classic,modern,sleek,minimal) or style:only to lock to one style">
+    <Value>classic</Value>
+    <Value>modern</Value>
+    <Value>sleek</Value>
+    <Value>minimal</Value>
+    <Value>classic,modern</Value>
+    <Value>modern,sleek</Value>
+    <Value>modern:only</Value>
+    <Value>classic:only</Value>
+  </Variable>
+  <Variable Name="DASHBOARD_ORDER" Value="CONTENT,SEARCH,USENET,TORRENTS,MEDIA" Label="Dashboard Service Order" Description="Comma-separated category order: CONTENT, SEARCH, USENET, TORRENTS, MEDIA" />
+  <Variable Name="DASHBOARD_LANDING" Value="" Label="Landing Page" Description="Default service to show on startup (e.g., sonarr/calendar, radarr, jellyfin)" />
+
+  <!-- AUTHENTICATION -->
+  <Variable Name="AUTHTYPE" Value="none" Label="Authentication Method" Description="none, basic, entra, or google">
+    <Value>none</Value>
+    <Value>basic</Value>
+    <Value>entra</Value>
+    <Value>google</Value>
+  </Variable>
+
+  <!-- BASIC AUTH -->
+  <Variable Name="BASIC_AUTH_CREDENTIALS" Value="" Label="Basic Auth Credentials" Description="Format: user1:pass1|user2:pass2 (pipe-separated for multiple users)" />
+
+  <!-- ENTRA/AZURE AD -->
+  <Variable Name="ENTRA_CLIENT_ID" Value="" Label="Entra Client ID" Description="Azure application ID" />
+  <Variable Name="ENTRA_CLIENT_SECRET" Value="" Label="Entra Client Secret" Description="Azure application secret" />
+  <Variable Name="ENTRA_REDIRECT_URI" Value="" Label="Entra Redirect URI" Description="https://yourdomain.com/auth/oauth2/callback" />
+  <Variable Name="ENTRA_PROVIDER_METADATA_URL" Value="" Label="Entra Metadata URL" Description="https://login.microsoftonline.com/{tenant-id}/v2.0/.well-known/openid-configuration" />
+
+  <!-- GOOGLE OAUTH -->
+  <Variable Name="GOOGLE_CLIENT_ID" Value="" Label="Google Client ID" Description="Google OAuth 2.0 Client ID" />
+  <Variable Name="GOOGLE_CLIENT_SECRET" Value="" Label="Google Client Secret" Description="Google OAuth 2.0 Client Secret" />
+  <Variable Name="GOOGLE_REDIRECT_URI" Value="" Label="Google Redirect URI" Description="https://yourdomain.com" />
+
+  <!-- CONTENT SERVICES -->
+  <Variable Name="ENABLE_SONARR" Value="false" Label="Enable Sonarr" Description="TV series management">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="SONARR_URL" Value="" Label="Sonarr URL" Description="http://sonarr:8989" />
+
+  <Variable Name="ENABLE_RADARR" Value="false" Label="Enable Radarr" Description="Movie management">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="RADARR_URL" Value="" Label="Radarr URL" Description="http://radarr:7878" />
+
+  <Variable Name="ENABLE_LIDARR" Value="false" Label="Enable Lidarr" Description="Music management">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="LIDARR_URL" Value="" Label="Lidarr URL" Description="http://lidarr:8686" />
+
+  <Variable Name="ENABLE_WHISPARR" Value="false" Label="Enable Whisparr" Description="Adult content management">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="WHISPARR_URL" Value="" Label="Whisparr URL" Description="http://whisparr:6969" />
+
+  <!-- SEARCH SERVICES -->
+  <Variable Name="ENABLE_PROWLARR" Value="false" Label="Enable Prowlarr" Description="Indexer manager">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="PROWLARR_URL" Value="" Label="Prowlarr URL" Description="http://prowlarr:9696" />
+
+  <Variable Name="ENABLE_SEERR" Value="false" Label="Enable Seerr" Description="Media requests">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="SEERR_URL" Value="" Label="Seerr URL" Description="http://seerr:5055" />
+  <Variable Name="SEERR_DOMAIN" Value="" Label="Seerr Domain" Description="Optional: subdomain for public access" />
+
+  <Variable Name="ENABLE_BAZARR" Value="false" Label="Enable Bazarr" Description="Subtitle management">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="BAZARR_URL" Value="" Label="Bazarr URL" Description="http://bazarr:6767" />
+
+  <!-- USENET SERVICES -->
+  <Variable Name="ENABLE_SABNZBD" Value="false" Label="Enable SABnzbd" Description="Usenet downloader">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="SABNZBD_URL" Value="" Label="SABnzbd URL" Description="http://sabnzbd:8080" />
+
+  <Variable Name="ENABLE_NZBGET" Value="false" Label="Enable NZBGet" Description="Usenet downloader">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="NZBGET_URL" Value="" Label="NZBGet URL" Description="http://nzbget:6789" />
+
+  <Variable Name="ENABLE_NZBHYDRA" Value="false" Label="Enable NZBHydra" Description="NZB indexer proxy">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="NZBHYDRA_URL" Value="" Label="NZBHydra URL" Description="http://nzbhydra:5076" />
+
+  <!-- TORRENT SERVICES -->
+  <Variable Name="ENABLE_TRANSMISSION" Value="false" Label="Enable Transmission" Description="Torrent client">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="TRANSMISSION_URL" Value="" Label="Transmission URL" Description="http://transmission:6969" />
+
+  <Variable Name="ENABLE_QBITTORRENT" Value="false" Label="Enable qBittorrent" Description="Torrent client">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="QBITTORRENT_URL" Value="" Label="qBittorrent URL" Description="http://qbittorrent:8080" />
+  <Variable Name="QBITTORRENT_API_KEY" Value="" Label="qBittorrent API Key" Description="API key from qBittorrent settings" />
+
+  <Variable Name="ENABLE_DELUGE" Value="false" Label="Enable Deluge" Description="Torrent client">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="DELUGE_URL" Value="" Label="Deluge URL" Description="http://deluge:8112" />
+  <Variable Name="DELUGE_PASSWORD" Value="" Label="Deluge Password" Description="Deluge web UI password" />
+
+  <!-- MEDIA SERVERS -->
+  <Variable Name="ENABLE_JELLYFIN" Value="false" Label="Enable Jellyfin" Description="Open-source media server">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="JELLYFIN_URL" Value="" Label="Jellyfin URL" Description="http://jellyfin:8096" />
+
+  <Variable Name="ENABLE_EMBY" Value="false" Label="Enable Emby" Description="Commercial media server">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="EMBY_URL" Value="" Label="Emby URL" Description="http://emby:8096" />
+  <Variable Name="EMBY_DOMAIN" Value="" Label="Emby Domain" Description="Optional: subdomain for public access" />
+
+  <Variable Name="ENABLE_PLEX" Value="false" Label="Enable Plex" Description="Popular media server">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="PLEX_URL" Value="" Label="Plex URL" Description="http://plex:32400" />
+  <Variable Name="PLEX_DOMAIN" Value="" Label="Plex Domain" Description="Optional: subdomain for public access" />
+
+  <Variable Name="ENABLE_TAUTULLI" Value="false" Label="Enable Tautulli" Description="Plex media server monitoring">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="TAUTULLI_URL" Value="" Label="Tautulli URL" Description="http://tautulli:8181" />
+
+  <Variable Name="ENABLE_MAINTAINERR" Value="false" Label="Enable Maintainerr" Description="Media library maintenance">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="MAINTAINERR_URL" Value="" Label="Maintainerr URL" Description="http://maintainerr:6246" />
+
+  <!-- BUILT-IN SITES -->
+  <Variable Name="DASHBOARD_SITES" Value="" Label="Dashboard Sites" Description="Torrent/Usenet sites (comma-separated: TPB,DOG,DRS,NLF,NFW,NGK,PLA,TAB,FIL,HDB,IPT,1337,YTS,LAT,NYA,PTP)" />
+
+  <!-- PORT MAPPINGS -->
+  <Config Name="HTTP" Target="80" Default="80" Mode="tcp" Description="HTTP port">80</Config>
+  <Config Name="HTTPS" Target="443" Default="443" Mode="tcp" Description="HTTPS port">443</Config>
+
+  <!-- VOLUMES -->
+  <Config Name="AppData" Target="/etc/letsencrypt" Default="/mnt/user/appdata/yahlp" Mode="rw" Description="Let's Encrypt certificates and config">appdata</Config>
+  <Config Name="Config" Target="/etc/yahlp" Default="/mnt/user/appdata/yahlp/config" Mode="rw" Description="YAHLP configuration (yahlp.json5, sites.json5)">config</Config>
+  <Config Name="Logs" Target="/var/log/apache2" Default="/mnt/user/appdata/yahlp/logs" Mode="rw" Description="Apache access and error logs">logs</Config>
+
+  <!-- ENVIRONMENT -->
+  <Environment>
+    <Variable Name="PUID" Value="99" Description="User ID">99</Variable>
+    <Variable Name="PGID" Value="100" Description="Group ID">100</Variable>
+    <Variable Name="TZ" Value="UTC" Description="Timezone">UTC</Variable>
+  </Environment>
+</Container>

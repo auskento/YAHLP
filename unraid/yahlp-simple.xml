@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Container version="2">
+  <Name>YAHLP</Name>
+  <Repository>auskento/yahlp</Repository>
+  <Registry>https://hub.docker.com/r/auskento/yahlp</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/auskento/YAHLP</Support>
+  <Project>https://github.com/auskento/YAHLP</Project>
+  <Overview>YAHLP - Unified HomeLab Portal with reverse proxy, HTTPS, and dashboard for all your services.</Overview>
+  <Category>Network:Web</Category>
+  <WebUI>https://[IP]:[PORT:443]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/auskento/YAHLP/main/unraid/yahlp-simple.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/auskento/YAHLP/main/yahlp-256.png</Icon>
+  <Description>
+YAHLP provides a unified dashboard and secure reverse proxy for homelab services with automatic HTTPS, authentication options, and beautiful customizable layouts.
+
+Supports 18 services: Sonarr, Radarr, Lidarr, Whisparr, Prowlarr, Seerr, Bazarr, SABnzbd, NZBGet, NZBHydra, Transmission, qBittorrent, Deluge, Jellyfin, Emby, Plex, Tautulli, Maintainerr
+
+For full configuration options, use the yahlp-full template or see: https://github.com/auskento/YAHLP
+  </Description>
+
+  <!-- BASIC SETUP -->
+  <Variable Name="ACCESS_MODE" Value="public" Label="Access Mode">
+    <Value>public</Value>
+    <Value>private</Value>
+  </Variable>
+
+  <Variable Name="DOMAIN" Value="" Label="Domain Name (Public Mode)" Description="e.g., example.com" />
+  <Variable Name="EMAIL" Value="" Label="Email (Public Mode)" Description="For Let's Encrypt notifications" />
+  <Variable Name="IP" Value="" Label="Internal IP (Private Mode)" Description="e.g., 192.168.1.100" />
+
+  <!-- DASHBOARD BASICS -->
+  <Variable Name="DASHBOARD_NAME" Value="YAHLP" Label="Dashboard Name" />
+  <Variable Name="DASHBOARD_STYLE" Value="modern" Label="Dashboard Style">
+    <Value>classic</Value>
+    <Value>modern</Value>
+    <Value>sleek</Value>
+    <Value>minimal</Value>
+    <Value>modern:only</Value>
+    <Value>classic:only</Value>
+  </Variable>
+
+  <!-- QUICK SERVICE SETUP -->
+  <Variable Name="ENABLE_SONARR" Value="false" Label="Enable Sonarr">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="SONARR_URL" Value="" Label="Sonarr URL" Description="http://sonarr:8989" />
+
+  <Variable Name="ENABLE_RADARR" Value="false" Label="Enable Radarr">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="RADARR_URL" Value="" Label="Radarr URL" Description="http://radarr:7878" />
+
+  <Variable Name="ENABLE_JELLYFIN" Value="false" Label="Enable Jellyfin">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="JELLYFIN_URL" Value="" Label="Jellyfin URL" Description="http://jellyfin:8096" />
+
+  <Variable Name="ENABLE_QBITTORRENT" Value="false" Label="Enable qBittorrent">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="QBITTORRENT_URL" Value="" Label="qBittorrent URL" Description="http://qbittorrent:8080" />
+  <Variable Name="QBITTORRENT_API_KEY" Value="" Label="qBittorrent API Key" />
+
+  <Variable Name="ENABLE_BAZARR" Value="false" Label="Enable Bazarr">
+    <Value>true</Value>
+    <Value>false</Value>
+  </Variable>
+  <Variable Name="BAZARR_URL" Value="" Label="Bazarr URL" Description="http://bazarr:6767" />
+
+  <!-- AUTHENTICATION -->
+  <Variable Name="AUTHTYPE" Value="none" Label="Authentication">
+    <Value>none</Value>
+    <Value>basic</Value>
+    <Value>entra</Value>
+    <Value>google</Value>
+  </Variable>
+  <Variable Name="BASIC_AUTH_CREDENTIALS" Value="" Label="Basic Auth" Description="Format: user:pass (or user1:pass1|user2:pass2)" />
+
+  <!-- PORTS -->
+  <Config Name="HTTP" Target="80" Default="80" Mode="tcp">80</Config>
+  <Config Name="HTTPS" Target="443" Default="443" Mode="tcp">443</Config>
+
+  <!-- STORAGE -->
+  <Config Name="Config" Target="/etc/letsencrypt" Default="/mnt/user/appdata/yahlp" Mode="rw">appdata</Config>
+
+  <Environment>
+    <Variable Name="PUID" Value="99">99</Variable>
+    <Variable Name="PGID" Value="100">100</Variable>
+    <Variable Name="TZ" Value="UTC">UTC</Variable>
+  </Environment>
+</Container>
