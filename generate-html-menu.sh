@@ -618,6 +618,25 @@ generate_html() {
     # Generate CSS-based templates
     generate_css_based_templates
 
+    # Update DirectoryIndex in reverse-proxy.conf based on built layouts
+    local directory_index="$DEFAULT_STYLE.html"
+    # Add other built layouts (excluding default and mobile)
+    for layout in "${layouts[@]}"; do
+        if [ "$layout" != "$DEFAULT_STYLE" ] && [ "$layout" != "mobile" ]; then
+            directory_index="$directory_index $layout.html"
+        fi
+    done
+    # Always include mobile at the end
+    if [ "${layouts[@]}" != *"mobile"* ]; then
+        directory_index="$directory_index mobile.html"
+    fi
+
+    # Update DirectoryIndex in reverse-proxy.conf if it exists
+    if [ -f /etc/apache2/sites-available/reverse-proxy.conf ]; then
+        sed -i "s/DirectoryIndex .*/DirectoryIndex $directory_index/" /etc/apache2/sites-available/reverse-proxy.conf
+        echo "Updated DirectoryIndex: $directory_index"
+    fi
+
     echo ""
     echo "✓ Dashboards generated with $count enabled service(s)"
     echo ""
