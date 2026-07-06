@@ -39,9 +39,8 @@
 [data-layout="storm"] .menu-label,
 [data-layout="storm-violet"] .menu-label,
 [data-layout="vixens"] .menu-label {
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    transform: rotate(180deg);
+    writing-mode: vertical-lr;
+    text-orientation: upright;
 }
 </style>
 <script>
