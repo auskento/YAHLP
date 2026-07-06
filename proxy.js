@@ -359,8 +359,8 @@ app.get('/api/jackett/health', async (req, res) => {
       return res.status(404).json({ error: 'Jackett not configured' });
     }
 
-    // Jackett API endpoint for health check (baseURL is included in config.url)
-    const healthUrl = `${config.url}/api/v2.0/indexers/all/results?apikey=${encodeURIComponent(config.key)}&Query=test`;
+    // Jackett API endpoint for health check (assumes /jackett baseURL like other proxies)
+    const healthUrl = `${config.url}/jackett/api/v2.0/indexers/all/results?apikey=${encodeURIComponent(config.key)}&Query=test`;
 
     console.log('[Jackett Health Check]', { url: healthUrl });
 
