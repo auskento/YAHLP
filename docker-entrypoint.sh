@@ -214,7 +214,7 @@ DASHBOARD_SITES="${DASHBOARD_SITES:-}"
 SSL_PROTOCOLS="${SSL_PROTOCOLS:-all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1}"
 SSL_CIPHERS="${SSL_CIPHERS:-HIGH:!aNULL:!MD5}"
 APACHE_LOG_LEVEL="${APACHE_LOG_LEVEL:-warn}"
-TEST="${TEST:-false}"
+DASHBOARD_TEST="${DASHBOARD_TEST:-false}"
 ENVEOF
 
 echo ""
@@ -284,7 +284,7 @@ echo ""
 echo "=== Test Mode Configuration ==="
 # Setup dry-run flag for certbot if TEST mode is enabled
 DRY_RUN_FLAG=""
-if [ "$TEST" = "true" ]; then
+if [ "$DASHBOARD_TEST" = "true" ]; then
     DRY_RUN_FLAG="--dry-run"
     echo "⚠ TEST mode enabled - using --dry-run with Let's Encrypt (no certificates will be issued)"
 else
