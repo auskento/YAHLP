@@ -1,6 +1,7 @@
 /* Modern Layout: API-inspired sidebar with service grid */
 
 :root {
+  --max-icon-size: 80px;
   --modern-accent: #4a9eff;
   --modern-success: #10b981;
   --modern-warning: #f59e0b;

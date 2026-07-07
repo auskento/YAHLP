@@ -1,5 +1,9 @@
 /* Classic Layout: Menu items in header bar with logo */
 
+:root {
+  --max-icon-size: 144px;
+}
+
 .app {
   flex-direction: column;
 }

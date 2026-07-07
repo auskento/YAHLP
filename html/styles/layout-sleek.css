@@ -1,5 +1,9 @@
 /* Sleek Layout: 2-column sidebar */
 
+:root {
+  --max-icon-size: 100px;
+}
+
 .app {
   flex-direction: row;
   display: flex;
