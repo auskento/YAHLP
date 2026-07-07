@@ -205,16 +205,6 @@ DASHBOARD_STYLE=modern,custom1   # Built-in modern + custom1 layout
 - **Required for:** `AUTHTYPE=google`
 - **Format:** `https://yourdomain.com` (must match Google Console)
 
-### GOOGLE_CRYPTO_PASSPHRASE
-- **Type:** String (base64 passphrase)
-- **Required for:** `AUTHTYPE=google`
-- **Default:** Auto-generated on first run
-- **Description:** Encrypts session cookies for OAuth2 sessions
-- **When to set:**
-  - Leave empty for auto-generation (recommended)
-  - Set if you need persistent passphrase across container restarts
-- **Generate:** `openssl rand -base64 24`
-
 See [AUTHENTICATION.md](AUTHENTICATION.md) for detailed setup.
 
 ---
@@ -234,6 +224,7 @@ Each service has:
 ENABLE_PROWLARR=true
 PROWLARR_URL=http://prowlarr:9696
 PROWLARR_API_KEY=your-api-key  # Optional
+ICON_URL_PROWLARR=  # Optional custom icon URL
 ```
 
 #### Jackett (JAC)
@@ -241,6 +232,7 @@ PROWLARR_API_KEY=your-api-key  # Optional
 ENABLE_JACKETT=true
 JACKETT_URL=http://jackett:9117
 JACKETT_API_KEY=your-api-key  # Optional
+ICON_URL_JACKETT=  # Optional custom icon URL
 ```
 
 #### Sonarr (SON)
@@ -249,6 +241,7 @@ ENABLE_SONARR=true
 SONARR_URL=http://sonarr:8989
 SONARR_API_KEY=your-api-key  # Optional
 SONARR_LANDING=sonarr/calendar  # Optional
+ICON_URL_SONARR=  # Optional custom icon URL
 ```
 
 #### Radarr (RAD)
@@ -257,6 +250,7 @@ ENABLE_RADARR=true
 RADARR_URL=http://radarr:7878
 RADARR_API_KEY=your-api-key  # Optional
 RADARR_LANDING=radarr  # Optional
+ICON_URL_RADARR=  # Optional custom icon URL
 ```
 
 #### Lidarr (LID)
@@ -264,6 +258,7 @@ RADARR_LANDING=radarr  # Optional
 ENABLE_LIDARR=true
 LIDARR_URL=http://lidarr:8686
 LIDARR_API_KEY=your-api-key  # Optional
+ICON_URL_LIDARR=  # Optional custom icon URL
 ```
 
 #### Whisparr (WHI)
@@ -271,6 +266,7 @@ LIDARR_API_KEY=your-api-key  # Optional
 ENABLE_WHISPARR=true
 WHISPARR_URL=http://whisparr:6969
 WHISPARR_API_KEY=your-api-key  # Optional
+ICON_URL_WHISPARR=  # Optional custom icon URL
 ```
 
 ### Infrastructure Services
@@ -280,6 +276,7 @@ WHISPARR_API_KEY=your-api-key  # Optional
 ENABLE_SEERR=true
 SEERR_URL=http://seerr:5055
 SEERR_API_KEY=your-api-key  # Optional
+ICON_URL_SEERR=  # Optional custom icon URL
 ```
 
 #### Bazarr (BAZ)
@@ -287,6 +284,7 @@ SEERR_API_KEY=your-api-key  # Optional
 ENABLE_BAZARR=true
 BAZARR_URL=http://bazarr:6767
 BAZARR_API_KEY=your-api-key  # Optional
+ICON_URL_BAZARR=  # Optional custom icon URL
 ```
 
 #### Tautulli (TAU)
@@ -294,6 +292,7 @@ BAZARR_API_KEY=your-api-key  # Optional
 ENABLE_TAUTULLI=true
 TAUTULLI_URL=http://tautulli:8181
 TAUTULLI_API_KEY=your-api-key  # Optional
+ICON_URL_TAUTULLI=  # Optional custom icon URL
 ```
 
 #### Maintainerr (MNT)
@@ -301,6 +300,7 @@ TAUTULLI_API_KEY=your-api-key  # Optional
 ENABLE_MAINTAINERR=true
 MAINTAINERR_URL=http://maintainerr:6246
 MAINTAINERR_API_KEY=your-api-key  # Optional
+ICON_URL_MAINTAINERR=  # Optional custom icon URL
 ```
 
 ### Usenet Services
@@ -310,6 +310,7 @@ MAINTAINERR_API_KEY=your-api-key  # Optional
 ENABLE_SABNZBD=true
 SABNZBD_URL=http://sabnzbd:8080
 SABNZBD_API_KEY=your-api-key  # Optional
+ICON_URL_SABNZBD=  # Optional custom icon URL
 ```
 
 #### NZBGet (GET)
@@ -318,6 +319,7 @@ ENABLE_NZBGET=true
 NZBGET_URL=http://nzbget:6789
 NZBGET_USERNAME=your-username  # Optional
 NZBGET_PASSWORD=your-password  # Optional
+ICON_URL_NZBGET=  # Optional custom icon URL
 ```
 
 #### NZBHydra (HYD)
@@ -325,6 +327,7 @@ NZBGET_PASSWORD=your-password  # Optional
 ENABLE_NZBHYDRA=true
 NZBHYDRA_URL=http://nzbhydra:5076
 NZBHYDRA_API_KEY=your-api-key  # Optional
+ICON_URL_NZBHYDRA=  # Optional custom icon URL
 ```
 
 ### Torrent Services
@@ -333,6 +336,7 @@ NZBHYDRA_API_KEY=your-api-key  # Optional
 ```bash
 ENABLE_TRANSMISSION=true
 TRANSMISSION_URL=http://transmission:6969
+ICON_URL_TRANSMISSION=  # Optional custom icon URL
 # No auth by default
 ```
 
@@ -341,6 +345,7 @@ TRANSMISSION_URL=http://transmission:6969
 ENABLE_QBITTORRENT=true
 QBITTORRENT_URL=http://qbittorrent:8080
 QBITTORRENT_API_KEY=your-api-key  # Required
+ICON_URL_QBITTORRENT=  # Optional custom icon URL
 ```
 
 #### Deluge (DEL)
@@ -348,6 +353,7 @@ QBITTORRENT_API_KEY=your-api-key  # Required
 ENABLE_DELUGE=true
 DELUGE_URL=http://deluge:8112
 DELUGE_PASSWORD=your-password  # Required
+ICON_URL_DELUGE=  # Optional custom icon URL
 ```
 
 ### Media Services
@@ -357,6 +363,7 @@ DELUGE_PASSWORD=your-password  # Required
 ENABLE_JELLYFIN=true
 JELLYFIN_URL=http://jellyfin:8096
 JELLYFIN_API_KEY=your-api-key  # Optional
+ICON_URL_JELLYFIN=  # Optional custom icon URL
 ```
 
 #### Emby (EMB)
@@ -366,6 +373,7 @@ EMBY_URL=http://emby:8096
 EMBY_API_KEY=your-api-key  # Optional
 EMBY_DOMAIN=emby.example.com  # For public subdomain
 EMBY_REDIRECT_URI=https://emby.example.com/oauth2callback  # For Google/Entra OAuth
+ICON_URL_EMBY=  # Optional custom icon URL
 ```
 
 #### Plex (PLX)
@@ -375,6 +383,7 @@ PLEX_URL=http://plex:32400
 PLEX_API_KEY=your-api-key  # Optional
 PLEX_DOMAIN=plex.example.com  # For public subdomain
 PLEX_REDIRECT_URI=https://plex.example.com/oauth2callback  # For Google/Entra OAuth
+ICON_URL_PLEX=  # Optional custom icon URL
 ```
 
 See [SERVICES.md](SERVICES.md) for detailed service setup.
