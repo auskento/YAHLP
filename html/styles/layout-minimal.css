@@ -1,5 +1,9 @@
 /* Minimal Layout: Single-column sidebar */
 
+:root {
+  --max-icon-size: 80px;
+}
+
 .app {
   flex-direction: row;
   display: flex;

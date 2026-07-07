@@ -1,5 +1,9 @@
 /* Mobile layout - service menu only, centered full-height */
 
+:root {
+  --max-icon-size: 64px;
+}
+
 .app {
     display: flex !important;
     flex-direction: column;
