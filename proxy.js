@@ -809,6 +809,53 @@ app.post('/api/deluge/stats', async (req, res) => {
 });
 
 // Jellyfin endpoints
+app.get('/api/jellyfin/auth', async (req, res) => {
+  try {
+    const config = services['jellyfin'];
+    const username = getConfigValue('jellyfin', 'username');
+    const password = getConfigValue('jellyfin', 'password');
+
+    // If credentials not provided, skip auto-auth
+    if (!username || !password) {
+      return res.json({ authenticated: false });
+    }
+
+    // Check cache first
+    const cached = cache.get('jellyfin-auth-token');
+    if (cached) {
+      return res.json({ authenticated: true, token: cached });
+    }
+
+    // Authenticate with Jellyfin
+    const authResponse = await fetch(`${config.url}/Users/AuthenticateByName`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        Username: username,
+        Pw: password,
+        RememberMe: true
+      })
+    });
+
+    if (!authResponse.ok) {
+      return res.json({ authenticated: false, error: 'Authentication failed' });
+    }
+
+    const authData = await authResponse.json();
+    const token = authData.AccessToken;
+
+    if (token) {
+      // Cache token for 1 hour
+      cache.set('jellyfin-auth-token', token, 3600);
+      res.json({ authenticated: true, token });
+    } else {
+      res.json({ authenticated: false, error: 'No token received' });
+    }
+  } catch (err) {
+    res.status(500).json({ authenticated: false, error: err.message });
+  }
+});
+
 app.get('/api/jellyfin/info', async (req, res) => {
   try {
     const cached = cache.get('jellyfin-info');

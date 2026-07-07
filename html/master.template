@@ -267,6 +267,23 @@ async function initDelugeSession() {
 // Call early on page load
 initDelugeSession();
 
+async function initJellyfinAuth() {
+    try {
+        const response = await fetch(`/api/jellyfin/auth`);
+        const data = await response.json();
+
+        if (data.authenticated && data.token) {
+            // Store token for use when opening Jellyfin
+            sessionStorage.setItem('jellyfin-auth-token', data.token);
+        }
+    } catch (err) {
+        // Fail silently - Jellyfin will use normal login
+    }
+}
+
+// Call early on page load
+initJellyfinAuth();
+
 function updateDateTime() {
     const now = new Date();
     const timeEl = document.getElementById('currentTime');
@@ -615,6 +632,15 @@ async function loadDashboard() {
                     }
                 } catch (err) {
                     console.error('[Deluge] Pre-auth error:', err);
+                }
+            }
+
+            // Special handling for Jellyfin - add auth token if available
+            if (serviceName === 'Jellyfin' || href?.includes('8096')) {
+                const jellyfinToken = sessionStorage.getItem('jellyfin-auth-token');
+                if (jellyfinToken) {
+                    const separator = href.includes('?') ? '&' : '?';
+                    href = href + separator + 'ApiKey=' + jellyfinToken;
                 }
             }
 
