@@ -44,32 +44,32 @@ For full configuration options, use the yahlp-full template or see: https://gith
   </Variable>
 
   <!-- QUICK SERVICE SETUP -->
-  <Variable Name="ENABLE_SONARR" Value="false" Label="Enable Sonarr">
+  <Variable Name="SONARR_ENABLED" Value="false" Label="Enable Sonarr">
     <Value>true</Value>
     <Value>false</Value>
   </Variable>
   <Variable Name="SONARR_URL" Value="" Label="Sonarr URL" Description="http://sonarr:8989" />
 
-  <Variable Name="ENABLE_RADARR" Value="false" Label="Enable Radarr">
+  <Variable Name="RADARR_ENABLED" Value="false" Label="Enable Radarr">
     <Value>true</Value>
     <Value>false</Value>
   </Variable>
   <Variable Name="RADARR_URL" Value="" Label="Radarr URL" Description="http://radarr:7878" />
 
-  <Variable Name="ENABLE_JELLYFIN" Value="false" Label="Enable Jellyfin">
+  <Variable Name="JELLYFIN_ENABLED" Value="false" Label="Enable Jellyfin">
     <Value>true</Value>
     <Value>false</Value>
   </Variable>
   <Variable Name="JELLYFIN_URL" Value="" Label="Jellyfin URL" Description="http://jellyfin:8096" />
 
-  <Variable Name="ENABLE_QBITTORRENT" Value="false" Label="Enable qBittorrent">
+  <Variable Name="QBITTORRENT_ENABLED" Value="false" Label="Enable qBittorrent">
     <Value>true</Value>
     <Value>false</Value>
   </Variable>
   <Variable Name="QBITTORRENT_URL" Value="" Label="qBittorrent URL" Description="http://qbittorrent:8080" />
   <Variable Name="QBITTORRENT_API_KEY" Value="" Label="qBittorrent API Key" />
 
-  <Variable Name="ENABLE_BAZARR" Value="false" Label="Enable Bazarr">
+  <Variable Name="BAZARR_ENABLED" Value="false" Label="Enable Bazarr">
     <Value>true</Value>
     <Value>false</Value>
   </Variable>
@@ -97,3 +97,4 @@ For full configuration options, use the yahlp-full template or see: https://gith
     <Variable Name="TZ" Value="UTC">UTC</Variable>
   </Environment>
 </Container>
+
