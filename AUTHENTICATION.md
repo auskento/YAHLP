@@ -109,6 +109,9 @@ Secure login using Google accounts. Users sign in with their Google credentials.
    - Choose "Web application"
    - Add authorized redirect URIs:
      - `https://yourdomain.com/auth/oauth2/callback`
+     - `https://emby.yourdomain.com/auth/oauth2/callback`
+     - `https://plex.yourdomain.com/auth/oauth2/callback`
+     - `https://emby.yourdomain.com/auth/oauth2/callback`
      - `https://yourdomain.com` (if it fails redirect)
    - Copy Client ID and Client Secret
 
@@ -119,14 +122,7 @@ AUTHTYPE=google
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-client-secret
 GOOGLE_REDIRECT_URI=https://yourdomain.com
-GOOGLE_CRYPTO_PASSPHRASE=your-passphrase-or-leave-blank
 ```
-
-**About GOOGLE_CRYPTO_PASSPHRASE:**
-- Used to encrypt session cookies
-- **Auto-generated** on first run if left empty (recommended for most users)
-- Set only if you need a **persistent** passphrase (e.g., to keep sessions valid across container restarts)
-- Generate with: `openssl rand -base64 24`
 
 ### Step 3: Deploy
 
@@ -158,17 +154,17 @@ If using Google OAuth, you can configure individual services to have their own O
 
 ```bash
 # Add these to your OAuth provider's redirect URIs
-https://emby.example.com/oauth2callback
-https://plex.example.com/oauth2callback
-https://seerr.example.com/oauth2callback
+https://emby.yourdomain.com/oauth2callback
+https://plex.yourdomain.com/oauth2callback
+https://seerr.yourdomain.com/oauth2callback
 
 # And configure in YAHLP
-EMBY_DOMAIN=emby.example.com
-EMBY_REDIRECT_URI=https://emby.example.com/oauth2callback
-PLEX_DOMAIN=plex.example.com
-PLEX_REDIRECT_URI=https://plex.example.com/oauth2callback
-SEERR_DOMAIN=seerr.example.com
-SEERR_REDIRECT_URI=https://seerr.example.com/oauth2callback
+EMBY_DOMAIN=emby.yourdomain.com
+EMBY_REDIRECT_URI=https://emby.yourdomain.com/oauth2callback
+PLEX_DOMAIN=plex.yourdomain.com
+PLEX_REDIRECT_URI=https://plex.yourdomain.com/oauth2callback
+SEERR_DOMAIN=seerr.yourdomain.com
+SEERR_REDIRECT_URI=https://seerr.yourdomain.com/oauth2callback
 ```
 
 Users can then access these services directly at their subdomains with single sign-on.
@@ -187,7 +183,7 @@ Enterprise SSO using Microsoft Azure Active Directory.
 
 ### Step 1: Register Application in Azure
 
-1. Go to [Azure Portal](https://portal.azure.com)
+1. Go to [Entra Portal](https://entra.microsoft.com)
 2. Navigate to: Azure Active Directory → App registrations
 3. Click "New registration"
 4. Fill in:
@@ -196,6 +192,7 @@ Enterprise SSO using Microsoft Azure Active Directory.
    - **Redirect URI:** 
      - Platform: Web
      - URI: `https://yourdomain.com/auth/oauth2/callback`
+
 5. Click "Register"
 
 ### Step 2: Get Credentials
@@ -225,14 +222,8 @@ ENTRA_CLIENT_ID=your-client-id
 ENTRA_CLIENT_SECRET=your-client-secret
 ENTRA_REDIRECT_URI=https://yourdomain.com/auth/oauth2/callback
 ENTRA_PROVIDER_METADATA_URL=https://login.microsoftonline.com/{tenant-id}/v2.0/.well-known/openid-configuration
-ENTRA_CRYPTO_PASSPHRASE=your-passphrase-or-leave-blank
+ENTRA_CRYPTO_PASSPHRASE=Generated in Entra app registration
 ```
-
-**About ENTRA_CRYPTO_PASSPHRASE:**
-- Used to encrypt session cookies
-- **Auto-generated** on first run if left empty (recommended for most users)
-- Set only if you need a **persistent** passphrase (e.g., to keep sessions valid across container restarts)
-- Generate with: `openssl rand -base64 24`
 
 ### Step 5: Deploy
 
@@ -266,17 +257,17 @@ If using Entra ID OAuth, you can configure individual services to have their own
 
 ```bash
 # Add these to your Azure app's redirect URIs
-https://emby.example.com/oauth2callback
-https://plex.example.com/oauth2callback
-https://seerr.example.com/oauth2callback
+https://emby.yourdomain.com/oauth2callback
+https://plex.yourdomain.com/oauth2callback
+https://seerr.yourdomain.com/oauth2callback
 
 # And configure in YAHLP
-EMBY_DOMAIN=emby.example.com
-EMBY_REDIRECT_URI=https://emby.example.com/oauth2callback
-PLEX_DOMAIN=plex.example.com
-PLEX_REDIRECT_URI=https://plex.example.com/oauth2callback
-SEERR_DOMAIN=seerr.example.com
-SEERR_REDIRECT_URI=https://seerr.example.com/oauth2callback
+EMBY_DOMAIN=emby.yourdomain.com
+EMBY_REDIRECT_URI=https://emby.yourdomain.com/oauth2callback
+PLEX_DOMAIN=plex.yourdomain.com
+PLEX_REDIRECT_URI=https://plex.yourdomain.com/oauth2callback
+SEERR_DOMAIN=seerr.yourdomain.com
+SEERR_REDIRECT_URI=https://seerr.yourdomain.com/oauth2callback
 ```
 
 Users can then access these services directly at their subdomains with single sign-on using their Entra ID credentials.

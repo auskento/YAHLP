@@ -95,9 +95,8 @@
 
   // Check AUTHENTICATION.md to see how to create the credentials for Google and Entra
   // Google OAuth Configuration (if auth.type is 'google')
-  // Environment Variables: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, GOOGLE_CRYPTO_PASSPHRASE
-
-  /*
+  // Environment Variables: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, 
+  
   google: {
     client_id: 'your-google-client-id',
     client_secret: 'your-google-client-secret',
@@ -106,7 +105,7 @@
   */
 
   // Entra/Azure AD Configuration (if auth.type is 'entra')
-  // Environment Variables: ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET, ENTRA_REDIRECT_URI, ENTRA_PROVIDER_METADATA_URL, ENTRA_CRYPTO_PASSPHRASE, ENTRA_METADATA_URL
+  // Environment Variables: ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET, ENTRA_REDIRECT_URI, ENTRA_PROVIDER_METADATA_URL, ENTRA_CRYPTO_PASSPHRASE
   /*
   entra: {
     client_id: 'your-entra-client-id',
@@ -120,15 +119,15 @@
   // Service Configurations
   // Each service can be enabled/disabled with the 'enabled' field
   // Services have different required parameters based on type
-  // General format: ENABLE_{SERVICE}, {SERVICE}_URL, {SERVICE}_API_KEY, ICON_URL_{SERVICE}
+  // General format: ENABLE_{SERVICE}, {SERVICE}_URL, {SERVICE}_API_KEY, SERVICE_ICON_URL_{SERVICE}
   services: {
     // ========== Media Servers ==========
-    // Env: ENABLE_JELLYFIN, JELLYFIN_URL, JELLYFIN_API_KEY, ICON_URL_JELLYFIN
-    // Env: ENABLE_PLEX, PLEX_URL, PLEX_API_KEY, ICON_URL_PLEX
-    // Env: ENABLE_EMBY, EMBY_URL, EMBY_API_KEY, ICON_URL_EMBY
+    // Env: ENABLE_JELLYFIN, JELLYFIN_URL, JELLYFIN_API_KEY, SERVICE_ICON_URL_JELLYFIN
+    // Env: ENABLE_PLEX, PLEX_URL, PLEX_API_KEY, SERVICE_ICON_URL_PLEX
+    // Env: ENABLE_EMBY, EMBY_URL, EMBY_API_KEY, SERVICE_ICON_URL_EMBY
 
     // Jellyfin: Media Server
-    // Env: ENABLE_JELLYFIN, JELLYFIN_URL, JELLYFIN_API_KEY, ICON_URL_JELLYFIN
+    // Env: ENABLE_JELLYFIN, JELLYFIN_URL, JELLYFIN_API_KEY, SERVICE_ICON_URL_JELLYFIN
     jellyfin: {
       enabled: true,
       url: 'http://jellyfin:8096',
@@ -138,7 +137,7 @@
 
     // Plex: Media Server
     // Requires: domain_name and redirect_uri for authentication
-    // Env: ENABLE_PLEX, PLEX_URL, PLEX_API_KEY, ICON_URL_PLEX
+    // Env: ENABLE_PLEX, PLEX_URL, PLEX_API_KEY, SERVICE_ICON_URL_PLEX
     plex: {
       enabled: true,
       url: 'http://plex:32400',
@@ -150,7 +149,7 @@
 
     // Emby: Media Server
     // Requires: domain_name and redirect_uri for authentication
-    // Env: ENABLE_EMBY, EMBY_URL, EMBY_API_KEY, ICON_URL_EMBY
+    // Env: ENABLE_EMBY, EMBY_URL, EMBY_API_KEY, SERVICE_ICON_URL_EMBY
     emby: {
       enabled: false,
       url: 'http://emby:8096',
@@ -161,12 +160,12 @@
     },
 
     // ========== Usenet Services ==========
-    // Env: ENABLE_SABNZBD, SABNZBD_URL, SABNZBD_API_KEY, ICON_URL_SABNZBD
-    // Env: ENABLE_NZBGET, NZBGET_URL, NZBGET_USER, NZBGET_PASS, ICON_URL_NZBGET
-    // Env: ENABLE_NZBHYDRA, NZBHYDRA_URL, NZBHYDRA_API_KEY, ICON_URL_NZBHYDRA
+    // Env: ENABLE_SABNZBD, SABNZBD_URL, SABNZBD_API_KEY, SERVICE_ICON_URL_SABNZBD
+    // Env: ENABLE_NZBGET, NZBGET_URL, NZBGET_USER, NZBGET_PASS, SERVICE_ICON_URL_NZBGET
+    // Env: ENABLE_NZBHYDRA, NZBHYDRA_URL, NZBHYDRA_API_KEY, SERVICE_ICON_URL_NZBHYDRA
 
     // SABnzbd: Usenet Client
-    // Env: ENABLE_SABNZBD, SABNZBD_URL, SABNZBD_API_KEY, ICON_URL_SABNZBD
+    // Env: ENABLE_SABNZBD, SABNZBD_URL, SABNZBD_API_KEY, SERVICE_ICON_URL_SABNZBD
     sabnzbd: {
       enabled: false,
       url: 'http://sabnzbd:8080',
@@ -176,7 +175,7 @@
 
     // NZBGet: Usenet Client
     // Requires: username + password (not api_key)
-    // Env: ENABLE_NZBGET, NZBGET_URL, NZBGET_USER, NZBGET_PASS, ICON_URL_NZBGET
+    // Env: ENABLE_NZBGET, NZBGET_URL, NZBGET_USER, NZBGET_PASS, SERVICE_ICON_URL_NZBGET
     nzbget: {
       enabled: false,
       url: 'http://nzbget:6789',
@@ -186,7 +185,7 @@
     },
 
     // NZBHydra2: Usenet Meta-Search
-    // Env: ENABLE_NZBHYDRA, NZBHYDRA_URL, NZBHYDRA_API_KEY, ICON_URL_NZBHYDRA
+    // Env: ENABLE_NZBHYDRA, NZBHYDRA_URL, NZBHYDRA_API_KEY, SERVICE_ICON_URL_NZBHYDRA
     nzbhydra: {
       enabled: false,
       url: 'http://nzbhydra:5076',
@@ -195,13 +194,13 @@
     },
 
     // ========== Torrent Services ==========
-    // Env: ENABLE_TRANSMISSION, TRANSMISSION_URL, ICON_URL_TRANSMISSION
-    // Env: ENABLE_QBITTORRENT, QBITTORRENT_URL, QBITTORRENT_API_KEY, ICON_URL_QBITTORRENT
-    // Env: ENABLE_DELUGE, DELUGE_URL, DELUGE_API_KEY, ICON_URL_DELUGE
+    // Env: ENABLE_TRANSMISSION, TRANSMISSION_URL, SERVICE_ICON_URL_TRANSMISSION
+    // Env: ENABLE_QBITTORRENT, QBITTORRENT_URL, QBITTORRENT_API_KEY, SERVICE_ICON_URL_QBITTORRENT
+    // Env: ENABLE_DELUGE, DELUGE_URL, DELUGE_API_KEY, SERVICE_ICON_URL_DELUGE
 
     // Transmission: Torrent Client
     // Requires: URL only (no authentication needed)
-    // Env: ENABLE_TRANSMISSION, TRANSMISSION_URL, ICON_URL_TRANSMISSION
+    // Env: ENABLE_TRANSMISSION, TRANSMISSION_URL, SERVICE_ICON_URL_TRANSMISSION
     transmission: {
       enabled: false,
       url: 'http://transmission:9091',
@@ -210,7 +209,7 @@
 
     // qBittorrent: Torrent Client
     // Requires: API key (no username/password)
-    // Env: ENABLE_QBITTORRENT, QBITTORRENT_URL, QBITTORRENT_API_KEY, ICON_URL_QBITTORRENT
+    // Env: ENABLE_QBITTORRENT, QBITTORRENT_URL, QBITTORRENT_API_KEY, SERVICE_ICON_URL_QBITTORRENT
     qbittorrent: {
       enabled: false,
       url: 'http://qbittorrent:8080',
@@ -220,7 +219,7 @@
 
     // Deluge: Torrent Client
     // Requires: password (for web UI login)
-    // Env: ENABLE_DELUGE, DELUGE_URL, DELUGE_API_KEY, ICON_URL_DELUGE
+    // Env: ENABLE_DELUGE, DELUGE_URL, DELUGE_API_KEY, SERVICE_ICON_URL_DELUGE
     deluge: {
       enabled: false,
       url: 'http://deluge:8112',
@@ -228,15 +227,15 @@
       icon_url: '', // URL for alternate deluge icon    },
 
     // ========== Search & Automation Services ==========
-    // Env: ENABLE_PROWLARR, PROWLARR_URL, PROWLARR_API_KEY, ICON_URL_PROWLARR
-    // Env: ENABLE_JACKETT, JACKETT_URL, JACKETT_API_KEY, ICON_URL_JACKETT
-    // Env: ENABLE_SONARR, SONARR_URL, SONARR_API_KEY, ICON_URL_SONARR
-    // Env: ENABLE_RADARR, RADARR_URL, RADARR_API_KEY, ICON_URL_RADARR
-    // Env: ENABLE_LIDARR, LIDARR_URL, LIDARR_API_KEY, ICON_URL_LIDARR
-    // Env: ENABLE_WHISPARR, WHISPARR_URL, WHISPARR_API_KEY, ICON_URL_WHISPARR
+    // Env: ENABLE_PROWLARR, PROWLARR_URL, PROWLARR_API_KEY, SERVICE_ICON_URL_PROWLARR
+    // Env: ENABLE_JACKETT, JACKETT_URL, JACKETT_API_KEY, SERVICE_ICON_URL_JACKETT
+    // Env: ENABLE_SONARR, SONARR_URL, SONARR_API_KEY, SERVICE_ICON_URL_SONARR
+    // Env: ENABLE_RADARR, RADARR_URL, RADARR_API_KEY, SERVICE_ICON_URL_RADARR
+    // Env: ENABLE_LIDARR, LIDARR_URL, LIDARR_API_KEY, SERVICE_ICON_URL_LIDARR
+    // Env: ENABLE_WHISPARR, WHISPARR_URL, WHISPARR_API_KEY, SERVICE_ICON_URL_WHISPARR
 
     // Prowlarr: Indexer Manager
-    // Env: ENABLE_PROWLARR, PROWLARR_URL, PROWLARR_API_KEY, ICON_URL_PROWLARR
+    // Env: ENABLE_PROWLARR, PROWLARR_URL, PROWLARR_API_KEY, SERVICE_ICON_URL_PROWLARR
     prowlarr: {
       enabled: true,
       url: 'http://prowlarr:9696',
@@ -245,7 +244,7 @@
     },
 
     // Jackett: Indexer Aggregator
-    // Env: ENABLE_JACKETT, JACKETT_URL, JACKETT_API_KEY, ICON_URL_JACKETT
+    // Env: ENABLE_JACKETT, JACKETT_URL, JACKETT_API_KEY, SERVICE_ICON_URL_JACKETT
     jackett: {
       enabled: false,
       url: 'http://jackett:9117',
@@ -255,7 +254,7 @@
 
     // Sonarr: TV Show Management
     // Optional landing option to set default page (e.g., calendar)
-    // Env: ENABLE_SONARR, SONARR_URL, SONARR_API_KEY, ICON_URL_SONARR
+    // Env: ENABLE_SONARR, SONARR_URL, SONARR_API_KEY, SERVICE_ICON_URL_SONARR
     sonarr: {
       enabled: true,
       url: 'http://sonarr:8989',
@@ -266,7 +265,7 @@
 
     // Radarr: Movie Management
     // Optional landing option to set default page (e.g., movies, history)
-    // Env: ENABLE_RADARR, RADARR_URL, RADARR_API_KEY, ICON_URL_RADARR
+    // Env: ENABLE_RADARR, RADARR_URL, RADARR_API_KEY, SERVICE_ICON_URL_RADARR
     radarr: {
       enabled: true,
       url: 'http://radarr:7878',
@@ -277,7 +276,7 @@
 
     // Lidarr: Music Management
     // Optional landing option to set default page (e.g., albums, wanted)
-    // Env: ENABLE_LIDARR, LIDARR_URL, LIDARR_API_KEY, ICON_URL_LIDARR
+    // Env: ENABLE_LIDARR, LIDARR_URL, LIDARR_API_KEY, SERVICE_ICON_URL_LIDARR
     lidarr: {
       enabled: true,
       url: 'http://lidarr:8686',
@@ -288,7 +287,7 @@
 
     // Whisparr: Adult Content Management
     // Optional landing option to set default page
-    // Env: ENABLE_WHISPARR, WHISPARR_URL, WHISPARR_API_KEY, ICON_URL_WHISPARR
+    // Env: ENABLE_WHISPARR, WHISPARR_URL, WHISPARR_API_KEY, SERVICE_ICON_URL_WHISPARR
     whisparr: {
       enabled: false,
       url: 'http://whisparr:6969',
@@ -298,14 +297,14 @@
     },
 
     // ========== Infrastructure Services ==========
-    // Env: ENABLE_SEERR, SEERR_URL, SEERR_API_KEY, ICON_URL_SEERR
-    // Env: ENABLE_BAZARR, BAZARR_URL, BAZARR_API_KEY, ICON_URL_BAZARR
-    // Env: ENABLE_TAUTULLI, TAUTULLI_URL, TAUTULLI_API_KEY, ICON_URL_TAUTULLI
-    // Env: ENABLE_MAINTAINERR, MAINTAINERR_URL, MAINTAINERR_API_KEY, ICON_URL_MAINTAINERR
+    // Env: ENABLE_SEERR, SEERR_URL, SEERR_API_KEY, SERVICE_ICON_URL_SEERR
+    // Env: ENABLE_BAZARR, BAZARR_URL, BAZARR_API_KEY, SERVICE_ICON_URL_BAZARR
+    // Env: ENABLE_TAUTULLI, TAUTULLI_URL, TAUTULLI_API_KEY, SERVICE_ICON_URL_TAUTULLI
+    // Env: ENABLE_MAINTAINERR, MAINTAINERR_URL, MAINTAINERR_API_KEY, SERVICE_ICON_URL_MAINTAINERR
 
     // Seerr: Request Manager
     // Requires: domain_name and redirect_uri for authentication
-    // Env: ENABLE_SEERR, SEERR_URL, SEERR_API_KEY, ICON_URL_SEERR
+    // Env: ENABLE_SEERR, SEERR_URL, SEERR_API_KEY, SERVICE_ICON_URL_SEERR
     seerr: {
       enabled: true,
       url: 'http://seerr:5055',
@@ -316,7 +315,7 @@
     },
 
     // Bazarr: Subtitle Manager
-    // Env: ENABLE_BAZARR, BAZARR_URL, BAZARR_API_KEY, ICON_URL_BAZARR
+    // Env: ENABLE_BAZARR, BAZARR_URL, BAZARR_API_KEY, SERVICE_ICON_URL_BAZARR
     bazarr: {
       enabled: true,
       url: 'http://bazarr:6767',
@@ -325,7 +324,7 @@
     },
 
     // Tautulli: Analytics & Monitoring
-    // Env: ENABLE_TAUTULLI, TAUTULLI_URL, TAUTULLI_API_KEY, ICON_URL_TAUTULLI
+    // Env: ENABLE_TAUTULLI, TAUTULLI_URL, TAUTULLI_API_KEY, SERVICE_ICON_URL_TAUTULLI
     tautulli: {
       enabled: true,
       url: 'http://tautulli:8181',
@@ -334,7 +333,7 @@
     },
 
     // Maintainerr: Database Maintenance
-    // Env: ENABLE_MAINTAINERR, MAINTAINERR_URL, MAINTAINERR_API_KEY, ICON_URL_MAINTAINERR
+    // Env: ENABLE_MAINTAINERR, MAINTAINERR_URL, MAINTAINERR_API_KEY, SERVICE_ICON_URL_MAINTAINERR
     maintainerr: {
       enabled: false,
       url: 'http://maintainerr:6246',
