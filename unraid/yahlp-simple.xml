@@ -17,7 +17,7 @@
   <Description>
 YAHLP provides a unified dashboard and secure reverse proxy for homelab services with automatic HTTPS, authentication options, and beautiful customizable layouts.
 
-Supports 18 services: Sonarr, Radarr, Lidarr, Whisparr, Prowlarr, Seerr, Bazarr, SABnzbd, NZBGet, NZBHydra, Transmission, qBittorrent, Deluge, Jellyfin, Emby, Plex, Tautulli, Maintainerr
+Supports 19 services: Sonarr, Radarr, Lidarr, Whisparr, Prowlarr, Jackett, Seerr, Bazarr, SABnzbd, NZBGet, NZBHydra, Transmission, qBittorrent, Deluge, Jellyfin, Emby, Plex, Tautulli, Maintainerr
 
 For full configuration options, use the yahlp-full template or see: https://github.com/auskento/YAHLP
   </Description>

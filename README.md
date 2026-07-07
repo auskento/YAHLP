@@ -1,6 +1,6 @@
 # YAHLP - Yet Another HomeLab Portal
 
-A production-ready reverse proxy and dashboard for managing 18 homelab services with automatic HTTPS, flexible authentication, and customizable layouts.
+A production-ready reverse proxy and dashboard for managing 19 homelab services with automatic HTTPS, flexible authentication, and customizable layouts.
 
 ## ✨ Key Features
 
@@ -10,19 +10,19 @@ A production-ready reverse proxy and dashboard for managing 18 homelab services 
 - **⚡ Service Health Monitoring** - Real-time status checks for all proxied services
 - **🎛️ Customizable** - Service ordering, custom dashboards, multiple layout options
 - **📱 Mobile Friendly** - Auto-switches to mobile layout on small screens
-- **🔌 18 Services Supported** - Content, search, usenet, torrents, and media servers
+- **🔌 19 Services Supported** - Usenet, torrents, search, infrastructure, and media servers
 - **🌐 Built-in Sites** - Quick links to torrent and usenet tracking sites
 - **⚙️ Zero-Config** - Smart defaults, minimal setup required
 
-## 📦 Supported Services (18 Total)
+## 📦 Supported Services (19 Total)
 
 | Category | Services |
 |----------|----------|
-| **Content** | Sonarr (SON), Radarr (RAD), Lidarr (LID), Whisparr (WHI) |
-| **Search** | Seerr (SEE), Prowlarr (PRO), Bazarr (BAZ) |
 | **Usenet** | SABnzbd (SAB), NZBGet (GET), NZBHydra (HYD) |
 | **Torrents** | Transmission (TRA), qBittorrent (QBI), Deluge (DEL) |
-| **Media** | Jellyfin (JEL), Emby (EMB), Plex (PLX), Tautulli (TAU), Maintainerr (MNT) |
+| **Search** | Prowlarr (PRO), Jackett (JAC), Sonarr (SON), Radarr (RAD), Lidarr (LID), Whisparr (WHI) |
+| **Infrastructure** | Seerr (SEE), Bazarr (BAZ), Tautulli (TAU), Maintainerr (MNT) |
+| **Media** | Jellyfin (JEL), Emby (EMB), Plex (PLX) |
 
 ## 🚀 Quick Start
 
@@ -62,7 +62,7 @@ docker-compose up -d
 |----------|---------|
 | [INSTALLATION.md](INSTALLATION.md) | Detailed setup guide for Docker & Unraid |
 | [CONFIGURATION.md](CONFIGURATION.md) | All environment variables explained |
-| [SERVICES.md](SERVICES.md) | Setting up each of the 18 services |
+| [SERVICES.md](SERVICES.md) | Setting up each of the 19 services |
 | [AUTHENTICATION.md](AUTHENTICATION.md) | Auth method configuration (basic, OAuth, etc) |
 | [DASHBOARD-CUSTOMIZATION.md](DASHBOARD-CUSTOMIZATION.md) | Layouts, themes, service ordering |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and solutions |
