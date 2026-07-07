@@ -441,8 +441,20 @@ function calculateDynamicIconSize() {
     // Use the smaller to fit both dimensions
     let iconSize = Math.min(iconSizeFromWidth, iconSizeFromHeight);
 
-    // Clamp to reasonable bounds
-    iconSize = Math.max(48, Math.min(144, iconSize));
+    // Detect current layout style from body class
+    const currentLayout = document.body.className.match(/layout-(\w+)/)?.[1] || 'classic';
+
+    // Set max icon size based on layout (smaller max for minimal/modern to reduce scrolling)
+    let maxIconSize = 144; // default
+    if (currentLayout === 'minimal' || currentLayout === 'modern') {
+        maxIconSize = 80;
+    } else if (currentLayout === 'sleek') {
+        maxIconSize = 100;
+    }
+    // classic and custom layouts use default 144
+
+    // Clamp to reasonable bounds with layout-specific max
+    iconSize = Math.max(48, Math.min(maxIconSize, iconSize));
 
     // Round to nearest multiple of 4 for clean sizing
     iconSize = Math.round(iconSize / 4) * 4;
