@@ -11,6 +11,8 @@ Complete list of all environment variables and settings for YAHLP.
 
 ---
 
+---
+
 ## Deployment
 
 ### ACCESS_MODE
@@ -125,6 +127,13 @@ DASHBOARD_STYLE=modern,custom1   # Built-in modern + custom1 layout
   ```bash
   DASHBOARD_SITES=TPB,DOG,DRS,YTS
   ```
+
+### DASHBOARD_TEST
+- **Type:** `true` or `false`
+- **Default:** `false`
+- **Description:** Use Let's Encrypt staging (dry-run mode)
+- **Use Case:** Testing without hitting rate limits
+- **Note:** Set to `true` during testing, `false` for production certificates
 
 ---
 
@@ -392,12 +401,6 @@ See [SERVICES.md](SERVICES.md) for detailed service setup.
 ---
 
 ## Advanced
-
-### TEST
-- **Type:** `true` or `false`
-- **Default:** `false`
-- **Description:** Use Let's Encrypt staging (dry-run mode)
-- **Use Case:** Testing without hitting rate limits
 
 ### PUID / PGID
 - **Type:** Integer (user/group IDs)
