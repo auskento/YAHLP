@@ -39,8 +39,8 @@ services:
       # Disable others
       ENABLE_WHISPARR: "false"
       ENABLE_LIDARR: "false"
-      ENABLE_READARR: "false"
       ENABLE_PROWLARR: "false"
+      ENABLE_JACKETT: "false"
       ENABLE_SEERR: "false"
       ENABLE_EMBY: "false"
       ENABLE_PLEX: "false"
@@ -49,6 +49,10 @@ services:
       ENABLE_QBITTORRENT: "false"
       ENABLE_SABNZBD: "false"
       ENABLE_DELUGE: "false"
+      ENABLE_NZBGET: "false"
+      ENABLE_NZBHYDRA: "false"
+      ENABLE_BAZARR: "false"
+      ENABLE_MAINTAINERR: "false"
       
       AUTHTYPE: "none"
       BASIC_AUTH_CREDENTIALS: ""
@@ -199,6 +203,22 @@ services:
   #     - ./appdata/prowlarr/config:/config
   #   ports:
   #     - "9696:9696"
+  #   networks:
+  #     - proxy-network
+  #   restart: unless-stopped
+
+  # Jackett (Uncomment if needed)
+  # jackett:
+  #   image: lscr.io/linuxserver/jackett:latest
+  #   container_name: jackett
+  #   environment:
+  #     PUID: 1000
+  #     PGID: 1000
+  #     TZ: Australia/Melbourne
+  #   volumes:
+  #     - ./appdata/jackett/config:/config
+  #   ports:
+  #     - "9117:9117"
   #   networks:
   #     - proxy-network
   #   restart: unless-stopped

@@ -63,12 +63,10 @@
     <Variable><Name>DASHBOARD_NAME</Name><Value>YAHLP Dashboard</Value></Variable>
     <Variable><Name>DASHBOARD_COLOR</Name><Value>#00A99D</Value></Variable>
     <Variable><Name>DASHBOARD_STYLE</Name><Value>modern</Value></Variable>
-    <Variable><Name>DASHBOARD_LOCKED</Name><Value>false</Value></Variable>
-    <Variable><Name>DASHBOARD_ORDER</Name><Value>JEL,PLX,EMB,SON,RAD,LID,WHI,QBI,TRA,SAB,GET,DEL,HYD,PRO,SEE,JAC,BAZ,TAU,MNT</Value></Variable>
+    <Variable><Name>DASHBOARD_ORDER</Name><Value>SAB,GET,HYD,TRA,QBI,DEL,PRO,JAC,SON,RAD,LID,WHI,SEE,BAZ,TAU,MNT,JEL,PLX,EMB</Value></Variable>
     <Variable><Name>DASHBOARD_LANDING</Name><Value></Value></Variable>
     <Variable><Name>AUTHTYPE</Name><Value>none</Value></Variable>
-    <Variable><Name>BASIC_AUTH_USER</Name><Value></Value></Variable>
-    <Variable><Name>BASIC_AUTH_PASS</Name><Value></Value></Variable>
+    <Variable><Name>BASIC_AUTH_CREDENTIALS</Name><Value></Value></Variable>
     <Variable><Name>GOOGLE_CLIENT_ID</Name><Value></Value></Variable>
     <Variable><Name>GOOGLE_CLIENT_SECRET</Name><Value></Value></Variable>
     <Variable><Name>GOOGLE_REDIRECT_URI</Name><Value></Value></Variable>
@@ -76,147 +74,204 @@
     <Variable><Name>ENTRA_CLIENT_SECRET</Name><Value></Value></Variable>
     <Variable><Name>ENTRA_TENANT_ID</Name><Value></Value></Variable>
     <Variable><Name>ENTRA_REDIRECT_URI</Name><Value></Value></Variable>
-    <Variable><Name>ENABLE_JELLYFIN</Name><Value>false</Value></Variable>
-    <Variable><Name>JELLYFIN_URL</Name><Value>http://jellyfin:8096</Value></Variable>
-    <Variable><Name>ENABLE_PLEX</Name><Value>false</Value></Variable>
-    <Variable><Name>PLEX_URL</Name><Value>http://plex:32400</Value></Variable>
-    <Variable><Name>ENABLE_EMBY</Name><Value>false</Value></Variable>
-    <Variable><Name>EMBY_URL</Name><Value>http://emby:8096</Value></Variable>
-    <Variable><Name>ENABLE_SONARR</Name><Value>false</Value></Variable>
-    <Variable><Name>SONARR_URL</Name><Value>http://sonarr:8989</Value></Variable>
-    <Variable><Name>ENABLE_RADARR</Name><Value>false</Value></Variable>
-    <Variable><Name>RADARR_URL</Name><Value>http://radarr:7878</Value></Variable>
-    <Variable><Name>ENABLE_LIDARR</Name><Value>false</Value></Variable>
-    <Variable><Name>LIDARR_URL</Name><Value>http://lidarr:8686</Value></Variable>
-    <Variable><Name>ENABLE_WHISPARR</Name><Value>false</Value></Variable>
-    <Variable><Name>WHISPARR_URL</Name><Value>http://whisparr:6969</Value></Variable>
-    <Variable><Name>ENABLE_PROWLARR</Name><Value>false</Value></Variable>
-    <Variable><Name>PROWLARR_URL</Name><Value>http://prowlarr:9696</Value></Variable>
-    <Variable><Name>PROWLARR_API_KEY</Name><Value></Value></Variable>
-    <Variable><Name>ENABLE_JACKETT</Name><Value>false</Value></Variable>
-    <Variable><Name>JACKETT_URL</Name><Value>http://jackett:9117</Value></Variable>
-    <Variable><Name>JACKETT_API_KEY</Name><Value></Value></Variable>
-    <Variable><Name>ENABLE_SEERR</Name><Value>false</Value></Variable>
-    <Variable><Name>SEERR_URL</Name><Value>http://seerr:5055</Value></Variable>
-    <Variable><Name>SEERR_API_KEY</Name><Value></Value></Variable>
-    <Variable><Name>ENABLE_QBITTORRENT</Name><Value>false</Value></Variable>
-    <Variable><Name>QBITTORRENT_URL</Name><Value>http://qbittorrent:8080</Value></Variable>
-    <Variable><Name>QBITTORRENT_API_KEY</Name><Value></Value></Variable>
-    <Variable><Name>ENABLE_TRANSMISSION</Name><Value>false</Value></Variable>
-    <Variable><Name>TRANSMISSION_URL</Name><Value>http://transmission:9091</Value></Variable>
-    <Variable><Name>ENABLE_DELUGE</Name><Value>false</Value></Variable>
-    <Variable><Name>DELUGE_URL</Name><Value>http://deluge:8112</Value></Variable>
-    <Variable><Name>DELUGE_API_KEY</Name><Value></Value></Variable>
+    <Variable><Name>ENTRA_CRYPTO_PASSPHRASE</Name><Value></Value></Variable>
+    <Variable><Name>ENTRA_METADATA_URL</Name><Value></Value></Variable>
     <Variable><Name>ENABLE_SABNZBD</Name><Value>false</Value></Variable>
     <Variable><Name>SABNZBD_URL</Name><Value>http://sabnzbd:8080</Value></Variable>
     <Variable><Name>SABNZBD_API_KEY</Name><Value></Value></Variable>
+    <Variable><Name>ICON_URL_SABNZBD</Name><Value></Value></Variable>
     <Variable><Name>ENABLE_NZBGET</Name><Value>false</Value></Variable>
     <Variable><Name>NZBGET_URL</Name><Value>http://nzbget:6789</Value></Variable>
     <Variable><Name>NZBGET_USER</Name><Value>nzbget</Value></Variable>
     <Variable><Name>NZBGET_PASS</Name><Value></Value></Variable>
+    <Variable><Name>ICON_URL_NZBGET</Name><Value></Value></Variable>
     <Variable><Name>ENABLE_NZBHYDRA</Name><Value>false</Value></Variable>
     <Variable><Name>NZBHYDRA_URL</Name><Value>http://nzbhydra:5076</Value></Variable>
     <Variable><Name>NZBHYDRA_API_KEY</Name><Value></Value></Variable>
+    <Variable><Name>ICON_URL_NZBHYDRA</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_TRANSMISSION</Name><Value>false</Value></Variable>
+    <Variable><Name>TRANSMISSION_URL</Name><Value>http://transmission:9091</Value></Variable>
+    <Variable><Name>ICON_URL_TRANSMISSION</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_QBITTORRENT</Name><Value>false</Value></Variable>
+    <Variable><Name>QBITTORRENT_URL</Name><Value>http://qbittorrent:8080</Value></Variable>
+    <Variable><Name>QBITTORRENT_API_KEY</Name><Value></Value></Variable>
+    <Variable><Name>ICON_URL_QBITTORRENT</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_DELUGE</Name><Value>false</Value></Variable>
+    <Variable><Name>DELUGE_URL</Name><Value>http://deluge:8112</Value></Variable>
+    <Variable><Name>DELUGE_API_KEY</Name><Value></Value></Variable>
+    <Variable><Name>ICON_URL_DELUGE</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_PROWLARR</Name><Value>false</Value></Variable>
+    <Variable><Name>PROWLARR_URL</Name><Value>http://prowlarr:9696</Value></Variable>
+    <Variable><Name>PROWLARR_API_KEY</Name><Value></Value></Variable>
+    <Variable><Name>ICON_URL_PROWLARR</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_JACKETT</Name><Value>false</Value></Variable>
+    <Variable><Name>JACKETT_URL</Name><Value>http://jackett:9117</Value></Variable>
+    <Variable><Name>JACKETT_API_KEY</Name><Value></Value></Variable>
+    <Variable><Name>ICON_URL_JACKETT</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_SEERR</Name><Value>false</Value></Variable>
+    <Variable><Name>SEERR_URL</Name><Value>http://seerr:5055</Value></Variable>
+    <Variable><Name>SEERR_API_KEY</Name><Value></Value></Variable>
+    <Variable><Name>ICON_URL_SEERR</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_BAZARR</Name><Value>false</Value></Variable>
+    <Variable><Name>BAZARR_URL</Name><Value>http://bazarr:6767</Value></Variable>
+    <Variable><Name>ICON_URL_BAZARR</Name><Value></Value></Variable>
     <Variable><Name>ENABLE_TAUTULLI</Name><Value>false</Value></Variable>
     <Variable><Name>TAUTULLI_URL</Name><Value>http://tautulli:8181</Value></Variable>
     <Variable><Name>TAUTULLI_API_KEY</Name><Value></Value></Variable>
+    <Variable><Name>ICON_URL_TAUTULLI</Name><Value></Value></Variable>
     <Variable><Name>ENABLE_MAINTAINERR</Name><Value>false</Value></Variable>
     <Variable><Name>MAINTAINERR_URL</Name><Value>http://maintainerr:6246</Value></Variable>
-    <Variable><Name>ENABLE_BAZARR</Name><Value>false</Value></Variable>
-    <Variable><Name>BAZARR_URL</Name><Value>http://bazarr:6767</Value></Variable>
+    <Variable><Name>ICON_URL_MAINTAINERR</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_JELLYFIN</Name><Value>false</Value></Variable>
+    <Variable><Name>JELLYFIN_URL</Name><Value>http://jellyfin:8096</Value></Variable>
+    <Variable><Name>ICON_URL_JELLYFIN</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_PLEX</Name><Value>false</Value></Variable>
+    <Variable><Name>PLEX_URL</Name><Value>http://plex:32400</Value></Variable>
+    <Variable><Name>ICON_URL_PLEX</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_EMBY</Name><Value>false</Value></Variable>
+    <Variable><Name>EMBY_URL</Name><Value>http://emby:8096</Value></Variable>
+    <Variable><Name>ICON_URL_EMBY</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_SONARR</Name><Value>false</Value></Variable>
+    <Variable><Name>SONARR_URL</Name><Value>http://sonarr:8989</Value></Variable>
+    <Variable><Name>SONARR_API_KEY</Name><Value></Value></Variable>
+    <Variable><Name>ICON_URL_SONARR</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_RADARR</Name><Value>false</Value></Variable>
+    <Variable><Name>RADARR_URL</Name><Value>http://radarr:7878</Value></Variable>
+    <Variable><Name>RADARR_API_KEY</Name><Value></Value></Variable>
+    <Variable><Name>ICON_URL_RADARR</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_LIDARR</Name><Value>false</Value></Variable>
+    <Variable><Name>LIDARR_URL</Name><Value>http://lidarr:8686</Value></Variable>
+    <Variable><Name>LIDARR_API_KEY</Name><Value></Value></Variable>
+    <Variable><Name>ICON_URL_LIDARR</Name><Value></Value></Variable>
+    <Variable><Name>ENABLE_WHISPARR</Name><Value>false</Value></Variable>
+    <Variable><Name>WHISPARR_URL</Name><Value>http://whisparr:6969</Value></Variable>
+    <Variable><Name>WHISPARR_API_KEY</Name><Value></Value></Variable>
+    <Variable><Name>ICON_URL_WHISPARR</Name><Value></Value></Variable>
     <Variable><Name>TZ</Name><Value>Etc/UTC</Value></Variable>
   </Environment>
 
-  <!-- ========== TEST SETTINGS ========== -->
-  <Config Name="Test Mode" Target="TEST_MODE" Default="false" Mode="" Description="Enable test/debug mode. Set to 'true' to prevent Let's Encrypt rate limiting during setup. Certificates will NOT be issued in test mode." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <!-- TEST -->
+  <Config Name="Test Mode" Target="TEST_MODE" Default="false" Mode="" Description="Enable test/debug mode. Set to 'true' to prevent Let's Encrypt rate limiting during setup." Type="Variable" Display="always" Required="false" Mask="false"/>
 
-  <!-- ========== DEPLOYMENT SETTINGS ========== -->
-  <Config Name="Access Mode" Target="ACCESS_MODE" Default="private" Mode="" Description="Choose 'private' for HTTP only on internal network, or 'public' for HTTPS with Let's Encrypt certificate." Type="Variable" Display="always" Required="true" Mask="false"/>
+  <!-- DEPLOYMENT -->
+  <Config Name="Access Mode" Target="ACCESS_MODE" Default="private" Mode="" Description="Choose 'private' for HTTP only on internal network, or 'public' for HTTPS with Let's Encrypt." Type="Variable" Display="always" Required="true" Mask="false"/>
   <Config Name="Domain (Public Only)" Target="DOMAIN" Default="" Mode="" Description="Your domain name for public mode (e.g., media.example.com). Leave blank for private mode." Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Email (Public Only)" Target="EMAIL" Default="" Mode="" Description="Email for SSL certificate notifications. Required for public mode." Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="IP Address (Private Only)" Target="IP" Default="" Mode="" Description="Server IP for private mode (e.g., 192.168.1.100). Leave blank for auto-assign." Type="Variable" Display="always" Required="false" Mask="false"/>
 
-  <!-- ========== DASHBOARD SETTINGS ========== -->
+  <!-- DASHBOARD -->
   <Config Name="Dashboard Title" Target="DASHBOARD_NAME" Default="YAHLP Dashboard" Mode="" Description="Name displayed in dashboard header and browser title." Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Dashboard Color" Target="DASHBOARD_COLOR" Default="#00A99D" Mode="" Description="Primary color in hex format (e.g., #00A99D). Sets dashboard accent color." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Dashboard Layout" Target="DASHBOARD_STYLE" Default="modern" Mode="" Description="Choose layout: classic (rows), modern (grid), storm (dark), storm-violet (purple), neon (bright), focus (iframe focus), vixens (custom), minimal (compact)." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Lock Layout" Target="DASHBOARD_LOCKED" Default="false" Mode="" Description="Set 'true' to prevent users from switching dashboard layouts. Keep 'false' to allow switching." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Service Display Order" Target="DASHBOARD_ORDER" Default="JEL,PLX,EMB,SON,RAD,LID,WHI,QBI,TRA,SAB,GET,DEL,HYD,PRO,SEE,JAC,BAZ,TAU,MNT" Mode="" Description="Comma-separated service codes controlling display order. Codes: JEL=Jellyfin, PLX=Plex, EMB=Emby, SON=Sonarr, RAD=Radarr, LID=Lidarr, WHI=Whisparr, QBI=qBittorrent, TRA=Transmission, SAB=SABnzbd, GET=NZBget, DEL=Deluge, HYD=NZBHydra, PRO=Prowlarr, SEE=Seerr, JAC=Jackett, BAZ=Bazarr, TAU=Tautulli, MNT=Maintainerr." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Dashboard Layout" Target="DASHBOARD_STYLE" Default="modern" Mode="" Description="Choose layout: classic, modern, storm, storm-violet, neon, focus, vixens, minimal. Append ':only' to lock layout (e.g., modern:only)." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Service Display Order" Target="DASHBOARD_ORDER" Default="SAB,GET,HYD,TRA,QBI,DEL,PRO,JAC,SON,RAD,LID,WHI,SEE,BAZ,TAU,MNT,JEL,PLX,EMB" Mode="" Description="Comma-separated service codes. Order: USENET (SAB, GET, HYD), TORRENTS (TRA, QBI, DEL), SEARCH (PRO, JAC, SON, RAD, LID, WHI), INFRA (SEE, BAZ, TAU, MNT), MEDIA (JEL, PLX, EMB)." Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="Landing Page" Target="DASHBOARD_LANDING" Default="" Mode="" Description="Default page on load (e.g., sonarr/calendar, radarr/upcoming). Leave blank to show dashboard grid." Type="Variable" Display="always" Required="false" Mask="false"/>
 
-  <!-- ========== AUTHENTICATION SETTINGS ========== -->
+  <!-- AUTHENTICATION -->
   <Config Name="Authentication Type" Target="AUTHTYPE" Default="none" Mode="" Description="Choose: 'none' (no auth), 'basic' (username/password), 'google' (Google OAuth), 'entra' (Microsoft Entra ID)." Type="Variable" Display="always" Required="true" Mask="false"/>
-  <Config Name="Basic Auth Username" Target="BASIC_AUTH_USER" Default="" Mode="" Description="Username for basic authentication. Only used if AUTHTYPE=basic." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Basic Auth Password" Target="BASIC_AUTH_PASS" Default="" Mode="" Description="Password for basic authentication. Only used if AUTHTYPE=basic. Masked for security." Type="Variable" Display="always" Required="false" Mask="true"/>
-  <Config Name="Google Client ID" Target="GOOGLE_CLIENT_ID" Default="" Mode="" Description="From Google Cloud Console. Only used if AUTHTYPE=google. Get from: https://console.cloud.google.com/apis/credentials" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Google Client Secret" Target="GOOGLE_CLIENT_SECRET" Default="" Mode="" Description="From Google Cloud Console. Only used if AUTHTYPE=google. Keep this secret!" Type="Variable" Display="always" Required="false" Mask="true"/>
-  <Config Name="Google Redirect URI" Target="GOOGLE_REDIRECT_URI" Default="" Mode="" Description="OAuth callback URL for Google (e.g., https://yourdomain.com/auth/oauth2/callback). Only used if AUTHTYPE=google." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Entra Client ID" Target="ENTRA_CLIENT_ID" Default="" Mode="" Description="From Azure Portal. Only used if AUTHTYPE=entra. Register app in Azure AD." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Entra Client Secret" Target="ENTRA_CLIENT_SECRET" Default="" Mode="" Description="From Azure Portal. Only used if AUTHTYPE=entra. Keep this secret!" Type="Variable" Display="always" Required="false" Mask="true"/>
-  <Config Name="Entra Tenant ID" Target="ENTRA_TENANT_ID" Default="" Mode="" Description="Your Azure Tenant ID. Only used if AUTHTYPE=entra. Find in Azure Portal." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Entra Redirect URI" Target="ENTRA_REDIRECT_URI" Default="" Mode="" Description="OAuth callback URL for Entra (e.g., https://yourdomain.com/auth/oauth2/callback). Only used if AUTHTYPE=entra." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Basic Auth Credentials" Target="BASIC_AUTH_CREDENTIALS" Default="" Mode="" Description="Format: user:pass or user1:pass1|user2:pass2 for multiple users. Only used if AUTHTYPE=basic." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Google Client ID" Target="GOOGLE_CLIENT_ID" Default="" Mode="" Description="From Google Cloud Console. Only used if AUTHTYPE=google." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Google Client Secret" Target="GOOGLE_CLIENT_SECRET" Default="" Mode="" Description="From Google Cloud Console. Only used if AUTHTYPE=google." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Google Redirect URI" Target="GOOGLE_REDIRECT_URI" Default="" Mode="" Description="OAuth callback URL (e.g., https://yourdomain.com/auth/oauth2/callback). Only used if AUTHTYPE=google." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Entra Client ID" Target="ENTRA_CLIENT_ID" Default="" Mode="" Description="From Azure Portal. Only used if AUTHTYPE=entra." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Entra Client Secret" Target="ENTRA_CLIENT_SECRET" Default="" Mode="" Description="From Azure Portal. Only used if AUTHTYPE=entra." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Entra Tenant ID" Target="ENTRA_TENANT_ID" Default="" Mode="" Description="Your Azure Tenant ID. Only used if AUTHTYPE=entra." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Entra Redirect URI" Target="ENTRA_REDIRECT_URI" Default="" Mode="" Description="OAuth callback URL (e.g., https://yourdomain.com/auth/oauth2/callback). Only used if AUTHTYPE=entra." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Entra Crypto Passphrase" Target="ENTRA_CRYPTO_PASSPHRASE" Default="" Mode="" Description="Encryption passphrase for Entra tokens. Only used if AUTHTYPE=entra." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Entra Metadata URL" Target="ENTRA_METADATA_URL" Default="" Mode="" Description="OpenID metadata URL for Entra. Only used if AUTHTYPE=entra." Type="Variable" Display="always" Required="false" Mask="false"/>
 
-  <!-- ========== SERVICE SETTINGS ========== -->
-  <!-- MEDIA SERVERS -->
-  <Config Name="Enable Jellyfin" Target="ENABLE_JELLYFIN" Default="false" Mode="" Description="Enable Jellyfin media server. Set base URL to /jellyfin in Jellyfin settings." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Jellyfin URL" Target="JELLYFIN_URL" Default="http://jellyfin:8096" Mode="" Description="Internal Docker URL for Jellyfin. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Enable Plex" Target="ENABLE_PLEX" Default="false" Mode="" Description="Enable Plex media server. Requires Claim Token on first run." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Plex URL" Target="PLEX_URL" Default="http://plex:32400" Mode="" Description="Internal Docker URL for Plex. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Enable Emby" Target="ENABLE_EMBY" Default="false" Mode="" Description="Enable Emby media server. Configure base URL to /emby in Emby settings." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Emby URL" Target="EMBY_URL" Default="http://emby:8096" Mode="" Description="Internal Docker URL for Emby. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <!-- USENET SERVICES -->
+  <Config Name="Enable SABnzbd" Target="ENABLE_SABNZBD" Default="false" Mode="" Description="Enable SABnzbd usenet client." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="SABnzbd URL" Target="SABNZBD_URL" Default="http://sabnzbd:8080" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="SABnzbd API Key" Target="SABNZBD_API_KEY" Default="" Mode="" Description="Get from SABnzbd: Config → General → API Key." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="SABnzbd Icon URL" Target="ICON_URL_SABNZBD" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
 
-  <!-- PVR MANAGERS -->
-  <Config Name="Enable Sonarr" Target="ENABLE_SONARR" Default="false" Mode="" Description="Enable Sonarr TV show automation. Set base URL to /sonarr in Sonarr settings." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Sonarr URL" Target="SONARR_URL" Default="http://sonarr:8989" Mode="" Description="Internal Docker URL for Sonarr. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Enable Radarr" Target="ENABLE_RADARR" Default="false" Mode="" Description="Enable Radarr movie automation. Set base URL to /radarr in Radarr settings." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Radarr URL" Target="RADARR_URL" Default="http://radarr:7878" Mode="" Description="Internal Docker URL for Radarr. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Enable Lidarr" Target="ENABLE_LIDARR" Default="false" Mode="" Description="Enable Lidarr music automation. Set base URL to /lidarr in Lidarr settings." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Lidarr URL" Target="LIDARR_URL" Default="http://lidarr:8686" Mode="" Description="Internal Docker URL for Lidarr. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Enable Whisparr" Target="ENABLE_WHISPARR" Default="false" Mode="" Description="Enable Whisparr adult content automation. Set base URL to /whisparr in settings." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Whisparr URL" Target="WHISPARR_URL" Default="http://whisparr:6969" Mode="" Description="Internal Docker URL for Whisparr. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-
-  <!-- INDEXERS & SEARCH -->
-  <Config Name="Enable Prowlarr" Target="ENABLE_PROWLARR" Default="false" Mode="" Description="Enable Prowlarr indexer manager. Set base URL to /prowlarr in Prowlarr settings." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Prowlarr URL" Target="PROWLARR_URL" Default="http://prowlarr:9696" Mode="" Description="Internal Docker URL for Prowlarr. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Prowlarr API Key" Target="PROWLARR_API_KEY" Default="" Mode="" Description="Get from Prowlarr: Settings → General → API Key. Used for health checks." Type="Variable" Display="always" Required="false" Mask="true"/>
-  <Config Name="Enable Jackett" Target="ENABLE_JACKETT" Default="false" Mode="" Description="Enable Jackett indexer aggregator. Set base URL to /jackett in Jackett settings." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Jackett URL" Target="JACKETT_URL" Default="http://jackett:9117" Mode="" Description="Internal Docker URL for Jackett. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Jackett API Key" Target="JACKETT_API_KEY" Default="" Mode="" Description="Get from Jackett: Admin → Dashboard → API Key. Used for health checks." Type="Variable" Display="always" Required="false" Mask="true"/>
-
-  <!-- REQUEST MANAGEMENT -->
-  <Config Name="Enable Seerr" Target="ENABLE_SEERR" Default="false" Mode="" Description="Enable Seerr media requests. Typically runs on subdomain (e.g., seerr.domain.com)." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Seerr URL" Target="SEERR_URL" Default="http://seerr:5055" Mode="" Description="Internal Docker URL for Seerr. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Seerr API Key" Target="SEERR_API_KEY" Default="" Mode="" Description="Get from Seerr: Settings → API Keys. Used for health checks." Type="Variable" Display="always" Required="false" Mask="true"/>
-
-  <!-- TORRENT CLIENTS -->
-  <Config Name="Enable qBittorrent" Target="ENABLE_QBITTORRENT" Default="false" Mode="" Description="Enable qBittorrent torrent client. WebUI accessed via dashboard." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="qBittorrent URL" Target="QBITTORRENT_URL" Default="http://qbittorrent:8080" Mode="" Description="Internal Docker URL for qBittorrent. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="qBittorrent API Key" Target="QBITTORRENT_API_KEY" Default="" Mode="" Description="Get from qBittorrent: Tools → Options → Web UI → API Token. Used for stats." Type="Variable" Display="always" Required="false" Mask="true"/>
-  <Config Name="Enable Transmission" Target="ENABLE_TRANSMISSION" Default="false" Mode="" Description="Enable Transmission torrent client. Simple, lightweight option." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Transmission URL" Target="TRANSMISSION_URL" Default="http://transmission:9091" Mode="" Description="Internal Docker URL for Transmission. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Enable Deluge" Target="ENABLE_DELUGE" Default="false" Mode="" Description="Enable Deluge torrent client. Requires session cookie for access." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Deluge URL" Target="DELUGE_URL" Default="http://deluge:8112" Mode="" Description="Internal Docker URL for Deluge. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Deluge Password" Target="DELUGE_API_KEY" Default="" Mode="" Description="Deluge WebUI password. Used for authentication bypass in dashboard." Type="Variable" Display="always" Required="false" Mask="true"/>
-
-  <!-- USENET CLIENTS -->
-  <Config Name="Enable SABnzbd" Target="ENABLE_SABNZBD" Default="false" Mode="" Description="Enable SABnzbd usenet client. Set URL base to /sabnzbd in SABnzbd settings." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="SABnzbd URL" Target="SABNZBD_URL" Default="http://sabnzbd:8080" Mode="" Description="Internal Docker URL for SABnzbd. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="SABnzbd API Key" Target="SABNZBD_API_KEY" Default="" Mode="" Description="Get from SABnzbd: Config → General → API Key. Used for stats." Type="Variable" Display="always" Required="false" Mask="true"/>
-  <Config Name="Enable NZBget" Target="ENABLE_NZBGET" Default="false" Mode="" Description="Enable NZBget usenet client. Configure username and password below." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="NZBget URL" Target="NZBGET_URL" Default="http://nzbget:6789" Mode="" Description="Internal Docker URL for NZBget. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="NZBget Username" Target="NZBGET_USER" Default="nzbget" Mode="" Description="NZBget username for authentication. Default is 'nzbget'." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Enable NZBget" Target="ENABLE_NZBGET" Default="false" Mode="" Description="Enable NZBget usenet client." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBget URL" Target="NZBGET_URL" Default="http://nzbget:6789" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBget Username" Target="NZBGET_USER" Default="nzbget" Mode="" Description="NZBget username for authentication." Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="NZBget Password" Target="NZBGET_PASS" Default="" Mode="" Description="NZBget password for authentication." Type="Variable" Display="always" Required="false" Mask="true"/>
-  <Config Name="Enable NZBHydra" Target="ENABLE_NZBHYDRA" Default="false" Mode="" Description="Enable NZBHydra2 usenet meta-search. Set URL base to /nzbhydra in settings." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="NZBHydra URL" Target="NZBHYDRA_URL" Default="http://nzbhydra:5076" Mode="" Description="Internal Docker URL for NZBHydra. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="NZBHydra API Key" Target="NZBHYDRA_API_KEY" Default="" Mode="" Description="Get from NZBHydra: Config → Main → API Key. Used for health checks." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="NZBget Icon URL" Target="ICON_URL_NZBGET" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
 
-  <!-- MANAGEMENT TOOLS -->
-  <Config Name="Enable Tautulli" Target="ENABLE_TAUTULLI" Default="false" Mode="" Description="Enable Tautulli Plex analytics and monitoring." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Tautulli URL" Target="TAUTULLI_URL" Default="http://tautulli:8181" Mode="" Description="Internal Docker URL for Tautulli. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Tautulli API Key" Target="TAUTULLI_API_KEY" Default="" Mode="" Description="Get from Tautulli: Settings → Web Interface → API Key. Used for stats." Type="Variable" Display="always" Required="false" Mask="true"/>
-  <Config Name="Enable Maintainerr" Target="ENABLE_MAINTAINERR" Default="false" Mode="" Description="Enable Maintainerr media server maintenance and automation." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Maintainerr URL" Target="MAINTAINERR_URL" Default="http://maintainerr:6246" Mode="" Description="Internal Docker URL for Maintainerr. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Enable Bazarr" Target="ENABLE_BAZARR" Default="false" Mode="" Description="Enable Bazarr subtitle manager. Set base URL to /bazarr in settings." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="Bazarr URL" Target="BAZARR_URL" Default="http://bazarr:6767" Mode="" Description="Internal Docker URL for Bazarr. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Enable NZBHydra" Target="ENABLE_NZBHYDRA" Default="false" Mode="" Description="Enable NZBHydra2 usenet meta-search." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBHydra URL" Target="NZBHYDRA_URL" Default="http://nzbhydra:5076" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBHydra API Key" Target="NZBHYDRA_API_KEY" Default="" Mode="" Description="Get from NZBHydra: Config → Main → API Key." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="NZBHydra Icon URL" Target="ICON_URL_NZBHYDRA" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <!-- TORRENT SERVICES -->
+  <Config Name="Enable Transmission" Target="ENABLE_TRANSMISSION" Default="false" Mode="" Description="Enable Transmission torrent client." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Transmission URL" Target="TRANSMISSION_URL" Default="http://transmission:9091" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Transmission Icon URL" Target="ICON_URL_TRANSMISSION" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <Config Name="Enable qBittorrent" Target="ENABLE_QBITTORRENT" Default="false" Mode="" Description="Enable qBittorrent torrent client." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="qBittorrent URL" Target="QBITTORRENT_URL" Default="http://qbittorrent:8080" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="qBittorrent API Key" Target="QBITTORRENT_API_KEY" Default="" Mode="" Description="Get from qBittorrent: Tools → Options → Web UI → API Token." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="qBittorrent Icon URL" Target="ICON_URL_QBITTORRENT" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <Config Name="Enable Deluge" Target="ENABLE_DELUGE" Default="false" Mode="" Description="Enable Deluge torrent client." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Deluge URL" Target="DELUGE_URL" Default="http://deluge:8112" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Deluge Password" Target="DELUGE_API_KEY" Default="" Mode="" Description="Deluge WebUI password." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Deluge Icon URL" Target="ICON_URL_DELUGE" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <!-- SEARCH SERVICES -->
+  <Config Name="Enable Prowlarr" Target="ENABLE_PROWLARR" Default="false" Mode="" Description="Enable Prowlarr indexer manager." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Prowlarr URL" Target="PROWLARR_URL" Default="http://prowlarr:9696" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Prowlarr API Key" Target="PROWLARR_API_KEY" Default="" Mode="" Description="Get from Prowlarr: Settings → General → API Key." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Prowlarr Icon URL" Target="ICON_URL_PROWLARR" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <Config Name="Enable Jackett" Target="ENABLE_JACKETT" Default="false" Mode="" Description="Enable Jackett indexer aggregator." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Jackett URL" Target="JACKETT_URL" Default="http://jackett:9117" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Jackett API Key" Target="JACKETT_API_KEY" Default="" Mode="" Description="Get from Jackett: Admin → Dashboard → API Key." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Jackett Icon URL" Target="ICON_URL_JACKETT" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <Config Name="Enable Sonarr" Target="ENABLE_SONARR" Default="false" Mode="" Description="Enable Sonarr TV series automation." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Sonarr URL" Target="SONARR_URL" Default="http://sonarr:8989" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Sonarr API Key" Target="SONARR_API_KEY" Default="" Mode="" Description="Get from Sonarr: Settings → General → API Key." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Sonarr Icon URL" Target="ICON_URL_SONARR" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <Config Name="Enable Radarr" Target="ENABLE_RADARR" Default="false" Mode="" Description="Enable Radarr movie automation." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Radarr URL" Target="RADARR_URL" Default="http://radarr:7878" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Radarr API Key" Target="RADARR_API_KEY" Default="" Mode="" Description="Get from Radarr: Settings → General → API Key." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Radarr Icon URL" Target="ICON_URL_RADARR" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <Config Name="Enable Lidarr" Target="ENABLE_LIDARR" Default="false" Mode="" Description="Enable Lidarr music automation." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Lidarr URL" Target="LIDARR_URL" Default="http://lidarr:8686" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Lidarr API Key" Target="LIDARR_API_KEY" Default="" Mode="" Description="Get from Lidarr: Settings → General → API Key." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Lidarr Icon URL" Target="ICON_URL_LIDARR" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <Config Name="Enable Whisparr" Target="ENABLE_WHISPARR" Default="false" Mode="" Description="Enable Whisparr audiobook automation." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Whisparr URL" Target="WHISPARR_URL" Default="http://whisparr:6969" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Whisparr API Key" Target="WHISPARR_API_KEY" Default="" Mode="" Description="Get from Whisparr: Settings → General → API Key." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Whisparr Icon URL" Target="ICON_URL_WHISPARR" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <!-- INFRA SERVICES -->
+  <Config Name="Enable Seerr" Target="ENABLE_SEERR" Default="false" Mode="" Description="Enable Seerr media requests." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Seerr URL" Target="SEERR_URL" Default="http://seerr:5055" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Seerr API Key" Target="SEERR_API_KEY" Default="" Mode="" Description="Get from Seerr: Settings → API Keys." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Seerr Icon URL" Target="ICON_URL_SEERR" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <Config Name="Enable Bazarr" Target="ENABLE_BAZARR" Default="false" Mode="" Description="Enable Bazarr subtitle manager." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Bazarr URL" Target="BAZARR_URL" Default="http://bazarr:6767" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Bazarr Icon URL" Target="ICON_URL_BAZARR" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <Config Name="Enable Tautulli" Target="ENABLE_TAUTULLI" Default="false" Mode="" Description="Enable Tautulli Plex analytics." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Tautulli URL" Target="TAUTULLI_URL" Default="http://tautulli:8181" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Tautulli API Key" Target="TAUTULLI_API_KEY" Default="" Mode="" Description="Get from Tautulli: Settings → Web Interface → API Key." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="Tautulli Icon URL" Target="ICON_URL_TAUTULLI" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <Config Name="Enable Maintainerr" Target="ENABLE_MAINTAINERR" Default="false" Mode="" Description="Enable Maintainerr media server maintenance." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Maintainerr URL" Target="MAINTAINERR_URL" Default="http://maintainerr:6246" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Maintainerr Icon URL" Target="ICON_URL_MAINTAINERR" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <!-- MEDIA SERVICES -->
+  <Config Name="Enable Jellyfin" Target="ENABLE_JELLYFIN" Default="false" Mode="" Description="Enable Jellyfin media server." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Jellyfin URL" Target="JELLYFIN_URL" Default="http://jellyfin:8096" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Jellyfin Icon URL" Target="ICON_URL_JELLYFIN" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <Config Name="Enable Plex" Target="ENABLE_PLEX" Default="false" Mode="" Description="Enable Plex media server." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Plex URL" Target="PLEX_URL" Default="http://plex:32400" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Plex Icon URL" Target="ICON_URL_PLEX" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
+
+  <Config Name="Enable Emby" Target="ENABLE_EMBY" Default="false" Mode="" Description="Enable Emby media server." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Emby URL" Target="EMBY_URL" Default="http://emby:8096" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Emby Icon URL" Target="ICON_URL_EMBY" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
 
 </Container>

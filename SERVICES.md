@@ -1,33 +1,99 @@
 # Services Reference
 
-Complete setup guides for all 18 supported services.
+Complete setup guides for all 19 supported services.
 
 ## Quick Reference Table
 
 | Code | Service | Category | Default Port | Auth |
 |------|---------|----------|--------------|------|
-| SON | Sonarr | Content | 8989 | Optional API Key |
-| RAD | Radarr | Content | 7878 | Optional API Key |
-| LID | Lidarr | Content | 8686 | Optional API Key |
-| WHI | Whisparr | Content | 6969 | Optional API Key |
-| SEE | Seerr | Search | 5055 | Optional API Key |
-| PRO | Prowlarr | Search | 9696 | Optional API Key |
-| BAZ | Bazarr | Search | 6767 | Optional API Key |
 | SAB | SABnzbd | Usenet | 8080 | Optional API Key |
 | GET | NZBGet | Usenet | 6789 | Optional Username/Password |
 | HYD | NZBHydra | Usenet | 5076 | Optional API Key |
 | TRA | Transmission | Torrents | 6969 | None |
 | QBI | qBittorrent | Torrents | 8080 | Required API Key |
 | DEL | Deluge | Torrents | 8112 | Required Password |
+| PRO | Prowlarr | Search | 9696 | Optional API Key |
+| JAC | Jackett | Search | 9117 | Optional API Key |
+| SON | Sonarr | Search | 8989 | Optional API Key |
+| RAD | Radarr | Search | 7878 | Optional API Key |
+| LID | Lidarr | Search | 8686 | Optional API Key |
+| WHI | Whisparr | Search | 6969 | Optional API Key |
+| SEE | Seerr | Infrastructure | 5055 | Optional API Key |
+| BAZ | Bazarr | Infrastructure | 6767 | Optional API Key |
+| TAU | Tautulli | Infrastructure | 8181 | Optional API Key |
+| MNT | Maintainerr | Infrastructure | 6246 | Optional API Key |
 | JEL | Jellyfin | Media | 8096 | Optional API Key |
 | EMB | Emby | Media | 8096 | Optional API Key |
 | PLX | Plex | Media | 32400 | Optional API Key |
-| TAU | Tautulli | Media | 8181 | Optional API Key |
-| MNT | Maintainerr | Media | 6246 | Optional API Key |
 
 ---
 
-## Content Services
+## Search Services
+
+### Prowlarr (PRO)
+
+Indexer manager for Sonarr/Radarr integration.
+
+**Docker Compose:**
+```yaml
+prowlarr:
+  image: hotio/prowlarr:latest
+  ports:
+    - "9696:9696"
+  environment:
+    PUID: 1000
+    PGID: 1000
+  volumes:
+    - ./config/prowlarr:/config
+```
+
+**YAHLP Configuration:**
+```bash
+ENABLE_PROWLARR=true
+PROWLARR_URL=http://prowlarr:9696
+PROWLARR_API_KEY=your-api-key  # Optional
+```
+
+**URL:** `https://yourdomain.com/prowlarr`
+
+---
+
+### Jackett (JAC)
+
+Indexer aggregator and API proxy for torrent and usenet indexers.
+
+**Docker Compose:**
+```yaml
+jackett:
+  image: linuxserver/jackett:latest
+  ports:
+    - "9117:9117"
+  environment:
+    PUID: 1000
+    PGID: 1000
+  volumes:
+    - ./config/jackett:/config
+    - /etc/localtime:/etc/localtime:ro
+```
+
+**Get API Key:**
+1. Access Jackett WebUI: `http://localhost:9117`
+2. Click on "Admin" (top right)
+3. Copy the API Key
+
+**YAHLP Configuration:**
+```bash
+ENABLE_JACKETT=true
+JACKETT_URL=http://jackett:9117
+JACKETT_API_KEY=your-api-key  # Get from Admin page
+```
+
+**Health Check:**
+The health check uses: `/api/v2.0/indexers/all/results?apikey=YOUR_KEY&Query=test`
+
+**URL:** `https://yourdomain.com/jackett`
+
+---
 
 ### Sonarr (SON)
 
@@ -149,103 +215,6 @@ WHISPARR_API_KEY=your-api-key  # Optional
 ```
 
 **URL:** `https://yourdomain.com/whisparr`
-
----
-
-## Search Services
-
-### Seerr (SEE)
-
-Request and manage media requests.
-
-**Docker Compose:**
-```yaml
-seerr:
-  image: hotio/seerr:latest
-  ports:
-    - "5055:5055"
-  environment:
-    PUID: 1000
-    PGID: 1000
-  volumes:
-    - ./config/seerr:/config
-```
-
-**YAHLP Configuration:**
-```bash
-ENABLE_SEERR=true
-SEERR_URL=http://seerr:5055
-SEERR_API_KEY=your-api-key  # Optional
-# For public subdomain
-SEERR_DOMAIN=seerr.example.com
-# For Google/Entra OAuth (required if using OAuth with Seerr)
-SEERR_REDIRECT_URI=https://seerr.example.com/oauth2callback
-```
-
-**OAuth Setup (Optional):**
-- If using Google or Entra authentication, Seerr can be accessed via its own subdomain with OAuth
-- Requires `SEERR_DOMAIN` and `SEERR_REDIRECT_URI` to be set
-- Add `https://seerr.example.com/oauth2callback` to your OAuth provider's redirect URIs
-
-**URL:** `https://yourdomain.com/seerr` or `https://seerr.example.com` (if OAuth enabled)
-
----
-
-### Prowlarr (PRO)
-
-Indexer manager for Sonarr/Radarr integration.
-
-**Docker Compose:**
-```yaml
-prowlarr:
-  image: hotio/prowlarr:latest
-  ports:
-    - "9696:9696"
-  environment:
-    PUID: 1000
-    PGID: 1000
-  volumes:
-    - ./config/prowlarr:/config
-```
-
-**YAHLP Configuration:**
-```bash
-ENABLE_PROWLARR=true
-PROWLARR_URL=http://prowlarr:9696
-PROWLARR_API_KEY=your-api-key  # Optional
-```
-
-**URL:** `https://yourdomain.com/prowlarr`
-
----
-
-### Bazarr (BAZ)
-
-Subtitle manager for TV and movies.
-
-**Docker Compose:**
-```yaml
-bazarr:
-  image: linuxserver/bazarr:latest
-  ports:
-    - "6767:6767"
-  environment:
-    PUID: 1000
-    PGID: 1000
-  volumes:
-    - ./config/bazarr:/config
-    - /mnt/media/tv:/tv
-    - /mnt/media/movies:/movies
-```
-
-**YAHLP Configuration:**
-```bash
-ENABLE_BAZARR=true
-BAZARR_URL=http://bazarr:6767
-BAZARR_API_KEY=your-api-key  # Optional
-```
-
-**URL:** `https://yourdomain.com/bazarr`
 
 ---
 
@@ -440,6 +409,120 @@ DELUGE_PASSWORD=your-password  # Required (set in deluge config)
 
 ---
 
+## Infrastructure Services
+
+### Seerr (SEE)
+
+Request and manage media requests.
+
+**Docker Compose:**
+```yaml
+seerr:
+  image: hotio/seerr:latest
+  ports:
+    - "5055:5055"
+  environment:
+    PUID: 1000
+    PGID: 1000
+  volumes:
+    - ./config/seerr:/config
+```
+
+**YAHLP Configuration:**
+```bash
+ENABLE_SEERR=true
+SEERR_URL=http://seerr:5055
+SEERR_API_KEY=your-api-key  # Optional
+```
+
+**URL:** `https://yourdomain.com/seerr`
+
+---
+
+### Bazarr (BAZ)
+
+Subtitle manager for TV and movies.
+
+**Docker Compose:**
+```yaml
+bazarr:
+  image: linuxserver/bazarr:latest
+  ports:
+    - "6767:6767"
+  environment:
+    PUID: 1000
+    PGID: 1000
+  volumes:
+    - ./config/bazarr:/config
+    - /mnt/media/tv:/tv
+    - /mnt/media/movies:/movies
+```
+
+**YAHLP Configuration:**
+```bash
+ENABLE_BAZARR=true
+BAZARR_URL=http://bazarr:6767
+```
+
+**URL:** `https://yourdomain.com/bazarr`
+
+---
+
+### Tautulli (TAU)
+
+Plex monitoring and statistics.
+
+**Docker Compose:**
+```yaml
+tautulli:
+  image: linuxserver/tautulli:latest
+  ports:
+    - "8181:8181"
+  environment:
+    PUID: 1000
+    PGID: 1000
+  volumes:
+    - ./config/tautulli:/config
+```
+
+**YAHLP Configuration:**
+```bash
+ENABLE_TAUTULLI=true
+TAUTULLI_URL=http://tautulli:8181
+TAUTULLI_API_KEY=your-api-key  # Optional
+```
+
+**URL:** `https://yourdomain.com/tautulli`
+
+---
+
+### Maintainerr (MNT)
+
+Media library maintenance tool.
+
+**Docker Compose:**
+```yaml
+maintainerr:
+  image: hotio/maintainerr:latest
+  ports:
+    - "6246:6246"
+  environment:
+    PUID: 1000
+    PGID: 1000
+  volumes:
+    - ./config/maintainerr:/config
+```
+
+**YAHLP Configuration:**
+```bash
+ENABLE_MAINTAINERR=true
+MAINTAINERR_URL=http://maintainerr:6246
+```
+
+**URL:** `https://yourdomain.com/maintainerr`
+
+---
+
 ## Media Services
 
 ### Jellyfin (JEL)
@@ -545,62 +628,6 @@ PLEX_REDIRECT_URI=https://plex.example.com/oauth2callback
 - Add `https://plex.example.com/oauth2callback` to your OAuth provider's redirect URIs
 
 **URL:** `https://yourdomain.com/plex` or `https://plex.example.com` (if OAuth enabled)
-
----
-
-### Tautulli (TAU)
-
-Plex monitoring and statistics.
-
-**Docker Compose:**
-```yaml
-tautulli:
-  image: linuxserver/tautulli:latest
-  ports:
-    - "8181:8181"
-  environment:
-    PUID: 1000
-    PGID: 1000
-  volumes:
-    - ./config/tautulli:/config
-```
-
-**YAHLP Configuration:**
-```bash
-ENABLE_TAUTULLI=true
-TAUTULLI_URL=http://tautulli:8181
-TAUTULLI_API_KEY=your-api-key  # Optional
-```
-
-**URL:** `https://yourdomain.com/tautulli`
-
----
-
-### Maintainerr (MNT)
-
-Media library maintenance tool.
-
-**Docker Compose:**
-```yaml
-maintainerr:
-  image: hotio/maintainerr:latest
-  ports:
-    - "6246:6246"
-  environment:
-    PUID: 1000
-    PGID: 1000
-  volumes:
-    - ./config/maintainerr:/config
-```
-
-**YAHLP Configuration:**
-```bash
-ENABLE_MAINTAINERR=true
-MAINTAINERR_URL=http://maintainerr:6246
-MAINTAINERR_API_KEY=your-api-key  # Optional
-```
-
-**URL:** `https://yourdomain.com/maintainerr`
 
 ---
 

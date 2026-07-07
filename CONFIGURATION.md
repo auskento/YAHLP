@@ -89,9 +89,9 @@ DASHBOARD_STYLE=modern,custom1   # Built-in modern + custom1 layout
 
 ### DASHBOARD_ORDER
 - **Type:** Comma-separated 3-letter service codes with optional separators
-- **Default:** `JEL,PLX,EMB,SON,RAD,LID,WHI,QBI,TRA,SAB,GET,DEL,HYD,PRO,SEE,BAZ,TAU,MNT`
+- **Default:** `SAB,GET,HYD,TRA,QBI,DEL,PRO,JAC,SON,RAD,LID,WHI,SEE,BAZ,TAU,MNT,JEL,PLX,EMB`
 - **Description:** Order services appear in dashboard
-- **Service codes:** JEL (Jellyfin), PLX (Plex), EMB (Emby), SON (Sonarr), RAD (Radarr), LID (Lidarr), WHI (Whisparr), QBI (qBittorrent), TRA (Transmission), SAB (SABnzbd), GET (NZBGet), DEL (Deluge), HYD (NZBHydra), PRO (Prowlarr), SEE (Seerr), BAZ (Bazarr), TAU (Tautulli), MNT (Maintainerr)
+- **Service codes:** SAB (SABnzbd), GET (NZBGet), HYD (NZBHydra), TRA (Transmission), QBI (qBittorrent), DEL (Deluge), PRO (Prowlarr), JAC (Jackett), SON (Sonarr), RAD (Radarr), LID (Lidarr), WHI (Whisparr), SEE (Seerr), BAZ (Bazarr), TAU (Tautulli), MNT (Maintainerr), JEL (Jellyfin), PLX (Plex), EMB (Emby)
 - **Special codes:**
   - `SEP` - Invisible separator/spacing gap
   - `VIS` - Visible separator line
@@ -227,7 +227,21 @@ Each service has:
 - **{SERVICE}_API_KEY** - API key (if needed)
 - **{SERVICE}_USERNAME** / **{SERVICE}_PASSWORD** - Credentials (if needed)
 
-### Content Services
+### Search Services
+
+#### Prowlarr (PRO)
+```bash
+ENABLE_PROWLARR=true
+PROWLARR_URL=http://prowlarr:9696
+PROWLARR_API_KEY=your-api-key  # Optional
+```
+
+#### Jackett (JAC)
+```bash
+ENABLE_JACKETT=true
+JACKETT_URL=http://jackett:9117
+JACKETT_API_KEY=your-api-key  # Optional
+```
 
 #### Sonarr (SON)
 ```bash
@@ -259,22 +273,13 @@ WHISPARR_URL=http://whisparr:6969
 WHISPARR_API_KEY=your-api-key  # Optional
 ```
 
-### Search Services
+### Infrastructure Services
 
 #### Seerr (SEE)
 ```bash
 ENABLE_SEERR=true
 SEERR_URL=http://seerr:5055
 SEERR_API_KEY=your-api-key  # Optional
-SEERR_DOMAIN=seerr.example.com  # For public subdomain
-SEERR_REDIRECT_URI=https://seerr.example.com/oauth2callback  # For Google/Entra OAuth
-```
-
-#### Prowlarr (PRO)
-```bash
-ENABLE_PROWLARR=true
-PROWLARR_URL=http://prowlarr:9696
-PROWLARR_API_KEY=your-api-key  # Optional
 ```
 
 #### Bazarr (BAZ)
@@ -282,6 +287,20 @@ PROWLARR_API_KEY=your-api-key  # Optional
 ENABLE_BAZARR=true
 BAZARR_URL=http://bazarr:6767
 BAZARR_API_KEY=your-api-key  # Optional
+```
+
+#### Tautulli (TAU)
+```bash
+ENABLE_TAUTULLI=true
+TAUTULLI_URL=http://tautulli:8181
+TAUTULLI_API_KEY=your-api-key  # Optional
+```
+
+#### Maintainerr (MNT)
+```bash
+ENABLE_MAINTAINERR=true
+MAINTAINERR_URL=http://maintainerr:6246
+MAINTAINERR_API_KEY=your-api-key  # Optional
 ```
 
 ### Usenet Services
@@ -358,20 +377,6 @@ PLEX_DOMAIN=plex.example.com  # For public subdomain
 PLEX_REDIRECT_URI=https://plex.example.com/oauth2callback  # For Google/Entra OAuth
 ```
 
-#### Tautulli (TAU)
-```bash
-ENABLE_TAUTULLI=true
-TAUTULLI_URL=http://tautulli:8181
-TAUTULLI_API_KEY=your-api-key  # Optional
-```
-
-#### Maintainerr (MNT)
-```bash
-ENABLE_MAINTAINERR=true
-MAINTAINERR_URL=http://maintainerr:6246
-MAINTAINERR_API_KEY=your-api-key  # Optional
-```
-
 See [SERVICES.md](SERVICES.md) for detailed service setup.
 
 ---
@@ -422,22 +427,42 @@ EMAIL=admin@example.com
 DASHBOARD_NAME="My Media Server"
 DASHBOARD_COLOR="#FF6B6B"
 DASHBOARD_STYLE=modern,sleek
-DASHBOARD_ORDER=JEL,PLX,SON,RAD,QBI,SAB
+DASHBOARD_ORDER=SAB,QBI,PRO,JAC,SON,RAD,JEL,PLX
 DASHBOARD_LANDING=jellyfin
 
-# Services
+# Services (Usenet)
+ENABLE_SABNZBD=true
+SABNZBD_URL=http://sabnzbd:8080
+SABNZBD_API_KEY=abc123def456
+
+# Services (Torrents)
+ENABLE_QBITTORRENT=true
+QBITTORRENT_URL=http://qbittorrent:8080
+QBITTORRENT_API_KEY=xyz789abc123
+
+# Services (Search)
+ENABLE_PROWLARR=true
+PROWLARR_URL=http://prowlarr:9696
+PROWLARR_API_KEY=prowlarr-key-123
+
+ENABLE_JACKETT=true
+JACKETT_URL=http://jackett:9117
+JACKETT_API_KEY=jackett-key-456
+
 ENABLE_SONARR=true
 SONARR_URL=http://sonarr:8989
+SONARR_API_KEY=sonarr-key-789
 
 ENABLE_RADARR=true
 RADARR_URL=http://radarr:7878
+RADARR_API_KEY=radarr-key-012
 
+# Services (Media)
 ENABLE_JELLYFIN=true
 JELLYFIN_URL=http://jellyfin:8096
 
-ENABLE_QBITTORRENT=true
-QBITTORRENT_URL=http://qbittorrent:8080
-QBITTORRENT_API_KEY=abc123def456
+ENABLE_PLEX=true
+PLEX_URL=http://plex:32400
 
 # Authentication
 AUTHTYPE=basic

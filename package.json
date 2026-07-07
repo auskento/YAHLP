@@ -1,7 +1,7 @@
 {
   "name": "yahlp-proxy",
   "version": "1.0.0",
-  "description": "Backend proxy for Plex and Seerr API requests",
+  "description": "Backend proxy for API requests",
   "main": "proxy.js",
   "scripts": {
     "start": "node proxy.js",

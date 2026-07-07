@@ -40,16 +40,17 @@
 
     // Service display order on dashboard (use 3-letter service codes)
     // Arrange services as desired; only enabled services will be shown
-    // JEL=Jellyfin, PLX=Plex, EMB=Emby, SON=Sonarr, RAD=Radarr, LID=Lidarr, WHI=Whisparr
-    // QBI=qBittorrent, TRA=Transmission, SAB=SABnzbd, GET=NZBGet, DEL=Deluge
-    // HYD=NZBHydra, PRO=Prowlarr, SEE=Seerr, BAZ=Bazarr, TAU=Tautulli, MNT=Maintainerr
+    // USENET: SAB=SABnzbd, GET=NZBGet, HYD=NZBHydra
+    // TORRENTS: TRA=Transmission, QBI=qBittorrent, DEL=Deluge
+    // SEARCH: PRO=Prowlarr, JAC=Jackett, SON=Sonarr, RAD=Radarr, LID=Lidarr, WHI=Whisparr
+    // INFRASTRUCTURE: SEE=Seerr, BAZ=Bazarr, TAU=Tautulli, MNT=Maintainerr
+    // MEDIA: JEL=Jellyfin, PLX=Plex, EMB=Emby
     order: [
+      'SAB', 'GET', 'HYD',
+      'TRA', 'QBI', 'DEL',
+      'PRO', 'JAC', 'SON', 'RAD', 'LID', 'WHI',
+      'SEE', 'BAZ', 'TAU', 'MNT',
       'JEL', 'PLX', 'EMB',
-      'SON', 'RAD', 'LID', 'WHI',
-      'QBI', 'TRA',
-      'SAB', 'GET', 'DEL',
-      'HYD', 'PRO', 'SEE',
-      'BAZ', 'TAU', 'MNT',
     ],
 
     // Built-in torrent/usenet sites to enable (optional)
@@ -141,7 +142,80 @@
       redirect_uri: 'http://localhost:3000/auth/emby/callback',
     },
 
-    // ========== PVR Services ==========
+    // ========== Usenet Services ==========
+
+    // SABnzbd: Usenet Client
+    sabnzbd: {
+      enabled: false,
+      url: 'http://sabnzbd.local:8080',
+      api_key: 'your-sabnzbd-api-key-here',
+      icon_url: 'https://sabnzbd.org/favicon.ico',
+    },
+
+    // NZBGet: Usenet Client
+    // Requires: username + password (not api_key)
+    nzbget: {
+      enabled: false,
+      url: 'http://nzbget.local:6789',
+      username: 'nzbget',
+      password: 'tegbzn6789',
+      icon_url: 'https://nzbget.net/favicon.ico',
+    },
+
+    // NZBHydra2: Usenet Meta-Search
+    nzbhydra: {
+      enabled: false,
+      url: 'http://nzbhydra.local:5076',
+      api_key: 'your-nzbhydra-api-key-here',
+      icon_url: 'https://github.com/theotherp/nzbhydra2/raw/master/other/nzbhydra.png',
+    },
+
+    // ========== Torrent Services ==========
+
+    // Transmission: Torrent Client
+    // Requires: URL only (no authentication needed)
+    transmission: {
+      enabled: false,
+      url: 'http://transmission.local:6969',
+      icon_url: 'https://transmissionbt.com/favicon.ico',
+    },
+
+    // qBittorrent: Torrent Client
+    // Requires: username + password (no API key)
+    qbittorrent: {
+      enabled: false,
+      url: 'http://qbittorrent.local:8080',
+      username: 'admin',
+      password: 'adminPassword',
+      icon_url: 'https://qbittorrent.org/favicon.ico',
+    },
+
+    // Deluge: Torrent Client
+    // Requires: password (for web UI login)
+    deluge: {
+      enabled: false,
+      url: 'http://deluge.local:8112',
+      password: 'your-deluge-password',
+      icon_url: 'https://deluge-torrent.org/favicon.ico',
+    },
+
+    // ========== Search & Automation Services ==========
+
+    // Prowlarr: Indexer Manager
+    prowlarr: {
+      enabled: true,
+      url: 'http://prowlarr.local:9696',
+      api_key: 'your-prowlarr-api-key-here',
+      icon_url: 'https://prowlarr.com/favicon.ico',
+    },
+
+    // Jackett: Indexer Aggregator
+    jackett: {
+      enabled: false,
+      url: 'http://jackett.local:9117',
+      api_key: 'your-jackett-api-key-here',
+      icon_url: 'https://raw.githubusercontent.com/Jackett/Jackett/master/src/Jackett.Common/Definitions/jackett.png',
+    },
 
     // Sonarr: TV Show Management
     // Optional landing option to set default page (e.g., calendar)
@@ -183,70 +257,7 @@
       // landing: 'calendar', // Opens to /calendar by default instead of /
     },
 
-    // ========== Download Clients ==========
-
-    // qBittorrent: Torrent Client
-    // Requires: username + password (no API key)
-    qbittorrent: {
-      enabled: false,
-      url: 'http://qbittorrent.local:8080',
-      username: 'admin',
-      password: 'adminPassword',
-      icon_url: 'https://qbittorrent.org/favicon.ico',
-    },
-
-    // Transmission: Torrent Client
-    // Requires: URL only (no authentication needed)
-    transmission: {
-      enabled: false,
-      url: 'http://transmission.local:6969',
-      icon_url: 'https://transmissionbt.com/favicon.ico',
-    },
-
-    // SABnzbd: Usenet Client
-    sabnzbd: {
-      enabled: false,
-      url: 'http://sabnzbd.local:8080',
-      api_key: 'your-sabnzbd-api-key-here',
-      icon_url: 'https://sabnzbd.org/favicon.ico',
-    },
-
-    // NZBGet: Usenet Client
-    // Requires: username + password (not api_key)
-    nzbget: {
-      enabled: false,
-      url: 'http://nzbget.local:6789',
-      username: 'nzbget',
-      password: 'tegbzn6789',
-      icon_url: 'https://nzbget.net/favicon.ico',
-    },
-
-    // Deluge: Torrent Client
-    // Requires: password (for web UI login)
-    deluge: {
-      enabled: false,
-      url: 'http://deluge.local:8112',
-      password: 'your-deluge-password',
-      icon_url: 'https://deluge-torrent.org/favicon.ico',
-    },
-
-    // ========== Search & Indexers ==========
-
-    // NZBHydra2: Usenet Search
-    nzbhydra: {
-      enabled: false,
-      url: 'http://nzbhydra.local:5076',
-      api_key: 'your-nzbhydra-api-key-here',
-      icon_url: 'https://github.com/theotherp/nzbhydra2/raw/master/other/nzbhydra.png',
-    },
-
-    // Prowlarr: Indexer Manager
-    prowlarr: {
-      enabled: true,
-      url: 'http://prowlarr.local:9696',
-      api_key: 'your-prowlarr-api-key-here',
-      icon_url: 'https://prowlarr.com/favicon.ico',
-    },
+    // ========== Infrastructure Services ==========
 
     // Seerr: Request Manager
     // Requires: domain_name and redirect_uri for authentication
@@ -258,8 +269,6 @@
       domain_name: 'seerr.example.com',
       redirect_uri: 'http://localhost:3000/auth/seerr/callback',
     },
-
-    // ========== Support Services ==========
 
     // Bazarr: Subtitle Manager
     bazarr: {
