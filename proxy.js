@@ -668,7 +668,6 @@ app.get('/api/deluge/login', async (req, res) => {
       throw new Error('Deluge not configured');
     }
 
-    console.log('[DELUGE-LOGIN] Attempting login to:', config.url);
 
     const authPayload = {
       method: 'auth.login',
@@ -683,14 +682,12 @@ app.get('/api/deluge/login', async (req, res) => {
       timeout: 10000
     });
 
-    console.log('[DELUGE-LOGIN] Response status:', response.status);
 
     if (!response.ok) {
       throw new Error(`Deluge auth HTTP ${response.status}`);
     }
 
     const authData = await response.json();
-    console.log('[DELUGE-LOGIN] Auth response:', authData);
 
     if (!authData || !authData.result) {
       throw new Error('Deluge auth failed');
@@ -698,7 +695,6 @@ app.get('/api/deluge/login', async (req, res) => {
 
     // Extract session cookie
     const setCookie = response.headers.get('set-cookie');
-    console.log('[DELUGE-LOGIN] Set-Cookie header:', setCookie);
 
     if (!setCookie) {
       throw new Error('No session cookie received from Deluge');
@@ -707,7 +703,6 @@ app.get('/api/deluge/login', async (req, res) => {
     // Parse cookie and attributes
     const cookieParts = setCookie.split(';').map(s => s.trim());
     const sessionCookie = cookieParts[0]; // name=value
-    console.log('[DELUGE-LOGIN] Extracted cookie:', sessionCookie);
 
     // Build cookie string for client with necessary attributes
     const cookieString = `${sessionCookie}; path=/; SameSite=Lax`;
@@ -718,7 +713,6 @@ app.get('/api/deluge/login', async (req, res) => {
       url: `${config.url}/`
     });
   } catch (err) {
-    console.error('[DELUGE-LOGIN]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -753,15 +747,12 @@ app.post('/api/deluge/stats', async (req, res) => {
 
     let authData = await response.json();
     if (!authData || !authData.result) {
-      console.error('[DELUGE] Auth failed:', authData);
       throw new Error('Deluge auth failed');
     }
 
     // Extract cookies from auth response
     const setCookie = response.headers.get('set-cookie');
-    console.error('[DELUGE] Set-Cookie header:', setCookie);
     const cookieHeader = setCookie ? setCookie.split(';')[0] : '';
-    console.error('[DELUGE] Cookie to send:', cookieHeader);
 
     // Get torrents with cookie
     let statsPayload = {
@@ -813,7 +804,6 @@ app.post('/api/deluge/stats', async (req, res) => {
     cache.set('deluge-stats', result);
     res.json(result);
   } catch (err) {
-    console.error('[DELUGE]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
