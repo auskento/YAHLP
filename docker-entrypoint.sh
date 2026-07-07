@@ -1257,6 +1257,7 @@ RequestHeader set X-Remote-Name %{OIDC_name}e
 RequestHeader set X-Remote-ID %{OIDC_sub}e
 RequestHeader set X-Auth-Method "Google"
 SEERRAUTHEOF
+            fi
 
             # Option 1: Single OAuth for all services
             sed -i "/@@INCLUDE_SEERR_OAUTH@@/d" /etc/apache2/sites-available/seerr-vhost.conf
@@ -1291,6 +1292,7 @@ RequestHeader set X-Remote-Name %{OIDC_name}e
 RequestHeader set X-Remote-ID %{OIDC_sub}e
 RequestHeader set X-Auth-Method "Entra"
 SEERRAUTHEOF
+            fi
 
             # Option 1: Single OAuth for all services
             sed -i "/@@INCLUDE_SEERR_OAUTH@@/d" /etc/apache2/sites-available/seerr-vhost.conf
