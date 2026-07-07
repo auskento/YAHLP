@@ -815,9 +815,13 @@ app.get('/api/jellyfin/auth', async (req, res) => {
     const username = getConfigValue('jellyfin', 'username');
     const password = getConfigValue('jellyfin', 'password');
 
+    console.log('[Jellyfin Auth] Username provided:', !!username, 'Password provided:', !!password);
+    console.log('[Jellyfin Auth] Jellyfin URL:', config?.url);
+
     // If credentials not provided, skip auto-auth
     if (!username || !password) {
-      return res.json({ authenticated: false });
+      console.log('[Jellyfin Auth] Credentials not configured, skipping auto-auth');
+      return res.json({ authenticated: false, error: 'Credentials not configured' });
     }
 
     // Check cache first
