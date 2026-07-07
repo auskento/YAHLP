@@ -212,178 +212,179 @@ See [AUTHENTICATION.md](AUTHENTICATION.md) for detailed setup.
 ## Services
 
 Each service has:
-- **ENABLE_{SERVICE}** - Enable/disable the service
+- **{SERVICE}_ENABLED** - Enable/disable the service
 - **{SERVICE}_URL** - Internal URL to service
 - **{SERVICE}_API_KEY** - API key (if needed)
 - **{SERVICE}_USERNAME** / **{SERVICE}_PASSWORD** - Credentials (if needed)
+- **{SERVICE}_ICON_URL** - Optional custom icon URL
 
 ### Search Services
 
 #### Prowlarr (PRO)
 ```bash
-ENABLE_PROWLARR=true
+PROWLARR_ENABLED=true
 PROWLARR_URL=http://prowlarr:9696
 PROWLARR_API_KEY=your-api-key  # Optional
-SERVICE_ICON_URL_PROWLARR=  # Optional custom icon URL
+PROWLARR_ICON_URL=  # Optional custom icon URL
 ```
 
 #### Jackett (JAC)
 ```bash
-ENABLE_JACKETT=true
+JACKETT_ENABLED=true
 JACKETT_URL=http://jackett:9117
 JACKETT_API_KEY=your-api-key  # Optional
-SERVICE_ICON_URL_JACKETT=  # Optional custom icon URL
+JACKETT_ICON_URL=  # Optional custom icon URL
 ```
 
 #### Sonarr (SON)
 ```bash
-ENABLE_SONARR=true
+SONARR_ENABLED=true
 SONARR_URL=http://sonarr:8989
 SONARR_API_KEY=your-api-key  # Optional
 SONARR_LANDING=sonarr/calendar  # Optional
-SERVICE_ICON_URL_SONARR=  # Optional custom icon URL
+SONARR_ICON_URL=  # Optional custom icon URL
 ```
 
 #### Radarr (RAD)
 ```bash
-ENABLE_RADARR=true
+RADARR_ENABLED=true
 RADARR_URL=http://radarr:7878
 RADARR_API_KEY=your-api-key  # Optional
 RADARR_LANDING=radarr  # Optional
-SERVICE_ICON_URL_RADARR=  # Optional custom icon URL
+RADARR_ICON_URL=  # Optional custom icon URL
 ```
 
 #### Lidarr (LID)
 ```bash
-ENABLE_LIDARR=true
+LIDARR_ENABLED=true
 LIDARR_URL=http://lidarr:8686
 LIDARR_API_KEY=your-api-key  # Optional
-SERVICE_ICON_URL_LIDARR=  # Optional custom icon URL
+LIDARR_ICON_URL=  # Optional custom icon URL
 ```
 
 #### Whisparr (WHI)
 ```bash
-ENABLE_WHISPARR=true
+WHISPARR_ENABLED=true
 WHISPARR_URL=http://whisparr:6969
 WHISPARR_API_KEY=your-api-key  # Optional
-SERVICE_ICON_URL_WHISPARR=  # Optional custom icon URL
+WHISPARR_ICON_URL=  # Optional custom icon URL
 ```
 
 ### Infrastructure Services
 
 #### Seerr (SEE)
 ```bash
-ENABLE_SEERR=true
+SEERR_ENABLED=true
 SEERR_URL=http://seerr:5055
 SEERR_API_KEY=your-api-key  # Optional
-SERVICE_ICON_URL_SEERR=  # Optional custom icon URL
+SEERR_ICON_URL=  # Optional custom icon URL
 ```
 
 #### Bazarr (BAZ)
 ```bash
-ENABLE_BAZARR=true
+BAZARR_ENABLED=true
 BAZARR_URL=http://bazarr:6767
 BAZARR_API_KEY=your-api-key  # Optional
-SERVICE_ICON_URL_BAZARR=  # Optional custom icon URL
+BAZARR_ICON_URL=  # Optional custom icon URL
 ```
 
 #### Tautulli (TAU)
 ```bash
-ENABLE_TAUTULLI=true
+TAUTULLI_ENABLED=true
 TAUTULLI_URL=http://tautulli:8181
 TAUTULLI_API_KEY=your-api-key  # Optional
-SERVICE_ICON_URL_TAUTULLI=  # Optional custom icon URL
+TAUTULLI_ICON_URL=  # Optional custom icon URL
 ```
 
 #### Maintainerr (MNT)
 ```bash
-ENABLE_MAINTAINERR=true
+MAINTAINERR_ENABLED=true
 MAINTAINERR_URL=http://maintainerr:6246
 MAINTAINERR_API_KEY=your-api-key  # Optional
-SERVICE_ICON_URL_MAINTAINERR=  # Optional custom icon URL
+MAINTAINERR_ICON_URL=  # Optional custom icon URL
 ```
 
 ### Usenet Services
 
 #### SABnzbd (SAB)
 ```bash
-ENABLE_SABNZBD=true
+SABNZBD_ENABLED=true
 SABNZBD_URL=http://sabnzbd:8080
 SABNZBD_API_KEY=your-api-key  # Optional
-SERVICE_ICON_URL_SABNZBD=  # Optional custom icon URL
+SABNZBD_ICON_URL=  # Optional custom icon URL
 ```
 
 #### NZBGet (GET)
 ```bash
-ENABLE_NZBGET=true
+NZBGET_ENABLED=true
 NZBGET_URL=http://nzbget:6789
 NZBGET_USERNAME=your-username  # Optional
 NZBGET_PASSWORD=your-password  # Optional
-SERVICE_ICON_URL_NZBGET=  # Optional custom icon URL
+NZBGET_ICON_URL=  # Optional custom icon URL
 ```
 
 #### NZBHydra (HYD)
 ```bash
-ENABLE_NZBHYDRA=true
+NZBHYDRA_ENABLED=true
 NZBHYDRA_URL=http://nzbhydra:5076
 NZBHYDRA_API_KEY=your-api-key  # Optional
-SERVICE_ICON_URL_NZBHYDRA=  # Optional custom icon URL
+NZBHYDRA_ICON_URL=  # Optional custom icon URL
 ```
 
 ### Torrent Services
 
 #### Transmission (TRA)
 ```bash
-ENABLE_TRANSMISSION=true
+TRANSMISSION_ENABLED=true
 TRANSMISSION_URL=http://transmission:6969
-SERVICE_ICON_URL_TRANSMISSION=  # Optional custom icon URL
+TRANSMISSION_ICON_URL=  # Optional custom icon URL
 # No auth by default
 ```
 
 #### qBittorrent (QBI)
 ```bash
-ENABLE_QBITTORRENT=true
+QBITTORRENT_ENABLED=true
 QBITTORRENT_URL=http://qbittorrent:8080
 QBITTORRENT_API_KEY=your-api-key  # Required
-SERVICE_ICON_URL_QBITTORRENT=  # Optional custom icon URL
+QBITTORRENT_ICON_URL=  # Optional custom icon URL
 ```
 
 #### Deluge (DEL)
 ```bash
-ENABLE_DELUGE=true
+DELUGE_ENABLED=true
 DELUGE_URL=http://deluge:8112
 DELUGE_PASSWORD=your-password  # Required
-SERVICE_ICON_URL_DELUGE=  # Optional custom icon URL
+DELUGE_ICON_URL=  # Optional custom icon URL
 ```
 
 ### Media Services
 
 #### Jellyfin (JEL)
 ```bash
-ENABLE_JELLYFIN=true
+JELLYFIN_ENABLED=true
 JELLYFIN_URL=http://jellyfin:8096
 JELLYFIN_API_KEY=your-api-key  # Optional
-SERVICE_ICON_URL_JELLYFIN=  # Optional custom icon URL
+JELLYFIN_ICON_URL=  # Optional custom icon URL
 ```
 
 #### Emby (EMB)
 ```bash
-ENABLE_EMBY=true
+EMBY_ENABLED=true
 EMBY_URL=http://emby:8096
 EMBY_API_KEY=your-api-key  # Optional
 EMBY_DOMAIN=emby.example.com  # For public subdomain
 EMBY_REDIRECT_URI=https://emby.example.com/oauth2callback  # For Google/Entra OAuth
-SERVICE_ICON_URL_EMBY=  # Optional custom icon URL
+EMBY_ICON_URL=  # Optional custom icon URL
 ```
 
 #### Plex (PLX)
 ```bash
-ENABLE_PLEX=true
+PLEX_ENABLED=true
 PLEX_URL=http://plex:32400
 PLEX_API_KEY=your-api-key  # Optional
 PLEX_DOMAIN=plex.example.com  # For public subdomain
 PLEX_REDIRECT_URI=https://plex.example.com/oauth2callback  # For Google/Entra OAuth
-SERVICE_ICON_URL_PLEX=  # Optional custom icon URL
+PLEX_ICON_URL=  # Optional custom icon URL
 ```
 
 See [SERVICES.md](SERVICES.md) for detailed service setup.
@@ -440,37 +441,37 @@ DASHBOARD_ORDER=SAB,QBI,PRO,JAC,SON,RAD,JEL,PLX
 DASHBOARD_LANDING=jellyfin
 
 # Services (Usenet)
-ENABLE_SABNZBD=true
+SABNZBD_ENABLED=true
 SABNZBD_URL=http://sabnzbd:8080
 SABNZBD_API_KEY=abc123def456
 
 # Services (Torrents)
-ENABLE_QBITTORRENT=true
+QBITTORRENT_ENABLED=true
 QBITTORRENT_URL=http://qbittorrent:8080
 QBITTORRENT_API_KEY=xyz789abc123
 
 # Services (Search)
-ENABLE_PROWLARR=true
+PROWLARR_ENABLED=true
 PROWLARR_URL=http://prowlarr:9696
 PROWLARR_API_KEY=prowlarr-key-123
 
-ENABLE_JACKETT=true
+JACKETT_ENABLED=true
 JACKETT_URL=http://jackett:9117
 JACKETT_API_KEY=jackett-key-456
 
-ENABLE_SONARR=true
+SONARR_ENABLED=true
 SONARR_URL=http://sonarr:8989
 SONARR_API_KEY=sonarr-key-789
 
-ENABLE_RADARR=true
+RADARR_ENABLED=true
 RADARR_URL=http://radarr:7878
 RADARR_API_KEY=radarr-key-012
 
 # Services (Media)
-ENABLE_JELLYFIN=true
+JELLYFIN_ENABLED=true
 JELLYFIN_URL=http://jellyfin:8096
 
-ENABLE_PLEX=true
+PLEX_ENABLED=true
 PLEX_URL=http://plex:32400
 
 # Authentication
