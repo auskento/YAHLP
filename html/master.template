@@ -272,12 +272,16 @@ async function initJellyfinAuth() {
         const response = await fetch(`/api/jellyfin/auth`);
         const data = await response.json();
 
+        console.log('Jellyfin auth response:', data);
         if (data.authenticated && data.token) {
             // Store token for use when opening Jellyfin
             sessionStorage.setItem('jellyfin-auth-token', data.token);
+            console.log('Jellyfin token stored');
+        } else {
+            console.log('Jellyfin auth failed:', data.error || 'not authenticated');
         }
     } catch (err) {
-        // Fail silently - Jellyfin will use normal login
+        console.error('Jellyfin auth fetch error:', err);
     }
 }
 

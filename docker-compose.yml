@@ -161,6 +161,8 @@ services:
       - apache-logs:/var/log/apache2
       # Mount custom template CSS files (user can add layout-*.css files here)
       - ./templates:/templates
+      # Mount configuration file
+      - ./yahlp.json5:/etc/yahlp/yahlp.json5
     
     networks:
       - proxy-network
