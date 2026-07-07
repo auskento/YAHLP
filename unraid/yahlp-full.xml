@@ -82,8 +82,8 @@
     <Variable><Name>SABNZBD_ICON_URL</Name><Value></Value></Variable>
     <Variable><Name>NZBGET_ENABLED</Name><Value>false</Value></Variable>
     <Variable><Name>NZBGET_URL</Name><Value>http://nzbget:6789</Value></Variable>
-    <Variable><Name>NZBGET_USER</Name><Value>nzbget</Value></Variable>
-    <Variable><Name>NZBGET_PASS</Name><Value></Value></Variable>
+    <Variable><Name>NZBGET_USERNAME</Name><Value>nzbget</Value></Variable>
+    <Variable><Name>NZBGET_PASSWORD</Name><Value></Value></Variable>
     <Variable><Name>NZBGET_ICON_URL</Name><Value></Value></Variable>
     <Variable><Name>NZBHYDRA_ENABLED</Name><Value>false</Value></Variable>
     <Variable><Name>NZBHYDRA_URL</Name><Value>http://nzbhydra:5076</Value></Variable>
@@ -187,8 +187,8 @@
 
   <Config Name="Enable NZBGET" Target="NZBGET_ENABLED" Default="false" Mode="" Description="Enable NZBget usenet client." Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="NZBget URL" Target="NZBGET_URL" Default="http://nzbget:6789" Mode="" Description="Internal Docker URL. Format: http://container-name:port" Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="NZBget Username" Target="NZBGET_USER" Default="nzbget" Mode="" Description="NZBget username for authentication." Type="Variable" Display="always" Required="false" Mask="false"/>
-  <Config Name="NZBget Password" Target="NZBGET_PASS" Default="" Mode="" Description="NZBget password for authentication." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="NZBget Username" Target="NZBGET_USERNAME" Default="nzbget" Mode="" Description="NZBget username for authentication." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="NZBget Password" Target="NZBGET_PASSWORD" Default="" Mode="" Description="NZBget password for authentication." Type="Variable" Display="always" Required="false" Mask="true"/>
   <Config Name="NZBget Icon URL" Target="NZBGET" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
 
   <Config Name="Enable NZBHYDRA" Target="NZBHYDRA_ENABLED" Default="false" Mode="" Description="Enable NZBHydra2 usenet meta-search." Type="Variable" Display="always" Required="false" Mask="false"/>
@@ -275,6 +275,7 @@
   <Config Name="Emby Icon URL" Target="EMBY" Default="" Mode="" Description="Custom icon URL. Leave blank to use bundled icon." Type="Variable" Display="always" Required="false" Mask="false"/>
 
 </Container>
+
 
 
 

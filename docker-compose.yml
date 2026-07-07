@@ -43,7 +43,7 @@ services:
       - SABNZBD_URL=http://sabnzbd:8080
       - SABNZBD_API_KEY=${SABNZBD_API_KEY}
       - NZBGET_URL=http://nzbget:6789
-      - NZBGET_PASS=${NZBGET_PASS}
+      - NZBGET_PASSWORD=${NZBGET_PASSWORD}
       - DELUGE_URL=http://deluge:8112
       - DELUGE_PASSWORD=${DELUGE_PASSWORD}
 

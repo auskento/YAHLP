@@ -169,9 +169,9 @@ case "$AUTHTYPE" in
 esac
 
 # Generate NZBGet authentication header if credentials provided
-if [ -n "$NZBGET_USER" ] && [ -n "$NZBGET_PASS" ]; then
+if [ -n "$NZBGET_USERNAME" ] && [ -n "$NZBGET_PASSWORD" ]; then
     # Base64 encode the username:password
-    AUTH_BASIC=$(echo -n "$NZBGET_USER:$NZBGET_PASS" | base64)
+    AUTH_BASIC=$(echo -n "$NZBGET_USERNAME:$NZBGET_PASSWORD" | base64)
     NZBGET_AUTH_HEADER_LINE="    RequestHeader set Authorization 'Basic $AUTH_BASIC'"
     echo "NZBGet authentication header configured"
 
