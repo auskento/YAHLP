@@ -56,17 +56,25 @@ docker-compose up -d
 - **Public:** `https://yourdomain.com`
 - **Private:** `https://192.168.x.x` (your internal IP)
 
-## 📚 Documentation Index
+## 📚 Documentation
 
-| Document | Purpose |
-|----------|---------|
-| [INSTALLATION.md](INSTALLATION.md) | Detailed setup guide for Docker & Unraid |
-| [CONFIGURATION.md](CONFIGURATION.md) | All environment variables explained |
-| [SERVICES.md](SERVICES.md) | Setting up each of the 19 services |
-| [AUTHENTICATION.md](AUTHENTICATION.md) | Auth method configuration (basic, OAuth, etc) |
-| [DASHBOARD-CUSTOMIZATION.md](DASHBOARD-CUSTOMIZATION.md) | Layouts, themes, service ordering |
-| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and solutions |
-| [UNRAID.md](UNRAID.md) | Unraid-specific deployment guide |
+### Getting Started
+- [**Installation**](docs/installation.md) - Detailed setup guide for Docker & Unraid
+- [**Configuration**](docs/configuration.md) - All environment variables and config options
+- [**Dashboard Customization**](docs/dashboard-customization.md) - Layouts, themes, service ordering
+
+### Using YAHLP
+- [**Services**](docs/services.md) - Setting up each of the 19 supported services
+- [**Authentication**](docs/authentication.md) - Auth method configuration (basic, OAuth, etc)
+- [**Troubleshooting**](docs/troubleshooting.md) - Common issues and solutions
+- [**Unraid Deployment**](docs/unraid.md) - Unraid-specific deployment guide
+
+### Advanced
+- [**Architecture**](docs/architecture.md) - System design and how YAHLP works
+- [**Development**](docs/development.md) - Contributing, building, and extending
+- [**Security**](docs/security.md) - Security best practices and implementation details
+- [**Upgrading**](docs/upgrading.md) - Version updates and migration guides
+- [**Backup & Restore**](docs/backup-restore.md) - Data persistence and recovery
 
 ## 🔧 Common Setup Examples
 
@@ -113,7 +121,7 @@ DASHBOARD_STYLE=modern,sleek
 - **Minimal** - Left service bar, single-column layout
 - **Mobile** - Auto-loaded on small screens
 
-See [DASHBOARD-CUSTOMIZATION.md](DASHBOARD-CUSTOMIZATION.md) for details.
+See [Dashboard Customization](docs/dashboard-customization.md) for details.
 
 ## 🐳 Docker Compose
 
@@ -187,7 +195,7 @@ volumes:
   - ./appdata/logs:/var/log/apache2
 ```
 
-See [INSTALLATION.md](INSTALLATION.md) for complete setup.
+See [Installation](docs/installation.md) for complete setup.
 
 ## 🚨 Troubleshooting
 
@@ -201,11 +209,11 @@ See [INSTALLATION.md](INSTALLATION.md) for complete setup.
 2. Check ports 80/443 are open
 3. Verify EMAIL is valid
 
-See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for more solutions.
+See [Troubleshooting](docs/troubleshooting.md) for more solutions.
 
 ## 📖 Full Documentation
 
-Start with [INSTALLATION.md](INSTALLATION.md) for detailed setup, then refer to specific guides as needed.
+Start with [Installation](docs/installation.md) for detailed setup, then refer to specific guides as needed.
 
 ## 🐛 Support
 
@@ -218,4 +226,4 @@ MIT License - See LICENSE file
 
 ---
 
-**Ready to get started?** → [INSTALLATION.md](INSTALLATION.md)
+**Ready to get started?** → [Installation](docs/installation.md)

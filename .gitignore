@@ -58,3 +58,6 @@ dist/
 # User data
 appdata/
 data/
+
+# Marketing website (generated, not part of core repo)
+website/

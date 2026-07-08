@@ -8,6 +8,12 @@
       ],
       "name": "yahlp-proxy",
       "port": 3000
+    },
+    {
+      "name": "yahlp-website",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8000", "--directory", "website"],
+      "port": 8000
     }
   ]
 }
