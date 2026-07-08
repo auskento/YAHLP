@@ -14,8 +14,29 @@
   <Icon>https://raw.githubusercontent.com/auskento/YAHLP/main/html/icons/yahlp.png</Icon>
   <WebUI>https://[IP]:[PORT:443]</WebUI>
   <CloudSync>false</CloudSync>
-  <Description>YAHLP - Complete Master Template with ALL configuration options</Description>
-  <Overview>YAHLP - Yet Another HomeLab Portal. Complete template with all 19 services and comprehensive configuration options.</Overview>
+  <Overview>Complete YAHLP Template: Unified dashboard and reverse proxy for all 19 homelab services. Automatic HTTPS, flexible authentication, 5 responsive layouts.</Overview>
+  <Description>
+YAHLP is a production-ready reverse proxy and dashboard for managing multiple homelab services from one interface.
+
+This is the FULL template with ALL configuration options for all 19 services:
+
+USENET: SABnzbd, NZBget, NZBHydra2
+TORRENTS: Transmission, qBittorrent, Deluge
+SEARCH: Prowlarr, Jackett, Sonarr, Radarr, Lidarr, Whisparr
+INFRA: Seerr, Bazarr, Tautulli, Maintainerr
+MEDIA: Jellyfin, Plex, Emby
+
+Features:
+- Automatic HTTPS via Let's Encrypt (public mode) or HTTP (private mode)
+- 5 responsive layouts: Classic, Modern, Sleek, Minimal, Mobile
+- Flexible authentication: Basic Auth, Entra ID, Google OAuth, or public
+- Real-time service health monitoring
+- Customizable service ordering and theming
+- Per-service URL and API key configuration
+
+For a simplified template with core services only, use yahlp-simple.
+Documentation: https://github.com/auskento/YAHLP/tree/main/docs
+  </Description>
 
   <Networking>
     <Mode>bridge</Mode>
