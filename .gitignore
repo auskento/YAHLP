@@ -35,6 +35,9 @@ logs/
 *.swp
 *.swo
 
+# Claude Code
+.claude/
+
 # Node/npm (if used)
 node_modules/
 package-lock.json
