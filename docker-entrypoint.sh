@@ -841,129 +841,19 @@ if [ "$ACCESS_MODE" = "public" ] && [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EM
     echo ""
     echo "=== Generating Emby VirtualHost ==="
 
-    # Domain name from EMBY_DOMAIN (should be emby.limosani.net.au format)
+    # Determine certificate path (subdomain cert, base domain cert, or main domain fallback)
     EMBY_DOMAIN_NAME="$EMBY_DOMAIN"
     EMBY_CERT_DOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://||' | sed -E 's|[^.]+\.(.+)$|\1|')
 
-    echo "Emby domain: $EMBY_DOMAIN"
-    echo "Checking certificate paths..."
-
-    # Use subdomain cert if it exists, otherwise use main domain cert
     if [ -f "/etc/letsencrypt/live/$EMBY_DOMAIN_NAME/fullchain.pem" ]; then
         EMBY_CERT_PATH="$EMBY_DOMAIN_NAME"
-        echo "✓ Found certificate for EMBY_DOMAIN: /etc/letsencrypt/live/$EMBY_DOMAIN_NAME/fullchain.pem"
     elif [ -f "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" ]; then
         EMBY_CERT_PATH="$EMBY_CERT_DOMAIN"
-        echo "✓ Found certificate for EMBY_CERT_DOMAIN: /etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem"
     else
         EMBY_CERT_PATH="$DOMAIN"
-        echo "⚠ Using fallback main domain certificate: /etc/letsencrypt/live/$DOMAIN/fullchain.pem"
     fi
 
-    echo "Certificate path to be used: $EMBY_CERT_PATH"
-
-    # Generate Emby VirtualHost config
-    cat > /etc/apache2/sites-available/emby-vhost.conf <<'EMBYEOF'
-<VirtualHost *:80>
-    ServerName @@EMBY_DOMAIN_NAME@@
-    RewriteEngine On
-    RewriteCond %{HTTPS} off
-    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-    DocumentRoot /var/www/letsencrypt
-    <Directory /var/www/letsencrypt>
-        Require all granted
-    </Directory>
-</VirtualHost>
-
-<VirtualHost *:443>
-    ServerName @@EMBY_DOMAIN_NAME@@
-    SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/@@EMBY_CERT_PATH@@/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/@@EMBY_CERT_PATH@@/privkey.pem
-    SSLProtocol @@SSL_PROTOCOLS@@
-    SSLCipherSuite @@SSL_CIPHERS@@
-    SSLHonorCipherOrder on
-
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-    Header always set X-Content-Type-Options "nosniff"
-    Header always set X-Frame-Options "SAMEORIGIN"
-    Header always set X-XSS-Protection "1; mode=block"
-
-    ProxyRequests Off
-    ProxyPreserveHost On
-    ProxyVia Off
-
-    <Proxy *>
-        Order deny,allow
-        Allow from all
-        Satisfy Any
-    </Proxy>
-
-    ProxyTimeout 300
-    Timeout 300
-
-    @@INCLUDE_EMBY_OAUTH@@
-
-    ProxyPass / http://emby:8096/
-    ProxyPassReverse / http://emby:8096/
-
-    ErrorDocument 502 /error-pages/502.html
-    ErrorDocument 503 /error-pages/503.html
-
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
-    LogLevel warn
-</VirtualHost>
-EMBYEOF
-
-    sed -i "s#@@EMBY_DOMAIN_NAME@@#$EMBY_DOMAIN_NAME#g" /etc/apache2/sites-available/emby-vhost.conf
-    sed -i "s#@@EMBY_CERT_PATH@@#$EMBY_CERT_PATH#g" /etc/apache2/sites-available/emby-vhost.conf
-    sed -i "s#@@SSL_PROTOCOLS@@#$SSL_PROTOCOLS#g" /etc/apache2/sites-available/emby-vhost.conf
-    sed -i "s#@@SSL_CIPHERS@@#$SSL_CIPHERS#g" /etc/apache2/sites-available/emby-vhost.conf
-    sed -i "s#http://emby:8096/#$EMBY_URL/#g" /etc/apache2/sites-available/emby-vhost.conf
-
-    # Generate auth protection config for Emby based on AUTHTYPE
-    case "$AUTHTYPE" in
-        google)
-            # Option 1: Single OAuth for all services
-            # Remove per-service OAuth - use root-level oauth2-google.conf and auth-google-protect.conf instead
-            sed -i "/@@INCLUDE_EMBY_OAUTH@@/d" /etc/apache2/sites-available/emby-vhost.conf
-            ;;
-        entra)
-            # Generate auth protection config
-            cat > /etc/apache2/conf-available/auth-entra-protect-emby.conf <<'EMBYAUTHEOF'
-<Location /oauth2>
-    SetHandler oauth2-handler
-</Location>
-<Location /oauth2callback>
-    SetHandler oauth2-handler
-</Location>
-<Location />
-    AuthType openid-connect
-    Require valid-user
-</Location>
-RequestHeader set X-Remote-User %{OIDC_email}e
-RequestHeader set X-Remote-Name %{OIDC_name}e
-RequestHeader set X-Remote-ID %{OIDC_sub}e
-RequestHeader set X-Auth-Method "Entra"
-EMBYAUTHEOF
-
-            # Option 1: Single OAuth for all services
-            # Remove per-service OAuth - use root-level oauth2-entra.conf and auth-entra-protect.conf instead
-            sed -i "/@@INCLUDE_EMBY_OAUTH@@/d" /etc/apache2/sites-available/emby-vhost.conf
-            ;;
-        basic)
-            # Basic auth is handled globally by auth-basic.conf, don't add service-level protection
-            sed -i "/@@INCLUDE_EMBY_OAUTH@@/d" /etc/apache2/sites-available/emby-vhost.conf
-            ;;
-        none|*)
-            # No auth protection - just remove the placeholder
-            sed -i "/@@INCLUDE_EMBY_OAUTH@@/d" /etc/apache2/sites-available/emby-vhost.conf
-            ;;
-    esac
-
-    a2ensite emby-vhost.conf 2>/dev/null || true
-    echo "✓ Emby VirtualHost enabled"
+    /usr/local/bin/generate-vhost.sh "emby" "$EMBY_DOMAIN_NAME" "$EMBY_URL" "$EMBY_CERT_PATH" "$AUTHTYPE"
 fi
 
 # Generate Plex VirtualHost if enabled (public mode only)
@@ -971,185 +861,19 @@ if [ "$ACCESS_MODE" = "public" ] && [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PL
     echo ""
     echo "=== Generating Plex VirtualHost ==="
 
-    # Domain name from PLEX_DOMAIN (should be plex.limosani.net.au format)
+    # Determine certificate path (subdomain cert, base domain cert, or main domain fallback)
     PLEX_DOMAIN_NAME="$PLEX_DOMAIN"
     PLEX_CERT_DOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://||' | sed -E 's|[^.]+\.(.+)$|\1|')
 
-    echo "Plex domain: $PLEX_DOMAIN"
-    echo "Checking certificate paths..."
-
-    # Use subdomain cert if it exists, otherwise use main domain cert
     if [ -f "/etc/letsencrypt/live/$PLEX_DOMAIN_NAME/fullchain.pem" ]; then
         PLEX_CERT_PATH="$PLEX_DOMAIN_NAME"
-        echo "✓ Found certificate for PLEX_DOMAIN: /etc/letsencrypt/live/$PLEX_DOMAIN_NAME/fullchain.pem"
     elif [ -f "/etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem" ]; then
         PLEX_CERT_PATH="$PLEX_CERT_DOMAIN"
-        echo "✓ Found certificate for PLEX_CERT_DOMAIN: /etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem"
     else
         PLEX_CERT_PATH="$DOMAIN"
-        echo "⚠ Using fallback main domain certificate: /etc/letsencrypt/live/$DOMAIN/fullchain.pem"
     fi
 
-    echo "Certificate path to be used: $PLEX_CERT_PATH"
-
-    # Generate Plex VirtualHost config
-    cat > /etc/apache2/sites-available/plex-vhost.conf <<'PLEXEOF'
-<VirtualHost *:80>
-    ServerName @@PLEX_DOMAIN_NAME@@
-    RewriteEngine On
-    RewriteCond %{HTTPS} off
-    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-    DocumentRoot /var/www/letsencrypt
-    <Directory /var/www/letsencrypt>
-        Require all granted
-    </Directory>
-</VirtualHost>
-
-<VirtualHost *:443>
-    ServerName @@PLEX_DOMAIN_NAME@@
-    SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/@@PLEX_CERT_PATH@@/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/@@PLEX_CERT_PATH@@/privkey.pem
-    SSLProtocol @@SSL_PROTOCOLS@@
-    SSLCipherSuite @@SSL_CIPHERS@@
-    SSLHonorCipherOrder on
-
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-    Header always set X-Content-Type-Options "nosniff"
-    Header always set X-Frame-Options "SAMEORIGIN"
-    Header always set X-XSS-Protection "1; mode=block"
-
-    ProxyRequests Off
-    ProxyPreserveHost On
-    ProxyVia Off
-
-    <Proxy *>
-        Order deny,allow
-        Allow from all
-        Satisfy Any
-    </Proxy>
-
-    ProxyTimeout 300
-    Timeout 300
-
-    @@INCLUDE_PLEX_OAUTH@@
-
-    ProxyPass / http://plex:32400/
-    ProxyPassReverse / http://plex:32400/
-
-    ErrorDocument 502 /error-pages/502.html
-    ErrorDocument 503 /error-pages/503.html
-
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
-    LogLevel warn
-</VirtualHost>
-PLEXEOF
-
-    sed -i "s#@@PLEX_DOMAIN_NAME@@#$PLEX_DOMAIN_NAME#g" /etc/apache2/sites-available/plex-vhost.conf
-    sed -i "s#@@PLEX_CERT_PATH@@#$PLEX_CERT_PATH#g" /etc/apache2/sites-available/plex-vhost.conf
-    sed -i "s#@@SSL_PROTOCOLS@@#$SSL_PROTOCOLS#g" /etc/apache2/sites-available/plex-vhost.conf
-    sed -i "s#@@SSL_CIPHERS@@#$SSL_CIPHERS#g" /etc/apache2/sites-available/plex-vhost.conf
-    sed -i "s#http://plex:32400/#$PLEX_URL/#g" /etc/apache2/sites-available/plex-vhost.conf
-
-    # Generate auth protection config for Plex based on AUTHTYPE
-    case "$AUTHTYPE" in
-        google)
-            # Generate auth protection config
-            cat > /etc/apache2/conf-available/auth-google-protect-plex.conf <<'PLEXAUTHEOF'
-<Location /oauth2>
-    SetHandler oauth2-handler
-</Location>
-<Location /oauth2callback>
-    SetHandler oauth2-handler
-</Location>
-<Location />
-    AuthType openid-connect
-    Require valid-user
-</Location>
-RequestHeader set X-Remote-User %{OIDC_email}e
-RequestHeader set X-Remote-Name %{OIDC_name}e
-RequestHeader set X-Remote-ID %{OIDC_sub}e
-RequestHeader set X-Auth-Method "Google"
-PLEXAUTHEOF
-
-            # Add includes for Google OAuth (only if oauth2 config was created)
-            sed -i "/@@INCLUDE_PLEX_OAUTH@@/d" /etc/apache2/sites-available/plex-vhost.conf
-
-            # Generate Seerr auth protection config (if SEERR_DOMAIN is set)
-            if [ ! -z "$SEERR_DOMAIN" ]; then
-                cat > /etc/apache2/conf-available/auth-google-protect-seerr.conf <<'SEERRAUTHEOF'
-<Location /oauth2>
-    SetHandler oauth2-handler
-</Location>
-<Location /oauth2callback>
-    SetHandler oauth2-handler
-</Location>
-<Location />
-    AuthType openid-connect
-    Require valid-user
-</Location>
-RequestHeader set X-Remote-User %{OIDC_email}e
-RequestHeader set X-Remote-Name %{OIDC_name}e
-RequestHeader set X-Remote-ID %{OIDC_sub}e
-RequestHeader set X-Auth-Method "Google"
-SEERRAUTHEOF
-            fi
-            ;;
-        entra)
-            # Generate auth protection config
-            cat > /etc/apache2/conf-available/auth-entra-protect-plex.conf <<'PLEXAUTHEOF'
-<Location /oauth2>
-    SetHandler oauth2-handler
-</Location>
-<Location /oauth2callback>
-    SetHandler oauth2-handler
-</Location>
-<Location />
-    AuthType openid-connect
-    Require valid-user
-</Location>
-RequestHeader set X-Remote-User %{OIDC_email}e
-RequestHeader set X-Remote-Name %{OIDC_name}e
-RequestHeader set X-Remote-ID %{OIDC_sub}e
-RequestHeader set X-Auth-Method "Entra"
-PLEXAUTHEOF
-
-            # Add includes for Entra OAuth (only if oauth2 config was created)
-            sed -i "/@@INCLUDE_PLEX_OAUTH@@/d" /etc/apache2/sites-available/plex-vhost.conf
-
-            # Generate Seerr auth protection config (if SEERR_DOMAIN is set)
-            if [ ! -z "$SEERR_DOMAIN" ]; then
-                cat > /etc/apache2/conf-available/auth-entra-protect-seerr.conf <<'SEERRAUTHEOF'
-<Location /oauth2>
-    SetHandler oauth2-handler
-</Location>
-<Location /oauth2callback>
-    SetHandler oauth2-handler
-</Location>
-<Location />
-    AuthType openid-connect
-    Require valid-user
-</Location>
-RequestHeader set X-Remote-User %{OIDC_email}e
-RequestHeader set X-Remote-Name %{OIDC_name}e
-RequestHeader set X-Remote-ID %{OIDC_sub}e
-RequestHeader set X-Auth-Method "Entra"
-SEERRAUTHEOF
-            fi
-            ;;
-        basic)
-            # Basic auth is handled globally by auth-basic.conf, don't add service-level protection
-            sed -i "/@@INCLUDE_PLEX_OAUTH@@/d" /etc/apache2/sites-available/plex-vhost.conf
-            ;;
-        none|*)
-            # No auth protection - just remove the placeholder
-            sed -i "/@@INCLUDE_PLEX_OAUTH@@/d" /etc/apache2/sites-available/plex-vhost.conf
-            ;;
-    esac
-
-    a2ensite plex-vhost.conf 2>/dev/null || true
-    echo "✓ Plex VirtualHost enabled"
+    /usr/local/bin/generate-vhost.sh "plex" "$PLEX_DOMAIN_NAME" "$PLEX_URL" "$PLEX_CERT_PATH" "$AUTHTYPE"
 fi
 
 # Configure Seerr subdomain VirtualHost (if SEERR_DOMAIN and SEERR_URL are set and in public mode)
@@ -1157,156 +881,19 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$SEERR_DOMAIN" ] && [ ! -z "$SEERR_U
     echo ""
     echo "=== Generating Seerr VirtualHost ==="
 
+    # Determine certificate path (subdomain cert, base domain cert, or main domain fallback)
     SEERR_DOMAIN_NAME="$SEERR_DOMAIN"
     SEERR_CERT_DOMAIN=$(echo "$SEERR_DOMAIN" | sed -E 's|^https?://||' | sed -E 's|[^.]+\.(.+)$|\1|')
 
-    echo "Seerr domain: $SEERR_DOMAIN"
-    echo "Checking certificate paths..."
-
-    # Certificate path fallback logic
-    # First try: /etc/letsencrypt/live/$SEERR_DOMAIN/fullchain.pem
     if [ -f "/etc/letsencrypt/live/$SEERR_DOMAIN_NAME/fullchain.pem" ]; then
         SEERR_CERT_PATH="$SEERR_DOMAIN_NAME"
-        echo "✓ Found certificate for SEERR_DOMAIN: /etc/letsencrypt/live/$SEERR_DOMAIN_NAME/fullchain.pem"
-    # Second try: /etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem (extracted base domain)
     elif [ -f "/etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem" ]; then
         SEERR_CERT_PATH="$SEERR_CERT_DOMAIN"
-        echo "✓ Found certificate for SEERR_CERT_DOMAIN: /etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem"
-    # Fallback: /etc/letsencrypt/live/$DOMAIN/fullchain.pem (main domain cert)
     else
         SEERR_CERT_PATH="$DOMAIN"
-        echo "⚠ Using fallback main domain certificate: /etc/letsencrypt/live/$DOMAIN/fullchain.pem"
     fi
 
-    echo "Certificate path to be used: $SEERR_CERT_PATH"
-
-    cat > /etc/apache2/sites-available/seerr-vhost.conf <<'SEERRCEOF'
-<VirtualHost *:80>
-    ServerName @@SEERR_DOMAIN_NAME@@
-    RewriteEngine On
-    RewriteCond %{HTTPS} off
-    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-    DocumentRoot /var/www/letsencrypt
-    <Directory /var/www/letsencrypt>
-        Require all granted
-    </Directory>
-</VirtualHost>
-
-<VirtualHost *:443>
-    ServerName @@SEERR_DOMAIN_NAME@@
-    SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/@@SEERR_CERT_PATH@@/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/@@SEERR_CERT_PATH@@/privkey.pem
-    SSLProtocol @@SSL_PROTOCOLS@@
-    SSLCipherSuite @@SSL_CIPHERS@@
-    SSLHonorCipherOrder on
-
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-    Header always set X-Content-Type-Options nosniff
-    Header always set X-Frame-Options SAMEORIGIN
-    Header always set X-XSS-Protection "1; mode=block"
-
-    # Proxy settings
-    ProxyPreserveHost On
-    ProxyPass / @@SEERR_URL@@/
-    ProxyPassReverse / @@SEERR_URL@@/
-
-    Timeout 300
-
-    @@INCLUDE_SEERR_OAUTH@@
-
-    ErrorDocument 502 /error-pages/502.html
-    ErrorDocument 503 /error-pages/503.html
-
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
-    LogLevel warn
-</VirtualHost>
-SEERRCEOF
-
-    sed -i "s#@@SEERR_DOMAIN_NAME@@#$SEERR_DOMAIN_NAME#g" /etc/apache2/sites-available/seerr-vhost.conf
-    sed -i "s#@@SEERR_CERT_PATH@@#$SEERR_CERT_PATH#g" /etc/apache2/sites-available/seerr-vhost.conf
-    sed -i "s#@@SEERR_URL@@#$SEERR_URL#g" /etc/apache2/sites-available/seerr-vhost.conf
-    sed -i "s#@@SSL_PROTOCOLS@@#$SSL_PROTOCOLS#g" /etc/apache2/sites-available/seerr-vhost.conf
-    sed -i "s#@@SSL_CIPHERS@@#$SSL_CIPHERS#g" /etc/apache2/sites-available/seerr-vhost.conf
-
-    case "${AUTHTYPE}" in
-        google)
-            # Generate Google OAuth config for Seerr if SEERR_REDIRECT_URI is set
-            if [ ! -z "$SEERR_REDIRECT_URI" ]; then
-                SEERR_COOKIE_DOMAIN=$(echo "$SEERR_DOMAIN" | sed 's|^[^.]*\.||')
-                cat /etc/apache2/conf-available/oauth2-google.conf \
-                    | sed "s#@@GOOGLE_REDIRECT_URI@@#$SEERR_REDIRECT_URI#g" \
-                    | sed "s#@@COOKIE_DOMAIN@@#$SEERR_COOKIE_DOMAIN#g" \
-                    > /etc/apache2/conf-available/oauth2-google-seerr.conf
-
-                # Generate auth protection config
-                cat > /etc/apache2/conf-available/auth-google-protect-seerr.conf <<'SEERRAUTHEOF'
-<Location /oauth2>
-    SetHandler oauth2-handler
-</Location>
-<Location /oauth2callback>
-    SetHandler oauth2-handler
-</Location>
-<Location />
-    AuthType openid-connect
-    Require valid-user
-</Location>
-RequestHeader set X-Remote-User %{OIDC_email}e
-RequestHeader set X-Remote-Name %{OIDC_name}e
-RequestHeader set X-Remote-ID %{OIDC_sub}e
-RequestHeader set X-Auth-Method "Google"
-SEERRAUTHEOF
-            fi
-
-            # Option 1: Single OAuth for all services
-            sed -i "/@@INCLUDE_SEERR_OAUTH@@/d" /etc/apache2/sites-available/seerr-vhost.conf
-            ;;
-        entra)
-            # Generate Entra OAuth config for Seerr if SEERR_REDIRECT_URI is set
-            if [ ! -z "$SEERR_REDIRECT_URI" ]; then
-                SEERR_COOKIE_DOMAIN=$(echo "$SEERR_DOMAIN" | sed 's|^[^.]*\.||')
-                cat /etc/apache2/conf-available/oauth2-entra.conf \
-                    | sed "s#@@ENTRA_CLIENT_ID@@#$ENTRA_CLIENT_ID#g" \
-                    | sed "s#@@ENTRA_CLIENT_SECRET@@#$ENTRA_CLIENT_SECRET#g" \
-                    | sed "s#@@ENTRA_REDIRECT_URI@@#$SEERR_REDIRECT_URI#g" \
-                    | sed "s#@@ENTRA_PROVIDER_METADATA_URL@@#$ENTRA_PROVIDER_METADATA_URL#g" \
-                    | sed "s#@@ENTRA_CRYPTO_PASSPHRASE@@#$ENTRA_CRYPTO_PASSPHRASE#g" \
-                    | sed "s#@@COOKIE_DOMAIN@@#$SEERR_COOKIE_DOMAIN#g" \
-                    > /etc/apache2/conf-available/oauth2-entra-seerr.conf
-
-                # Generate auth protection config
-                cat > /etc/apache2/conf-available/auth-entra-protect-seerr.conf <<'SEERRAUTHEOF'
-<Location /oauth2>
-    SetHandler oauth2-handler
-</Location>
-<Location /oauth2callback>
-    SetHandler oauth2-handler
-</Location>
-<Location />
-    AuthType openid-connect
-    Require valid-user
-</Location>
-RequestHeader set X-Remote-User %{OIDC_email}e
-RequestHeader set X-Remote-Name %{OIDC_name}e
-RequestHeader set X-Remote-ID %{OIDC_sub}e
-RequestHeader set X-Auth-Method "Entra"
-SEERRAUTHEOF
-            fi
-
-            # Option 1: Single OAuth for all services
-            sed -i "/@@INCLUDE_SEERR_OAUTH@@/d" /etc/apache2/sites-available/seerr-vhost.conf
-            ;;
-        basic)
-            sed -i "/@@INCLUDE_SEERR_OAUTH@@/d" /etc/apache2/sites-available/seerr-vhost.conf
-            ;;
-        none|*)
-            sed -i "/@@INCLUDE_SEERR_OAUTH@@/d" /etc/apache2/sites-available/seerr-vhost.conf
-            ;;
-    esac
-
-    a2ensite seerr-vhost.conf 2>/dev/null || true
-    echo "✓ Seerr VirtualHost enabled"
+    /usr/local/bin/generate-vhost.sh "seerr" "$SEERR_DOMAIN_NAME" "$SEERR_URL" "$SEERR_CERT_PATH" "$AUTHTYPE"
 else
     if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$SEERR_DOMAIN" ]; then
         echo "⚠ SEERR_DOMAIN is set but SEERR_URL is missing - skipping Seerr VirtualHost"
