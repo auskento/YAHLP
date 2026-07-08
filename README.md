@@ -1,229 +1,161 @@
 # YAHLP - Yet Another HomeLab Portal
 
-A production-ready reverse proxy and dashboard for managing 19 homelab services with automatic HTTPS, flexible authentication, and customizable layouts.
+A production-ready reverse proxy and dashboard for managing 19 homelab services with automatic HTTPS, flexible authentication, and customizable layouts. YAHLP sits between your browser and your services, providing unified access, health monitoring, and a beautiful interface across any device.
 
-## ✨ Key Features
+## What YAHLP Does
 
-- **🔒 HTTPS by Default** - Automatic certificate generation and renewal via Let's Encrypt
-- **🔐 Flexible Authentication** - Basic auth, Entra ID, Google OAuth, or public access
-- **🎨 Beautiful Dashboards** - 5 responsive layouts (classic, modern, sleek, minimal, mobile)
-- **⚡ Service Health Monitoring** - Real-time status checks for all proxied services
-- **🎛️ Customizable** - Service ordering, custom dashboards, multiple layout options
-- **📱 Mobile Friendly** - Auto-switches to mobile layout on small screens
-- **🔌 19 Services Supported** - Usenet, torrents, search, infrastructure, and media servers
-- **🌐 Built-in Sites** - Quick links to torrent and usenet tracking sites
-- **⚙️ Zero-Config** - Smart defaults, minimal setup required
+**Unified Access** — One dashboard for all your homelab services. No more remembering IP addresses and ports.
+
+**Security** — Automatic HTTPS via Let's Encrypt, centralized authentication (Basic Auth, OAuth2 with Entra/Google), and request validation. Credentials stored securely, never transmitted to services unnecessarily.
+
+**Beautiful UI** — 5 responsive layouts (classic, modern, sleek, minimal, mobile) that auto-detect your device and scale perfectly. Switch layouts anytime without server restart.
+
+**Zero Downtime Management** — Real-time service health checks, customizable service ordering, and theme switching without page reloads. Add or remove services without restarting the proxy.
+
+**Flexible Deployment** — Run on private networks (HTTP) or expose to the internet (automatic HTTPS). Scale to any number of services.
+
+## Architecture
+
+YAHLP runs as a single Docker container with:
+- **Apache 2.4** reverse proxy (handles routing, SSL/TLS, authentication)
+- **Node.js** API server (service discovery, health checks, token caching)
+- **Static dashboard** (HTML/CSS/JS, works offline once loaded)
+
+Services communicate directly to YAHLP; YAHLP proxies requests to your backend services on the internal Docker network or local network. See [Architecture](docs/architecture.md) for system design details.
+
+## Deployment Modes
+
+**Private Network** — Run on your internal network with HTTP or self-signed HTTPS. Good for homelab on a single LAN.
+
+**Public (Internet-Facing)** — Register a domain, enable automatic HTTPS via Let's Encrypt, and expose to the internet with OAuth2 or Basic Auth. Production-grade security.
+
+See [Deployment Guide](docs/installation.md) for mode selection and tradeoffs.
 
 ## 📦 Supported Services (19 Total)
 
-| Category | Services |
-|----------|----------|
-| **Usenet** | SABnzbd (SAB), NZBGet (GET), NZBHydra (HYD) |
-| **Torrents** | Transmission (TRA), qBittorrent (QBI), Deluge (DEL) |
-| **Search** | Prowlarr (PRO), Jackett (JAC), Sonarr (SON), Radarr (RAD), Lidarr (LID), Whisparr (WHI) |
-| **Infrastructure** | Seerr (SEE), Bazarr (BAZ), Tautulli (TAU), Maintainerr (MNT) |
-| **Media** | Jellyfin (JEL), Emby (EMB), Plex (PLX) |
+| Category | Count | Examples |
+|----------|-------|----------|
+| **Usenet** | 3 | SABnzbd, NZBGet, NZBHydra |
+| **Torrents** | 3 | Transmission, qBittorrent, Deluge |
+| **Search & Automation** | 6 | Prowlarr, Jackett, Sonarr, Radarr, Lidarr, Whisparr |
+| **Infrastructure** | 4 | Seerr, Bazarr, Tautulli, Maintainerr |
+| **Media Servers** | 3 | Jellyfin, Emby, Plex |
 
-## 🚀 Quick Start
+Each service is optionally enabled/disabled via configuration. Only enabled services appear in the dashboard.
 
-### Prerequisites
-- Docker & Docker Compose
-- For public access: registered domain + ports 80/443 open
-- For private access: internal IP address
+## Authentication Methods
 
-### 1. Clone Repository
-```bash
-git clone https://github.com/auskento/YAHLP.git
-cd YAHLP
-```
+- **No Auth** — Public dashboard (private network only)
+- **Basic Auth** — Username/password (simple, requires HTTPS)
+- **Entra ID / Azure AD** — OAuth2 via Microsoft (enterprise)
+- **Google OAuth** — OAuth2 via Google (personal)
 
-### 2. Configure Environment
-```bash
-# Copy example configuration
-cp .env.example .env
+Authentication happens at the proxy level. Once authenticated, services receive requests without re-authentication. See [Authentication Guide](docs/authentication.md).
 
-# Edit with your settings
-nano .env
-```
+## Getting Started
 
-### 3. Deploy
-```bash
-docker-compose build
-docker-compose up -d
-```
-
-### 4. Access Dashboard
-- **Public:** `https://yourdomain.com`
-- **Private:** `https://192.168.x.x` (your internal IP)
+Start with the [Installation Guide](docs/installation.md) for detailed setup instructions for Docker or Unraid.
 
 ## 📚 Documentation
 
-### Getting Started
-- [**Installation**](docs/installation.md) - Detailed setup guide for Docker & Unraid
-- [**Configuration**](docs/configuration.md) - All environment variables and config options
-- [**Dashboard Customization**](docs/dashboard-customization.md) - Layouts, themes, service ordering
+### Setup
+- [**Installation**](docs/installation.md) — Docker setup for private or public deployments, Unraid-specific guide
+- [**Configuration**](docs/configuration.md) — All settings: services, auth, dashboards, SSL
+- [**Services**](docs/services.md) — How to connect and configure each of the 19 services
+- [**Authentication**](docs/authentication.md) — Auth methods: Basic, OAuth (Entra/Google), setup guides
 
-### Using YAHLP
-- [**Services**](docs/services.md) - Setting up each of the 19 supported services
-- [**Authentication**](docs/authentication.md) - Auth method configuration (basic, OAuth, etc)
-- [**Troubleshooting**](docs/troubleshooting.md) - Common issues and solutions
-- [**Unraid Deployment**](docs/unraid.md) - Unraid-specific deployment guide
+### Using & Managing
+- [**Dashboard Customization**](docs/dashboard-customization.md) — Layouts, themes, service ordering, custom CSS
+- [**Troubleshooting**](docs/troubleshooting.md) — Common issues, error messages, solutions
+- [**Upgrading**](docs/upgrading.md) — Version updates, breaking changes, rollback procedures
+- [**Backup & Restore**](docs/backup-restore.md) — Data persistence, disaster recovery, test procedures
+- [**Unraid Deployment**](docs/unraid.md) — Unraid-specific installation and configuration
 
 ### Advanced
-- [**Architecture**](docs/architecture.md) - System design and how YAHLP works
-- [**Development**](docs/development.md) - Contributing, building, and extending
-- [**Security**](docs/security.md) - Security best practices and implementation details
-- [**Upgrading**](docs/upgrading.md) - Version updates and migration guides
-- [**Backup & Restore**](docs/backup-restore.md) - Data persistence and recovery
+- [**Architecture**](docs/architecture.md) — System design, component overview, data flow
+- [**Security**](docs/security.md) — Best practices, threat model, hardening checklist, incident response
+- [**Development**](docs/development.md) — Contributing guide, project structure, adding services
 
-## 🔧 Common Setup Examples
+## Why YAHLP?
 
-### Minimal Media Setup
-```bash
-ENABLE_SONARR=true
-SONARR_URL=http://sonarr:8989
+**Single Proxy** — Instead of exposing each service individually to the internet or maintaining complex DNS/firewall rules, YAHLP proxies all traffic through one secure entry point.
 
-ENABLE_RADARR=true
-RADARR_URL=http://radarr:7878
+**Time Saver** — No more logging into 5 different services to manage your homelab. Dashboard loads them all at once.
 
-ENABLE_JELLYFIN=true
-JELLYFIN_URL=http://jellyfin:8096
+**Beginner Friendly** — Start with private network deployment (simple, no SSL), upgrade to internet-facing later (automatic HTTPS, OAuth).
 
-ENABLE_QBITTORRENT=true
-QBITTORRENT_URL=http://qbittorrent:8080
-QBITTORRENT_API_KEY=your-api-key
-```
+**Flexible** — 5 layouts to choose from, enable/disable services without restart, customize service order, auto-auth to some services.
 
-### With Basic Authentication
-```bash
-AUTHTYPE=basic
-BASIC_AUTH_CREDENTIALS=user:password
-# Additional services...
-```
+**Safe** — All credentials stored locally, never shared unnecessarily. Optional OAuth2 means no password storage at all.
 
-### Single Layout (Locked)
-```bash
-DASHBOARD_STYLE=modern:only
-# This builds only modern layout and hides the layout switcher
-```
+## How It Works
 
-### Multiple Layout Options
-```bash
-DASHBOARD_STYLE=modern,sleek
-# Shows only modern and sleek in the slider, modern is default
-```
+1. **Request comes in** → Browser connects to YAHLP proxy
+2. **Authentication** → Proxy validates you're authorized (Basic Auth, OAuth, or none)
+3. **Proxy routes** → Request forwarded to appropriate backend service
+4. **Response returned** → Service response relayed back to browser
+5. **Dashboard monitors** → Health checks run in background, status shown in UI
 
-## 🎨 Dashboard Layouts
+All services run on internal Docker network or local LAN. Direct access is optional (can be disabled).
 
-- **Classic** - Topbar with services listed horizontally
-- **Modern** - Left service bar with main content on right
-- **Sleek** - Left service bar, compact gradient design
-- **Minimal** - Left service bar, single-column layout
-- **Mobile** - Auto-loaded on small screens
+## System Requirements
 
-See [Dashboard Customization](docs/dashboard-customization.md) for details.
+**Minimum:**
+- 512 MB RAM (lighter for small homelabs)
+- 100 MB disk (plus space for logs and certificates)
+- Docker & Docker Compose installed
 
-## 🐳 Docker Compose
+**Recommended:**
+- 1+ GB RAM (for health checks on 10+ services)
+- 500 MB disk
+- Internal network (LAN only) OR registered domain with open ports 80/443
 
-```yaml
-version: '3'
-services:
-  yahlp:
-    build: .
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      DOMAIN: example.com
-      EMAIL: admin@example.com
-      ACCESS_MODE: public
-      DASHBOARD_STYLE: modern
-      ENABLE_SONARR: "true"
-      SONARR_URL: http://sonarr:8989
-      # ... more services
-    volumes:
-      - ./appdata/letsencrypt:/etc/letsencrypt      # SSL certificates
-      - ./appdata/yahlp:/etc/yahlp                   # Configuration
-      - ./appdata/templates:/templates               # Custom layouts
-      - ./appdata/logs:/var/log/apache2              # Apache logs
-    networks:
-      - homelab
+**Scaling:**
+- Supports 10+ services without issues
+- Adding more services increases RAM usage slightly
+- Each layout CSS file is ~20 KB
 
-networks:
-  homelab:
-    external: true  # or create new: external: false
-```
+See [Installation Guide](docs/installation.md) for detailed requirements by deployment mode.
 
-## 🔒 Deployment Modes
+## Common Questions
 
-### Public Mode
-- Domain-based access
-- Automatic HTTPS via Let's Encrypt
-- Requires ports 80/443 open
-- Supports OAuth (Entra ID, Google)
+**How do I add a new service?**  
+Enable it in configuration (env or JSON5), provide the service URL and API key. YAHLP auto-discovers and displays it on restart. See [Services Guide](docs/services.md).
 
-### Private Mode
-- IP-based access (internal network only)
-- HTTP by default
-- No Let's Encrypt setup
-- Basic auth recommended
+**Can I run it on the internet?**  
+Yes. Public mode handles HTTPS via Let's Encrypt and OAuth2 authentication. See [Installation](docs/installation.md) for public deployment.
 
-## 🛠️ Ports
+**What if a service goes down?**  
+Dashboard shows real-time health status (🟢 online / 🔴 offline). Unreachable services display as offline but don't break the dashboard.
 
-| Port | Purpose |
-|------|---------|
-| 80 | HTTP (auto-redirects to HTTPS in public mode) |
-| 443 | HTTPS |
+**Can I customize the dashboard?**  
+Yes. Choose between 5 built-in layouts, customize service ordering, create custom CSS. See [Dashboard Customization](docs/dashboard-customization.md).
 
-## 📝 Persistent Data
+**Is my data backed up?**  
+YAHLP stores certificates, configuration, and logs in Docker volumes. You must back these up yourself. See [Backup & Restore](docs/backup-restore.md).
 
-⚠️ **These folders MUST be mapped to external volumes to preserve data:**
+**What authentication methods are supported?**  
+Basic Auth (username/password), Entra ID (Azure AD), Google OAuth, or no auth (private networks only). See [Authentication Guide](docs/authentication.md).
 
-| Path | Purpose | Persist? |
-|------|---------|----------|
-| `/etc/letsencrypt/` | SSL certificates (auto-renewed) | **YES** |
-| `/etc/yahlp/` | Configuration files (yahlp.json5, sites.json5) | **YES** |
-| `/templates/` | Custom dashboard layouts (CSS) | **YES** |
-| `/var/log/apache2/` | Apache access/error logs | **YES** |
+## Next Steps
 
-**Docker Compose:**
-```yaml
-volumes:
-  - ./appdata/letsencrypt:/etc/letsencrypt
-  - ./appdata/yahlp:/etc/yahlp
-  - ./appdata/templates:/templates
-  - ./appdata/logs:/var/log/apache2
-```
+1. **New to YAHLP?** Start with [Installation Guide](docs/installation.md)
+2. **Already installed?** See [Configuration](docs/configuration.md) to enable services
+3. **Want to customize?** Check [Dashboard Customization](docs/dashboard-customization.md)
+4. **Having issues?** Browse [Troubleshooting Guide](docs/troubleshooting.md)
+5. **Interested in contributing?** See [Development Guide](docs/development.md)
 
-See [Installation](docs/installation.md) for complete setup.
+## Support & Feedback
 
-## 🚨 Troubleshooting
+- **Report Issues:** [GitHub Issues](https://github.com/auskento/YAHLP/issues)
+- **Security Issues:** Please email instead of using GitHub Issues
+- **Feature Requests:** GitHub Issues with `[FEATURE]` tag
+- **Documentation Questions:** Check the [Docs](docs/) folder first
 
-**Service shows 502 Bad Gateway?**
-1. Check service is running: `docker-compose ps sonarr`
-2. Verify URL in .env is correct
-3. Check logs: `docker-compose logs yahlp`
+## License
 
-**Certificate issues?**
-1. Ensure domain resolves to your IP
-2. Check ports 80/443 are open
-3. Verify EMAIL is valid
-
-See [Troubleshooting](docs/troubleshooting.md) for more solutions.
-
-## 📖 Full Documentation
-
-Start with [Installation](docs/installation.md) for detailed setup, then refer to specific guides as needed.
-
-## 🐛 Support
-
-- GitHub Issues: [github.com/auskento/YAHLP/issues](https://github.com/auskento/YAHLP/issues)
-- Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md) first
-
-## 📄 License
-
-MIT License - See LICENSE file
+MIT License - See LICENSE file for details
 
 ---
 
-**Ready to get started?** → [Installation](docs/installation.md)
+Made for homelabbers. Made simple. Made right.
