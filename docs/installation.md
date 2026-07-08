@@ -2,6 +2,25 @@
 
 Complete setup instructions for YAHLP on Docker and Unraid.
 
+## Configuration Approach
+
+YAHLP uses two complementary configuration methods:
+
+**JSON5 Config** (`yahlp.json5`) — Shared base configuration, version-controlled  
+**Environment Variables** — Per-deployment overrides, secrets-safe
+
+Environment variables override JSON5 settings, allowing:
+- Shared config in `yahlp.json5` for your team/git repository
+- Secrets and local settings in `.env` (git-ignored)
+- Same image deployed to different environments with different configs
+
+**Example:**
+- `yahlp.json5` in git: `sonarr: { url: 'http://sonarr:8989' }`
+- `.env` local: `SONARR_API_KEY=secret-key-not-in-git`
+- Result: Base config shared, secrets protected
+
+See [Configuration Guide](configuration.md) for complete details and setup patterns.
+
 ## Table of Contents
 1. [Docker Compose (Recommended)](#docker-compose)
 2. [Docker CLI](#docker-cli)
