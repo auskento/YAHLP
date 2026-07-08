@@ -56,12 +56,12 @@ Authentication happens at the proxy level. Once authenticated, services receive 
 
 YAHLP supports flexible configuration through two methods:
 
-**JSON5 Config File** — `yahlp.json5` with comments, shared across team, version-controlled  
+**JSON5 Config File** — `yahlp.json5` with comments, reusable across deployments  
 **Environment Variables** — Set per-deployment, override JSON5 settings, secrets-friendly
 
 Environment variables take precedence, allowing:
-- Shared base config in `yahlp.json5` (team/git)
-- Per-deployment secrets in `.env` (not committed)
+- Base config in `yahlp.json5` (reusable template)
+- Per-deployment secrets in `.env` (kept private)
 - Local overrides on container startup
 
 Example: Define all service URLs in `yahlp.json5`, override `SONARR_API_KEY` via `.env` for security.
