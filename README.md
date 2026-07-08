@@ -52,6 +52,22 @@ Each service is optionally enabled/disabled via configuration. Only enabled serv
 
 Authentication happens at the proxy level. Once authenticated, services receive requests without re-authentication. See [Authentication Guide](docs/authentication.md).
 
+## Configuration
+
+YAHLP supports flexible configuration through two methods:
+
+**JSON5 Config File** — `yahlp.json5` with comments, shared across team, version-controlled  
+**Environment Variables** — Set per-deployment, override JSON5 settings, secrets-friendly
+
+Environment variables take precedence, allowing:
+- Shared base config in `yahlp.json5` (team/git)
+- Per-deployment secrets in `.env` (not committed)
+- Local overrides on container startup
+
+Example: Define all service URLs in `yahlp.json5`, override `SONARR_API_KEY` via `.env` for security.
+
+See [Configuration Guide](docs/configuration.md) for all options and examples.
+
 ## Getting Started
 
 Start with the [Installation Guide](docs/installation.md) for detailed setup instructions for Docker or Unraid.

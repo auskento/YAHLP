@@ -3,11 +3,108 @@
 Complete list of all environment variables and settings for YAHLP.
 
 ## Table of Contents
-1. [Deployment](#deployment)
-2. [Dashboard](#dashboard)
-3. [Authentication](#authentication)
-4. [Services](#services)
-5. [Advanced](#advanced)
+1. [Configuration Methods](#configuration-methods)
+2. [Deployment](#deployment)
+3. [Dashboard](#dashboard)
+4. [Authentication](#authentication)
+5. [Services](#services)
+6. [Advanced](#advanced)
+
+---
+
+## Configuration Methods
+
+YAHLP supports two complementary configuration approaches:
+
+### JSON5 Config File (`yahlp.json5`)
+- **Location:** `/etc/yahlp/yahlp.json5` (mounted in container)
+- **Format:** JSON5 (JSON with comments, trailing commas)
+- **Use Cases:**
+  - Shared configuration across team/deployment
+  - Version control in git
+  - Well-documented with comments
+  - Complex nested settings
+- **Example:**
+  ```json5
+  {
+    // This is shared configuration
+    dashboard: { name: 'My HomeLab' },
+    services: {
+      sonarr: { url: 'http://sonarr:8989', api_key: '...' }
+    }
+  }
+  ```
+
+### Environment Variables
+- **Naming:** `UPPERCASE_WITH_UNDERSCORES`
+- **Set via:** `.env` file, docker-compose.yml, Kubernetes secrets, etc.
+- **Use Cases:**
+  - Per-deployment secrets (API keys, passwords)
+  - Local overrides for specific environments
+  - Secrets management (not stored in git)
+  - Docker/Kubernetes native approach
+- **Example:**
+  ```bash
+  SONARR_API_KEY=actual-secret-key-not-in-git
+  JELLYFIN_PASSWORD=production-password
+  ```
+
+### Priority & Overrides
+
+Environment variables **override** JSON5 settings:
+
+```
+JSON5 Config (lowest priority)
+        ↓
+Environment Variables (highest priority)
+        ↓
+Final Configuration (what YAHLP uses)
+```
+
+**Example:**
+```json5
+// yahlp.json5 (shared team config)
+{
+  sonarr: {
+    url: 'http://sonarr:8989',
+    api_key: 'default-or-placeholder',
+    enabled: true
+  }
+}
+```
+
+```bash
+# .env (local deployment, not in git)
+SONARR_API_KEY=my-actual-secret-key
+SONARR_URL=http://sonarr-prod:8989
+```
+
+**Result:** SONARR_URL and SONARR_API_KEY come from .env, enabled stays from JSON5.
+
+### Recommended Setup
+
+**For teams/shared repos:**
+1. Commit `yahlp.json5` to git with placeholder values
+2. Each developer/deployment has local `.env` (git-ignored)
+3. Environment variables override sensitive data
+4. Config is portable and shareable
+
+**Example .gitignore:**
+```
+.env
+.env.local
+yahlp.json5.prod  # Production-only overrides
+```
+
+**For Docker deployments:**
+1. `yahlp.json5` in git (base config)
+2. `docker-compose.yml` or `docker run -e VAR=value` sets overrides
+3. Secrets stored in Docker secrets, not in compose file
+
+**For Kubernetes:**
+1. ConfigMap for `yahlp.json5`
+2. Secrets for sensitive environment variables
+3. Environment variables override ConfigMap
 
 ---
 

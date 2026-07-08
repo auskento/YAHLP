@@ -99,11 +99,24 @@ YAHLP is a containerized reverse proxy and dashboard system built on Apache 2.4 
 5. Service responds, Apache relays back to client
 
 ### API Proxy (Port 3000)
-1. Node.js loads configuration from `yahlp.json5`
-2. Checks environment variables for overrides
-3. Provides `/api/services` endpoint for dashboard
-4. Handles health checks for all services
-5. Manages Jellyfin token caching
+1. Node.js loads configuration with priority:
+   - Base: `yahlp.json5` (shared config)
+   - Override: Environment variables (per-deployment)
+   - Final: Merged config used by YAHLP
+2. Provides `/api/services` endpoint for dashboard
+3. Handles health checks for all services
+4. Manages Jellyfin token caching
+
+**Configuration Priority:**
+```
+yahlp.json5 (shared in git)
+        ↓
+Environment variables (local overrides)
+        ↓
+Final Configuration (what Node.js uses)
+```
+
+This allows shared base configs with per-deployment secrets.
 
 ## Authentication Modes
 
