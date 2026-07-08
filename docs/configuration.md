@@ -20,14 +20,14 @@ YAHLP supports two complementary configuration approaches:
 - **Location:** `/etc/yahlp/yahlp.json5` (mounted in container)
 - **Format:** JSON5 (JSON with comments, trailing commas)
 - **Use Cases:**
-  - Shared configuration across team/deployment
-  - Version control in git
+  - Reusable configuration template
   - Well-documented with comments
+  - Shared across multiple deployments
   - Complex nested settings
 - **Example:**
   ```json5
   {
-    // This is shared configuration
+    // This is the base configuration template
     dashboard: { name: 'My HomeLab' },
     services: {
       sonarr: { url: 'http://sonarr:8989', api_key: '...' }
@@ -41,11 +41,11 @@ YAHLP supports two complementary configuration approaches:
 - **Use Cases:**
   - Per-deployment secrets (API keys, passwords)
   - Local overrides for specific environments
-  - Secrets management (not stored in git)
+  - Secrets management (kept private, separate from config files)
   - Docker/Kubernetes native approach
 - **Example:**
   ```bash
-  SONARR_API_KEY=actual-secret-key-not-in-git
+  SONARR_API_KEY=actual-secret-key
   JELLYFIN_PASSWORD=production-password
   ```
 
@@ -83,28 +83,30 @@ SONARR_URL=http://sonarr-prod:8989
 
 ### Recommended Setup
 
-**For teams/shared repos:**
-1. Commit `yahlp.json5` to git with placeholder values
-2. Each developer/deployment has local `.env` (git-ignored)
+**For multiple deployments (dev/staging/prod):**
+1. Keep `yahlp.json5` with template/shared configuration
+2. Each deployment has its own `.env` file (stored securely)
 3. Environment variables override sensitive data
-4. Config is portable and shareable
+4. Config is portable and reusable
 
-**Example .gitignore:**
+**Example deployment structure:**
 ```
-.env
-.env.local
-yahlp.json5.prod  # Production-only overrides
+yahlp.json5                    # Shared template
+.env.development               # Dev environment (keep private)
+.env.staging                   # Staging environment (keep private)
+.env.production                # Prod environment (keep private)
 ```
 
 **For Docker deployments:**
-1. `yahlp.json5` in git (base config)
+1. `yahlp.json5` as base configuration
 2. `docker-compose.yml` or `docker run -e VAR=value` sets overrides
 3. Secrets stored in Docker secrets, not in compose file
+4. Each host/environment has separate `.env`
 
 **For Kubernetes:**
 1. ConfigMap for `yahlp.json5`
 2. Secrets for sensitive environment variables
-3. Environment variables override ConfigMap
+3. Environment variables override ConfigMap values
 
 ---
 

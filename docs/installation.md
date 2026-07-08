@@ -6,18 +6,18 @@ Complete setup instructions for YAHLP on Docker and Unraid.
 
 YAHLP uses two complementary configuration methods:
 
-**JSON5 Config** (`yahlp.json5`) — Shared base configuration, version-controlled  
+**JSON5 Config** (`yahlp.json5`) — Base configuration template, reusable  
 **Environment Variables** — Per-deployment overrides, secrets-safe
 
 Environment variables override JSON5 settings, allowing:
-- Shared config in `yahlp.json5` for your team/git repository
-- Secrets and local settings in `.env` (git-ignored)
+- Reusable base config in `yahlp.json5`
+- Deployment-specific secrets in `.env` (kept private)
 - Same image deployed to different environments with different configs
 
 **Example:**
-- `yahlp.json5` in git: `sonarr: { url: 'http://sonarr:8989' }`
-- `.env` local: `SONARR_API_KEY=secret-key-not-in-git`
-- Result: Base config shared, secrets protected
+- `yahlp.json5`: `sonarr: { url: 'http://sonarr:8989' }`
+- `.env` local: `SONARR_API_KEY=your-actual-secret-key`
+- Result: Base config reused, secrets protected
 
 See [Configuration Guide](configuration.md) for complete details and setup patterns.
 
@@ -33,15 +33,18 @@ See [Configuration Guide](configuration.md) for complete details and setup patte
 
 ### Prerequisites
 - Docker and Docker Compose installed
-- Git (to clone repository)
 - For public access: registered domain + open ports 80/443
 - For private access: internal network access + internal IP
 
-### Step 1: Clone Repository
+### Step 1: Get YAHLP
+
+Download YAHLP from GitHub:
 ```bash
 git clone https://github.com/auskento/YAHLP.git
 cd YAHLP
 ```
+
+Or download the latest release manually from https://github.com/auskento/YAHLP/releases
 
 ### Step 2: Create Environment File
 ```bash
