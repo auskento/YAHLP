@@ -1088,6 +1088,22 @@ app.get('/api/config/auth', (req, res) => {
   res.json(safeAuth);
 });
 
+// Helper to check if any services with API keys are configured
+function hasConfiguredApiServices() {
+  const apiServices = ['qbittorrent', 'nzbget', 'jackett', 'prowlarr', 'sonarr', 'radarr', 'lidarr', 'whisparr', 'seerr', 'bazarr', 'sabnzbd', 'nzbhydra', 'tautulli', 'maintainerr', 'jellyfin', 'emby', 'plex'];
+  return apiServices.some(serviceName => {
+    const config = services[serviceName];
+    if (!config || !config.enabled) return false;
+    if (!config.url) return false;
+
+    if (serviceName === 'qbittorrent' || serviceName === 'nzbget') {
+      if (serviceName === 'qbittorrent') return !!config.key;
+      if (serviceName === 'nzbget') return !!(config.username && config.password);
+    }
+    return !!config.key;
+  });
+}
+
 // Helper to check if a service is properly configured based on its auth type
 function isServiceConfigured(serviceName, config) {
   // Service must be enabled first
@@ -1096,13 +1112,16 @@ function isServiceConfigured(serviceName, config) {
 
   switch (config.authType) {
     case 'transmission':
-      return !!config.url;
+    case 'deluge':
+      // These download clients only show as configured if other services with API keys are also configured
+      if (!hasConfiguredApiServices()) return false;
+      if (config.authType === 'transmission') return !!config.url;
+      if (config.authType === 'deluge') return !!config.url && !!config.key;
+      break;
     case 'qbittorrent':
       return !!config.url && !!config.key;
     case 'nzbget':
       return !!config.username && !!config.password;
-    case 'deluge':
-      return !!config.url && !!config.key;
     default:
       return !!config.key;
   }
