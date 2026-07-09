@@ -73,16 +73,16 @@ IP=192.168.1.100            # Your internal IP
 ### Step 4: Enable Services
 Edit `.env` and set services you want:
 ```bash
-ENABLE_SONARR=true
+SONARR_ENABLED=true
 SONARR_URL=http://sonarr:8989
 
-ENABLE_RADARR=true
+RADARR_ENABLED=true
 RADARR_URL=http://radarr:7878
 
-ENABLE_JELLYFIN=true
+JELLYFIN_ENABLED=true
 JELLYFIN_URL=http://jellyfin:8096
 
-ENABLE_QBITTORRENT=true
+QBITTORRENT_ENABLED=true
 QBITTORRENT_URL=http://qbittorrent:8080
 QBITTORRENT_API_KEY=your-api-key-here
 ```
@@ -172,7 +172,7 @@ docker run -d \
   -e DOMAIN=yourdomain.com \
   -e EMAIL=admin@yourdomain.com \
   -e ACCESS_MODE=public \
-  -e ENABLE_SONARR=true \
+  -e SONARR_ENABLED=true \
   -e SONARR_URL=http://sonarr:8989 \
   auskento/yahlp
 ```
@@ -252,7 +252,7 @@ YAHLP provides two templates for easy Unraid installation:
      - **IP**: Internal IP (private mode only)
 
 3. **Enable Services**
-   - Set `ENABLE_SERVICENAME=true` for each service
+   - Set `SERVICENAME_ENABLED=true` for each service
    - Set corresponding `SERVICENAME_URL`
    - Add authentication details if needed
 

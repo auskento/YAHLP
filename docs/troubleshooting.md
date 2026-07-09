@@ -325,7 +325,7 @@ docker-compose restart yahlp
 **Symptom:** Enabled services don't appear in grid
 
 **Check:**
-1. Service is enabled: `ENABLE_SERVICENAME=true`
+1. Service is enabled: `SERVICENAME_ENABLED=true`
 2. URL is set: `SERVICENAME_URL=http://...`
 3. Service is running: `docker-compose ps`
 4. YAHLP restarted after changes: `docker-compose restart yahlp`
@@ -379,7 +379,7 @@ docker-compose restart yahlp
 4. API timeouts
 
 **Optimization:**
-1. Disable unused services: `ENABLE_SERVICE=false`
+1. Disable unused services: `SERVICE_ENABLED=false`
 2. Check service health: Restart slow services
 3. Increase timeout (if option available in future)
 4. Use simpler layout: `DASHBOARD_STYLE=minimal`

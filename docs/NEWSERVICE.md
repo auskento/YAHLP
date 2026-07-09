@@ -143,7 +143,7 @@ CONFIG="${CONFIG//@@INCLUDE_JACKETT@@/$JACKETT_INCLUDE}"
 
 Add to ICON_URLS array (line 18-38):
 ```bash
-[JACKETT]="${ICON_URL_JACKETT}"
+[JACKETT]="${JACKETT_ICON_URL}"
 ```
 
 ### 7. proxy.js

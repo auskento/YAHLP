@@ -1,5 +1,7 @@
 # YAHLP - Yet Another HomeLab Portal
 
+![YAHLP Logo](yahlp.png)
+
 A production-ready reverse proxy and dashboard for managing 19 homelab services with automatic HTTPS, flexible authentication, and customizable layouts. YAHLP sits between your browser and your services, providing unified access, health monitoring, and a beautiful interface across any device.
 
 ## What YAHLP Does

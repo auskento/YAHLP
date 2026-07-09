@@ -49,7 +49,7 @@ prowlarr:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_PROWLARR=true
+PROWLARR_ENABLED=true
 PROWLARR_URL=http://prowlarr:9696
 PROWLARR_API_KEY=your-api-key  # Optional
 ```
@@ -83,7 +83,7 @@ jackett:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_JACKETT=true
+JACKETT_ENABLED=true
 JACKETT_URL=http://jackett:9117
 JACKETT_API_KEY=your-api-key  # Get from Admin page
 ```
@@ -116,7 +116,7 @@ sonarr:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_SONARR=true
+SONARR_ENABLED=true
 SONARR_URL=http://sonarr:8989
 # Optional - get from Settings > General > API Key
 SONARR_API_KEY=your-api-key
@@ -149,7 +149,7 @@ radarr:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_RADARR=true
+RADARR_ENABLED=true
 RADARR_URL=http://radarr:7878
 RADARR_API_KEY=your-api-key  # Optional
 ```
@@ -179,7 +179,7 @@ lidarr:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_LIDARR=true
+LIDARR_ENABLED=true
 LIDARR_URL=http://lidarr:8686
 LIDARR_API_KEY=your-api-key  # Optional
 ```
@@ -209,7 +209,7 @@ whisparr:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_WHISPARR=true
+WHISPARR_ENABLED=true
 WHISPARR_URL=http://whisparr:6969
 WHISPARR_API_KEY=your-api-key  # Optional
 ```
@@ -240,7 +240,7 @@ sabnzbd:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_SABNZBD=true
+SABNZBD_ENABLED=true
 SABNZBD_URL=http://sabnzbd:8080
 SABNZBD_API_KEY=your-api-key  # Optional
 ```
@@ -269,7 +269,7 @@ nzbget:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_NZBGET=true
+NZBGET_ENABLED=true
 NZBGET_URL=http://nzbget:6789
 NZBGET_USERNAME=your-username  # Optional
 NZBGET_PASSWORD=your-password  # Optional
@@ -304,7 +304,7 @@ nzbhydra:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_NZBHYDRA=true
+NZBHYDRA_ENABLED=true
 NZBHYDRA_URL=http://nzbhydra:5076
 NZBHYDRA_API_KEY=your-api-key  # Optional
 ```
@@ -336,7 +336,7 @@ transmission:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_TRANSMISSION=true
+TRANSMISSION_ENABLED=true
 TRANSMISSION_URL=http://transmission:6969
 # No authentication needed
 ```
@@ -371,7 +371,7 @@ qbittorrent:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_QBITTORRENT=true
+QBITTORRENT_ENABLED=true
 QBITTORRENT_URL=http://qbittorrent:8080
 QBITTORRENT_API_KEY=your-api-token  # Required
 ```
@@ -400,7 +400,7 @@ deluge:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_DELUGE=true
+DELUGE_ENABLED=true
 DELUGE_URL=http://deluge:8112
 DELUGE_PASSWORD=your-password  # Required (set in deluge config)
 ```
@@ -430,7 +430,7 @@ seerr:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_SEERR=true
+SEERR_ENABLED=true
 SEERR_URL=http://seerr:5055
 SEERR_API_KEY=your-api-key  # Optional
 ```
@@ -460,7 +460,7 @@ bazarr:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_BAZARR=true
+BAZARR_ENABLED=true
 BAZARR_URL=http://bazarr:6767
 ```
 
@@ -487,7 +487,7 @@ tautulli:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_TAUTULLI=true
+TAUTULLI_ENABLED=true
 TAUTULLI_URL=http://tautulli:8181
 TAUTULLI_API_KEY=your-api-key  # Optional
 ```
@@ -515,7 +515,7 @@ maintainerr:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_MAINTAINERR=true
+MAINTAINERR_ENABLED=true
 MAINTAINERR_URL=http://maintainerr:6246
 ```
 
@@ -545,7 +545,7 @@ jellyfin:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_JELLYFIN=true
+JELLYFIN_ENABLED=true
 JELLYFIN_URL=http://jellyfin:8096
 JELLYFIN_API_KEY=your-api-key  # Optional
 ```
@@ -574,7 +574,7 @@ emby:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_EMBY=true
+EMBY_ENABLED=true
 EMBY_URL=http://emby:8096
 EMBY_API_KEY=your-api-key  # Optional
 # For public subdomain
@@ -613,7 +613,7 @@ plex:
 
 **YAHLP Configuration:**
 ```bash
-ENABLE_PLEX=true
+PLEX_ENABLED=true
 PLEX_URL=http://plex:32400
 PLEX_API_KEY=your-api-key  # Optional
 # For public subdomain
@@ -653,9 +653,9 @@ services:
       DOMAIN: media.example.com
       EMAIL: admin@example.com
       ACCESS_MODE: public
-      ENABLE_SONARR: "true"
+      SONARR_ENABLED: "true"
       SONARR_URL: http://sonarr:8989
-      ENABLE_RADARR: "true"
+      RADARR_ENABLED: "true"
       RADARR_URL: http://radarr:7878
       # ... more services
     volumes:
