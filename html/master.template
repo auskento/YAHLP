@@ -662,6 +662,7 @@ async function loadDashboard() {
                 frame.src = href;
                 frame.style.display = 'block';
                 dashboardView.style.display = 'none';
+                welcomeScreen.style.display = 'none';
             }
         });
     });
@@ -716,6 +717,7 @@ async function buildServiceMenu() {
                 frame.src = href;
                 frame.style.display = 'block';
                 dashboardView.style.display = 'none';
+                welcomeScreen.style.display = 'none';
             }
         });
     });
@@ -802,6 +804,7 @@ async function buildSitesGrid() {
                 frame.src = href;
                 frame.style.display = 'block';
                 dashboardView.style.display = 'none';
+                welcomeScreen.style.display = 'none';
             }
         });
     });
