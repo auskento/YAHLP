@@ -616,6 +616,13 @@ async function loadDashboard() {
         card.addEventListener('click', async (e) => {
             e.preventDefault();
             const href = card.getAttribute('data-service-href');
+
+            // Skip unconfigured services (no href means not configured)
+            if (!href) {
+                console.warn('Service card clicked but not configured - skipping');
+                return;
+            }
+
             const isPopup = card.getAttribute('data-service-popup') === 'true';
             const serviceName = card.getAttribute('data-service-name');
 
