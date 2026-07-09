@@ -681,6 +681,9 @@ app.post('/api/nzbget/stats', async (req, res) => {
 app.get('/api/deluge/login', async (req, res) => {
   try {
     const config = services['deluge'];
+    if (!config.enabled) {
+      throw new Error('Deluge not enabled');
+    }
     if (!config.url || !config.key) {
       throw new Error('Deluge not configured');
     }
@@ -737,10 +740,14 @@ app.get('/api/deluge/login', async (req, res) => {
 // Deluge endpoints
 app.post('/api/deluge/stats', async (req, res) => {
   try {
+    const config = services['deluge'];
+    if (!config.enabled) {
+      throw new Error('Deluge not enabled');
+    }
+
     const cached = cache.get('deluge-stats');
     if (cached) return res.json(cached);
 
-    const config = services['deluge'];
     if (!config.url || !config.key) {
       throw new Error('Deluge not configured');
     }
@@ -829,6 +836,10 @@ app.post('/api/deluge/stats', async (req, res) => {
 app.get('/api/jellyfin/auth', async (req, res) => {
   try {
     const config = services['jellyfin'];
+    if (!config.enabled) {
+      return res.json({ authenticated: false, error: 'Jellyfin not enabled' });
+    }
+
     const username = getConfigValue('jellyfin', 'username');
     const password = getConfigValue('jellyfin', 'password');
 
@@ -879,6 +890,11 @@ app.get('/api/jellyfin/auth', async (req, res) => {
 
 app.get('/api/jellyfin/info', async (req, res) => {
   try {
+    const config = services['jellyfin'];
+    if (!config.enabled) {
+      return res.status(503).json({ error: 'Jellyfin not enabled' });
+    }
+
     const cached = cache.get('jellyfin-info');
     if (cached) return res.json(cached);
 
