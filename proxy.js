@@ -1126,6 +1126,28 @@ function isServiceConfigured(serviceName, config) {
   if (!config.enabled) return false;
   if (!config.url) return false;
 
+  // In private mode (no auth required), just having a URL is enough
+  const accessMode = getConfig('access.mode', 'localhost');
+  const isPrivateMode = accessMode === 'localhost' || accessMode === 'private';
+
+  if (isPrivateMode && process.env.AUTHTYPE === 'none') {
+    // In private mode with no auth, just having URL is enough for most services
+    switch (config.authType) {
+      case 'transmission':
+        return !!config.url;
+      case 'deluge':
+        // Deluge needs password, or just URL in private no-auth mode
+        return !!config.url;
+      case 'nzbget':
+        // NZBGet can work with just URL in private mode
+        return !!config.url;
+      default:
+        // Other services can work with just URL in private no-auth mode
+        return !!config.url;
+    }
+  }
+
+  // Standard (public) mode or auth-enabled mode - stricter requirements
   switch (config.authType) {
     case 'transmission':
     case 'deluge':
