@@ -174,27 +174,27 @@ cp -r /mnt/user/appdata/yahlp /mnt/user/backups/yahlp-backup
 In container settings, set for each service you want:
 
 ```
-ENABLE_SERVICENAME=true
+SERVICENAME_ENABLED=true
 SERVICENAME_URL=http://servicename:port
 ```
 
 ### Example: Complete Setup
 
 ```
-ENABLE_SONARR=true
+SONARR_ENABLED=true
 SONARR_URL=http://sonarr:8989
 
-ENABLE_RADARR=true
+RADARR_ENABLED=true
 RADARR_URL=http://radarr:7878
 
-ENABLE_JELLYFIN=true
+JELLYFIN_ENABLED=true
 JELLYFIN_URL=http://jellyfin:8096
 
-ENABLE_QBITTORRENT=true
+QBITTORRENT_ENABLED=true
 QBITTORRENT_URL=http://qbittorrent:8080
 QBITTORRENT_API_KEY=your-api-key
 
-ENABLE_BAZARR=true
+BAZARR_ENABLED=true
 BAZARR_URL=http://bazarr:6767
 ```
 
@@ -331,7 +331,7 @@ Permission denied: /etc/letsencrypt
 ### Performance Issues
 
 **Dashboard loads slow:**
-1. Disable unused services: `ENABLE_SERVICE=false`
+1. Disable unused services: `SERVICE_ENABLED=false`
 2. Restart container
 3. Use simpler layout: `DASHBOARD_STYLE=minimal`
 
