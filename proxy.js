@@ -1128,9 +1128,10 @@ function isServiceConfigured(serviceName, config) {
 
   // In private mode (no auth required), just having a URL is enough
   const accessMode = getConfig('access.mode', 'localhost');
+  const authType = getConfig('auth.type', 'none');
   const isPrivateMode = accessMode === 'localhost' || accessMode === 'private';
 
-  if (isPrivateMode && process.env.AUTHTYPE === 'none') {
+  if (isPrivateMode && authType === 'none') {
     // In private mode with no auth, just having URL is enough for most services
     switch (config.authType) {
       case 'transmission':
