@@ -133,30 +133,47 @@ function getConfig(path, defaultValue) {
   return defaultValue;
 }
 
+// Helper function to get boolean config value for a service (e.g., SERVICE_ENABLED)
+function getBoolValue(service, key, defaultValue = false) {
+  const envKey = `${service.toUpperCase()}_${key.toUpperCase()}`;
+  const envValue = process.env[envKey];
+  if (envValue !== undefined) {
+    return envValue.toLowerCase() === 'true' || envValue === '1';
+  }
+
+  // Fall back to JSON5 config
+  const jsonValue = jsonConfig.services?.[service]?.[key];
+  if (jsonValue !== undefined) {
+    return Boolean(jsonValue);
+  }
+
+  return defaultValue;
+}
+
 // API Proxy port - hardcoded as 3000, not configurable
 const PORT = 3000;
 
 // Service URL and key configuration - all from yahlp.json5
 const services = {
-  'jellyfin': { url: getConfigValue('jellyfin', 'url'), key: getConfigValue('jellyfin', 'api_key'), authType: 'mediabrowser' },
-  'plex': { url: getConfigValue('plex', 'url'), key: getConfigValue('plex', 'api_key'), authType: 'plex' },
-  'emby': { url: getConfigValue('emby', 'url'), key: getConfigValue('emby', 'api_key'), authType: 'query' },
-  'sonarr': { url: getConfigValue('sonarr', 'url'), key: getConfigValue('sonarr', 'api_key'), authType: 'header' },
-  'radarr': { url: getConfigValue('radarr', 'url'), key: getConfigValue('radarr', 'api_key'), authType: 'header' },
-  'lidarr': { url: getConfigValue('lidarr', 'url'), key: getConfigValue('lidarr', 'api_key'), authType: 'header' },
-  'whisparr': { url: getConfigValue('whisparr', 'url'), key: getConfigValue('whisparr', 'api_key'), authType: 'header' },
-  'qbittorrent': { url: getConfigValue('qbittorrent', 'url'), key: getConfigValue('qbittorrent', 'api_key'), authType: 'qbittorrent' },
-  'transmission': { url: getConfigValue('transmission', 'url'), authType: 'transmission' },
-  'sabnzbd': { url: getConfigValue('sabnzbd', 'url'), key: getConfigValue('sabnzbd', 'api_key'), authType: 'query' },
-  'nzbget': { url: getConfigValue('nzbget', 'url'), username: getConfigValue('nzbget', 'username'), password: getConfigValue('nzbget', 'password'), authType: 'nzbget' },
-  'deluge': { url: getConfigValue('deluge', 'url'), key: getConfigValue('deluge', 'password'), authType: 'deluge' },
-  'nzbhydra': { url: getConfigValue('nzbhydra', 'url'), key: getConfigValue('nzbhydra', 'api_key'), authType: 'header' },
-  'jackett': { url: getConfigValue('jackett', 'url'), key: getConfigValue('jackett', 'api_key'), authType: 'query' },
-  'prowlarr': { url: getConfigValue('prowlarr', 'url'), key: getConfigValue('prowlarr', 'api_key'), authType: 'header' },
-  'seerr': { url: getConfigValue('seerr', 'url'), key: getConfigValue('seerr', 'api_key'), authType: 'header' },
-  'bazarr': { url: getConfigValue('bazarr', 'url'), key: getConfigValue('bazarr', 'api_key'), authType: 'bazarr' },
-  'tautulli': { url: getConfigValue('tautulli', 'url'), key: getConfigValue('tautulli', 'api_key'), authType: 'query' },
-  'maintainerr': { url: getConfigValue('maintainerr', 'url'), key: getConfigValue('maintainerr', 'api_key'), authType: 'header' }
+  'jellyfin': { enabled: getBoolValue('jellyfin', 'enabled', false), url: getConfigValue('jellyfin', 'url'), key: getConfigValue('jellyfin', 'api_key'), authType: 'mediabrowser' },
+  'plex': { enabled: getBoolValue('plex', 'enabled', false), url: getConfigValue('plex', 'url'), key: getConfigValue('plex', 'api_key'), authType: 'plex' },
+  'emby': { enabled: getBoolValue('emby', 'enabled', false), url: getConfigValue('emby', 'url'), key: getConfigValue('emby', 'api_key'), authType: 'query' },
+  'sonarr': { enabled: getBoolValue('sonarr', 'enabled', false), url: getConfigValue('sonarr', 'url'), key: getConfigValue('sonarr', 'api_key'), authType: 'header' },
+  'radarr': { enabled: getBoolValue('radarr', 'enabled', false), url: getConfigValue('radarr', 'url'), key: getConfigValue('radarr', 'api_key'), authType: 'header' },
+  'lidarr': { enabled: getBoolValue('lidarr', 'enabled', false), url: getConfigValue('lidarr', 'url'), key: getConfigValue('lidarr', 'api_key'), authType: 'header' },
+  'whisparr': { enabled: getBoolValue('whisparr', 'enabled', false), url: getConfigValue('whisparr', 'url'), key: getConfigValue('whisparr', 'api_key'), authType: 'header' },
+  'qbittorrent': { enabled: getBoolValue('qbittorrent', 'enabled', false), url: getConfigValue('qbittorrent', 'url'), key: getConfigValue('qbittorrent', 'api_key'), authType: 'qbittorrent' },
+  'transmission': { enabled: getBoolValue('transmission', 'enabled', false), url: getConfigValue('transmission', 'url'), authType: 'transmission' },
+  'sabnzbd': { enabled: getBoolValue('sabnzbd', 'enabled', false), url: getConfigValue('sabnzbd', 'url'), key: getConfigValue('sabnzbd', 'api_key'), authType: 'query' },
+  'nzbget': { enabled: getBoolValue('nzbget', 'enabled', false), url: getConfigValue('nzbget', 'url'), username: getConfigValue('nzbget', 'username'), password: getConfigValue('nzbget', 'password'), authType: 'nzbget' },
+  'deluge': { enabled: getBoolValue('deluge', 'enabled', false), url: getConfigValue('deluge', 'url'), key: getConfigValue('deluge', 'password'), authType: 'deluge' },
+  'nzbhydra': { enabled: getBoolValue('nzbhydra', 'enabled', false), url: getConfigValue('nzbhydra', 'url'), key: getConfigValue('nzbhydra', 'api_key'), authType: 'header' },
+  'jackett': { enabled: getBoolValue('jackett', 'enabled', false), url: getConfigValue('jackett', 'url'), key: getConfigValue('jackett', 'api_key'), authType: 'query' },
+  'prowlarr': { enabled: getBoolValue('prowlarr', 'enabled', false), url: getConfigValue('prowlarr', 'url'), key: getConfigValue('prowlarr', 'api_key'), authType: 'header' },
+  'seerr': { enabled: getBoolValue('seerr', 'enabled', false), url: getConfigValue('seerr', 'url'), key: getConfigValue('seerr', 'api_key'), authType: 'header' },
+  'bazarr': { enabled: getBoolValue('bazarr', 'enabled', false), url: getConfigValue('bazarr', 'url'), key: getConfigValue('bazarr', 'api_key'), authType: 'bazarr' },
+  'tautulli': { enabled: getBoolValue('tautulli', 'enabled', false), url: getConfigValue('tautulli', 'url'), key: getConfigValue('tautulli', 'api_key'), authType: 'query' },
+  'maintainerr': { enabled: getBoolValue('maintainerr', 'enabled', false), url: getConfigValue('maintainerr', 'url'), key: getConfigValue('maintainerr', 'api_key'), authType: 'header' }
 };
 
 // Check if any services are configured
@@ -1073,6 +1090,8 @@ app.get('/api/config/auth', (req, res) => {
 
 // Helper to check if a service is properly configured based on its auth type
 function isServiceConfigured(serviceName, config) {
+  // Service must be enabled first
+  if (!config.enabled) return false;
   if (!config.url) return false;
 
   switch (config.authType) {
