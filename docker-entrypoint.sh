@@ -70,6 +70,24 @@ chmod 777 /etc/yahlp/logs/sites || {
     exit 1
 }
 
+# Setup service icons folder and copy bundled icons
+mkdir -p /etc/yahlp/service_icons || {
+    echo "ERROR: Failed to create /etc/yahlp/service_icons directory"
+    exit 1
+}
+cp -r /var/www/html/icons/* /etc/yahlp/service_icons/ 2>/dev/null || true
+chmod 755 /etc/yahlp/service_icons
+echo "✓ Service icons folder created: /etc/yahlp/service_icons"
+
+# Setup site icons folder and copy bundled icons
+mkdir -p /etc/yahlp/site_icons || {
+    echo "ERROR: Failed to create /etc/yahlp/site_icons directory"
+    exit 1
+}
+cp -r /var/www/html/sites-icons/* /etc/yahlp/site_icons/ 2>/dev/null || true
+chmod 755 /etc/yahlp/site_icons
+echo "✓ Site icons folder created: /etc/yahlp/site_icons"
+
 # Configuration loading:
 # 1. If yahlp.json5 is provided (mounted), convert it to environment variables
 # 2. These become the defaults for the entire startup process
