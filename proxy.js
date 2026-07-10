@@ -1046,13 +1046,15 @@ const builtInSites = {
 app.get('/api/config/sites', (req, res) => {
   const allSites = [];
 
-  // Get sites from dashboard.sites config or DASHBOARD_SITES env var (env var takes precedence)
-  let dashboardSites = jsonConfig.dashboard?.sites || [];
+  // Get sites from sites_enabled config or DASHBOARD_SITES env var (env var takes precedence)
   const envDashboardSites = process.env.DASHBOARD_SITES ?
     process.env.DASHBOARD_SITES.split(',').map(s => s.trim().toUpperCase()) : [];
 
+  const jsonSitesEnabled = jsonConfig.sites_enabled || '';
+  const jsonDashboardSites = jsonSitesEnabled.split(',').map(s => s.trim().toUpperCase()).filter(s => s);
+
   // Environment variable takes precedence over JSON5 config
-  const siteCodes = envDashboardSites.length > 0 ? envDashboardSites : dashboardSites.map(s => s.toUpperCase ? s.toUpperCase() : s);
+  const siteCodes = envDashboardSites.length > 0 ? envDashboardSites : jsonDashboardSites;
 
   // Add built-in sites if any are specified
   if (siteCodes.length > 0) {
