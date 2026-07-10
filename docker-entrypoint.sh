@@ -66,6 +66,158 @@ chmod 777 /etc/yahlp/logs/sites || {
 # 4. If no yahlp.json5, use environment variables only
 
 echo "=== Configuration Loading ==="
+
+# Generate example yahlp.json5 on first run if it doesn't exist
+if [ ! -f /etc/yahlp/yahlp.json5 ]; then
+    echo "Creating example yahlp.json5 configuration file..."
+    cat > /etc/yahlp/yahlp.json5 << 'JSONEOF'
+// YAHLP Configuration (JSON5 format)
+// Edit this file to configure services with API keys, icons, and optional settings
+// Environment variables (-e) override these settings
+
+{
+  access: {
+    mode: 'public',      // 'public' or 'private'
+    type: 'none',        // 'none', 'basic', 'google', 'entra'
+  },
+
+  domain: 'yourdomain.com',
+  email: 'admin@yourdomain.com',
+
+  dashboard: {
+    name: 'YAHLP',
+    style: 'modern',     // 'classic', 'modern', 'sleek', 'minimal'
+    color: '#00A99D',
+    landing: '',
+    order: 'SAB,GET,HYD,TRA,QBI,DEL,PRO,JAC,SON,RAD,LID,WHI,SEE,BAZ,TAU,MNT,JEL,PLX,EMB',
+  },
+
+  // Enable/disable services
+  enabled: {
+    sabnzbd: false,
+    nzbget: false,
+    nzbhydra: false,
+    transmission: false,
+    qbittorrent: false,
+    deluge: false,
+    sonarr: false,
+    radarr: false,
+    lidarr: false,
+    whisparr: false,
+    prowlarr: false,
+    jackett: false,
+    seerr: false,
+    bazarr: false,
+    jellyfin: true,
+    emby: false,
+    plex: false,
+    tautulli: false,
+    maintainerr: false,
+  },
+
+  // Service URLs (can also be set via SERVICENAME_URL environment variables)
+  url: {
+    jellyfin: 'http://jellyfin:8096',
+    plex: 'http://plex:32400',
+    emby: 'http://emby:8096',
+    sonarr: 'http://sonarr:8989',
+    radarr: 'http://radarr:7878',
+    lidarr: 'http://lidarr:8686',
+    whisparr: 'http://whisparr:6969',
+    prowlarr: 'http://prowlarr:9696',
+    jackett: 'http://jackett:9117',
+    sabnzbd: 'http://sabnzbd:8080',
+    nzbget: 'http://nzbget:6789',
+    nzbhydra: 'http://nzbhydra:5076',
+    transmission: 'http://transmission:9091',
+    qbittorrent: 'http://qbittorrent:8080',
+    deluge: 'http://deluge:8112',
+    seerr: 'http://seerr:5055',
+    bazarr: 'http://bazarr:6767',
+    tautulli: 'http://tautulli:8181/tautulli',
+    maintainerr: 'http://maintainerr:6246',
+  },
+
+  // API Keys (must be set here or via SERVICENAME_API_KEY environment variables)
+  api_key: {
+    sonarr: '',
+    radarr: '',
+    lidarr: '',
+    whisparr: '',
+    prowlarr: '',
+    jackett: '',
+    seerr: '',
+    bazarr: '',
+    jellyfin: '',
+    emby: '',
+    plex: '',
+    tautulli: '',
+    maintainerr: '',
+    qbittorrent: '',
+    sabnzbd: '',
+    nzbhydra: '',
+  },
+
+  // Usernames for services that require them
+  username: {
+    nzbget: '',
+  },
+
+  // Passwords for services that require them
+  password: {
+    nzbget: '',
+    transmission: '',
+    deluge: '',
+  },
+
+  // Custom icon URLs (optional)
+  icon_url: {
+    jellyfin: '',
+    plex: '',
+    emby: '',
+    sonarr: '',
+    radarr: '',
+    lidarr: '',
+    whisparr: '',
+    prowlarr: '',
+    jackett: '',
+    sabnzbd: '',
+    nzbget: '',
+    nzbhydra: '',
+    transmission: '',
+    qbittorrent: '',
+    deluge: '',
+    seerr: '',
+    bazarr: '',
+    tautulli: '',
+    maintainerr: '',
+  },
+
+  // Landing pages for services
+  landing: {
+    sonarr: '',
+    radarr: '',
+    whisparr: '',
+  },
+
+  // OAuth redirect URIs
+  redirect_uri: {
+    seerr: 'https://yourdomain.com/seerr/oauth2callback',
+    emby: 'https://yourdomain.com/emby/oauth2callback',
+    plex: 'https://yourdomain.com/plex/oauth2callback',
+  },
+
+  // Custom internal websites
+  sites: [
+    // { name: 'Router', url: 'http://192.168.1.1' },
+  ],
+}
+JSONEOF
+    chmod 644 /etc/yahlp/yahlp.json5
+    echo "✓ Created /etc/yahlp/yahlp.json5 - edit this file to configure services"
+fi
+
+echo ""
 echo "Checking for /etc/yahlp/yahlp.json5..."
 
 if [ -f /etc/yahlp/yahlp.json5 ]; then
