@@ -109,11 +109,17 @@ function getConfigValue(service, key) {
   // Check environment variable first (highest priority)
   const envKey = `${service.toUpperCase()}_${key.toUpperCase()}`;
   const envValue = process.env[envKey];
-  if (envValue !== undefined) return envValue;
+  if (envValue !== undefined) {
+    console.log(`  [${service}] ${key}: from ENV (${envKey})`);
+    return envValue;
+  }
 
   // Fall back to JSON5 config
   const jsonValue = jsonConfig.services?.[service]?.[key];
-  if (jsonValue !== undefined) return jsonValue;
+  if (jsonValue !== undefined) {
+    console.log(`  [${service}] ${key}: from JSON5 = ${jsonValue}`);
+    return jsonValue;
+  }
 
   return undefined;
 }
@@ -154,6 +160,9 @@ function getBoolValue(service, key, defaultValue = false) {
 const PORT = 3000;
 
 // Service URL and key configuration - all from yahlp.json5
+console.log('📋 Loading service configurations from JSON5...');
+console.log('  JSON5 services keys:', Object.keys(jsonConfig.services || {}).join(', '));
+
 const services = {
   'jellyfin': { enabled: getBoolValue('jellyfin', 'enabled', false), url: getConfigValue('jellyfin', 'url'), key: getConfigValue('jellyfin', 'api_key'), authType: 'mediabrowser' },
   'plex': { enabled: getBoolValue('plex', 'enabled', false), url: getConfigValue('plex', 'url'), key: getConfigValue('plex', 'api_key'), authType: 'plex' },
