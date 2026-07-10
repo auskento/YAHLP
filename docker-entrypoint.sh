@@ -99,19 +99,25 @@ echo "=== Configuration Loading ==="
 # Generate example yahlp.json5 on first run if it doesn't exist
 if [ ! -f /etc/yahlp/yahlp.json5 ]; then
     echo "Creating example yahlp.json5 configuration file..."
-    cat > /etc/yahlp/yahlp.json5 << 'JSONEOF'
+    # Use environment variables if provided, otherwise use defaults
+    JSON_DOMAIN="${DOMAIN:-yourdomain.com}"
+    JSON_EMAIL="${EMAIL:-admin@yourdomain.com}"
+    JSON_ACCESS_MODE="${ACCESS_MODE:-public}"
+    JSON_AUTHTYPE="${AUTHTYPE:-none}"
+
+    cat > /etc/yahlp/yahlp.json5 << JSONEOF
 // YAHLP Configuration (JSON5 format)
 // Edit this file to configure services with API keys, icons, and optional settings
 // Environment variables (-e) override these settings
 
 {
   access: {
-    mode: 'public',      // 'public' or 'private'
-    type: 'none',        // 'none', 'basic', 'google', 'entra'
+    mode: '${JSON_ACCESS_MODE}',      // 'public' or 'private'
+    type: '${JSON_AUTHTYPE}',        // 'none', 'basic', 'google', 'entra'
   },
 
-  domain: 'yourdomain.com',
-  email: 'admin@yourdomain.com',
+  domain: '${JSON_DOMAIN}',
+  email: '${JSON_EMAIL}',
 
   dashboard: {
     name: 'YAHLP',
