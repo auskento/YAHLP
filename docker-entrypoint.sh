@@ -384,28 +384,22 @@ SKIP_CERT_GENERATION=$(echo "$SKIP_CERT_GENERATION" | tr '[:upper:]' '[:lower:]'
 
 # Auto-generate OAuth redirect URIs based on domain and access mode
 echo "DEBUG: Step 1 - ACCESS_MODE (normalized): '$ACCESS_MODE'"
-case "$ACCESS_MODE" in
-    public)
-        PROTOCOL="https"
-        echo "DEBUG: Step 2a - PUBLIC mode"
-        echo "DEBUG: Step 2b - PROTOCOL value right after assignment: '$PROTOCOL'"
-        echo "DEBUG: Step 2c - PROTOCOL set to https"
-        ;;
-    private)
-        PROTOCOL="http"
-        echo "DEBUG: Step 2a - PRIVATE mode"
-        echo "DEBUG: Step 2b - PROTOCOL value right after assignment: '$PROTOCOL'"
-        echo "DEBUG: Step 2c - PROTOCOL set to http"
-        ;;
-    *)
-        PROTOCOL="http"
-        echo "DEBUG: Step 2a - UNKNOWN mode"
-        echo "DEBUG: Step 2b - PROTOCOL value right after assignment: '$PROTOCOL'"
-        echo "DEBUG: Step 2c - defaulting PROTOCOL to http"
-        ;;
-esac
-echo "DEBUG: Step 3 - PROTOCOL after case: '$PROTOCOL'"
-echo "DEBUG: Step 3b - PROTOCOL length: ${#PROTOCOL}"
+echo "DEBUG: Step 1b - About to set PROTOCOL"
+
+# Set PROTOCOL using sed to avoid any bash issues
+PROTOCOL=$(echo "public" | sed "s/public/https/g" | sed "s/private/http/g")
+echo "DEBUG: Step 2a - PROTOCOL after sed chain: '$PROTOCOL'"
+
+# If ACCESS_MODE is not public, set to http
+if [ "$ACCESS_MODE" != "public" ]; then
+    PROTOCOL="http"
+    echo "DEBUG: Step 2b - Not public mode, PROTOCOL set to: '$PROTOCOL'"
+else
+    PROTOCOL="https"
+    echo "DEBUG: Step 2b - Public mode, PROTOCOL set to: '$PROTOCOL'"
+fi
+
+echo "DEBUG: Step 3 - PROTOCOL after if-else: '$PROTOCOL'"
 ENTRA_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
 GOOGLE_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
 
