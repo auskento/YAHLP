@@ -648,10 +648,6 @@ for service in $SERVICES; do
     fi
 done
 
-# Download and resize app icons from provided URLs
-echo ""
-/usr/local/bin/download-icons.sh
-
 # Copy pre-cached favicons from html/sites-icons/ if they exist (don't overwrite existing)
 echo "Copying pre-cached site favicons (skip existing)..."
 if [ -d /var/www/html/sites-icons ] && [ -n "$(find /var/www/html/sites-icons -maxdepth 1 -type f 2>/dev/null)" ]; then
