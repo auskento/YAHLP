@@ -420,17 +420,9 @@ generate_css_based_templates() {
     local layouts=()
     local template_count=0
 
-    # Copy built-in templates to config/templates BEFORE build process
-    echo "📋 Processing custom templates from config/templates..."
-    mkdir -p "$USER_TEMPLATES"
-    if [ -d "$BUILTIN_TEMPLATES" ] && [ -n "$(ls -A "$BUILTIN_TEMPLATES" 2>/dev/null)" ]; then
-        cp "$BUILTIN_TEMPLATES"/layout-*.css "$USER_TEMPLATES/" 2>/dev/null || true
-        echo "  ✓ Built-in templates available in config/templates"
-    fi
-
-    # Copy any config/templates CSS files to /var/www/html/styles for serving
-    echo "📋 Copying config/templates CSS files to styles folder..."
+    # Copy any custom config/templates CSS files to /var/www/html/styles for serving
     if [ -d "$USER_TEMPLATES" ] && [ -n "$(ls -A "$USER_TEMPLATES"/layout-*.css 2>/dev/null)" ]; then
+        echo "📋 Found custom templates in config/templates..."
         cp "$USER_TEMPLATES"/layout-*.css "$BUILTIN_STYLES/" 2>/dev/null || true
         echo "  ✓ Custom templates from config/templates copied to styles/"
     fi
