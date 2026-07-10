@@ -272,11 +272,6 @@ DASHBOARD_STYLE=modern,custom1   # Built-in modern + custom1 layout
 - **Description:** Azure application secret
 - **Where to get:** Azure Portal → Client credentials
 
-### ENTRA_REDIRECT_URI
-- **Type:** URL
-- **Required for:** `AUTHTYPE=entra`
-- **Format:** `https://yourdomain.com/auth/oauth2/callback`
-
 ### ENTRA_PROVIDER_METADATA_URL
 - **Type:** URL
 - **Required for:** `AUTHTYPE=entra`
@@ -308,10 +303,12 @@ DASHBOARD_STYLE=modern,custom1   # Built-in modern + custom1 layout
 - **Description:** Google OAuth 2.0 Client Secret
 - **Where to get:** Google Cloud Console
 
-### GOOGLE_REDIRECT_URI
-- **Type:** URL
-- **Required for:** `AUTHTYPE=google`
-- **Format:** `https://yourdomain.com` (must match Google Console)
+**Note:** Redirect URIs are auto-generated:
+- Google: `https://DOMAIN/oauth2callback`
+- Entra: `https://DOMAIN/oauth2callback`
+- Seerr: `https://SEERR_DOMAIN/oauth2callback` (if configured)
+- Emby: `https://EMBY_DOMAIN/oauth2callback` (if configured)
+- Plex: `https://PLEX_DOMAIN/oauth2callback` (if configured)
 
 See [AUTHENTICATION.md](AUTHENTICATION.md) for detailed setup.
 
@@ -480,8 +477,7 @@ JELLYFIN_ICON_URL=  # Optional custom icon URL
 EMBY_ENABLED=true
 EMBY_URL=http://emby:8096
 EMBY_API_KEY=your-api-key  # Optional
-EMBY_DOMAIN=emby.example.com  # For public subdomain
-EMBY_REDIRECT_URI=https://emby.example.com/oauth2callback  # For Google/Entra OAuth
+EMBY_DOMAIN=emby.example.com  # For public subdomain (OAuth redirect URI auto-generated)
 EMBY_ICON_URL=  # Optional custom icon URL
 ```
 
@@ -490,8 +486,7 @@ EMBY_ICON_URL=  # Optional custom icon URL
 PLEX_ENABLED=true
 PLEX_URL=http://plex:32400
 PLEX_API_KEY=your-api-key  # Optional
-PLEX_DOMAIN=plex.example.com  # For public subdomain
-PLEX_REDIRECT_URI=https://plex.example.com/oauth2callback  # For Google/Entra OAuth
+PLEX_DOMAIN=plex.example.com  # For public subdomain (OAuth redirect URI auto-generated)
 PLEX_ICON_URL=  # Optional custom icon URL
 ```
 
