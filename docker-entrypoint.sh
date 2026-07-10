@@ -804,8 +804,7 @@ case "${AUTHTYPE}" in
         if [ -z "$GOOGLE_CLIENT_ID" ] || [ -z "$GOOGLE_CLIENT_SECRET" ]; then
             echo "ERROR: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are required for Google OAuth"
             exit 1
-        fi
-
+        else
             # Configure Google OAuth2 in Apache
             # Generate random encryption passphrase for sessions (internal use only)
             GOOGLE_CRYPTO_PASSPHRASE=$(openssl rand -base64 24)
@@ -832,12 +831,6 @@ case "${AUTHTYPE}" in
 
             echo "✓ Google OAuth configured in Apache"
             echo "  Client ID: ${GOOGLE_CLIENT_ID:0:20}..."
-        else
-            # No env vars provided - use frontend OAuth from yahlp.json5
-            echo "INFO: Google OAuth settings not found in environment variables"
-            echo "INFO: Will use settings from yahlp.json5 (google section) via frontend"
-            a2disconf oauth2-google 2>/dev/null || true
-            a2disconf auth-google-protect 2>/dev/null || true
         fi
 
         # Disable other auth methods
