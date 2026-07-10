@@ -1105,9 +1105,9 @@ app.get('/api/config/auth', (req, res) => {
   }
 
   // Add Entra OAuth config (without secrets)
-  // Auto-construct redirect_uri: https://domain/oauth2/callback
+  // Auto-construct redirect_uri: https://domain/oauth2callback
   if (authType === 'entra' || jsonConfig.entra?.client_id) {
-    const entraRedirectUri = `${protocol}://${domain}/oauth2/callback`;
+    const entraRedirectUri = `${protocol}://${domain}/oauth2callback`;
     safeAuth.entra = {
       client_id: process.env.ENTRA_CLIENT_ID || jsonConfig.entra?.client_id || '',
       redirect_uri: entraRedirectUri,

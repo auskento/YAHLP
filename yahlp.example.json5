@@ -137,11 +137,13 @@
   },
 
   // OAuth Configuration
-  // Redirect URIs are automatically constructed from the domain:
+  // Redirect URIs are automatically constructed from configured domains:
   //   - Google OAuth: https://domain/oauth2callback
-  //   - Entra OAuth: https://domain/oauth2/callback
-  //   - Seerr/Emby/Plex: https://domain/service/oauth2callback
-  // No need to configure redirect_uri - it's auto-generated from the domain setting above
+  //   - Entra OAuth: https://domain/oauth2callback
+  //   - Seerr: https://SEERR_DOMAIN/oauth2callback (requires SEERR_DOMAIN env var)
+  //   - Emby: https://EMBY_DOMAIN/oauth2callback (requires EMBY_DOMAIN env var)
+  //   - Plex: https://PLEX_DOMAIN/oauth2callback (requires PLEX_DOMAIN env var)
+  // No need to configure redirect_uri - it's auto-generated from the domain settings
   google: {
     client_id: '',               // -e GOOGLE_CLIENT_ID
     // redirect_uri auto-generated: https://domain/oauth2callback
@@ -149,6 +151,6 @@
 
   entra: {
     client_id: '',               // -e ENTRA_CLIENT_ID
-    // redirect_uri auto-generated: https://domain/oauth2/callback
+    // redirect_uri auto-generated: https://domain/oauth2callback
   },
 }
