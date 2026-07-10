@@ -54,9 +54,34 @@ try {
 
   let env = flattenConfig(config);
 
-  // Handle services specially - extract to top-level env vars
+  // Handle NEW FORMAT: settings grouped by type
+  // enabled: { sabnzbd: true, sonarr: false } → SABNZBD_ENABLED, SONARR_ENABLED
+  const settingTypes = ['enabled', 'url', 'api_key', 'icon_url', 'username', 'password', 'landing', 'domain', 'redirect_uri'];
+  let usedNewFormat = false;
+  for (const settingType of settingTypes) {
+    if (config[settingType] && typeof config[settingType] === 'object') {
+      usedNewFormat = true;
+      for (const [serviceName, value] of Object.entries(config[settingType])) {
+        if (value === null || value === undefined) continue;
+        const envKey = `${serviceName.toUpperCase()}_${settingType.toUpperCase()}`;
+        if (typeof value === 'boolean') {
+          env[envKey] = value ? 'true' : 'false';
+        } else if (Array.isArray(value)) {
+          env[envKey] = value.join(',');
+        } else {
+          env[envKey] = String(value);
+        }
+      }
+    }
+  }
+  // Remove setting-type root keys if using new format
+  if (usedNewFormat) {
+    settingTypes.forEach(type => delete env[type.toUpperCase()]);
+  }
+
+  // Handle OLD FORMAT (backwards compatibility): services grouped by service
   // services.jellyfin.enabled → JELLYFIN_ENABLED (not SERVICES_JELLYFIN_ENABLED)
-  if (config.services) {
+  if (config.services && !usedNewFormat) {
     for (const [serviceName, serviceConfig] of Object.entries(config.services)) {
       // For each service field (enabled, url, api_key, etc.), create top-level env var
       for (const [fieldName, fieldValue] of Object.entries(serviceConfig)) {
