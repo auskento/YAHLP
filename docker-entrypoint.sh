@@ -387,18 +387,25 @@ echo "DEBUG: Step 1 - ACCESS_MODE (normalized): '$ACCESS_MODE'"
 case "$ACCESS_MODE" in
     public)
         PROTOCOL="https"
-        echo "DEBUG: Step 2 - PUBLIC mode, PROTOCOL set to https"
+        echo "DEBUG: Step 2a - PUBLIC mode"
+        echo "DEBUG: Step 2b - PROTOCOL value right after assignment: '$PROTOCOL'"
+        echo "DEBUG: Step 2c - PROTOCOL set to https"
         ;;
     private)
         PROTOCOL="http"
-        echo "DEBUG: Step 2 - PRIVATE mode, PROTOCOL set to http"
+        echo "DEBUG: Step 2a - PRIVATE mode"
+        echo "DEBUG: Step 2b - PROTOCOL value right after assignment: '$PROTOCOL'"
+        echo "DEBUG: Step 2c - PROTOCOL set to http"
         ;;
     *)
         PROTOCOL="http"
-        echo "DEBUG: Step 2 - UNKNOWN mode, defaulting PROTOCOL to http"
+        echo "DEBUG: Step 2a - UNKNOWN mode"
+        echo "DEBUG: Step 2b - PROTOCOL value right after assignment: '$PROTOCOL'"
+        echo "DEBUG: Step 2c - defaulting PROTOCOL to http"
         ;;
 esac
 echo "DEBUG: Step 3 - PROTOCOL after case: '$PROTOCOL'"
+echo "DEBUG: Step 3b - PROTOCOL length: ${#PROTOCOL}"
 ENTRA_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
 GOOGLE_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
 
