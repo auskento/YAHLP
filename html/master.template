@@ -50,6 +50,8 @@
 // Set dashboard lock state if DASHBOARD_STYLE=style:only is used
 if (@@DASHBOARD_LOCKED@@) {
     localStorage.setItem('dashboard-locked', 'true');
+} else {
+    localStorage.removeItem('dashboard-locked');
 }
 
 // Immediately calculate average color for content panel
