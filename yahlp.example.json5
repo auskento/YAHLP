@@ -136,10 +136,19 @@
     whisparr: '',                // -e WHISPARR_LANDING
   },
 
-  // OAuth redirect URIs (for services with OAuth)
-  redirect_uri: {
-    seerr: 'https://yourdomain.com/seerr/oauth2callback',    // -e SEERR_REDIRECT_URI
-    emby: 'https://yourdomain.com/emby/oauth2callback',      // -e EMBY_REDIRECT_URI
-    plex: 'https://yourdomain.com/plex/oauth2callback',      // -e PLEX_REDIRECT_URI
+  // OAuth Configuration
+  // Redirect URIs are automatically constructed from the domain:
+  //   - Google OAuth: https://domain/oauth2callback
+  //   - Entra OAuth: https://domain/oauth2/callback
+  //   - Seerr/Emby/Plex: https://domain/service/oauth2callback
+  // No need to configure redirect_uri - it's auto-generated from the domain setting above
+  google: {
+    client_id: '',               // -e GOOGLE_CLIENT_ID
+    // redirect_uri auto-generated: https://domain/oauth2callback
+  },
+
+  entra: {
+    client_id: '',               // -e ENTRA_CLIENT_ID
+    // redirect_uri auto-generated: https://domain/oauth2/callback
   },
 }
