@@ -386,6 +386,9 @@ fi
 ENTRA_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
 GOOGLE_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
 
+echo "DEBUG: ACCESS_MODE=$ACCESS_MODE, PROTOCOL=$PROTOCOL, DOMAIN=$DOMAIN"
+echo "DEBUG: ENTRA_REDIRECT_URI=$ENTRA_REDIRECT_URI"
+
 # Auto-generate service-specific redirect URIs if service domains are configured
 if [ ! -z "$SEERR_DOMAIN" ]; then
     SEERR_REDIRECT_URI="${PROTOCOL}://${SEERR_DOMAIN}/oauth2callback"
