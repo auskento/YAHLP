@@ -106,28 +106,10 @@
     deluge: '',                  // -e DELUGE_PASSWORD
   },
 
-  // Custom icon URLs (optional - leave empty for built-in icons)
-  icon_url: {
-    sabnzbd: '',                 // -e SABNZBD_ICON_URL
-    nzbget: '',                  // -e NZBGET_ICON_URL
-    nzbhydra: '',                // -e NZBHYDRA_ICON_URL
-    transmission: '',            // -e TRANSMISSION_ICON_URL
-    qbittorrent: '',             // -e QBITTORRENT_ICON_URL
-    deluge: '',                  // -e DELUGE_ICON_URL
-    sonarr: '',                  // -e SONARR_ICON_URL
-    radarr: '',                  // -e RADARR_ICON_URL
-    lidarr: '',                  // -e LIDARR_ICON_URL
-    whisparr: '',                // -e WHISPARR_ICON_URL
-    prowlarr: '',                // -e PROWLARR_ICON_URL
-    jackett: '',                 // -e JACKETT_ICON_URL
-    seerr: '',                   // -e SEERR_ICON_URL
-    bazarr: '',                  // -e BAZARR_ICON_URL
-    jellyfin: '',                // -e JELLYFIN_ICON_URL
-    emby: '',                    // -e EMBY_ICON_URL
-    plex: '',                    // -e PLEX_ICON_URL
-    tautulli: '',                // -e TAUTULLI_ICON_URL
-    maintainerr: '',             // -e MAINTAINERR_ICON_URL
-  },
+  // Custom service icons - replace files in /etc/yahlp/service_icons/ folder
+  // To use custom icons, copy them to the mounted config folder:
+  // Place PNG files in: config/service_icons/servicename.png
+  // Built-in icons will be copied there on first run
 
   // Landing pages for services (e.g., 'sonarr/calendar')
   landing: {
