@@ -376,9 +376,13 @@ ENTRA_CRYPTO_PASSPHRASE="${ENTRA_CRYPTO_PASSPHRASE:-}"
 GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"
 GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET:-}"
 
-# Auto-generate OAuth redirect URIs based on domain and access mode
-# Normalize ACCESS_MODE to lowercase to handle user input variations (Public, PUBLIC, etc.)
+# Normalize variables to lowercase to handle user input variations
 ACCESS_MODE=$(echo "$ACCESS_MODE" | tr '[:upper:]' '[:lower:]')
+AUTHTYPE=$(echo "$AUTHTYPE" | tr '[:upper:]' '[:lower:]')
+DASHBOARD_TEST=$(echo "$DASHBOARD_TEST" | tr '[:upper:]' '[:lower:]')
+SKIP_CERT_GENERATION=$(echo "$SKIP_CERT_GENERATION" | tr '[:upper:]' '[:lower:]')
+
+# Auto-generate OAuth redirect URIs based on domain and access mode
 echo "DEBUG: Step 1 - ACCESS_MODE (normalized): '$ACCESS_MODE'"
 case "$ACCESS_MODE" in
     public)
