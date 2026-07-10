@@ -29,6 +29,15 @@ elif [ -d /etc/letsencrypt ] && [ ! -L /etc/letsencrypt ]; then
     echo "✓ Replaced /etc/letsencrypt with symlink → /etc/yahlp/certs"
 fi
 
+# Verify symlink
+if [ -L /etc/letsencrypt ]; then
+    LINK_TARGET=$(readlink /etc/letsencrypt)
+    echo "✓ /etc/letsencrypt symlink verified → $LINK_TARGET"
+else
+    echo "ERROR: /etc/letsencrypt is not a symlink!"
+    exit 1
+fi
+
 # Setup logs folder in config directory (Apache needs write access)
 mkdir -p /etc/yahlp/logs || {
     echo "ERROR: Failed to create /etc/yahlp/logs directory"
@@ -861,18 +870,20 @@ wait_for_cert() {
 
 # Generate certificate only if not skipped (public mode)
 if [ "$SKIP_CERT_GENERATION" = "false" ]; then
+    echo ""
+    echo "=== Obtaining Let's Encrypt Certificate ==="
+    echo "Certificate path: /etc/yahlp/certs/live/$DOMAIN/fullchain.pem"
+
     # Check if certificate exists, if not generate it
     if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
-        echo ""
-        echo "=== Obtaining Let's Encrypt Certificate ==="
-        echo "Checking for existing main domain certificate at: /etc/letsencrypt/live/$DOMAIN/fullchain.pem"
+        echo "Certificate not found, requesting from Let's Encrypt..."
 
         # Ensure directory exists
         mkdir -p "/etc/letsencrypt/live/$DOMAIN"
 
         # Obtain certificate using standalone method
-        echo "Requesting certificate from Let's Encrypt for main domain: $DOMAIN..."
-        certbot certonly \
+        echo "Requesting certificate for main domain: $DOMAIN..."
+        if certbot certonly \
             --standalone \
             --preferred-challenges http \
             --email "$EMAIL" \
@@ -880,25 +891,25 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
             --no-eff-email \
             --non-interactive \
             $DRY_RUN_FLAG \
-            -d "$DOMAIN" \
-            || {
-                echo "⚠ Certbot failed. Generating self-signed certificate as fallback..."
+            -d "$DOMAIN"; then
+            echo "✓ Certificate obtained from Let's Encrypt for $DOMAIN"
+        else
+            echo "⚠ Certbot failed. Generating self-signed certificate as fallback..."
 
-                # Ensure directory exists
-                mkdir -p "/etc/letsencrypt/live/$DOMAIN"
+            # Ensure directory exists
+            mkdir -p "/etc/letsencrypt/live/$DOMAIN"
 
-                # Generate self-signed certificate
-                openssl req -x509 -nodes -days 365 \
-                    -newkey rsa:2048 \
-                    -keyout "/etc/letsencrypt/live/$DOMAIN/privkey.pem" \
-                    -out "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" \
-                    -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$DOMAIN" \
-                    2>/dev/null || true
+            # Generate self-signed certificate
+            openssl req -x509 -nodes -days 365 \
+                -newkey rsa:2048 \
+                -keyout "/etc/letsencrypt/live/$DOMAIN/privkey.pem" \
+                -out "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" \
+                -subj "/C=AU/ST=Victoria/L=Melbourne/O=Org/CN=$DOMAIN" \
+                2>/dev/null || true
 
-                echo "✓ Self-signed certificate generated for $DOMAIN"
-            }
+            echo "✓ Self-signed certificate generated for $DOMAIN"
+        fi
     else
-        echo ""
         echo "✓ Certificate already exists for main domain: $DOMAIN"
     fi
 else
