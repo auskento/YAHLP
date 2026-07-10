@@ -1,20 +1,61 @@
 #!/bin/bash
 set -e
 
-# Ensure proper permissions on mounted volumes (world-writable)
-chmod -R 777 /etc/letsencrypt 2>/dev/null || true
-chmod 777 /etc/letsencrypt/live 2>/dev/null || true
-mkdir -p /etc/letsencrypt/live 2>/dev/null || true
-chmod 777 /etc/letsencrypt/live 2>/dev/null || true
-chmod -R 777 /var/log/apache2 2>/dev/null || true
+# Ensure config folder exists (required for all deployments)
+if [ ! -d /etc/yahlp ]; then
+    echo "ERROR: Config folder not mounted to /etc/yahlp"
+    echo "Docker must mount config folder: -v ./config:/etc/yahlp"
+    exit 1
+fi
 
-# Ensure sites directory exists and has proper permissions
-mkdir -p /var/log/apache2/sites || {
-    echo "ERROR: Failed to create /var/log/apache2/sites directory"
+# Setup SSL certificate folder in config
+mkdir -p /etc/yahlp/certs || {
+    echo "ERROR: Failed to create /etc/yahlp/certs directory"
     exit 1
 }
-chmod 777 /var/log/apache2/sites || {
-    echo "ERROR: Failed to set permissions on /var/log/apache2/sites"
+chmod 700 /etc/yahlp/certs || {
+    echo "ERROR: Failed to set permissions on /etc/yahlp/certs"
+    exit 1
+}
+
+# Create symlink from /etc/letsencrypt to /etc/yahlp/certs for certbot compatibility
+if [ ! -L /etc/letsencrypt ] && [ ! -d /etc/letsencrypt ]; then
+    ln -s /etc/yahlp/certs /etc/letsencrypt
+    echo "✓ Created symlink: /etc/letsencrypt → /etc/yahlp/certs"
+elif [ -d /etc/letsencrypt ] && [ ! -L /etc/letsencrypt ]; then
+    echo "WARNING: /etc/letsencrypt exists as a real directory"
+    echo "  For best results, mount config to /etc/yahlp and remove /etc/letsencrypt directory"
+fi
+
+# Setup logs folder in config directory
+mkdir -p /etc/yahlp/logs || {
+    echo "ERROR: Failed to create /etc/yahlp/logs directory"
+    exit 1
+}
+chmod 755 /etc/yahlp/logs || {
+    echo "ERROR: Failed to set permissions on /etc/yahlp/logs"
+    exit 1
+}
+
+# Create symlink from /var/log/apache2 to /etc/yahlp/logs for Apache compatibility
+if [ ! -L /var/log/apache2 ] && [ ! -d /var/log/apache2 ]; then
+    ln -s /etc/yahlp/logs /var/log/apache2
+    echo "✓ Created symlink: /var/log/apache2 → /etc/yahlp/logs"
+elif [ -d /var/log/apache2 ] && [ ! -L /var/log/apache2 ]; then
+    echo "WARNING: /var/log/apache2 exists as a real directory"
+    echo "  Removing to create symlink to /etc/yahlp/logs"
+    rm -rf /var/log/apache2
+    ln -s /etc/yahlp/logs /var/log/apache2
+    echo "✓ Created symlink: /var/log/apache2 → /etc/yahlp/logs"
+fi
+
+# Ensure sites directory exists in logs folder
+mkdir -p /etc/yahlp/logs/sites || {
+    echo "ERROR: Failed to create /etc/yahlp/logs/sites directory"
+    exit 1
+}
+chmod 777 /etc/yahlp/logs/sites || {
+    echo "ERROR: Failed to set permissions on /etc/yahlp/logs/sites"
     exit 1
 }
 
@@ -226,6 +267,30 @@ echo ""
 set -a
 source /etc/apache2/env.conf
 set +a
+
+# Setup templates folder in config directory if config is mounted
+if [ -d /etc/yahlp ]; then
+    echo ""
+    echo "=== Setting up Config Templates ==="
+
+    # Create templates folder if it doesn't exist
+    if [ ! -d /etc/yahlp/templates ]; then
+        mkdir -p /etc/yahlp/templates
+        echo "✓ Created /etc/yahlp/templates directory"
+    fi
+
+    # Copy built-in templates README to config folder for user instructions
+    if [ -f /templates/README.md ] && [ ! -f /etc/yahlp/templates/README.md ]; then
+        cp /templates/README.md /etc/yahlp/templates/README.md
+        chmod 644 /etc/yahlp/templates/README.md
+        echo "✓ Copied templates/README.md to /etc/yahlp/templates/"
+        echo "  Users can add custom layout templates to this folder"
+    fi
+else
+    echo ""
+    echo "ℹ Config folder (/etc/yahlp) not mounted"
+    echo "  To use custom templates, mount a config folder to /etc/yahlp"
+fi
 
 echo ""
 echo "=== Setting Global ServerName ==="

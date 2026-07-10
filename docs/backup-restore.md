@@ -2,14 +2,16 @@
 
 ## Data Persistence Overview
 
-YAHLP stores critical data in Docker volumes. These **must** be backed up to prevent data loss:
+YAHLP stores all data in a single mounted config folder. **Must** be backed up to prevent data loss:
 
-| Volume | Purpose | Contains | Backup Frequency |
-|--------|---------|----------|------------------|
-| `/etc/letsencrypt/` | SSL Certificates | Private keys, certificates | Monthly minimum |
-| `/etc/yahlp/` | Configuration | `yahlp.json5`, `sites.json5` | Every change |
-| `/templates/` | Custom Layouts | Custom CSS files | Every change |
-| `/var/log/apache2/` | Logs | Access/error logs | Optional |
+| Folder | Contents | Backup Frequency |
+|--------|----------|------------------|
+| `/etc/yahlp/` (mounted `./config`) | Configuration, certificates, templates, and logs | Every change |
+| | - `yahlp.json5` - Configuration file | |
+| | - `sites.json5` - Custom sites | |
+| | - `certs/` - SSL certificates (public mode) | |
+| | - `templates/` - Custom layouts | |
+| | - `logs/` - Apache access/error logs | |
 
 ## Backup Strategies
 
@@ -27,18 +29,11 @@ mkdir -p "$BACKUP_DIR"
 
 echo "Backing up YAHLP data..."
 
-# Configuration files
-cp -r ./yahlp.json5 "$BACKUP_DIR/"
-cp -r ./sites.json5 "$BACKUP_DIR/" 2>/dev/null || true
+# Configuration, certificates, and templates (all in config folder)
+cp -r ./config "$BACKUP_DIR/" 2>/dev/null || true
 
 # .env file
 cp ./.env "$BACKUP_DIR/" 2>/dev/null || true
-
-# Custom layouts
-cp -r ./templates "$BACKUP_DIR/" 2>/dev/null || true
-
-# Let's Encrypt certificates (important!)
-docker cp yahlp_yahlp_1:/etc/letsencrypt "$BACKUP_DIR/"
 
 echo "Backup complete: $BACKUP_DIR"
 
@@ -70,15 +65,12 @@ mkdir -p "$BACKUP_DIR"
 
 echo "Creating full backup..."
 
-# Backup all container volumes
+# Backup config folder (includes certificates, config, and templates)
 docker run --rm \
-  -v yahlp_letsencrypt:/etc/letsencrypt \
-  -v yahlp_logs:/var/log/apache2 \
-  -v yahlp_appdata:/etc/yahlp \
-  -v yahlp_templates:/templates \
+  -v yahlp_config:/etc/yahlp \
   -v "$BACKUP_DIR":/backup \
   alpine tar czf "/backup/yahlp-full-$TIMESTAMP.tar.gz" \
-  /etc/letsencrypt /var/log/apache2 /etc/yahlp /templates
+  /etc/yahlp
 
 echo "Backup complete: $BACKUP_FILE"
 echo "Size: $(du -h $BACKUP_FILE | cut -f1)"
@@ -110,38 +102,29 @@ rclone sync ./backups nextcloud:YAHLP_Backups/ --delete
 
 ## Backup Implementation Examples
 
-### Docker Compose with Volumes
+### Docker Compose with Single Volume
 ```yaml
 version: '3.8'
 services:
   yahlp:
     image: yahlp:latest
     volumes:
-      - letsencrypt:/etc/letsencrypt
-      - appdata:/etc/yahlp
-      - templates:/templates
-      - apache-logs:/var/log/apache2
+      - config:/etc/yahlp
 
 volumes:
-  letsencrypt:
-    driver: local
-  appdata:
-    driver: local
-  templates:
-    driver: local
-  apache-logs:
+  config:
     driver: local
 ```
 
 **Backup via docker CLI:**
 ```bash
-# Backup single volume
-docker run --rm -v yahlp_letsencrypt:/data -v $(pwd):/backup \
-  alpine tar czf /backup/letsencrypt.tar.gz -C /data .
+# Backup config volume (includes certificates, config, and templates)
+docker run --rm -v yahlp_config:/data -v $(pwd):/backup \
+  alpine tar czf /backup/yahlp-config.tar.gz -C /data .
 
 # Restore from backup
-docker run --rm -v yahlp_letsencrypt:/data -v $(pwd):/backup \
-  alpine tar xzf /backup/letsencrypt.tar.gz -C /data
+docker run --rm -v yahlp_config:/data -v $(pwd):/backup \
+  alpine tar xzf /backup/yahlp-config.tar.gz -C /data
 ```
 
 ### Local Directory Volumes
@@ -157,7 +140,7 @@ volumes:
 ```bash
 # Just tar the directories
 tar -czf backup-$(date +%Y%m%d).tar.gz \
-  ./appdata ./templates ./logs
+  ./config ./logs
 ```
 
 ## Restore Procedures
@@ -167,15 +150,12 @@ tar -czf backup-$(date +%Y%m%d).tar.gz \
 # 1. Stop container
 docker-compose down
 
-# 2. Remove old volumes
-docker volume rm yahlp_letsencrypt yahlp_appdata yahlp_templates yahlp_logs
+# 2. Remove old volume
+docker volume rm yahlp_config
 
-# 3. Create new volumes from backup
+# 3. Restore from backup
 docker run --rm \
-  -v yahlp_letsencrypt:/etc/letsencrypt \
-  -v yahlp_appdata:/etc/yahlp \
-  -v yahlp_templates:/templates \
-  -v yahlp_logs:/var/log/apache2 \
+  -v yahlp_config:/etc/yahlp \
   -v $(pwd):/backup \
   alpine tar xzf /backup/yahlp-full-20240101_020000.tar.gz
 
@@ -188,8 +168,9 @@ docker-compose logs yahlp
 
 ### Restore Configuration Only
 ```bash
-# 1. Restore just the config
-docker cp ./backup/yahlp.json5 yahlp:/etc/yahlp/yahlp.json5
+# 1. Restore just the config files
+docker cp ./backup/config/yahlp.json5 yahlp:/etc/yahlp/yahlp.json5 2>/dev/null || true
+docker cp ./backup/config/sites.json5 yahlp:/etc/yahlp/sites.json5 2>/dev/null || true
 
 # 2. Restart for changes to take effect
 docker-compose restart yahlp
@@ -197,11 +178,8 @@ docker-compose restart yahlp
 
 ### Restore Certificates Only
 ```bash
-# 1. Copy certificates into volume
-docker run --rm \
-  -v yahlp_letsencrypt:/etc/letsencrypt \
-  -v $(pwd)/backup/letsencrypt:/backup \
-  alpine cp -r /backup/* /etc/letsencrypt/
+# 1. Copy certificates from backup (stored in config/certs/)
+docker cp ./backup/config/certs/. yahlp:/etc/yahlp/certs/
 
 # 2. Restart Apache
 docker exec -it yahlp apache2ctl graceful
@@ -209,8 +187,8 @@ docker exec -it yahlp apache2ctl graceful
 
 ### Restore Custom Layouts
 ```bash
-# 1. Copy templates
-docker cp ./backup/templates/. yahlp:/templates/
+# 1. Copy templates from backup
+docker cp ./backup/config/templates/. yahlp:/etc/yahlp/templates/
 
 # 2. Browser reload (Ctrl+Shift+R to bypass cache)
 # Dashboard should show custom layouts immediately
@@ -220,7 +198,7 @@ docker cp ./backup/templates/. yahlp:/templates/
 
 ### If Certificate is Lost
 
-If `/etc/letsencrypt/` is deleted and auto-renewal failed:
+If `/etc/yahlp/certs/` is deleted and auto-renewal failed:
 
 ```bash
 # 1. Restart container (it will try to renew)
@@ -235,6 +213,8 @@ docker exec -it yahlp certbot renew --force-renewal
 # 4. If certificate still unavailable, let it auto-generate
 # YAHLP will generate a self-signed cert as fallback
 ```
+
+**Note:** Certificates are now stored in `/etc/yahlp/certs/` (inside your mounted config folder), so backup your config folder regularly to protect your Let's Encrypt certificates.
 
 ### If Configuration is Lost
 

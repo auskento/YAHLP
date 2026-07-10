@@ -56,6 +56,14 @@ Authentication happens at the proxy level. Once authenticated, services receive 
 
 ## Configuration
 
+YAHLP requires a single mounted config folder (`/etc/yahlp`) for everything:
+- Configuration files (`yahlp.json5`, `sites.json5`)
+- SSL certificates (automatically managed in public mode)
+- Custom dashboard templates
+- Apache access/error logs
+
+**Docker mount:** `-v ./config:/etc/yahlp` ← Only volume needed
+
 YAHLP supports flexible configuration through two methods:
 
 **JSON5 Config File** — `yahlp.json5` with comments, reusable across deployments  

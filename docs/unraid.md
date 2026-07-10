@@ -130,17 +130,28 @@ See [AUTHENTICATION.md](AUTHENTICATION.md) for detailed setup.
 
 | Path | Purpose | Unraid Path |
 |------|---------|-------------|
-| `/etc/letsencrypt` | SSL certificates | `/mnt/user/appdata/yahlp` |
-| `/etc/yahlp` | Configuration | `/mnt/user/appdata/yahlp/config` |
+| `/etc/yahlp` | Configuration, certificates & templates | `/mnt/user/appdata/yahlp` |
 
-### Recommended
+### Folder Structure
+
+All YAHLP data is stored in a single folder:
 
 ```
 /mnt/user/appdata/yahlp/
-├── certs/           # SSL certificates
-├── config/          # yahlp.json5, sites.json5
-└── logs/            # Apache logs (optional)
+├── yahlp.json5              # Configuration file
+├── sites.json5              # Custom sites (optional)
+├── certs/                   # SSL certificates (auto-created for public mode)
+│   └── live/                # Let's Encrypt certificates (auto-renewed)
+├── templates/               # Custom layouts (auto-created on first start)
+│   └── README.md            # Instructions (auto-copied on first start)
+└── logs/                    # Apache access/error logs (auto-created)
+    └── sites/               # Per-site logs
 ```
+
+**Note:** All subfolders are automatically created when needed:
+- `certs/` only appears in public mode (ACCESS_MODE=public)
+- `templates/` and `README.md` are created on first start
+- `logs/` is created automatically for logging
 
 ### Create Directories (If Manual)
 
@@ -148,22 +159,29 @@ In Unraid Terminal:
 
 ```bash
 mkdir -p /mnt/user/appdata/yahlp
-mkdir -p /mnt/user/appdata/yahlp/config
-chmod -R 755 /mnt/user/appdata/yahlp
+chmod 755 /mnt/user/appdata/yahlp
 ```
 
-### Backup Configuration
+This single folder will contain all YAHLP data (configuration, certificates, and templates).
 
-Important files in `/mnt/user/appdata/yahlp/config/`:
-- `yahlp.json5` - Main configuration
-- `sites.json5` - Custom sites
-- `env.conf` - Generated environment
+### Backup
 
-Back these up regularly:
+YAHLP stores everything in `/mnt/user/appdata/yahlp/`. Back it up regularly:
+
 ```bash
-# In terminal
-cp -r /mnt/user/appdata/yahlp /mnt/user/backups/yahlp-backup
+# In terminal - create full backup
+cp -r /mnt/user/appdata/yahlp /mnt/user/backups/yahlp-backup-$(date +%Y%m%d)
+
+# Or create compressed backup
+tar -czf /mnt/user/backups/yahlp-backup-$(date +%Y%m%d).tar.gz \
+  /mnt/user/appdata/yahlp
 ```
+
+This single folder contains:
+- Configuration (`yahlp.json5`, `sites.json5`)
+- SSL certificates (`certs/`)
+- Custom layouts (`templates/`)
+- Access logs (`logs/`)
 
 ---
 
