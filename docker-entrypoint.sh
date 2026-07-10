@@ -310,8 +310,11 @@ elif [ -f /etc/yahlp/.env.local ]; then
 fi
 
 # Determine deployment mode early to clear DOMAIN/EMAIL before writing env.conf
+# EXCEPTION: Keep DOMAIN if using OAuth (Entra/Google) since they require it for redirect URIs
 if [ "$ACCESS_MODE" = "private" ]; then
-    DOMAIN=""
+    if [ "$AUTHTYPE" != "entra" ] && [ "$AUTHTYPE" != "google" ]; then
+        DOMAIN=""
+    fi
     EMAIL=""
 fi
 
