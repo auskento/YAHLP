@@ -377,18 +377,22 @@ GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"
 GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET:-}"
 
 # Auto-generate OAuth redirect URIs based on domain and access mode
-echo "DEBUG: Step 1 - ACCESS_MODE before assignment: '$ACCESS_MODE'"
-PROTOCOL="${ACCESS_MODE:-localhost}"
-echo "DEBUG: Step 2 - PROTOCOL after assignment: '$PROTOCOL'"
-echo "DEBUG: Step 3 - Testing: [ '$PROTOCOL' = 'public' ]"
-if [ "$PROTOCOL" = "public" ]; then
-    echo "DEBUG: Step 4a - Condition TRUE, setting PROTOCOL=https"
-    PROTOCOL="https"
-else
-    echo "DEBUG: Step 4b - Condition FALSE, setting PROTOCOL=http"
-    PROTOCOL="http"
-fi
-echo "DEBUG: Step 5 - PROTOCOL after if-else: '$PROTOCOL'"
+echo "DEBUG: Step 1 - ACCESS_MODE: '$ACCESS_MODE'"
+case "$ACCESS_MODE" in
+    public)
+        PROTOCOL="https"
+        echo "DEBUG: Step 2 - PUBLIC mode, PROTOCOL set to https"
+        ;;
+    private)
+        PROTOCOL="http"
+        echo "DEBUG: Step 2 - PRIVATE mode, PROTOCOL set to http"
+        ;;
+    *)
+        PROTOCOL="http"
+        echo "DEBUG: Step 2 - UNKNOWN mode, defaulting PROTOCOL to http"
+        ;;
+esac
+echo "DEBUG: Step 3 - PROTOCOL after case: '$PROTOCOL'"
 ENTRA_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
 GOOGLE_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
 
