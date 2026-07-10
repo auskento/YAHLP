@@ -72,13 +72,14 @@ if (fs.existsSync(configPath)) {
     console.log('  Note: Environment variables will override JSON5 values');
 
     // Log what's configured
-    const hasServices = jsonConfig.services && Object.keys(jsonConfig.services).length > 0;
-    const hasAuth = jsonConfig.auth?.type;
+    const enabledServices = jsonConfig.enabled || {};
+    const enabledCount = Object.values(enabledServices).filter(v => v === true).length;
+    const hasAuth = jsonConfig.access?.type;
     const hasGoogleAuth = jsonConfig.google?.client_id;
     const hasEntraAuth = jsonConfig.entra?.client_id;
     const hasDashboard = jsonConfig.dashboard?.name;
 
-    console.log('  Services in JSON5:', hasServices ? Object.keys(jsonConfig.services).length : '0');
+    console.log('  Services in JSON5:', enabledCount);
     console.log('  Auth configured:', hasAuth || 'none');
     if (hasGoogleAuth) console.log('  Google OAuth: configured');
     if (hasEntraAuth) console.log('  Entra OAuth: configured');
