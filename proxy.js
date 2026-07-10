@@ -158,25 +158,25 @@ const PORT = 3000;
 
 // Service URL and key configuration - all from yahlp.json5
 const services = {
-  'jellyfin': { enabled: getBoolValue('jellyfin', 'enabled', false), url: getConfigValue('jellyfin', 'url'), key: getConfigValue('jellyfin', 'api_key'), authType: 'mediabrowser' },
-  'plex': { enabled: getBoolValue('plex', 'enabled', false), url: getConfigValue('plex', 'url'), key: getConfigValue('plex', 'api_key'), authType: 'plex' },
-  'emby': { enabled: getBoolValue('emby', 'enabled', false), url: getConfigValue('emby', 'url'), key: getConfigValue('emby', 'api_key'), authType: 'query' },
-  'sonarr': { enabled: getBoolValue('sonarr', 'enabled', false), url: getConfigValue('sonarr', 'url'), key: getConfigValue('sonarr', 'api_key'), authType: 'header' },
-  'radarr': { enabled: getBoolValue('radarr', 'enabled', false), url: getConfigValue('radarr', 'url'), key: getConfigValue('radarr', 'api_key'), authType: 'header' },
-  'lidarr': { enabled: getBoolValue('lidarr', 'enabled', false), url: getConfigValue('lidarr', 'url'), key: getConfigValue('lidarr', 'api_key'), authType: 'header' },
-  'whisparr': { enabled: getBoolValue('whisparr', 'enabled', false), url: getConfigValue('whisparr', 'url'), key: getConfigValue('whisparr', 'api_key'), authType: 'header' },
-  'qbittorrent': { enabled: getBoolValue('qbittorrent', 'enabled', false), url: getConfigValue('qbittorrent', 'url'), key: getConfigValue('qbittorrent', 'api_key'), authType: 'qbittorrent' },
-  'transmission': { enabled: getBoolValue('transmission', 'enabled', false), url: getConfigValue('transmission', 'url'), authType: 'transmission' },
-  'sabnzbd': { enabled: getBoolValue('sabnzbd', 'enabled', false), url: getConfigValue('sabnzbd', 'url'), key: getConfigValue('sabnzbd', 'api_key'), authType: 'query' },
-  'nzbget': { enabled: getBoolValue('nzbget', 'enabled', false), url: getConfigValue('nzbget', 'url'), username: getConfigValue('nzbget', 'username'), password: getConfigValue('nzbget', 'password'), authType: 'nzbget' },
-  'deluge': { enabled: getBoolValue('deluge', 'enabled', false), url: getConfigValue('deluge', 'url'), key: getConfigValue('deluge', 'password'), authType: 'deluge' },
-  'nzbhydra': { enabled: getBoolValue('nzbhydra', 'enabled', false), url: getConfigValue('nzbhydra', 'url'), key: getConfigValue('nzbhydra', 'api_key'), authType: 'header' },
-  'jackett': { enabled: getBoolValue('jackett', 'enabled', false), url: getConfigValue('jackett', 'url'), key: getConfigValue('jackett', 'api_key'), authType: 'query' },
-  'prowlarr': { enabled: getBoolValue('prowlarr', 'enabled', false), url: getConfigValue('prowlarr', 'url'), key: getConfigValue('prowlarr', 'api_key'), authType: 'header' },
-  'seerr': { enabled: getBoolValue('seerr', 'enabled', false), url: getConfigValue('seerr', 'url'), key: getConfigValue('seerr', 'api_key'), authType: 'header' },
-  'bazarr': { enabled: getBoolValue('bazarr', 'enabled', false), url: getConfigValue('bazarr', 'url'), key: getConfigValue('bazarr', 'api_key'), authType: 'bazarr' },
-  'tautulli': { enabled: getBoolValue('tautulli', 'enabled', false), url: getConfigValue('tautulli', 'url'), key: getConfigValue('tautulli', 'api_key'), authType: 'query' },
-  'maintainerr': { enabled: getBoolValue('maintainerr', 'enabled', false), url: getConfigValue('maintainerr', 'url'), key: getConfigValue('maintainerr', 'api_key'), authType: 'header' }
+  'jellyfin': { enabled: getBoolValue('jellyfin', 'enabled', false), url: getConfigValue('jellyfin', 'url'), key: getConfigValue('jellyfin', 'api_key'), landing: getConfigValue('jellyfin', 'landing'), authType: 'mediabrowser' },
+  'plex': { enabled: getBoolValue('plex', 'enabled', false), url: getConfigValue('plex', 'url'), key: getConfigValue('plex', 'api_key'), landing: getConfigValue('plex', 'landing'), authType: 'plex' },
+  'emby': { enabled: getBoolValue('emby', 'enabled', false), url: getConfigValue('emby', 'url'), key: getConfigValue('emby', 'api_key'), landing: getConfigValue('emby', 'landing'), authType: 'query' },
+  'sonarr': { enabled: getBoolValue('sonarr', 'enabled', false), url: getConfigValue('sonarr', 'url'), key: getConfigValue('sonarr', 'api_key'), landing: getConfigValue('sonarr', 'landing'), authType: 'header' },
+  'radarr': { enabled: getBoolValue('radarr', 'enabled', false), url: getConfigValue('radarr', 'url'), key: getConfigValue('radarr', 'api_key'), landing: getConfigValue('radarr', 'landing'), authType: 'header' },
+  'lidarr': { enabled: getBoolValue('lidarr', 'enabled', false), url: getConfigValue('lidarr', 'url'), key: getConfigValue('lidarr', 'api_key'), landing: getConfigValue('lidarr', 'landing'), authType: 'header' },
+  'whisparr': { enabled: getBoolValue('whisparr', 'enabled', false), url: getConfigValue('whisparr', 'url'), key: getConfigValue('whisparr', 'api_key'), landing: getConfigValue('whisparr', 'landing'), authType: 'header' },
+  'qbittorrent': { enabled: getBoolValue('qbittorrent', 'enabled', false), url: getConfigValue('qbittorrent', 'url'), key: getConfigValue('qbittorrent', 'api_key'), landing: getConfigValue('qbittorrent', 'landing'), authType: 'qbittorrent' },
+  'transmission': { enabled: getBoolValue('transmission', 'enabled', false), url: getConfigValue('transmission', 'url'), landing: getConfigValue('transmission', 'landing'), authType: 'transmission' },
+  'sabnzbd': { enabled: getBoolValue('sabnzbd', 'enabled', false), url: getConfigValue('sabnzbd', 'url'), key: getConfigValue('sabnzbd', 'api_key'), landing: getConfigValue('sabnzbd', 'landing'), authType: 'query' },
+  'nzbget': { enabled: getBoolValue('nzbget', 'enabled', false), url: getConfigValue('nzbget', 'url'), username: getConfigValue('nzbget', 'username'), password: getConfigValue('nzbget', 'password'), landing: getConfigValue('nzbget', 'landing'), authType: 'nzbget' },
+  'deluge': { enabled: getBoolValue('deluge', 'enabled', false), url: getConfigValue('deluge', 'url'), key: getConfigValue('deluge', 'password'), landing: getConfigValue('deluge', 'landing'), authType: 'deluge' },
+  'nzbhydra': { enabled: getBoolValue('nzbhydra', 'enabled', false), url: getConfigValue('nzbhydra', 'url'), key: getConfigValue('nzbhydra', 'api_key'), landing: getConfigValue('nzbhydra', 'landing'), authType: 'header' },
+  'jackett': { enabled: getBoolValue('jackett', 'enabled', false), url: getConfigValue('jackett', 'url'), key: getConfigValue('jackett', 'api_key'), landing: getConfigValue('jackett', 'landing'), authType: 'query' },
+  'prowlarr': { enabled: getBoolValue('prowlarr', 'enabled', false), url: getConfigValue('prowlarr', 'url'), key: getConfigValue('prowlarr', 'api_key'), landing: getConfigValue('prowlarr', 'landing'), authType: 'header' },
+  'seerr': { enabled: getBoolValue('seerr', 'enabled', false), url: getConfigValue('seerr', 'url'), key: getConfigValue('seerr', 'api_key'), landing: getConfigValue('seerr', 'landing'), authType: 'header' },
+  'bazarr': { enabled: getBoolValue('bazarr', 'enabled', false), url: getConfigValue('bazarr', 'url'), key: getConfigValue('bazarr', 'api_key'), landing: getConfigValue('bazarr', 'landing'), authType: 'bazarr' },
+  'tautulli': { enabled: getBoolValue('tautulli', 'enabled', false), url: getConfigValue('tautulli', 'url'), key: getConfigValue('tautulli', 'api_key'), landing: getConfigValue('tautulli', 'landing'), authType: 'query' },
+  'maintainerr': { enabled: getBoolValue('maintainerr', 'enabled', false), url: getConfigValue('maintainerr', 'url'), key: getConfigValue('maintainerr', 'api_key'), landing: getConfigValue('maintainerr', 'landing'), authType: 'header' }
 };
 
 // Check if any services are configured
