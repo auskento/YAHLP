@@ -1087,22 +1087,30 @@ app.get('/api/config/access', (req, res) => {
 
 app.get('/api/config/auth', (req, res) => {
   const authType = getConfig('access.type', 'none');
+  const domain = getConfig('domain', 'localhost');
+  const accessMode = getConfig('access.mode', 'localhost');
+  const protocol = accessMode === 'public' ? 'https' : 'http';
+
   // Never send secrets to frontend - only type and provider info
   const safeAuth = { type: authType };
 
   // Add Google OAuth config (without secrets)
+  // Auto-construct redirect_uri: https://domain/oauth2callback
   if (authType === 'google' || jsonConfig.google?.client_id) {
+    const googleRedirectUri = `${protocol}://${domain}/oauth2callback`;
     safeAuth.google = {
       client_id: process.env.GOOGLE_CLIENT_ID || jsonConfig.google?.client_id || '',
-      redirect_uri: process.env.GOOGLE_REDIRECT_URI || jsonConfig.google?.redirect_uri || '',
+      redirect_uri: googleRedirectUri,
     };
   }
 
   // Add Entra OAuth config (without secrets)
+  // Auto-construct redirect_uri: https://domain/oauth2/callback
   if (authType === 'entra' || jsonConfig.entra?.client_id) {
+    const entraRedirectUri = `${protocol}://${domain}/oauth2/callback`;
     safeAuth.entra = {
       client_id: process.env.ENTRA_CLIENT_ID || jsonConfig.entra?.client_id || '',
-      redirect_uri: process.env.ENTRA_REDIRECT_URI || jsonConfig.entra?.redirect_uri || '',
+      redirect_uri: entraRedirectUri,
     };
   }
 
