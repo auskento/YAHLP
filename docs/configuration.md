@@ -321,7 +321,17 @@ Each service has:
 - **{SERVICE}_URL** - Internal URL to service
 - **{SERVICE}_API_KEY** - API key (if needed)
 - **{SERVICE}_USERNAME** / **{SERVICE}_PASSWORD** - Credentials (if needed)
-- **{SERVICE}_ICON_URL** - Optional custom icon URL
+
+### Custom Service Icons
+
+To replace service icons, simply copy your custom icon to the mounted config folder:
+```bash
+# Place PNG/SVG files in:
+config/service_icons/servicename.png
+
+# Built-in icons are copied to /etc/yahlp/service_icons/ on first run
+# Replace them with your own by overwriting the files
+```
 
 ### Search Services
 
@@ -330,7 +340,6 @@ Each service has:
 PROWLARR_ENABLED=true
 PROWLARR_URL=http://prowlarr:9696
 PROWLARR_API_KEY=your-api-key  # Optional
-PROWLARR_ICON_URL=  # Optional custom icon URL
 ```
 
 #### Jackett (JAC)
@@ -338,8 +347,7 @@ PROWLARR_ICON_URL=  # Optional custom icon URL
 JACKETT_ENABLED=true
 JACKETT_URL=http://jackett:9117
 JACKETT_API_KEY=your-api-key  # Optional
-JACKETT_ICON_URL=  # Optional custom icon URL
-```
+JACKETT```
 
 #### Sonarr (SON)
 ```bash
@@ -347,8 +355,7 @@ SONARR_ENABLED=true
 SONARR_URL=http://sonarr:8989
 SONARR_API_KEY=your-api-key  # Optional
 SONARR_LANDING=sonarr/calendar  # Optional
-SONARR_ICON_URL=  # Optional custom icon URL
-```
+SONARR```
 
 #### Radarr (RAD)
 ```bash
@@ -356,24 +363,21 @@ RADARR_ENABLED=true
 RADARR_URL=http://radarr:7878
 RADARR_API_KEY=your-api-key  # Optional
 RADARR_LANDING=radarr  # Optional
-RADARR_ICON_URL=  # Optional custom icon URL
-```
+RADARR```
 
 #### Lidarr (LID)
 ```bash
 LIDARR_ENABLED=true
 LIDARR_URL=http://lidarr:8686
 LIDARR_API_KEY=your-api-key  # Optional
-LIDARR_ICON_URL=  # Optional custom icon URL
-```
+LIDARR```
 
 #### Whisparr (WHI)
 ```bash
 WHISPARR_ENABLED=true
 WHISPARR_URL=http://whisparr:6969
 WHISPARR_API_KEY=your-api-key  # Optional
-WHISPARR_ICON_URL=  # Optional custom icon URL
-```
+WHISPARR```
 
 ### Infrastructure Services
 
@@ -382,32 +386,28 @@ WHISPARR_ICON_URL=  # Optional custom icon URL
 SEERR_ENABLED=true
 SEERR_URL=http://seerr:5055
 SEERR_API_KEY=your-api-key  # Optional
-SEERR_ICON_URL=  # Optional custom icon URL
-```
+SEERR```
 
 #### Bazarr (BAZ)
 ```bash
 BAZARR_ENABLED=true
 BAZARR_URL=http://bazarr:6767
 BAZARR_API_KEY=your-api-key  # Optional
-BAZARR_ICON_URL=  # Optional custom icon URL
-```
+BAZARR```
 
 #### Tautulli (TAU)
 ```bash
 TAUTULLI_ENABLED=true
 TAUTULLI_URL=http://tautulli:8181
 TAUTULLI_API_KEY=your-api-key  # Optional
-TAUTULLI_ICON_URL=  # Optional custom icon URL
-```
+TAUTULLI```
 
 #### Maintainerr (MNT)
 ```bash
 MAINTAINERR_ENABLED=true
 MAINTAINERR_URL=http://maintainerr:6246
 MAINTAINERR_API_KEY=your-api-key  # Optional
-MAINTAINERR_ICON_URL=  # Optional custom icon URL
-```
+MAINTAINERR```
 
 ### Usenet Services
 
@@ -416,8 +416,7 @@ MAINTAINERR_ICON_URL=  # Optional custom icon URL
 SABNZBD_ENABLED=true
 SABNZBD_URL=http://sabnzbd:8080
 SABNZBD_API_KEY=your-api-key  # Optional
-SABNZBD_ICON_URL=  # Optional custom icon URL
-```
+SABNZBD```
 
 #### NZBGet (GET)
 ```bash
@@ -425,16 +424,14 @@ NZBGET_ENABLED=true
 NZBGET_URL=http://nzbget:6789
 NZBGET_USERNAME=your-username  # Optional
 NZBGET_PASSWORD=your-password  # Optional
-NZBGET_ICON_URL=  # Optional custom icon URL
-```
+NZBGET```
 
 #### NZBHydra (HYD)
 ```bash
 NZBHYDRA_ENABLED=true
 NZBHYDRA_URL=http://nzbhydra:5076
 NZBHYDRA_API_KEY=your-api-key  # Optional
-NZBHYDRA_ICON_URL=  # Optional custom icon URL
-```
+NZBHYDRA```
 
 ### Torrent Services
 
@@ -442,8 +439,7 @@ NZBHYDRA_ICON_URL=  # Optional custom icon URL
 ```bash
 TRANSMISSION_ENABLED=true
 TRANSMISSION_URL=http://transmission:6969
-TRANSMISSION_ICON_URL=  # Optional custom icon URL
-# No auth by default
+TRANSMISSION# No auth by default
 ```
 
 #### qBittorrent (QBI)
@@ -451,16 +447,14 @@ TRANSMISSION_ICON_URL=  # Optional custom icon URL
 QBITTORRENT_ENABLED=true
 QBITTORRENT_URL=http://qbittorrent:8080
 QBITTORRENT_API_KEY=your-api-key  # Required
-QBITTORRENT_ICON_URL=  # Optional custom icon URL
-```
+QBITTORRENT```
 
 #### Deluge (DEL)
 ```bash
 DELUGE_ENABLED=true
 DELUGE_URL=http://deluge:8112
 DELUGE_PASSWORD=your-password  # Required
-DELUGE_ICON_URL=  # Optional custom icon URL
-```
+DELUGE```
 
 ### Media Services
 
@@ -469,8 +463,7 @@ DELUGE_ICON_URL=  # Optional custom icon URL
 JELLYFIN_ENABLED=true
 JELLYFIN_URL=http://jellyfin:8096
 JELLYFIN_API_KEY=your-api-key  # Optional
-JELLYFIN_ICON_URL=  # Optional custom icon URL
-```
+JELLYFIN```
 
 #### Emby (EMB)
 ```bash
@@ -478,8 +471,7 @@ EMBY_ENABLED=true
 EMBY_URL=http://emby:8096
 EMBY_API_KEY=your-api-key  # Optional
 EMBY_DOMAIN=emby.example.com  # For public subdomain (OAuth redirect URI auto-generated)
-EMBY_ICON_URL=  # Optional custom icon URL
-```
+EMBY```
 
 #### Plex (PLX)
 ```bash
@@ -487,8 +479,7 @@ PLEX_ENABLED=true
 PLEX_URL=http://plex:32400
 PLEX_API_KEY=your-api-key  # Optional
 PLEX_DOMAIN=plex.example.com  # For public subdomain (OAuth redirect URI auto-generated)
-PLEX_ICON_URL=  # Optional custom icon URL
-```
+PLEX```
 
 See [SERVICES.md](SERVICES.md) for detailed service setup.
 
