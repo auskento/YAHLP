@@ -124,8 +124,15 @@ document.addEventListener('DOMContentLoaded', function() {
       <img src="@@DASHBOARD_ICON@@" alt="Dashboard" class="welcome-logo">
       <div class="welcome-title">Welcome to YAHLP</div>
       <div class="welcome-message">
-        Configure your services with API keys in the environment variables to get started.
-        Once configured, your service status will appear here.
+        <p><strong>Complete Configuration in yahlp.json5:</strong></p>
+        <p>Edit <code>/etc/yahlp/yahlp.json5</code> to add:</p>
+        <ul style="text-align: left; display: inline-block;">
+          <li><strong>API Keys</strong> — Required for status panels to show service health</li>
+          <li><strong>Custom Icons</strong> — Optional custom icon URLs for each service</li>
+          <li><strong>OAuth Redirects</strong> — For services with OAuth authentication</li>
+          <li><strong>Passwords/Usernames</strong> — For services that require them</li>
+        </ul>
+        <p style="margin-top: 1.5em; font-size: 0.9em;">Environment variables (-e flags) override JSON5 settings if provided.</p>
       </div>
     </div>
   </main>
