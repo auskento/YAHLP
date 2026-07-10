@@ -324,14 +324,22 @@ Each service has:
 
 ### Custom Service Icons
 
-To replace service icons, simply copy your custom icon to the mounted config folder:
+The system supports both PNG and SVG icons, with SVG preferred when both formats exist. To replace service icons, copy your custom icon to the mounted config folder:
+
 ```bash
-# Place PNG/SVG files in:
-config/service_icons/servicename.png
+# Place icons in:
+config/service_icons/servicename.png    # PNG format (always works)
+config/service_icons/servicename.svg    # SVG format (preferred when available)
 
 # Built-in icons are copied to /etc/yahlp/service_icons/ on first run
-# Replace them with your own by overwriting the files
+# Replace them by overwriting the files with your custom versions
 ```
+
+**How icon loading works:**
+1. System attempts to load SVG if it exists (scales to any size)
+2. Falls back to PNG if SVG not found
+3. You can have both formats - the system automatically prefers SVG
+4. Icons stored in `/var/www/html/sites-icons/` use `.favicon.ico` format
 
 ### Search Services
 
