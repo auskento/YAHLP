@@ -132,34 +132,61 @@ https://yourdomain.com/mobile.html
 
 ## Custom Templates
 
-Create your own dashboard layouts by providing custom CSS templates.
+Create your own dashboard layouts by providing custom HTML templates.
 
-### Adding Custom Templates
+### Setup (Automatic)
 
-Mount a folder to `/templates` in the container:
+When you mount a config folder to `/etc/yahlp`:
 
 **Docker Compose:**
 ```yaml
 volumes:
-  - ./custom-layouts:/templates
+  - ./config:/etc/yahlp
 ```
 
 **Docker CLI:**
 ```bash
-docker run -v ./custom-layouts:/templates ...
+docker run -v ./config:/etc/yahlp ...
 ```
 
-**Unraid:**
-1. Container settings → Add another Path
-2. Container Path: `/templates`
-3. Host Path: `/mnt/user/appdata/yahlp/custom-layouts`
+**On first start**, YAHLP automatically:
+1. Creates `/etc/yahlp/templates/` directory
+2. Copies `templates/README.md` with instructions
+3. Sets up the folder for your custom layouts
 
-### Creating a Custom Layout
+### Adding Custom Templates
 
-1. **Create CSS file:** `layout-myname.css`
-2. **Copy to `/templates` folder:** `./custom-layouts/layout-myname.css`
-3. **Restart container**
-4. **Layout appears as "myname"** in settings and slider
+1. **Create your template:** `myname.html` (or copy an existing template as a base)
+2. **Place in config folder:** `./config/templates/myname.html`
+3. **Set the template:** `DASHBOARD_STYLE=myname`
+4. **Restart container**
+5. **Your template loads** as the dashboard
+
+### Built-in Templates vs Custom
+
+- **Built-in templates** remain in the container image (`/templates/`)
+  - Used when `config/templates/` is empty
+  - Always available, cannot be deleted
+
+- **Custom templates** go in your mounted config folder (`/etc/yahlp/templates/`)
+  - Only processed if files exist in this folder
+  - You have full control—add, edit, or remove anytime
+  - Survive container updates and restarts
+
+Example folder structure:
+```
+config/
+├── yahlp.json5                # Configuration file
+├── sites.json5                # Custom sites (optional)
+├── certs/                     # SSL certificates (public mode only, auto-created)
+│   └── live/                  # Let's Encrypt certificates
+├── templates/                 # Custom layouts (auto-created on first start)
+│   ├── README.md              # Instructions (auto-copied)
+│   ├── custom-dark.html       # Your custom template
+│   └── minimal-tv.html        # Another custom template
+└── logs/                      # Apache access/error logs (auto-created)
+    └── sites/                 # Per-site logs
+```
 
 ### Custom Layout Structure
 

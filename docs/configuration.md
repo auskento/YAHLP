@@ -178,7 +178,7 @@ yahlp.json5                    # Shared template
 - `modern` - Left sidebar, API-inspired design
 - `sleek` - Left sidebar, compact gradient design
 - `minimal` - Left sidebar, ultra-simple single-column
-- Plus any **custom layouts** from `/templates` folder (see below)
+- Plus any **custom layouts** from `/etc/yahlp/templates/` folder (see [Dashboard Customization](dashboard-customization.md#custom-templates))
 
 **Examples:**
 ```bash

@@ -155,13 +155,9 @@ services:
       SSL_CIPHERS: "HIGH:!aNULL:!MD5"
     
     volumes:
-      # Persist SSL certificates between restarts
-      - letsencrypt-data:/etc/letsencrypt
-      # Persist Apache logs
-      - apache-logs:/var/log/apache2
-      # Mount config folder (includes yahlp.json5, sites.json5, and optional templates folder)
+      # Mount config folder (includes certificates, configuration, templates, and logs)
       - ./config:/etc/yahlp
-    
+
     networks:
       - proxy-network
     
@@ -171,12 +167,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-
-volumes:
-  letsencrypt-data:
-    driver: local
-  apache-logs:
-    driver: local
 
 networks:
   proxy-network:

@@ -33,7 +33,10 @@ See [Configuration Guide](configuration.md) for complete details and setup patte
 
 ### Prerequisites
 - Docker and Docker Compose installed
-- For public access: registered domain + open ports 80/443
+- **Config folder mounted to `/etc/yahlp`** (required for all deployments)
+  - Stores configuration, certificates, and templates
+  - Created automatically if you use docker-compose.yml
+- For public access: registered domain + open ports 80/443 + email for Let's Encrypt
 - For private access: internal network access + internal IP
 
 ### Step 1: Get YAHLP
@@ -117,17 +120,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      # SSL certificates (Let's Encrypt)
-      - ./appdata/letsencrypt:/etc/letsencrypt
-      
-      # Configuration files
-      - ./appdata/yahlp:/etc/yahlp
-      
-      # Custom layouts (CSS templates)
-      - ./appdata/templates:/templates
-      
-      # Apache logs
-      - ./appdata/logs:/var/log/apache2
+      # Single config folder for everything (required for all deployments)
+      - ./config:/etc/yahlp
       
     environment:
       DOMAIN: yourdomain.com
@@ -135,11 +129,14 @@ services:
       # ... more settings
 ```
 
-**What each volume stores:**
-- `/etc/letsencrypt` - SSL certificates (renewed automatically)
-- `/etc/yahlp` - Configuration: `yamlp.json5`, `sites.json5`, generated configs
-- `/templates` - Custom dashboard layouts (CSS files)
-- `/var/log/apache2` - Apache access/error logs
+**What the config folder stores:**
+- `yahlp.json5` - Configuration file
+- `sites.json5` - Custom sites configuration
+- `certs/` - SSL certificates (Let's Encrypt, renewed automatically)
+- `templates/` - Custom dashboard layouts (auto-created on first start)
+  - `templates/README.md` - Template instructions (auto-copied)
+- `logs/` - Apache access/error logs (auto-created)
+  - `logs/sites/` - Per-site logs
 
 ### Step 7: Verify Installation
 ```bash
@@ -165,9 +162,7 @@ docker run -d \
   --name yahlp \
   -p 80:80 \
   -p 443:443 \
-  -v ./appdata/letsencrypt:/etc/letsencrypt \
-  -v ./appdata/yahlp:/etc/yahlp \
-  -v ./appdata/templates:/templates \
+  -v ./config:/etc/yahlp \
   -v ./appdata/logs:/var/log/apache2 \
   -e DOMAIN=yourdomain.com \
   -e EMAIL=admin@yourdomain.com \
@@ -177,9 +172,9 @@ docker run -d \
   auskento/yahlp
 ```
 
-**Create volume directories first:**
+**Create config folder first:**
 ```bash
-mkdir -p appdata/letsencrypt appdata/yahlp appdata/templates appdata/logs
+mkdir -p config
 ```
 
 ### With Docker Network
@@ -187,8 +182,8 @@ mkdir -p appdata/letsencrypt appdata/yahlp appdata/templates appdata/logs
 # Create network
 docker network create homelab
 
-# Create volume directories
-mkdir -p appdata/letsencrypt appdata/yahlp appdata/templates appdata/logs
+# Create config folder
+mkdir -p config
 
 # Run YAHLP
 docker run -d \
@@ -196,10 +191,7 @@ docker run -d \
   --network homelab \
   -p 80:80 \
   -p 443:443 \
-  -v ./appdata/letsencrypt:/etc/letsencrypt \
-  -v ./appdata/yahlp:/etc/yahlp \
-  -v ./appdata/templates:/templates \
-  -v ./appdata/logs:/var/log/apache2 \
+  -v ./config:/etc/yahlp \
   -e DOMAIN=yourdomain.com \
   -e EMAIL=admin@yourdomain.com \
   -e ACCESS_MODE=public \
