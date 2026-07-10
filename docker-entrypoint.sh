@@ -382,39 +382,20 @@ AUTHTYPE=$(echo "$AUTHTYPE" | tr '[:upper:]' '[:lower:]')
 DASHBOARD_TEST=$(echo "$DASHBOARD_TEST" | tr '[:upper:]' '[:lower:]')
 SKIP_CERT_GENERATION=$(echo "$SKIP_CERT_GENERATION" | tr '[:upper:]' '[:lower:]')
 
-# Auto-generate OAuth redirect URIs based on domain and access mode
-echo "DEBUG: Step 1 - ACCESS_MODE (normalized): '$ACCESS_MODE'"
-echo "DEBUG: Step 1b - About to set PROTOCOL"
+# Auto-generate OAuth redirect URIs (Entra/Google only work with public access)
+# OAuth always uses HTTPS regardless of ACCESS_MODE, since it requires public domain
+ENTRA_REDIRECT_URI="https://${DOMAIN}/oauth2callback"
+GOOGLE_REDIRECT_URI="https://${DOMAIN}/oauth2callback"
 
-# Set PROTOCOL using sed to avoid any bash issues
-PROTOCOL=$(echo "public" | sed "s/public/https/g" | sed "s/private/http/g")
-echo "DEBUG: Step 2a - PROTOCOL after sed chain: '$PROTOCOL'"
-
-# If ACCESS_MODE is not public, set to http
-if [ "$ACCESS_MODE" != "public" ]; then
-    PROTOCOL="http"
-    echo "DEBUG: Step 2b - Not public mode, PROTOCOL set to: '$PROTOCOL'"
-else
-    PROTOCOL="https"
-    echo "DEBUG: Step 2b - Public mode, PROTOCOL set to: '$PROTOCOL'"
-fi
-
-echo "DEBUG: Step 3 - PROTOCOL after if-else: '$PROTOCOL'"
-ENTRA_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
-GOOGLE_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
-
-echo "DEBUG: Final - ACCESS_MODE=$ACCESS_MODE, PROTOCOL=$PROTOCOL, DOMAIN=$DOMAIN"
-echo "DEBUG: Final - ENTRA_REDIRECT_URI=$ENTRA_REDIRECT_URI"
-
-# Auto-generate service-specific redirect URIs if service domains are configured
+# Auto-generate service-specific redirect URIs if service domains are configured (always HTTPS)
 if [ ! -z "$SEERR_DOMAIN" ]; then
-    SEERR_REDIRECT_URI="${PROTOCOL}://${SEERR_DOMAIN}/oauth2callback"
+    SEERR_REDIRECT_URI="https://${SEERR_DOMAIN}/oauth2callback"
 fi
 if [ ! -z "$PLEX_DOMAIN" ]; then
-    PLEX_REDIRECT_URI="${PROTOCOL}://${PLEX_DOMAIN}/oauth2callback"
+    PLEX_REDIRECT_URI="https://${PLEX_DOMAIN}/oauth2callback"
 fi
 if [ ! -z "$EMBY_DOMAIN" ]; then
-    EMBY_REDIRECT_URI="${PROTOCOL}://${EMBY_DOMAIN}/oauth2callback"
+    EMBY_REDIRECT_URI="https://${EMBY_DOMAIN}/oauth2callback"
 fi
 SONARR_URL="${SONARR_URL:-}"
 RADARR_URL="${RADARR_URL:-}"
