@@ -107,9 +107,12 @@
   },
 
   // Custom service icons - replace files in /etc/yahlp/service_icons/ folder
+  // Supports both PNG and SVG formats (SVG preferred when both exist)
   // To use custom icons, copy them to the mounted config folder:
-  // Place PNG files in: config/service_icons/servicename.png
+  //   PNG:  config/service_icons/servicename.png
+  //   SVG:  config/service_icons/servicename.svg
   // Built-in icons will be copied there on first run
+  // System automatically loads SVG if available, falls back to PNG
 
   // Landing pages for services (e.g., 'sonarr/calendar')
   landing: {

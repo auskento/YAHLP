@@ -106,9 +106,11 @@ MYNEWSERVICE_API_KEY=
 
 4. **Update `html/index.html`** - Add service to dashboard ordering constants
 
-5. **Add icon** to `html/icons/` folder (PNG format):
+5. **Add icon** to `html/icons/` folder (PNG or SVG format):
+   - SVG is preferred (scales to any size) but PNG is always supported
+   - System automatically prefers SVG over PNG if both exist
    - Icon will be bundled in the container
-   - Users can override by replacing the file in `/etc/yahlp/service_icons/` on their mounted config
+   - Users can override by replacing files in `/etc/yahlp/service_icons/` on their mounted config
 
 ### Modifying Layouts
 
