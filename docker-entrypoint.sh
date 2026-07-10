@@ -377,7 +377,9 @@ GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"
 GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET:-}"
 
 # Auto-generate OAuth redirect URIs based on domain and access mode
-echo "DEBUG: Step 1 - ACCESS_MODE: '$ACCESS_MODE'"
+# Normalize ACCESS_MODE to lowercase to handle user input variations (Public, PUBLIC, etc.)
+ACCESS_MODE=$(echo "$ACCESS_MODE" | tr '[:upper:]' '[:lower:]')
+echo "DEBUG: Step 1 - ACCESS_MODE (normalized): '$ACCESS_MODE'"
 case "$ACCESS_MODE" in
     public)
         PROTOCOL="https"
