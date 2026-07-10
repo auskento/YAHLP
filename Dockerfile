@@ -51,12 +51,6 @@ COPY html /var/www/html
 RUN chmod -R 755 /var/www/html && \
     find /var/www/html -type f -exec chmod 644 {} \;
 
-# Copy pre-cached site favicons if they exist
-RUN if [ -d /var/www/html/sites-icons ] && [ "$(ls -A /var/www/html/sites-icons 2>/dev/null)" ]; then \
-      cp /var/www/html/sites-icons/* /var/log/apache2/sites/ 2>/dev/null || true; \
-      chmod 644 /var/log/apache2/sites/*.favicon.ico 2>/dev/null || true; \
-    fi
-
 # Copy Apache configuration
 COPY apache-conf/reverse-proxy.conf.template /etc/apache2/sites-available/reverse-proxy.conf.template
 COPY apache-conf/ssl-config.conf /etc/apache2/mods-available/ssl-params.conf
@@ -85,9 +79,9 @@ RUN chmod +x /usr/local/bin/json5-to-env.js
 WORKDIR /
 
 # Copy configuration generator scripts
-COPY generate-config.sh generate-html-menu.sh download-icons.sh generate-sites-config.sh generate-vhost.sh /usr/local/bin/
+COPY generate-config.sh generate-html-menu.sh generate-sites-config.sh generate-vhost.sh /usr/local/bin/
 COPY support.js /usr/local/bin/
-RUN chmod +x /usr/local/bin/generate-config.sh /usr/local/bin/generate-html-menu.sh /usr/local/bin/download-icons.sh /usr/local/bin/generate-sites-config.sh /usr/local/bin/generate-vhost.sh
+RUN chmod +x /usr/local/bin/generate-config.sh /usr/local/bin/generate-html-menu.sh /usr/local/bin/generate-sites-config.sh /usr/local/bin/generate-vhost.sh
 
 # Disable default site (will enable reverse proxy config in entrypoint)
 RUN a2dissite 000-default.conf
