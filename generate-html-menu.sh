@@ -403,12 +403,12 @@ generate_services_array() {
 }
 
 # Generate CSS-based templates from master.template
-# Auto-detects CSS files in built-in templates and user-mounted /templates
+# Auto-detects CSS files in built-in templates and user-mounted config/templates
 generate_css_based_templates() {
     local MASTER_TEMPLATE="/var/www/html/master.template"
     local BUILTIN_STYLES="/var/www/html/styles"
     local BUILTIN_TEMPLATES="/var/www/html/templates"
-    local USER_TEMPLATES="/templates"
+    local USER_TEMPLATES="/etc/yahlp/templates"
     local services_array=$(generate_services_array)
     local sites_array=$(generate_sites_array)
 
@@ -420,19 +420,19 @@ generate_css_based_templates() {
     local layouts=()
     local template_count=0
 
-    # Copy built-in templates to /templates BEFORE build process
-    echo "📋 Populating /templates with built-in examples..."
+    # Copy built-in templates to config/templates BEFORE build process
+    echo "📋 Processing custom templates from config/templates..."
     mkdir -p "$USER_TEMPLATES"
     if [ -d "$BUILTIN_TEMPLATES" ] && [ -n "$(ls -A "$BUILTIN_TEMPLATES" 2>/dev/null)" ]; then
         cp "$BUILTIN_TEMPLATES"/layout-*.css "$USER_TEMPLATES/" 2>/dev/null || true
-        echo "  ✓ Built-in templates copied to /templates"
+        echo "  ✓ Built-in templates available in config/templates"
     fi
 
-    # Copy any /templates CSS files to /var/www/html/styles for serving
-    echo "📋 Copying /templates CSS files to styles folder..."
+    # Copy any config/templates CSS files to /var/www/html/styles for serving
+    echo "📋 Copying config/templates CSS files to styles folder..."
     if [ -d "$USER_TEMPLATES" ] && [ -n "$(ls -A "$USER_TEMPLATES"/layout-*.css 2>/dev/null)" ]; then
         cp "$USER_TEMPLATES"/layout-*.css "$BUILTIN_STYLES/" 2>/dev/null || true
-        echo "  ✓ Custom templates copied to styles/"
+        echo "  ✓ Custom templates from config/templates copied to styles/"
     fi
 
     # Scan built-in styles directory (layout-classic.css, layout-sleek.css, etc.)
