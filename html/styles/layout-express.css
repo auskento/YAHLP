@@ -1,0 +1,137 @@
+/* GRID EXPRESS LAYOUT - Dense, compact grid with uniform cards */
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: var(--text-primary);
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.service-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 6px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-height: 140px;
+  aspect-ratio: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.service-card:hover {
+  border-color: var(--accent);
+  transform: scale(1.08);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.service-card:hover::before {
+  opacity: 0.08;
+}
+
+.service-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  font-size: 1.8rem;
+  position: relative;
+  z-index: 1;
+}
+
+.service-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  position: relative;
+  z-index: 1;
+  line-height: 1.2;
+}
+
+.service-status {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  position: relative;
+  z-index: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 768px) {
+  .service-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .service-card {
+    min-height: 100px;
+  }
+
+  .service-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.4rem;
+  }
+
+  .service-name {
+    font-size: 0.7rem;
+  }
+
+  .service-status {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .service-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+  }
+
+  .dashboard-container {
+    padding: 1rem;
+  }
+
+  .dashboard-title {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+}

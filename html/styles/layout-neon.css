@@ -1,0 +1,151 @@
+/* NEON LAYOUT - Cyberpunk aesthetic with glowing accents */
+:root {
+  --neon-glow: 0 0 10px var(--accent);
+  --neon-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+}
+
+.dashboard-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 3rem;
+  color: var(--accent);
+  text-shadow: var(--neon-glow), var(--neon-glow);
+  filter: brightness(1.2);
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.service-card {
+  background: var(--bg-secondary);
+  border: 2px solid var(--accent);
+  border-radius: 0;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    var(--neon-shadow),
+    inset 0 0 10px rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.service-card:hover {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 20px var(--accent),
+    0 0 40px var(--accent),
+    inset 0 0 20px rgba(255, 255, 255, 0.1);
+  transform: translateY(-5px) scale(1.02);
+}
+
+.service-card:hover::before {
+  opacity: 0.1;
+}
+
+.service-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--bg-secondary) 100%);
+  font-size: 2rem;
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 15px var(--accent);
+  position: relative;
+  z-index: 1;
+}
+
+.service-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  position: relative;
+  z-index: 1;
+  text-shadow: var(--neon-glow);
+}
+
+.service-status {
+  font-size: 0.8rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  position: relative;
+  z-index: 1;
+  font-weight: 600;
+  text-shadow: var(--neon-glow);
+}
+
+/* Grid lines effect */
+.service-grid::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, 0.02) 25%, rgba(255, 255, 255, 0.02) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, 0.02) 75%, rgba(255, 255, 255, 0.02) 76%, transparent 77%, transparent),
+    linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, 0.02) 25%, rgba(255, 255, 255, 0.02) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, 0.02) 75%, rgba(255, 255, 255, 0.02) 76%, transparent 77%, transparent);
+  background-size: 50px 50px;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+@media (max-width: 768px) {
+  .dashboard-title {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .service-card {
+    padding: 1rem;
+  }
+
+  .service-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+
+  .service-name {
+    font-size: 0.9rem;
+  }
+}
