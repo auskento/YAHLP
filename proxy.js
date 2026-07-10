@@ -112,8 +112,9 @@ function getConfigValue(service, key) {
   const envValue = process.env[envKey];
   if (envValue !== undefined && envValue !== '') return envValue;
 
-  // Fall back to JSON5 config
-  const jsonValue = jsonConfig.services?.[service]?.[key];
+  // Fall back to JSON5 config (new format: settings grouped by type)
+  // e.g., jsonConfig.url[service], jsonConfig.api_key[service], etc.
+  const jsonValue = jsonConfig[key]?.[service];
   if (jsonValue !== undefined && jsonValue !== '') return jsonValue;
 
   return undefined;
@@ -142,8 +143,9 @@ function getBoolValue(service, key, defaultValue = false) {
     return envValue.toLowerCase() === 'true' || envValue === '1';
   }
 
-  // Fall back to JSON5 config
-  const jsonValue = jsonConfig.services?.[service]?.[key];
+  // Fall back to JSON5 config (new format: settings grouped by type)
+  // e.g., jsonConfig.enabled[service]
+  const jsonValue = jsonConfig[key]?.[service];
   if (jsonValue !== undefined) {
     return Boolean(jsonValue);
   }
