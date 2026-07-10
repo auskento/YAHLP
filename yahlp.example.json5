@@ -22,6 +22,15 @@
     order: 'SAB,GET,HYD,TRA,QBI,DEL,PRO,JAC,SON,RAD,LID,WHI,SEE,BAZ,TAU,MNT,JEL,PLX,EMB',
   },
 
+  // Dashboard built-in sites (torrent and usenet tracking sites)
+  // Add site codes to enable them as quick-links on the dashboard
+  // Available sites:
+  //   Torrent sites: TPB (The Pirate Bay), FIL (FileList.io), HDB (HDBits), IPT (IP Torrents),
+  //                  1337 (1337x), YTS (YTS), LAT (LimeTorrents), NYA (Nyaa), PTP (PassThePopcorn)
+  //   Usenet sites: DOG (DOGnzb), DRS (DrunkenSlug), NLF (nzb.life), NFW (NZBFinder.ws),
+  //                 NGK (NZBgeek), PLA (nzbplanet.net), TAB (Tabula Rasa)
+  sites_enabled: '',        // Example: 'TPB,YTS,DOG,DRS' or leave empty to disable
+
   // Service enable/disable flags
   enabled: {
     sabnzbd: false,
