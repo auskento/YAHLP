@@ -350,12 +350,31 @@ AUTHTYPE="${AUTHTYPE:-none}"
 BASIC_AUTH_CREDENTIALS="${BASIC_AUTH_CREDENTIALS:-}"
 ENTRA_CLIENT_ID="${ENTRA_CLIENT_ID:-}"
 ENTRA_CLIENT_SECRET="${ENTRA_CLIENT_SECRET:-}"
-ENTRA_REDIRECT_URI="${ENTRA_REDIRECT_URI:-}"
 ENTRA_PROVIDER_METADATA_URL="${ENTRA_PROVIDER_METADATA_URL:-}"
 ENTRA_CRYPTO_PASSPHRASE="${ENTRA_CRYPTO_PASSPHRASE:-}"
 GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"
 GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET:-}"
-GOOGLE_REDIRECT_URI="${GOOGLE_REDIRECT_URI:-}"
+
+# Auto-generate OAuth redirect URIs based on domain and access mode
+PROTOCOL="${ACCESS_MODE:-localhost}"
+if [ "$PROTOCOL" = "public" ]; then
+    PROTOCOL="https"
+else
+    PROTOCOL="http"
+fi
+ENTRA_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
+GOOGLE_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
+
+# Auto-generate service-specific redirect URIs if service domains are configured
+if [ ! -z "$SEERR_DOMAIN" ]; then
+    SEERR_REDIRECT_URI="${PROTOCOL}://${SEERR_DOMAIN}/oauth2callback"
+fi
+if [ ! -z "$PLEX_DOMAIN" ]; then
+    PLEX_REDIRECT_URI="${PROTOCOL}://${PLEX_DOMAIN}/oauth2callback"
+fi
+if [ ! -z "$EMBY_DOMAIN" ]; then
+    EMBY_REDIRECT_URI="${PROTOCOL}://${EMBY_DOMAIN}/oauth2callback"
+fi
 SONARR_URL="${SONARR_URL:-}"
 RADARR_URL="${RADARR_URL:-}"
 WHISPARR_URL="${WHISPARR_URL:-}"
@@ -722,12 +741,11 @@ case "${AUTHTYPE}" in
     entra)
         echo "=== Setting up Entra ID (Microsoft) Authentication ==="
 
-        # If any Entra env vars are provided, validate all are present
-        if [ ! -z "$ENTRA_CLIENT_ID" ] || [ ! -z "$ENTRA_CLIENT_SECRET" ] || [ ! -z "$ENTRA_PROVIDER_METADATA_URL" ]; then
-            if [ -z "$ENTRA_CLIENT_ID" ] || [ -z "$ENTRA_CLIENT_SECRET" ] || [ -z "$ENTRA_PROVIDER_METADATA_URL" ]; then
-                echo "ERROR: If using environment variables for Entra OAuth, ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET, and ENTRA_PROVIDER_METADATA_URL are all required"
-                exit 1
-            fi
+        # Validate Entra OAuth credentials are provided
+        if [ -z "$ENTRA_CLIENT_ID" ] || [ -z "$ENTRA_CLIENT_SECRET" ] || [ -z "$ENTRA_PROVIDER_METADATA_URL" ]; then
+            echo "ERROR: ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET, and ENTRA_PROVIDER_METADATA_URL are required for Entra OAuth"
+            exit 1
+        fi
 
             # Generate crypto passphrase if not provided
             if [ -z "$ENTRA_CRYPTO_PASSPHRASE" ]; then
@@ -775,12 +793,11 @@ case "${AUTHTYPE}" in
     google)
         echo "=== Setting up Google OAuth2 Authentication ==="
 
-        # If any Google env vars are provided, validate all are present
-        if [ ! -z "$GOOGLE_CLIENT_ID" ] || [ ! -z "$GOOGLE_CLIENT_SECRET" ] || [ ! -z "$GOOGLE_REDIRECT_URI" ]; then
-            if [ -z "$GOOGLE_CLIENT_ID" ] || [ -z "$GOOGLE_CLIENT_SECRET" ] || [ -z "$GOOGLE_REDIRECT_URI" ]; then
-                echo "ERROR: If using environment variables for Google OAuth, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI are all required"
-                exit 1
-            fi
+        # Validate Google OAuth credentials are provided
+        if [ -z "$GOOGLE_CLIENT_ID" ] || [ -z "$GOOGLE_CLIENT_SECRET" ]; then
+            echo "ERROR: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are required for Google OAuth"
+            exit 1
+        fi
 
             # Configure Google OAuth2 in Apache
             # Generate random encryption passphrase for sessions (internal use only)
