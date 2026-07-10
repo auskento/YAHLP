@@ -27,12 +27,12 @@ elif [ -d /etc/letsencrypt ] && [ ! -L /etc/letsencrypt ]; then
     echo "  For best results, mount config to /etc/yahlp and remove /etc/letsencrypt directory"
 fi
 
-# Setup logs folder in config directory
+# Setup logs folder in config directory (Apache needs write access)
 mkdir -p /etc/yahlp/logs || {
     echo "ERROR: Failed to create /etc/yahlp/logs directory"
     exit 1
 }
-chmod 755 /etc/yahlp/logs || {
+chmod 777 /etc/yahlp/logs || {
     echo "ERROR: Failed to set permissions on /etc/yahlp/logs"
     exit 1
 }
@@ -268,28 +268,60 @@ set -a
 source /etc/apache2/env.conf
 set +a
 
-# Setup templates folder in config directory if config is mounted
-if [ -d /etc/yahlp ]; then
-    echo ""
-    echo "=== Setting up Config Templates ==="
+# Ensure config folder has proper permissions (users need access)
+chmod 755 /etc/yahlp || {
+    echo "ERROR: Failed to set permissions on /etc/yahlp"
+    exit 1
+}
 
-    # Create templates folder if it doesn't exist
-    if [ ! -d /etc/yahlp/templates ]; then
-        mkdir -p /etc/yahlp/templates
-        echo "✓ Created /etc/yahlp/templates directory"
-    fi
+# Setup templates folder in config directory (users need write access for custom templates)
+echo ""
+echo "=== Setting up Config Templates ==="
 
-    # Copy built-in templates README to config folder for user instructions
-    if [ -f /templates/README.md ] && [ ! -f /etc/yahlp/templates/README.md ]; then
-        cp /templates/README.md /etc/yahlp/templates/README.md
-        chmod 644 /etc/yahlp/templates/README.md
-        echo "✓ Copied templates/README.md to /etc/yahlp/templates/"
-        echo "  Users can add custom layout templates to this folder"
-    fi
-else
-    echo ""
-    echo "ℹ Config folder (/etc/yahlp) not mounted"
-    echo "  To use custom templates, mount a config folder to /etc/yahlp"
+# Create templates folder if it doesn't exist
+if [ ! -d /etc/yahlp/templates ]; then
+    mkdir -p /etc/yahlp/templates || {
+        echo "ERROR: Failed to create /etc/yahlp/templates directory"
+        exit 1
+    }
+    echo "✓ Created /etc/yahlp/templates directory"
+fi
+
+# Set permissions on templates folder (755 for access, users add files as needed)
+chmod 755 /etc/yahlp/templates || {
+    echo "ERROR: Failed to set permissions on /etc/yahlp/templates"
+    exit 1
+}
+
+# Copy built-in templates README to config folder for user instructions
+if [ -f /templates/README.md ] && [ ! -f /etc/yahlp/templates/README.md ]; then
+    cp /templates/README.md /etc/yahlp/templates/README.md || {
+        echo "ERROR: Failed to copy templates README"
+        exit 1
+    }
+    chmod 644 /etc/yahlp/templates/README.md
+    echo "✓ Copied templates/README.md to /etc/yahlp/templates/"
+    echo "  Users can add custom layout templates to this folder"
+fi
+
+# Verify all permissions are correctly set
+echo ""
+echo "=== Verifying Folder Permissions ==="
+echo "Folder Permissions Summary:"
+ls -ld /etc/yahlp | awk '{print "  /etc/yahlp: " $1}'
+ls -ld /etc/yahlp/certs | awk '{print "  /etc/yahlp/certs: " $1}'
+ls -ld /etc/yahlp/templates | awk '{print "  /etc/yahlp/templates: " $1}'
+ls -ld /etc/yahlp/logs | awk '{print "  /etc/yahlp/logs: " $1}'
+ls -ld /etc/yahlp/logs/sites | awk '{print "  /etc/yahlp/logs/sites: " $1}'
+
+# Verify symlinks
+echo ""
+echo "Symlinks:"
+if [ -L /etc/letsencrypt ]; then
+    echo "  /etc/letsencrypt → $(readlink /etc/letsencrypt)"
+fi
+if [ -L /var/log/apache2 ]; then
+    echo "  /var/log/apache2 → $(readlink /var/log/apache2)"
 fi
 
 echo ""
