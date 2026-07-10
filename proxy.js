@@ -109,14 +109,14 @@ function getConfigValue(service, key) {
   // Check environment variable first (highest priority)
   const envKey = `${service.toUpperCase()}_${key.toUpperCase()}`;
   const envValue = process.env[envKey];
-  if (envValue !== undefined) {
+  if (envValue !== undefined && envValue !== '') {
     console.log(`  [${service}] ${key}: from ENV (${envKey})`);
     return envValue;
   }
 
   // Fall back to JSON5 config
   const jsonValue = jsonConfig.services?.[service]?.[key];
-  if (jsonValue !== undefined) {
+  if (jsonValue !== undefined && jsonValue !== '') {
     console.log(`  [${service}] ${key}: from JSON5 = ${jsonValue}`);
     return jsonValue;
   }
@@ -143,7 +143,7 @@ function getConfig(path, defaultValue) {
 function getBoolValue(service, key, defaultValue = false) {
   const envKey = `${service.toUpperCase()}_${key.toUpperCase()}`;
   const envValue = process.env[envKey];
-  if (envValue !== undefined) {
+  if (envValue !== undefined && envValue !== '') {
     return envValue.toLowerCase() === 'true' || envValue === '1';
   }
 
