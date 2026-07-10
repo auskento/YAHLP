@@ -23,8 +23,10 @@ if [ ! -L /etc/letsencrypt ] && [ ! -d /etc/letsencrypt ]; then
     ln -s /etc/yahlp/certs /etc/letsencrypt
     echo "✓ Created symlink: /etc/letsencrypt → /etc/yahlp/certs"
 elif [ -d /etc/letsencrypt ] && [ ! -L /etc/letsencrypt ]; then
-    echo "WARNING: /etc/letsencrypt exists as a real directory"
-    echo "  For best results, mount config to /etc/yahlp and remove /etc/letsencrypt directory"
+    echo "Removing /etc/letsencrypt directory to create symlink..."
+    rm -rf /etc/letsencrypt
+    ln -s /etc/yahlp/certs /etc/letsencrypt
+    echo "✓ Replaced /etc/letsencrypt with symlink → /etc/yahlp/certs"
 fi
 
 # Setup logs folder in config directory (Apache needs write access)
