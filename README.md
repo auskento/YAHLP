@@ -64,19 +64,27 @@ YAHLP requires a single mounted config folder (`/etc/yahlp`) for everything:
 
 **Docker mount:** `-v ./config:/etc/yahlp` ← Only volume needed
 
-YAHLP supports flexible configuration through two methods:
+YAHLP uses a **three-tier configuration** approach:
 
-**JSON5 Config File** — `yahlp.json5` with comments, reusable across deployments  
-**Environment Variables** — Set per-deployment, override JSON5 settings, secrets-friendly
+**1. Unraid Form** — Essential settings only
+- Access mode, domain, email
+- Service URLs and enable/disable flags
+- Dashboard customization
 
-Environment variables take precedence, allowing:
-- Base config in `yahlp.json5` (reusable template)
-- Per-deployment secrets in `.env` (kept private)
-- Local overrides on container startup
+**2. Environment Variables** — Per-deployment overrides
+- Set via `-e` flags or `.env` file
+- Override any setting (useful for testing or CI/CD)
+- Example: `-e SONARR_API_KEY=abc123`
 
-Example: Define all service URLs in `yahlp.json5`, override `SONARR_API_KEY` via `.env` for security.
+**3. JSON5 Configuration** — Complete persistent setup
+- **Auto-generated on first run** with complete template
+- API keys, usernames, passwords (security: kept out of form)
+- Custom icon URLs, OAuth redirects, landing pages
+- Edit `/etc/yahlp/yahlp.json5` to configure securely
 
-See [Configuration Guide](docs/configuration.md) for all options and examples.
+**Precedence:** Environment variables > JSON5 file > Form defaults
+
+See [Configuration Guide](docs/configuration.md) for complete options.
 
 ## Getting Started
 
