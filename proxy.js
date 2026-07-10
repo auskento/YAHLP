@@ -109,8 +109,14 @@ function getConfigValue(service, key) {
   // Check environment variable first (highest priority)
   const envKey = `${service.toUpperCase()}_${key.toUpperCase()}`;
   const envValue = process.env[envKey];
+
+  // Debug: show what we're checking
+  if (service === 'sonarr' && key === 'url') {
+    console.log(`  [DEBUG] ${envKey} = ${JSON.stringify(envValue)} (type: ${typeof envValue})`);
+  }
+
   if (envValue !== undefined && envValue !== '') {
-    console.log(`  [${service}] ${key}: from ENV (${envKey})`);
+    console.log(`  [${service}] ${key}: from ENV (${envKey}) = ${envValue}`);
     return envValue;
   }
 
@@ -121,6 +127,7 @@ function getConfigValue(service, key) {
     return jsonValue;
   }
 
+  console.log(`  [${service}] ${key}: not found (env empty/undefined, json empty/undefined)`);
   return undefined;
 }
 
