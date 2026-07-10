@@ -1086,7 +1086,7 @@ app.get('/api/config/access', (req, res) => {
 });
 
 app.get('/api/config/auth', (req, res) => {
-  const authType = getConfig('auth.type', 'none');
+  const authType = getConfig('access.type', 'none');
   // Never send secrets to frontend - only type and provider info
   const safeAuth = { type: authType };
 
