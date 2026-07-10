@@ -384,7 +384,7 @@ SKIP_CERT_GENERATION=$(echo "$SKIP_CERT_GENERATION" | tr '[:upper:]' '[:lower:]'
 
 # Auto-generate OAuth redirect URIs (Entra/Google only work with public access)
 # OAuth always uses HTTPS regardless of ACCESS_MODE, since it requires public domain
-ENTRA_REDIRECT_URI="https://${DOMAIN}/oauth2callback"
+ENTRA_REDIRECT_URI="https://${DOMAIN}/oauth2/callback"
 GOOGLE_REDIRECT_URI="https://${DOMAIN}/oauth2callback"
 
 # Auto-generate service-specific redirect URIs if service domains are configured (always HTTPS)
