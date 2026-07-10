@@ -59,6 +59,7 @@ COPY apache-conf/auth-entra-protect.conf /etc/apache2/conf-available/
 COPY apache-conf/oauth2-google.conf /etc/apache2/conf-available/
 COPY apache-conf/auth-google-protect.conf /etc/apache2/conf-available/
 COPY apache-conf/auth-basic.conf /etc/apache2/conf-available/
+COPY apache-conf/security.conf /etc/apache2/conf-available/
 COPY apache-conf/services/ /etc/apache2/sites-available/services/
 
 # Copy proxy files and install dependencies

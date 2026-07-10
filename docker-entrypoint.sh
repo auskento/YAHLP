@@ -692,6 +692,9 @@ a2enmod ssl 2>/dev/null || true
 a2enmod session 2>/dev/null || true
 a2enmod session_crypto 2>/dev/null || true
 
+# Enable security configuration (blocks .env and other sensitive files)
+a2enconf security 2>/dev/null || true
+
 # Check if auth_openidc module file exists
 if [ -f /usr/lib/apache2/modules/mod_auth_openidc.so ]; then
     echo "✓ auth_openidc module file found and enabled"
