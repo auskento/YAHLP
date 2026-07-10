@@ -759,8 +759,7 @@ case "${AUTHTYPE}" in
         if [ -z "$ENTRA_CLIENT_ID" ] || [ -z "$ENTRA_CLIENT_SECRET" ] || [ -z "$ENTRA_PROVIDER_METADATA_URL" ]; then
             echo "ERROR: ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET, and ENTRA_PROVIDER_METADATA_URL are required for Entra OAuth"
             exit 1
-        fi
-
+        else
             # Generate crypto passphrase if not provided
             if [ -z "$ENTRA_CRYPTO_PASSPHRASE" ]; then
                 ENTRA_CRYPTO_PASSPHRASE=$(openssl rand -base64 24)
@@ -791,12 +790,6 @@ case "${AUTHTYPE}" in
 
             echo "✓ Entra OAuth configured in Apache"
             echo "  Client ID: ${ENTRA_CLIENT_ID:0:20}..."
-        else
-            # No env vars provided - use frontend OAuth from yahlp.json5
-            echo "INFO: Entra OAuth settings not found in environment variables"
-            echo "INFO: Will use settings from yahlp.json5 (entra section) via frontend"
-            a2disconf oauth2-entra 2>/dev/null || true
-            a2disconf auth-entra-protect 2>/dev/null || true
         fi
 
         # Disable other auth methods
