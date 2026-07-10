@@ -1,148 +1,145 @@
 // YAHLP Configuration (JSON5 format)
 // Copy this to yahlp.json5 and customize for your setup
 // Environment variables (-e) override these settings
+// Each setting shows the ENV_VARIABLE that can override it
 
 {
-  // Access mode: 'public' (HTTPS + Let's Encrypt) or 'private' (HTTP)
+  // Access settings
   access: {
-    mode: 'public',
-    type: 'none',  // 'none', 'basic', 'google', 'entra'
+    mode: 'public',              // -e ACCESS_MODE
+    type: 'none',                // -e ACCESS_TYPE  ('none', 'basic', 'google', 'entra')
   },
 
-  // Domain and email (required for public mode)
-  domain: 'yourdomain.com',
-  email: 'admin@yourdomain.com',
+  domain: 'yourdomain.com',      // -e DOMAIN
+  email: 'admin@yourdomain.com', // -e EMAIL
 
-  // Dashboard settings
+  // Dashboard configuration
   dashboard: {
-    name: 'YAHLP',
-    style: 'modern',        // 'classic', 'modern', 'sleek', 'minimal'
-    color: '#00A99D',
-    landing: '',            // Empty = show all services
-    order: 'SAB,GET,HYD,TRA,QBI,DEL,PRO,JAC,SON,RAD,LID,WHI,SEE,BAZ,TAU,MNT,JEL,PLX,EMB',
+    name: 'YAHLP',               // -e DASHBOARD_NAME
+    style: 'modern',             // -e DASHBOARD_STYLE  ('classic', 'modern', 'sleek', 'minimal')
+    color: '#00A99D',            // -e DASHBOARD_COLOR
+    landing: '',                 // -e DASHBOARD_LANDING  (Empty = show all services)
+    order: 'SAB,GET,HYD,TRA,QBI,DEL,PRO,JAC,SON,RAD,LID,WHI,SEE,BAZ,TAU,MNT,JEL,PLX,EMB', // -e DASHBOARD_ORDER
   },
 
   // Dashboard built-in sites (torrent and usenet tracking sites)
-  // Add site codes to enable them as quick-links on the dashboard
   // Available sites:
-  //   Torrent sites: TPB (The Pirate Bay), FIL (FileList.io), HDB (HDBits), IPT (IP Torrents),
-  //                  1337 (1337x), YTS (YTS), LAT (LimeTorrents), NYA (Nyaa), PTP (PassThePopcorn)
-  //   Usenet sites: DOG (DOGnzb), DRS (DrunkenSlug), NLF (nzb.life), NFW (NZBFinder.ws),
-  //                 NGK (NZBgeek), PLA (nzbplanet.net), TAB (Tabula Rasa)
-  sites_enabled: '',        // Example: 'TPB,YTS,DOG,DRS' or leave empty to disable
+  //   Torrent: TPB, FIL, HDB, IPT, 1337, YTS, LAT, NYA, PTP
+  //   Usenet: DOG, DRS, NLF, NFW, NGK, PLA, TAB
+  sites_enabled: '',             // -e DASHBOARD_SITES  (Example: 'TPB,YTS,DOG,DRS')
 
   // Service enable/disable flags
   enabled: {
-    sabnzbd: false,
-    nzbget: false,
-    nzbhydra: false,
-    transmission: false,
-    qbittorrent: false,
-    deluge: false,
-    sonarr: false,
-    radarr: false,
-    lidarr: false,
-    whisparr: false,
-    prowlarr: false,
-    jackett: false,
-    seerr: false,
-    bazarr: false,
-    jellyfin: true,
-    emby: false,
-    plex: false,
-    tautulli: false,
-    maintainerr: false,
+    sabnzbd: false,              // -e SABNZBD_ENABLED
+    nzbget: false,               // -e NZBGET_ENABLED
+    nzbhydra: false,             // -e NZBHYDRA_ENABLED
+    transmission: false,         // -e TRANSMISSION_ENABLED
+    qbittorrent: false,          // -e QBITTORRENT_ENABLED
+    deluge: false,               // -e DELUGE_ENABLED
+    sonarr: false,               // -e SONARR_ENABLED
+    radarr: false,               // -e RADARR_ENABLED
+    lidarr: false,               // -e LIDARR_ENABLED
+    whisparr: false,             // -e WHISPARR_ENABLED
+    prowlarr: false,             // -e PROWLARR_ENABLED
+    jackett: false,              // -e JACKETT_ENABLED
+    seerr: false,                // -e SEERR_ENABLED
+    bazarr: false,               // -e BAZARR_ENABLED
+    jellyfin: true,              // -e JELLYFIN_ENABLED
+    emby: false,                 // -e EMBY_ENABLED
+    plex: false,                 // -e PLEX_ENABLED
+    tautulli: false,             // -e TAUTULLI_ENABLED
+    maintainerr: false,          // -e MAINTAINERR_ENABLED
   },
 
   // Service URLs
   url: {
-    sabnzbd: 'http://sabnzbd:8080',
-    nzbget: 'http://nzbget:6789',
-    nzbhydra: 'http://nzbhydra:5076',
-    transmission: 'http://transmission:9091',
-    qbittorrent: 'http://qbittorrent:8080',
-    deluge: 'http://deluge:8112',
-    sonarr: 'http://sonarr:8989',
-    radarr: 'http://radarr:7878',
-    lidarr: 'http://lidarr:8686',
-    whisparr: 'http://whisparr:6969',
-    prowlarr: 'http://prowlarr:9696',
-    jackett: 'http://jackett:9117',
-    seerr: 'http://seerr:5055',
-    bazarr: 'http://bazarr:6767',
-    jellyfin: 'http://jellyfin:8096',
-    emby: 'http://emby:8096',
-    plex: 'http://plex:32400',
-    tautulli: 'http://tautulli:8181/tautulli',
-    maintainerr: 'http://maintainerr:6246',
+    sabnzbd: 'http://sabnzbd:8080',           // -e SABNZBD_URL
+    nzbget: 'http://nzbget:6789',             // -e NZBGET_URL
+    nzbhydra: 'http://nzbhydra:5076',         // -e NZBHYDRA_URL
+    transmission: 'http://transmission:9091', // -e TRANSMISSION_URL
+    qbittorrent: 'http://qbittorrent:8080',   // -e QBITTORRENT_URL
+    deluge: 'http://deluge:8112',             // -e DELUGE_URL
+    sonarr: 'http://sonarr:8989',             // -e SONARR_URL
+    radarr: 'http://radarr:7878',             // -e RADARR_URL
+    lidarr: 'http://lidarr:8686',             // -e LIDARR_URL
+    whisparr: 'http://whisparr:6969',         // -e WHISPARR_URL
+    prowlarr: 'http://prowlarr:9696',         // -e PROWLARR_URL
+    jackett: 'http://jackett:9117',           // -e JACKETT_URL
+    seerr: 'http://seerr:5055',               // -e SEERR_URL
+    bazarr: 'http://bazarr:6767',             // -e BAZARR_URL
+    jellyfin: 'http://jellyfin:8096',         // -e JELLYFIN_URL
+    emby: 'http://emby:8096',                 // -e EMBY_URL
+    plex: 'http://plex:32400',                // -e PLEX_URL
+    tautulli: 'http://tautulli:8181/tautulli',  // -e TAUTULLI_URL
+    maintainerr: 'http://maintainerr:6246',   // -e MAINTAINERR_URL
   },
 
-  // API Keys for services that require them
+  // API Keys (required for status panels)
   api_key: {
-    sabnzbd: '',
-    nzbhydra: '',
-    sonarr: '',
-    radarr: '',
-    lidarr: '',
-    whisparr: '',
-    prowlarr: '',
-    jackett: '',
-    seerr: '',
-    bazarr: '',
-    jellyfin: '',
-    emby: '',
-    plex: '',
-    tautulli: '',
-    maintainerr: '',
-    qbittorrent: '',
+    sabnzbd: '',                 // -e SABNZBD_API_KEY
+    nzbhydra: '',                // -e NZBHYDRA_API_KEY
+    sonarr: '',                  // -e SONARR_API_KEY
+    radarr: '',                  // -e RADARR_API_KEY
+    lidarr: '',                  // -e LIDARR_API_KEY
+    whisparr: '',                // -e WHISPARR_API_KEY
+    prowlarr: '',                // -e PROWLARR_API_KEY
+    jackett: '',                 // -e JACKETT_API_KEY
+    seerr: '',                   // -e SEERR_API_KEY
+    bazarr: '',                  // -e BAZARR_API_KEY
+    jellyfin: '',                // -e JELLYFIN_API_KEY
+    emby: '',                    // -e EMBY_API_KEY
+    plex: '',                    // -e PLEX_API_KEY
+    tautulli: '',                // -e TAUTULLI_API_KEY
+    maintainerr: '',             // -e MAINTAINERR_API_KEY
+    qbittorrent: '',             // -e QBITTORRENT_API_KEY
   },
 
   // Usernames (for services that use them)
   username: {
-    nzbget: '',
+    nzbget: '',                  // -e NZBGET_USERNAME
   },
 
   // Passwords (for services that use them)
   password: {
-    nzbget: '',
-    transmission: '',
-    deluge: '',
+    nzbget: '',                  // -e NZBGET_PASSWORD
+    transmission: '',            // -e TRANSMISSION_PASSWORD
+    deluge: '',                  // -e DELUGE_PASSWORD
   },
 
   // Custom icon URLs (optional - leave empty for built-in icons)
   icon_url: {
-    sabnzbd: '',
-    nzbget: '',
-    nzbhydra: '',
-    transmission: '',
-    qbittorrent: '',
-    deluge: '',
-    sonarr: '',
-    radarr: '',
-    lidarr: '',
-    whisparr: '',
-    prowlarr: '',
-    jackett: '',
-    seerr: '',
-    bazarr: '',
-    jellyfin: '',
-    emby: '',
-    plex: '',
-    tautulli: '',
-    maintainerr: '',
+    sabnzbd: '',                 // -e SABNZBD_ICON_URL
+    nzbget: '',                  // -e NZBGET_ICON_URL
+    nzbhydra: '',                // -e NZBHYDRA_ICON_URL
+    transmission: '',            // -e TRANSMISSION_ICON_URL
+    qbittorrent: '',             // -e QBITTORRENT_ICON_URL
+    deluge: '',                  // -e DELUGE_ICON_URL
+    sonarr: '',                  // -e SONARR_ICON_URL
+    radarr: '',                  // -e RADARR_ICON_URL
+    lidarr: '',                  // -e LIDARR_ICON_URL
+    whisparr: '',                // -e WHISPARR_ICON_URL
+    prowlarr: '',                // -e PROWLARR_ICON_URL
+    jackett: '',                 // -e JACKETT_ICON_URL
+    seerr: '',                   // -e SEERR_ICON_URL
+    bazarr: '',                  // -e BAZARR_ICON_URL
+    jellyfin: '',                // -e JELLYFIN_ICON_URL
+    emby: '',                    // -e EMBY_ICON_URL
+    plex: '',                    // -e PLEX_ICON_URL
+    tautulli: '',                // -e TAUTULLI_ICON_URL
+    maintainerr: '',             // -e MAINTAINERR_ICON_URL
   },
 
   // Landing pages for services (e.g., 'sonarr/calendar')
   landing: {
-    sonarr: '',
-    radarr: '',
-    whisparr: '',
+    sonarr: '',                  // -e SONARR_LANDING
+    radarr: '',                  // -e RADARR_LANDING
+    whisparr: '',                // -e WHISPARR_LANDING
   },
 
   // OAuth redirect URIs (for services with OAuth)
   redirect_uri: {
-    seerr: 'https://yourdomain.com/seerr/oauth2callback',
-    emby: 'https://yourdomain.com/emby/oauth2callback',
-    plex: 'https://yourdomain.com/plex/oauth2callback',
+    seerr: 'https://yourdomain.com/seerr/oauth2callback',    // -e SEERR_REDIRECT_URI
+    emby: 'https://yourdomain.com/emby/oauth2callback',      // -e EMBY_REDIRECT_URI
+    plex: 'https://yourdomain.com/plex/oauth2callback',      // -e PLEX_REDIRECT_URI
   },
 }
