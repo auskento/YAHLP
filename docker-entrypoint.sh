@@ -377,17 +377,23 @@ GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"
 GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET:-}"
 
 # Auto-generate OAuth redirect URIs based on domain and access mode
+echo "DEBUG: Step 1 - ACCESS_MODE before assignment: '$ACCESS_MODE'"
 PROTOCOL="${ACCESS_MODE:-localhost}"
+echo "DEBUG: Step 2 - PROTOCOL after assignment: '$PROTOCOL'"
+echo "DEBUG: Step 3 - Testing: [ '$PROTOCOL' = 'public' ]"
 if [ "$PROTOCOL" = "public" ]; then
+    echo "DEBUG: Step 4a - Condition TRUE, setting PROTOCOL=https"
     PROTOCOL="https"
 else
+    echo "DEBUG: Step 4b - Condition FALSE, setting PROTOCOL=http"
     PROTOCOL="http"
 fi
+echo "DEBUG: Step 5 - PROTOCOL after if-else: '$PROTOCOL'"
 ENTRA_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
 GOOGLE_REDIRECT_URI="${PROTOCOL}://${DOMAIN}/oauth2callback"
 
-echo "DEBUG: ACCESS_MODE=$ACCESS_MODE, PROTOCOL=$PROTOCOL, DOMAIN=$DOMAIN"
-echo "DEBUG: ENTRA_REDIRECT_URI=$ENTRA_REDIRECT_URI"
+echo "DEBUG: Final - ACCESS_MODE=$ACCESS_MODE, PROTOCOL=$PROTOCOL, DOMAIN=$DOMAIN"
+echo "DEBUG: Final - ENTRA_REDIRECT_URI=$ENTRA_REDIRECT_URI"
 
 # Auto-generate service-specific redirect URIs if service domains are configured
 if [ ! -z "$SEERR_DOMAIN" ]; then
