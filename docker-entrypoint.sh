@@ -105,6 +105,42 @@ if [ ! -f /etc/yahlp/yahlp.json5 ]; then
     JSON_ACCESS_MODE="${ACCESS_MODE:-public}"
     JSON_AUTHTYPE="${AUTHTYPE:-none}"
 
+    # Detect enabled services from environment variables
+    SERVICES_ENABLED_JSON=""
+    SERVICES_URL_JSON=""
+    SERVICES="sabnzbd nzbget nzbhydra transmission qbittorrent deluge sonarr radarr lidarr whisparr prowlarr jackett seerr bazarr jellyfin emby plex tautulli maintainerr"
+
+    for service in $SERVICES; do
+        SERVICE_UPPER=$(echo "$service" | tr '[:lower:]' '[:upper:]')
+        SERVICE_ENABLED_VAR="${SERVICE_UPPER}_ENABLED"
+        SERVICE_URL_VAR="${SERVICE_UPPER}_URL"
+
+        eval "SERVICE_ENABLED=\$$SERVICE_ENABLED_VAR"
+        eval "SERVICE_URL=\$$SERVICE_URL_VAR"
+
+        # Add to enabled section
+        if [ ! -z "$SERVICES_ENABLED_JSON" ]; then
+            SERVICES_ENABLED_JSON="${SERVICES_ENABLED_JSON},"$'\n'
+        fi
+        SERVICES_ENABLED_JSON="${SERVICES_ENABLED_JSON}    ${service}: $([ "$SERVICE_ENABLED" = "true" ] && echo "true" || echo "false")"
+
+        # Add to URL section if service URL is set
+        if [ ! -z "$SERVICE_URL" ]; then
+            if [ ! -z "$SERVICES_URL_JSON" ]; then
+                SERVICES_URL_JSON="${SERVICES_URL_JSON},"$'\n'
+            fi
+            SERVICES_URL_JSON="${SERVICES_URL_JSON}    ${service}: '${SERVICE_URL}'"
+        fi
+    done
+
+    # Use defaults if no services detected
+    if [ -z "$SERVICES_ENABLED_JSON" ]; then
+        SERVICES_ENABLED_JSON="    jellyfin: true,"$'\n'"    plex: false,"$'\n'"    emby: false,"$'\n'"    sonarr: false,"$'\n'"    radarr: false"
+    fi
+    if [ -z "$SERVICES_URL_JSON" ]; then
+        SERVICES_URL_JSON="    jellyfin: 'http://jellyfin:8096',"$'\n'"    plex: 'http://plex:32400'"
+    fi
+
     cat > /etc/yahlp/yahlp.json5 << JSONEOF
 // YAHLP Configuration (JSON5 format)
 // Edit this file to configure services with API keys, icons, and optional settings
@@ -129,48 +165,12 @@ if [ ! -f /etc/yahlp/yahlp.json5 ]; then
 
   // Enable/disable services
   enabled: {
-    sabnzbd: false,
-    nzbget: false,
-    nzbhydra: false,
-    transmission: false,
-    qbittorrent: false,
-    deluge: false,
-    sonarr: false,
-    radarr: false,
-    lidarr: false,
-    whisparr: false,
-    prowlarr: false,
-    jackett: false,
-    seerr: false,
-    bazarr: false,
-    jellyfin: true,
-    emby: false,
-    plex: false,
-    tautulli: false,
-    maintainerr: false,
+${SERVICES_ENABLED_JSON}
   },
 
   // Service URLs (can also be set via SERVICENAME_URL environment variables)
   url: {
-    jellyfin: 'http://jellyfin:8096',
-    plex: 'http://plex:32400',
-    emby: 'http://emby:8096',
-    sonarr: 'http://sonarr:8989',
-    radarr: 'http://radarr:7878',
-    lidarr: 'http://lidarr:8686',
-    whisparr: 'http://whisparr:6969',
-    prowlarr: 'http://prowlarr:9696',
-    jackett: 'http://jackett:9117',
-    sabnzbd: 'http://sabnzbd:8080',
-    nzbget: 'http://nzbget:6789',
-    nzbhydra: 'http://nzbhydra:5076',
-    transmission: 'http://transmission:9091',
-    qbittorrent: 'http://qbittorrent:8080',
-    deluge: 'http://deluge:8112',
-    seerr: 'http://seerr:5055',
-    bazarr: 'http://bazarr:6767',
-    tautulli: 'http://tautulli:8181/tautulli',
-    maintainerr: 'http://maintainerr:6246',
+${SERVICES_URL_JSON}
   },
 
   // API Keys (must be set here or via SERVICENAME_API_KEY environment variables)
