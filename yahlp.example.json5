@@ -145,14 +145,4 @@
     emby: 'https://yourdomain.com/emby/oauth2callback',
     plex: 'https://yourdomain.com/plex/oauth2callback',
   },
-
-  // Custom internal websites to display on the dashboard
-  // Sites are shortcuts to other web services and tools available on your network
-  // They appear as additional links in the service menu alongside the standard services
-  sites: [
-    // { name: 'Router', url: 'http://192.168.1.1' },
-    // { name: 'NAS', url: 'http://nas.local' },
-    // { name: 'Grafana', url: 'http://grafana.local:3000' },
-    // { name: 'Portainer', url: 'http://portainer.local:9000' },
-  ],
 }
