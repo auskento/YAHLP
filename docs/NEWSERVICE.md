@@ -139,14 +139,7 @@ JACKETT_INCLUDE=$(generate_include "jackett" "$ENABLE_JACKETT")
 CONFIG="${CONFIG//@@INCLUDE_JACKETT@@/$JACKETT_INCLUDE}"
 ```
 
-### 6. download-icons.sh
-
-Add to ICON_URLS array (line 18-38):
-```bash
-[JACKETT]="${JACKETT_ICON_URL}"
-```
-
-### 7. proxy.js
+### 6. proxy.js
 
 **Add service configuration** (around line 154, services object):
 ```javascript

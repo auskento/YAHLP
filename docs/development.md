@@ -94,7 +94,6 @@ mynewservice: {
   enabled: false,
   url: 'http://mynewservice:8080',
   api_key: 'your-api-key-here',
-  icon_url: '',
 }
 ```
 
@@ -106,7 +105,10 @@ MYNEWSERVICE_API_KEY=
 ```
 
 4. **Update `html/index.html`** - Add service to dashboard ordering constants
-5. **Add icon** to `html/icons/` folder if not using generic placeholder
+
+5. **Add icon** to `html/icons/` folder (PNG format):
+   - Icon will be bundled in the container
+   - Users can override by replacing the file in `/etc/yahlp/service_icons/` on their mounted config
 
 ### Modifying Layouts
 
