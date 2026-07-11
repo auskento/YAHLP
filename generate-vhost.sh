@@ -89,13 +89,23 @@ EOF
 echo "✓ Generated $SERVICE VirtualHost config: $VHOST_FILE"
 
 # Handle OAuth configuration based on AUTHTYPE
-# Note: OAuth includes are removed in favor of Option 1 (root-level OAuth)
-sed -i "/@@INCLUDE_${SERVICE_UPPER}_OAUTH@@/d" "$VHOST_FILE"
-
+# Service subdomains require their own auth protection
 case "${AUTHTYPE}" in
-    google|entra|basic|none)
-        # All OAuth is handled at root level (Option 1)
-        # Service-specific OAuth includes are disabled
+    entra)
+        # Include Entra OAuth for this service subdomain
+        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|Include /etc/apache2/conf-available/auth-entra-protect-${SERVICE}.conf|g" "$VHOST_FILE"
+        ;;
+    google)
+        # Include Google OAuth for this service subdomain
+        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|Include /etc/apache2/conf-available/auth-google-protect-${SERVICE}.conf|g" "$VHOST_FILE"
+        ;;
+    basic)
+        # Include basic auth for this service subdomain
+        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|<Location />\n    AuthType Basic\n    AuthName \"Service Access\"\n    AuthUserFile /etc/apache2/.htpasswd\n    Require valid-user\n</Location>|g" "$VHOST_FILE"
+        ;;
+    none|*)
+        # Remove placeholder if no auth
+        sed -i "/@@INCLUDE_${SERVICE_UPPER}_OAUTH@@/d" "$VHOST_FILE"
         ;;
 esac
 
