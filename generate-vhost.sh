@@ -93,15 +93,25 @@ echo "✓ Generated $SERVICE VirtualHost config: $VHOST_FILE"
 case "${AUTHTYPE}" in
     entra)
         # Include both Entra OAuth config and auth-protect Location blocks
-        perl -i -pe "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|Include /etc/apache2/conf-available/oauth2-entra-${SERVICE}.conf\nInclude /etc/apache2/conf-available/auth-entra-protect-${SERVICE}.conf|" "$VHOST_FILE"
+        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|Include /etc/apache2/conf-available/oauth2-entra-${SERVICE}.conf|" "$VHOST_FILE"
+        sed -i "/Include \/etc\/apache2\/conf-available\/oauth2-entra-${SERVICE}.conf/a\\
+Include /etc/apache2/conf-available/auth-entra-protect-${SERVICE}.conf" "$VHOST_FILE"
         ;;
     google)
         # Include both Google OAuth config and auth-protect Location blocks
-        perl -i -pe "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|Include /etc/apache2/conf-available/oauth2-google-${SERVICE}.conf\nInclude /etc/apache2/conf-available/auth-google-protect-${SERVICE}.conf|" "$VHOST_FILE"
+        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|Include /etc/apache2/conf-available/oauth2-google-${SERVICE}.conf|" "$VHOST_FILE"
+        sed -i "/Include \/etc\/apache2\/conf-available\/oauth2-google-${SERVICE}.conf/a\\
+Include /etc/apache2/conf-available/auth-google-protect-${SERVICE}.conf" "$VHOST_FILE"
         ;;
     basic)
         # Include basic auth Location blocks for this service subdomain
-        perl -i -pe "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|<Location />\n    AuthType Basic\n    AuthName \"Service Access\"\n    AuthUserFile /etc/apache2/.htpasswd\n    Require valid-user\n</Location>|" "$VHOST_FILE"
+        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|<Location />|" "$VHOST_FILE"
+        sed -i "/@@INCLUDE_${SERVICE_UPPER}_OAUTH@@/a\\
+    AuthType Basic\n\\
+    AuthName \"Service Access\"\n\\
+    AuthUserFile /etc/apache2/.htpasswd\n\\
+    Require valid-user\n\\
+</Location>" "$VHOST_FILE"
         ;;
     none|*)
         # Remove placeholder if no auth
