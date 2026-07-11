@@ -8,6 +8,10 @@ if [ ! -d /etc/yahlp ]; then
     exit 1
 fi
 
+# Fix permissions on mounted config folder for non-root execution
+chown ${PUID:-0}:${PGID:-0} /etc/yahlp
+chmod 755 /etc/yahlp
+
 # Setup SSL certificate folder in config
 mkdir -p /etc/yahlp/certs || {
     echo "ERROR: Failed to create /etc/yahlp/certs directory"
