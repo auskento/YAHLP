@@ -1004,7 +1004,7 @@ chmod -R 777 /etc/yahlp/certs
 echo "✓ Certificate permissions fixed"
 
 # Handle Emby subdomain with separate OAuth if enabled (only for OAuth auth types)
-if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
+if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
     echo ""
     echo "=== Emby Subdomain OAuth Setup ==="
     echo "Emby domain: $EMBY_DOMAIN"
@@ -1098,8 +1098,8 @@ AUTHEOF
     esac
 fi
 
-# Handle Plex subdomain with separate OAuth if enabled (only for OAuth auth types, public mode only)
-if [ "$ACCESS_MODE" = "public" ] && [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
+# Handle Plex subdomain with separate OAuth if enabled (only for OAuth auth types)
+if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
     echo ""
     echo "=== Plex Subdomain OAuth Setup ==="
     echo "Plex domain: $PLEX_DOMAIN"
