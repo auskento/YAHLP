@@ -1062,6 +1062,26 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ !
                     | sed "s#@@COOKIE_DOMAIN@@#$EMBY_COOKIE_DOMAIN#g" \
                     > /etc/apache2/conf-available/oauth2-google-emby.conf
 
+                # Create auth-protect file for Emby with Google
+                cat > /etc/apache2/conf-available/auth-google-protect-emby.conf <<'AUTHEOF'
+# Google Authentication Protection for Emby Subdomain
+<Location /oauth2callback>
+    SetHandler oauth2-handler
+</Location>
+
+<Location />
+    AuthType openid-connect
+    Require valid-user
+    LogLevel debug
+</Location>
+
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Google"
+AUTHEOF
+                echo "✓ Emby Google auth-protect config generated"
+
                 echo "✓ Emby Google OAuth config generated"
             fi
             ;;
@@ -1081,6 +1101,26 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ !
                     | sed "s#@@ENTRA_CRYPTO_PASSPHRASE@@#$ENTRA_CRYPTO_PASSPHRASE#g" \
                     | sed "s#@@COOKIE_DOMAIN@@#$EMBY_COOKIE_DOMAIN#g" \
                     > /etc/apache2/conf-available/oauth2-entra-emby.conf
+
+                # Create auth-protect file for Emby with Entra
+                cat > /etc/apache2/conf-available/auth-entra-protect-emby.conf <<'AUTHEOF'
+# Entra ID Authentication Protection for Emby Subdomain
+<Location /oauth2>
+    SetHandler oauth2-handler
+</Location>
+
+<Location />
+    AuthType openid-connect
+    Require valid-user
+    LogLevel debug
+</Location>
+
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Entra"
+AUTHEOF
+                echo "✓ Emby Entra auth-protect config generated"
 
                 echo "✓ Emby Entra OAuth config generated"
             fi
@@ -1117,6 +1157,26 @@ if [ "$ACCESS_MODE" = "public" ] && [ "$SKIP_CERT_GENERATION" = "false" ] && [ "
                     | sed "s#@@COOKIE_DOMAIN@@#$PLEX_COOKIE_DOMAIN#g" \
                     > /etc/apache2/conf-available/oauth2-google-plex.conf
 
+                # Create auth-protect file for Plex with Google
+                cat > /etc/apache2/conf-available/auth-google-protect-plex.conf <<'AUTHEOF'
+# Google Authentication Protection for Plex Subdomain
+<Location /oauth2callback>
+    SetHandler oauth2-handler
+</Location>
+
+<Location />
+    AuthType openid-connect
+    Require valid-user
+    LogLevel debug
+</Location>
+
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Google"
+AUTHEOF
+                echo "✓ Plex Google auth-protect config generated"
+
                 echo "✓ Plex Google OAuth config generated"
             fi
 
@@ -1128,6 +1188,26 @@ if [ "$ACCESS_MODE" = "public" ] && [ "$SKIP_CERT_GENERATION" = "false" ] && [ "
                     | sed "s#@@GOOGLE_REDIRECT_URI@@#$SEERR_REDIRECT_URI#g" \
                     | sed "s#@@COOKIE_DOMAIN@@#$SEERR_COOKIE_DOMAIN#g" \
                     > /etc/apache2/conf-available/oauth2-google-seerr.conf
+
+                # Create auth-protect file for Seerr with Google
+                cat > /etc/apache2/conf-available/auth-google-protect-seerr.conf <<'AUTHEOF'
+# Google Authentication Protection for Seerr Subdomain
+<Location /oauth2callback>
+    SetHandler oauth2-handler
+</Location>
+
+<Location />
+    AuthType openid-connect
+    Require valid-user
+    LogLevel debug
+</Location>
+
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Google"
+AUTHEOF
+                echo "✓ Seerr Google auth-protect config generated"
 
                 echo "✓ Seerr Google OAuth config generated"
             fi
@@ -1149,6 +1229,26 @@ if [ "$ACCESS_MODE" = "public" ] && [ "$SKIP_CERT_GENERATION" = "false" ] && [ "
                     | sed "s#@@COOKIE_DOMAIN@@#$PLEX_COOKIE_DOMAIN#g" \
                     > /etc/apache2/conf-available/oauth2-entra-plex.conf
 
+                # Create auth-protect file for Plex with Entra
+                cat > /etc/apache2/conf-available/auth-entra-protect-plex.conf <<'AUTHEOF'
+# Entra ID Authentication Protection for Plex Subdomain
+<Location /oauth2>
+    SetHandler oauth2-handler
+</Location>
+
+<Location />
+    AuthType openid-connect
+    Require valid-user
+    LogLevel debug
+</Location>
+
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Entra"
+AUTHEOF
+                echo "✓ Plex Entra auth-protect config generated"
+
                 echo "✓ Plex Entra OAuth config generated"
             fi
 
@@ -1164,6 +1264,26 @@ if [ "$ACCESS_MODE" = "public" ] && [ "$SKIP_CERT_GENERATION" = "false" ] && [ "
                     | sed "s#@@ENTRA_CRYPTO_PASSPHRASE@@#$ENTRA_CRYPTO_PASSPHRASE#g" \
                     | sed "s#@@COOKIE_DOMAIN@@#$SEERR_COOKIE_DOMAIN#g" \
                     > /etc/apache2/conf-available/oauth2-entra-seerr.conf
+
+                # Create auth-protect file for Seerr with Entra
+                cat > /etc/apache2/conf-available/auth-entra-protect-seerr.conf <<'AUTHEOF'
+# Entra ID Authentication Protection for Seerr Subdomain
+<Location /oauth2>
+    SetHandler oauth2-handler
+</Location>
+
+<Location />
+    AuthType openid-connect
+    Require valid-user
+    LogLevel debug
+</Location>
+
+RequestHeader set X-Remote-User %{OIDC_email}e
+RequestHeader set X-Remote-Name %{OIDC_name}e
+RequestHeader set X-Remote-ID %{OIDC_sub}e
+RequestHeader set X-Auth-Method "Entra"
+AUTHEOF
+                echo "✓ Seerr Entra auth-protect config generated"
 
                 echo "✓ Seerr Entra OAuth config generated"
             fi
