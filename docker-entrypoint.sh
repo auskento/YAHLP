@@ -23,6 +23,10 @@ chmod -R 777 /etc/yahlp/certs || {
     exit 1
 }
 
+# Pre-create certbot directory structure with full permissions
+mkdir -p /etc/yahlp/certs/live /etc/yahlp/certs/archive /etc/yahlp/certs/renewal
+chmod -R 777 /etc/yahlp/certs/live /etc/yahlp/certs/archive /etc/yahlp/certs/renewal
+
 # Create symlink from /etc/letsencrypt to /etc/yahlp/certs for certbot compatibility
 if [ ! -L /etc/letsencrypt ] && [ ! -d /etc/letsencrypt ]; then
     ln -s /etc/yahlp/certs /etc/letsencrypt
@@ -1004,6 +1008,11 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
         fi
     fi
 fi
+
+# Fix certificate folder permissions (certbot creates dirs with 755, we need 777 for web server write access)
+echo "Fixing certificate folder permissions..."
+chmod -R 777 /etc/yahlp/certs
+echo "✓ Certificate permissions fixed"
 
 # Handle Emby subdomain with separate OAuth if enabled (only for OAuth auth types)
 if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
