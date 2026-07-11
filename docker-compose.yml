@@ -70,7 +70,8 @@ services:
       # Required: Domain and email for Let's Encrypt
       DOMAIN: example.com
       EMAIL: admin@example.com
-      TZ: Australia/Melbourne
+      # TZ: Australia/Melbourne (optional - container uses host's timezone by default via volume mount)
+      # Uncomment and set if you want to override host timezone
       
       # Service Enable/Disable (set to true/false)
       SONARR_ENABLED: "false"
@@ -157,6 +158,9 @@ services:
     volumes:
       # Mount config folder (includes certificates, configuration, templates, and logs)
       - ./config:/etc/yahlp
+      # Mount host timezone (container will use host's timezone)
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
 
     networks:
       - proxy-network
