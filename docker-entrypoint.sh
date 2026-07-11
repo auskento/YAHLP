@@ -10,7 +10,7 @@ fi
 
 # Fix permissions on mounted config folder for non-root execution
 chown ${PUID:-0}:${PGID:-0} /etc/yahlp
-chmod 755 /etc/yahlp
+chmod 775 /etc/yahlp
 
 # Setup SSL certificate folder in config
 mkdir -p /etc/yahlp/certs || {
@@ -18,7 +18,7 @@ mkdir -p /etc/yahlp/certs || {
     exit 1
 }
 chown ${PUID:-0}:${PGID:-0} /etc/yahlp/certs
-chmod 755 /etc/yahlp/certs || {
+chmod 775 /etc/yahlp/certs || {
     echo "ERROR: Failed to set permissions on /etc/yahlp/certs"
     exit 1
 }
@@ -49,7 +49,7 @@ mkdir -p /etc/yahlp/logs || {
     exit 1
 }
 chown ${PUID:-0}:${PGID:-0} /etc/yahlp/logs
-chmod 755 /etc/yahlp/logs || {
+chmod 775 /etc/yahlp/logs || {
     echo "ERROR: Failed to set permissions on /etc/yahlp/logs"
     exit 1
 }
@@ -72,7 +72,7 @@ mkdir -p /etc/yahlp/logs/sites || {
     exit 1
 }
 chown ${PUID:-0}:${PGID:-0} /etc/yahlp/logs/sites
-chmod 755 /etc/yahlp/logs/sites || {
+chmod 775 /etc/yahlp/logs/sites || {
     echo "ERROR: Failed to set permissions on /etc/yahlp/logs/sites"
     exit 1
 }
@@ -84,7 +84,7 @@ mkdir -p /etc/yahlp/service_icons || {
 }
 cp -r /var/www/html/icons/* /etc/yahlp/service_icons/ 2>/dev/null || true
 chown -R ${PUID:-0}:${PGID:-0} /etc/yahlp/service_icons
-chmod 755 /etc/yahlp/service_icons
+chmod 775 /etc/yahlp/service_icons
 echo "✓ Service icons folder created: /etc/yahlp/service_icons"
 
 # Setup site icons folder and copy bundled icons
@@ -94,7 +94,7 @@ mkdir -p /etc/yahlp/site_icons || {
 }
 cp -r /var/www/html/sites-icons/* /etc/yahlp/site_icons/ 2>/dev/null || true
 chown -R ${PUID:-0}:${PGID:-0} /etc/yahlp/site_icons
-chmod 755 /etc/yahlp/site_icons
+chmod 775 /etc/yahlp/site_icons
 echo "✓ Site icons folder created: /etc/yahlp/site_icons"
 
 # Configuration loading:
@@ -494,7 +494,7 @@ source /etc/apache2/env.conf
 set +a
 
 # Ensure config folder has proper permissions (users need access)
-chmod 755 /etc/yahlp || {
+chmod 775 /etc/yahlp || {
     echo "ERROR: Failed to set permissions on /etc/yahlp"
     exit 1
 }
@@ -513,7 +513,7 @@ if [ ! -d /etc/yahlp/templates ]; then
 fi
 
 # Set permissions on templates folder (755 for access, users add files as needed)
-chmod 755 /etc/yahlp/templates || {
+chmod 775 /etc/yahlp/templates || {
     echo "ERROR: Failed to set permissions on /etc/yahlp/templates"
     exit 1
 }
