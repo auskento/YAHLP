@@ -13,12 +13,12 @@ chown ${PUID:-0}:${PGID:-0} /etc/yahlp
 chmod 775 /etc/yahlp
 
 # Setup SSL certificate folder in config
+# Certs folder needs write access from both root (certbot) and web server (PUID user)
 mkdir -p /etc/yahlp/certs || {
     echo "ERROR: Failed to create /etc/yahlp/certs directory"
     exit 1
 }
-chown -R ${PUID:-0}:${PGID:-0} /etc/yahlp/certs
-chmod -R 775 /etc/yahlp/certs || {
+chmod -R 777 /etc/yahlp/certs || {
     echo "ERROR: Failed to set permissions on /etc/yahlp/certs"
     exit 1
 }
