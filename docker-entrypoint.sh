@@ -1426,7 +1426,27 @@ trap 'echo "Shutting down..."; service cron stop 2>/dev/null; kill ${PROXY_PID} 
 apache2ctl -D FOREGROUND &
 APACHE_PID=$!
 
-# Wait for Apache process
+# Wait for Apache process and check if it exits unexpectedly
 wait ${APACHE_PID}
+APACHE_EXIT=$?
+
+# If Apache exited with error, show diagnostic info
+if [ $APACHE_EXIT -ne 0 ]; then
+    echo ""
+    echo "========================================="
+    echo "APACHE STARTUP FAILED (Exit code: $APACHE_EXIT)"
+    echo "========================================="
+    echo ""
+    echo "=== Apache Error Log ==="
+    cat /var/log/apache2/error.log 2>/dev/null || echo "(No error log found)"
+    echo ""
+    echo "=== Apache Access Log ==="
+    tail -20 /var/log/apache2/access.log 2>/dev/null || echo "(No access log found)"
+    echo ""
+    echo "=== Generated Reverse Proxy Config ==="
+    cat /etc/apache2/sites-available/reverse-proxy.conf 2>/dev/null || echo "(Config not found)"
+    echo "========================================="
+    exit $APACHE_EXIT
+fi
 
 
