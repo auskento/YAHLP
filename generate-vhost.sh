@@ -92,18 +92,26 @@ echo "✓ Generated $SERVICE VirtualHost config: $VHOST_FILE"
 # Service subdomains require both OAuth2 config AND auth-protect Location blocks
 case "${AUTHTYPE}" in
     entra)
-        # Replace placeholder with OAuth2 include, then append auth-protect
-        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|Include /etc/apache2/conf-available/oauth2-entra-${SERVICE}.conf|g" "$VHOST_FILE"
-        sed -i "1,/Include \/etc\/apache2\/conf-available\/oauth2-entra-${SERVICE}\.conf/s/Include \/etc\/apache2\/conf-available\/oauth2-entra-${SERVICE}\.conf/&\n    Include \/etc\/apache2\/conf-available\/auth-entra-protect-${SERVICE}\.conf/" "$VHOST_FILE"
+        # Insert oauth2 before placeholder, then replace placeholder with auth-protect, then delete empty lines
+        sed -i "/@@INCLUDE_${SERVICE_UPPER}_OAUTH@@/i\\
+    Include /etc/apache2/conf-available/oauth2-entra-${SERVICE}.conf" "$VHOST_FILE"
+        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|Include /etc/apache2/conf-available/auth-entra-protect-${SERVICE}.conf|" "$VHOST_FILE"
         ;;
     google)
-        # Replace placeholder with OAuth2 include, then append auth-protect
-        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|Include /etc/apache2/conf-available/oauth2-google-${SERVICE}.conf|g" "$VHOST_FILE"
-        sed -i "1,/Include \/etc\/apache2\/conf-available\/oauth2-google-${SERVICE}\.conf/s/Include \/etc\/apache2\/conf-available\/oauth2-google-${SERVICE}\.conf/&\n    Include \/etc\/apache2\/conf-available\/auth-google-protect-${SERVICE}\.conf/" "$VHOST_FILE"
+        # Insert oauth2 before placeholder, then replace placeholder with auth-protect
+        sed -i "/@@INCLUDE_${SERVICE_UPPER}_OAUTH@@/i\\
+    Include /etc/apache2/conf-available/oauth2-google-${SERVICE}.conf" "$VHOST_FILE"
+        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|Include /etc/apache2/conf-available/auth-google-protect-${SERVICE}.conf|" "$VHOST_FILE"
         ;;
     basic)
-        # Replace placeholder with basic auth blocks
-        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|<Location />\n    AuthType Basic\n    AuthName \"Service Access\"\n    AuthUserFile /etc/apache2/.htpasswd\n    Require valid-user\n</Location>|" "$VHOST_FILE"
+        # Replace placeholder with basic auth Location block
+        sed -i "/@@INCLUDE_${SERVICE_UPPER}_OAUTH@@/c\\
+<Location />\n\\
+    AuthType Basic\n\\
+    AuthName \"Service Access\"\n\\
+    AuthUserFile /etc/apache2/.htpasswd\n\\
+    Require valid-user\n\\
+</Location>" "$VHOST_FILE"
         ;;
     none|*)
         # Remove placeholder if no auth
