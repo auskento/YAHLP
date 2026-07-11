@@ -130,8 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <p>Edit <code>/etc/yahlp/yahlp.json5</code> to add:</p>
         <ul style="text-align: left; display: inline-block;">
           <li><strong>API Keys</strong> — Required for status panels to show service health</li>
-          <li><strong>Custom Icons</strong> — Optional custom icon URLs for each service</li>
-          <li><strong>OAuth Redirects</strong> — For services with OAuth authentication</li>
+          <li><strong>Custom Icons</strong> — Replace icons in <code>/etc/yahlp/service_icons</code> folder</li>
           <li><strong>Passwords/Usernames</strong> — For services that require them</li>
         </ul>
         <p style="margin-top: 1.5em; font-size: 0.9em;">Environment variables (-e flags) override JSON5 settings if provided.</p>
