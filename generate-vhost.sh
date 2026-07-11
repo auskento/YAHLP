@@ -94,7 +94,7 @@ case "${AUTHTYPE}" in
     entra|google|basic)
         # Replace placeholder with wildcard include (matches both oauth2 and protect files)
         # e.g., emby-google-oauth2.conf and emby-google-protect.conf
-        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|Include /etc/apache2/conf-available/${SERVICE}-${AUTHTYPE}*.conf|" "$VHOST_FILE"
+        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|IncludeOptional /etc/apache2/conf-available/${SERVICE}-${AUTHTYPE}*.conf|" "$VHOST_FILE"
         ;;
     none|*)
         # Remove placeholder if no auth
