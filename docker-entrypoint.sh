@@ -1415,8 +1415,24 @@ if [ $APACHE_EXIT -ne 0 ]; then
     echo ""
     echo "=== Generated Reverse Proxy Config ==="
     cat /etc/apache2/sites-available/reverse-proxy.conf 2>/dev/null || echo "(Config not found)"
+    echo ""
+    echo "=== Service VirtualHost Configs ==="
+    ls -la /etc/apache2/sites-available/*-vhost.conf 2>/dev/null || echo "(No service VirtualHosts found)"
+    echo ""
+    echo "=== Available Config Files ==="
+    ls -la /etc/apache2/conf-available/ | grep -E "emby|plex|seerr|google|entra" || echo "(No relevant configs found)"
+    echo ""
     echo "========================================="
-    exit $APACHE_EXIT
+    echo "Container will keep running for debugging."
+    echo "Check logs above for errors."
+    echo "========================================="
+    echo ""
+
+    # Keep container running so you can debug
+    while true; do
+        sleep 300
+        echo "[$(date)] Container still running - waiting for you to debug..."
+    done
 fi
 
 
