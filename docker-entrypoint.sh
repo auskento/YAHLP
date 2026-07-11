@@ -13,7 +13,8 @@ mkdir -p /etc/yahlp/certs || {
     echo "ERROR: Failed to create /etc/yahlp/certs directory"
     exit 1
 }
-chmod 700 /etc/yahlp/certs || {
+chown ${PUID:-0}:${PGID:-0} /etc/yahlp/certs
+chmod 755 /etc/yahlp/certs || {
     echo "ERROR: Failed to set permissions on /etc/yahlp/certs"
     exit 1
 }
@@ -43,7 +44,8 @@ mkdir -p /etc/yahlp/logs || {
     echo "ERROR: Failed to create /etc/yahlp/logs directory"
     exit 1
 }
-chmod 777 /etc/yahlp/logs || {
+chown ${PUID:-0}:${PGID:-0} /etc/yahlp/logs
+chmod 755 /etc/yahlp/logs || {
     echo "ERROR: Failed to set permissions on /etc/yahlp/logs"
     exit 1
 }
@@ -65,7 +67,8 @@ mkdir -p /etc/yahlp/logs/sites || {
     echo "ERROR: Failed to create /etc/yahlp/logs/sites directory"
     exit 1
 }
-chmod 777 /etc/yahlp/logs/sites || {
+chown ${PUID:-0}:${PGID:-0} /etc/yahlp/logs/sites
+chmod 755 /etc/yahlp/logs/sites || {
     echo "ERROR: Failed to set permissions on /etc/yahlp/logs/sites"
     exit 1
 }
@@ -76,6 +79,7 @@ mkdir -p /etc/yahlp/service_icons || {
     exit 1
 }
 cp -r /var/www/html/icons/* /etc/yahlp/service_icons/ 2>/dev/null || true
+chown -R ${PUID:-0}:${PGID:-0} /etc/yahlp/service_icons
 chmod 755 /etc/yahlp/service_icons
 echo "✓ Service icons folder created: /etc/yahlp/service_icons"
 
@@ -85,6 +89,7 @@ mkdir -p /etc/yahlp/site_icons || {
     exit 1
 }
 cp -r /var/www/html/sites-icons/* /etc/yahlp/site_icons/ 2>/dev/null || true
+chown -R ${PUID:-0}:${PGID:-0} /etc/yahlp/site_icons
 chmod 755 /etc/yahlp/site_icons
 echo "✓ Site icons folder created: /etc/yahlp/site_icons"
 
@@ -394,14 +399,20 @@ ENTRA_REDIRECT_URI="https://${DOMAIN}/oauth2/callback"
 GOOGLE_REDIRECT_URI="https://${DOMAIN}/oauth2callback"
 
 # Auto-generate service-specific redirect URIs if service domains are configured (always HTTPS)
+# Entra uses /oauth2/callback, Google uses /oauth2callback
+OAUTH_PATH="/oauth2callback"
+if [ "$AUTHTYPE" = "entra" ]; then
+    OAUTH_PATH="/oauth2/callback"
+fi
+
 if [ ! -z "$SEERR_DOMAIN" ]; then
-    SEERR_REDIRECT_URI="https://${SEERR_DOMAIN}/oauth2callback"
+    SEERR_REDIRECT_URI="https://${SEERR_DOMAIN}${OAUTH_PATH}"
 fi
 if [ ! -z "$PLEX_DOMAIN" ]; then
-    PLEX_REDIRECT_URI="https://${PLEX_DOMAIN}/oauth2callback"
+    PLEX_REDIRECT_URI="https://${PLEX_DOMAIN}${OAUTH_PATH}"
 fi
 if [ ! -z "$EMBY_DOMAIN" ]; then
-    EMBY_REDIRECT_URI="https://${EMBY_DOMAIN}/oauth2callback"
+    EMBY_REDIRECT_URI="https://${EMBY_DOMAIN}${OAUTH_PATH}"
 fi
 SONARR_URL="${SONARR_URL:-}"
 RADARR_URL="${RADARR_URL:-}"
