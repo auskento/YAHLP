@@ -928,9 +928,8 @@ function goHome(e) {
     e.preventDefault();
     frame.style.display = 'none';
     frame.src = '';
-    welcomeScreen.style.display = 'none';
-    dashboardView.style.display = 'flex';
-    loadDashboard();
+    dashboardView.style.display = 'none';
+    welcomeScreen.style.display = 'flex';
     return false;
 }
 
