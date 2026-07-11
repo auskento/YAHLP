@@ -218,41 +218,11 @@ ${SERVICES_URL_JSON}
     deluge: '',
   },
 
-  // Custom icon URLs (optional)
-  icon_url: {
-    jellyfin: '',
-    plex: '',
-    emby: '',
-    sonarr: '',
-    radarr: '',
-    lidarr: '',
-    whisparr: '',
-    prowlarr: '',
-    jackett: '',
-    sabnzbd: '',
-    nzbget: '',
-    nzbhydra: '',
-    transmission: '',
-    qbittorrent: '',
-    deluge: '',
-    seerr: '',
-    bazarr: '',
-    tautulli: '',
-    maintainerr: '',
-  },
-
   // Landing pages for services
   landing: {
     sonarr: '',
     radarr: '',
     whisparr: '',
-  },
-
-  // OAuth redirect URIs
-  redirect_uri: {
-    seerr: 'https://yourdomain.com/seerr/oauth2callback',
-    emby: 'https://yourdomain.com/emby/oauth2callback',
-    plex: 'https://yourdomain.com/plex/oauth2callback',
   },
 
   // Custom internal websites
