@@ -17,8 +17,8 @@ mkdir -p /etc/yahlp/certs || {
     echo "ERROR: Failed to create /etc/yahlp/certs directory"
     exit 1
 }
-chown ${PUID:-0}:${PGID:-0} /etc/yahlp/certs
-chmod 775 /etc/yahlp/certs || {
+chown -R ${PUID:-0}:${PGID:-0} /etc/yahlp/certs
+chmod -R 775 /etc/yahlp/certs || {
     echo "ERROR: Failed to set permissions on /etc/yahlp/certs"
     exit 1
 }
@@ -48,8 +48,8 @@ mkdir -p /etc/yahlp/logs || {
     echo "ERROR: Failed to create /etc/yahlp/logs directory"
     exit 1
 }
-chown ${PUID:-0}:${PGID:-0} /etc/yahlp/logs
-chmod 775 /etc/yahlp/logs || {
+chown -R ${PUID:-0}:${PGID:-0} /etc/yahlp/logs
+chmod -R 775 /etc/yahlp/logs || {
     echo "ERROR: Failed to set permissions on /etc/yahlp/logs"
     exit 1
 }
@@ -71,8 +71,8 @@ mkdir -p /etc/yahlp/logs/sites || {
     echo "ERROR: Failed to create /etc/yahlp/logs/sites directory"
     exit 1
 }
-chown ${PUID:-0}:${PGID:-0} /etc/yahlp/logs/sites
-chmod 775 /etc/yahlp/logs/sites || {
+chown -R ${PUID:-0}:${PGID:-0} /etc/yahlp/logs/sites
+chmod -R 775 /etc/yahlp/logs/sites || {
     echo "ERROR: Failed to set permissions on /etc/yahlp/logs/sites"
     exit 1
 }
