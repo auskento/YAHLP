@@ -782,6 +782,10 @@ case "${AUTHTYPE}" in
         a2disconf auth-office365-protect 2>/dev/null || true
         rm -f /etc/apache2/conf-enabled/oauth2-office365.conf
         rm -f /etc/apache2/conf-enabled/auth-office365-protect.conf
+
+        # Clear OAuth auth placeholders
+        sed -i 's|@@INCLUDE_AUTH_ENTRA@@||g' /etc/apache2/sites-available/reverse-proxy.conf
+        sed -i 's|@@INCLUDE_AUTH_GOOGLE@@||g' /etc/apache2/sites-available/reverse-proxy.conf
         ;;
 
     entra)
@@ -820,6 +824,9 @@ case "${AUTHTYPE}" in
             a2enconf oauth2-entra 2>/dev/null || true
             a2enconf auth-entra-protect 2>/dev/null || true
 
+            # Include auth-entra-protect in VirtualHost to enforce authentication
+            sed -i 's|@@INCLUDE_AUTH_ENTRA@@|Include /etc/apache2/conf-available/auth-entra-protect.conf|g' /etc/apache2/sites-available/reverse-proxy.conf
+
             echo "✓ Entra OAuth configured in Apache"
             echo "  Client ID: ${ENTRA_CLIENT_ID:0:20}..."
         fi
@@ -827,6 +834,9 @@ case "${AUTHTYPE}" in
         # Disable other auth methods
         rm -f /etc/apache2/conf-enabled/auth-basic.conf /etc/apache2/conf-enabled/oauth2-google.conf /etc/apache2/conf-enabled/auth-google-protect.conf
         rm -f /etc/apache2/.htpasswd
+
+        # Clear Google auth placeholder
+        sed -i 's|@@INCLUDE_AUTH_GOOGLE@@||g' /etc/apache2/sites-available/reverse-proxy.conf
         ;;
 
     google)
@@ -861,6 +871,9 @@ case "${AUTHTYPE}" in
             a2enconf oauth2-google 2>/dev/null || true
             a2enconf auth-google-protect 2>/dev/null || true
 
+            # Include auth-google-protect in VirtualHost to enforce authentication
+            sed -i 's|@@INCLUDE_AUTH_GOOGLE@@|Include /etc/apache2/conf-available/auth-google-protect.conf|g' /etc/apache2/sites-available/reverse-proxy.conf
+
             echo "✓ Google OAuth configured in Apache"
             echo "  Client ID: ${GOOGLE_CLIENT_ID:0:20}..."
         fi
@@ -868,6 +881,9 @@ case "${AUTHTYPE}" in
         # Disable other auth methods
         rm -f /etc/apache2/conf-enabled/auth-basic.conf /etc/apache2/conf-enabled/oauth2-entra.conf /etc/apache2/conf-enabled/auth-entra-protect.conf
         rm -f /etc/apache2/.htpasswd
+
+        # Clear Entra auth placeholder
+        sed -i 's|@@INCLUDE_AUTH_ENTRA@@||g' /etc/apache2/sites-available/reverse-proxy.conf
         ;;
 
     none|*)
@@ -883,8 +899,10 @@ case "${AUTHTYPE}" in
         rm -f /etc/apache2/conf-enabled/auth-basic.conf
         rm -f /etc/apache2/.htpasswd
 
-        # Remove basic auth placeholder from reverse-proxy.conf
+        # Remove auth placeholders from reverse-proxy.conf
         sed -i 's|@@INCLUDE_BASIC_AUTH@@||g' /etc/apache2/sites-available/reverse-proxy.conf
+        sed -i 's|@@INCLUDE_AUTH_ENTRA@@||g' /etc/apache2/sites-available/reverse-proxy.conf
+        sed -i 's|@@INCLUDE_AUTH_GOOGLE@@||g' /etc/apache2/sites-available/reverse-proxy.conf
 
         echo "✓ No authentication required"
         ;;
