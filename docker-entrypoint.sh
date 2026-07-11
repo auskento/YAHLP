@@ -1060,10 +1060,10 @@ if [ "$SKIP_CERT_GENERATION" = "false" ] && [ "${ENABLE_EMBY}" = "true" ] && [ !
                 cat /etc/apache2/conf-available/oauth2-google.conf \
                     | sed "s#@@GOOGLE_REDIRECT_URI@@#$EMBY_REDIRECT_URI#g" \
                     | sed "s#@@COOKIE_DOMAIN@@#$EMBY_COOKIE_DOMAIN#g" \
-                    > /etc/apache2/conf-available/oauth2-google-emby.conf
+                    > /etc/apache2/conf-available/emby-google-oauth2.conf
 
                 # Create auth-protect file for Emby with Google
-                cat > /etc/apache2/conf-available/auth-google-protect-emby.conf <<'AUTHEOF'
+                cat > /etc/apache2/conf-available/emby-google-protect.conf <<'AUTHEOF'
 # Google Authentication Protection for Emby Subdomain
 <Location /oauth2callback>
     SetHandler oauth2-handler
@@ -1100,10 +1100,10 @@ AUTHEOF
                     | sed "s#@@ENTRA_PROVIDER_METADATA_URL@@#$ENTRA_PROVIDER_METADATA_URL#g" \
                     | sed "s#@@ENTRA_CRYPTO_PASSPHRASE@@#$ENTRA_CRYPTO_PASSPHRASE#g" \
                     | sed "s#@@COOKIE_DOMAIN@@#$EMBY_COOKIE_DOMAIN#g" \
-                    > /etc/apache2/conf-available/oauth2-entra-emby.conf
+                    > /etc/apache2/conf-available/emby-entra-oauth2.conf
 
                 # Create auth-protect file for Emby with Entra
-                cat > /etc/apache2/conf-available/auth-entra-protect-emby.conf <<'AUTHEOF'
+                cat > /etc/apache2/conf-available/emby-entra-protect.conf <<'AUTHEOF'
 # Entra ID Authentication Protection for Emby Subdomain
 <Location /oauth2>
     SetHandler oauth2-handler
@@ -1155,10 +1155,10 @@ if [ "$ACCESS_MODE" = "public" ] && [ "$SKIP_CERT_GENERATION" = "false" ] && [ "
                 cat /etc/apache2/conf-available/oauth2-google.conf \
                     | sed "s#@@GOOGLE_REDIRECT_URI@@#$PLEX_REDIRECT_URI#g" \
                     | sed "s#@@COOKIE_DOMAIN@@#$PLEX_COOKIE_DOMAIN#g" \
-                    > /etc/apache2/conf-available/oauth2-google-plex.conf
+                    > /etc/apache2/conf-available/plex-google-oauth2.conf
 
                 # Create auth-protect file for Plex with Google
-                cat > /etc/apache2/conf-available/auth-google-protect-plex.conf <<'AUTHEOF'
+                cat > /etc/apache2/conf-available/plex-google-protect.conf <<'AUTHEOF'
 # Google Authentication Protection for Plex Subdomain
 <Location /oauth2callback>
     SetHandler oauth2-handler
@@ -1187,10 +1187,10 @@ AUTHEOF
                 cat /etc/apache2/conf-available/oauth2-google.conf \
                     | sed "s#@@GOOGLE_REDIRECT_URI@@#$SEERR_REDIRECT_URI#g" \
                     | sed "s#@@COOKIE_DOMAIN@@#$SEERR_COOKIE_DOMAIN#g" \
-                    > /etc/apache2/conf-available/oauth2-google-seerr.conf
+                    > /etc/apache2/conf-available/seerr-google-oauth2.conf
 
                 # Create auth-protect file for Seerr with Google
-                cat > /etc/apache2/conf-available/auth-google-protect-seerr.conf <<'AUTHEOF'
+                cat > /etc/apache2/conf-available/seerr-google-protect.conf <<'AUTHEOF'
 # Google Authentication Protection for Seerr Subdomain
 <Location /oauth2callback>
     SetHandler oauth2-handler
@@ -1227,10 +1227,10 @@ AUTHEOF
                     | sed "s#@@ENTRA_PROVIDER_METADATA_URL@@#$ENTRA_PROVIDER_METADATA_URL#g" \
                     | sed "s#@@ENTRA_CRYPTO_PASSPHRASE@@#$ENTRA_CRYPTO_PASSPHRASE#g" \
                     | sed "s#@@COOKIE_DOMAIN@@#$PLEX_COOKIE_DOMAIN#g" \
-                    > /etc/apache2/conf-available/oauth2-entra-plex.conf
+                    > /etc/apache2/conf-available/plex-entra-oauth2.conf
 
                 # Create auth-protect file for Plex with Entra
-                cat > /etc/apache2/conf-available/auth-entra-protect-plex.conf <<'AUTHEOF'
+                cat > /etc/apache2/conf-available/plex-entra-protect.conf <<'AUTHEOF'
 # Entra ID Authentication Protection for Plex Subdomain
 <Location /oauth2>
     SetHandler oauth2-handler
@@ -1263,10 +1263,10 @@ AUTHEOF
                     | sed "s#@@ENTRA_PROVIDER_METADATA_URL@@#$ENTRA_PROVIDER_METADATA_URL#g" \
                     | sed "s#@@ENTRA_CRYPTO_PASSPHRASE@@#$ENTRA_CRYPTO_PASSPHRASE#g" \
                     | sed "s#@@COOKIE_DOMAIN@@#$SEERR_COOKIE_DOMAIN#g" \
-                    > /etc/apache2/conf-available/oauth2-entra-seerr.conf
+                    > /etc/apache2/conf-available/seerr-entra-oauth2.conf
 
                 # Create auth-protect file for Seerr with Entra
-                cat > /etc/apache2/conf-available/auth-entra-protect-seerr.conf <<'AUTHEOF'
+                cat > /etc/apache2/conf-available/seerr-entra-protect.conf <<'AUTHEOF'
 # Entra ID Authentication Protection for Seerr Subdomain
 <Location /oauth2>
     SetHandler oauth2-handler
