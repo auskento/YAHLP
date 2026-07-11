@@ -388,6 +388,19 @@ docker-compose up -d
 3. Check app registration allows the redirect URI
 4. Verify user has access (check Azure AD assignments)
 
+### "Bad Request" After OAuth Login
+
+**Problem:** Browser shows "Bad Request - Your browser sent a request that this server could not understand"
+
+**Solutions:**
+1. **Most likely:** Verify OAuth client secret is correct (no typos or missing characters)
+   - Copy secret directly from OAuth provider without manual retyping
+   - Check ENTRA_CLIENT_SECRET or GOOGLE_CLIENT_SECRET in .env
+   - Even one missing or wrong character will cause this error
+2. Verify client ID is correct
+3. Restart container: `docker-compose restart yahlp`
+4. Check Apache logs for details: `docker-compose logs yahlp | grep -i "bad request\|oauth"`
+
 ---
 
 ## Session Management
