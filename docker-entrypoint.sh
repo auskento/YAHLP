@@ -608,13 +608,13 @@ fi
 
 echo ""
 echo "=== Test Mode Configuration ==="
-# Setup dry-run flag for certbot if TEST mode is enabled
+# Setup staging flag for certbot if TEST mode is enabled
 DRY_RUN_FLAG=""
 if [ "$DASHBOARD_TEST" = "true" ]; then
-    DRY_RUN_FLAG="--dry-run"
-    echo "⚠ TEST mode enabled - using --dry-run with Let's Encrypt (no certificates will be issued)"
+    DRY_RUN_FLAG="--staging"
+    echo "⚠ TEST mode enabled - using Let's Encrypt staging server (insecure test certificates)"
 else
-    echo "✓ Production mode - certificates will be issued"
+    echo "✓ Production mode - certificates will be issued from production Let's Encrypt"
 fi
 
 echo ""
