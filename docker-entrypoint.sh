@@ -926,11 +926,40 @@ wait_for_cert() {
 
 
 
+# Function to check if certificate is staging (Fake LE) and remove it if needed
+check_and_remove_staging_cert() {
+    local cert_path=$1
+    local domain=$2
+
+    if [ -f "$cert_path" ]; then
+        if openssl x509 -in "$cert_path" -text -noout 2>/dev/null | grep -q "Fake LE"; then
+            echo "⚠ Staging certificate found for $domain - removing to obtain production certificate"
+            rm -rf "/etc/letsencrypt/live/$domain" "/etc/letsencrypt/archive/$domain" "/etc/letsencrypt/renewal/$domain.conf" 2>/dev/null || true
+            return 0  # Certificate removed
+        else
+            echo "✓ Production certificate found for $domain"
+            return 1  # Certificate is already production
+        fi
+    fi
+    return 2  # No certificate found
+}
+
 # Generate certificate only if not skipped (public mode)
 if [ "$SKIP_CERT_GENERATION" = "false" ]; then
     echo ""
     echo "=== Obtaining Let's Encrypt Certificate ==="
     echo "Certificate path: /etc/yahlp/certs/live/$DOMAIN/fullchain.pem"
+
+    # Check for staging certificates when switching from TEST to production mode
+    if [ "$DASHBOARD_TEST" = "false" ]; then
+        check_and_remove_staging_cert "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" "$DOMAIN"
+        CERT_STATUS=$?
+
+        # If staging cert was found and removed, regenerate
+        if [ $CERT_STATUS -eq 0 ]; then
+            echo "Requesting production certificate for $DOMAIN..."
+        fi
+    fi
 
     # Check if certificate exists, if not generate it
     if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
@@ -982,6 +1011,13 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
     if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$EMBY_DOMAIN" ] && [ "${ENABLE_EMBY}" = "true" ]; then
         EMBY_CERT_DOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
         echo "Checking Emby certificate existence..."
+
+        # Check for staging certificate when switching from TEST to production mode
+        if [ "$DASHBOARD_TEST" = "false" ]; then
+            check_and_remove_staging_cert "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" "$EMBY_DOMAIN"
+            check_and_remove_staging_cert "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" "$EMBY_CERT_DOMAIN"
+        fi
+
         if [ ! -f "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" ]; then
             echo "Requesting certificate for Emby subdomain: $EMBY_DOMAIN"
             certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive --deploy-hook "chmod -R 777 /etc/letsencrypt/live /etc/letsencrypt/archive" $DRY_RUN_FLAG -d "$EMBY_DOMAIN" || {
@@ -995,6 +1031,13 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
     if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$PLEX_DOMAIN" ] && [ "${ENABLE_PLEX}" = "true" ]; then
         PLEX_CERT_DOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
         echo "Checking Plex certificate existence..."
+
+        # Check for staging certificate when switching from TEST to production mode
+        if [ "$DASHBOARD_TEST" = "false" ]; then
+            check_and_remove_staging_cert "/etc/letsencrypt/live/$PLEX_DOMAIN/fullchain.pem" "$PLEX_DOMAIN"
+            check_and_remove_staging_cert "/etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem" "$PLEX_CERT_DOMAIN"
+        fi
+
         if [ ! -f "/etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$PLEX_DOMAIN/fullchain.pem" ]; then
             echo "Requesting certificate for Plex subdomain: $PLEX_DOMAIN"
             certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive --deploy-hook "chmod -R 777 /etc/letsencrypt/live /etc/letsencrypt/archive" $DRY_RUN_FLAG -d "$PLEX_DOMAIN" || {
@@ -1008,6 +1051,13 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
     if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$SEERR_DOMAIN" ] && [ "${ENABLE_SEERR}" = "true" ]; then
         SEERR_CERT_DOMAIN=$(echo "$SEERR_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
         echo "Checking Seerr certificate existence..."
+
+        # Check for staging certificate when switching from TEST to production mode
+        if [ "$DASHBOARD_TEST" = "false" ]; then
+            check_and_remove_staging_cert "/etc/letsencrypt/live/$SEERR_DOMAIN/fullchain.pem" "$SEERR_DOMAIN"
+            check_and_remove_staging_cert "/etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem" "$SEERR_CERT_DOMAIN"
+        fi
+
         if [ ! -f "/etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$SEERR_DOMAIN/fullchain.pem" ]; then
             echo "Requesting certificate for Seerr subdomain: $SEERR_DOMAIN"
             certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive --deploy-hook "chmod -R 777 /etc/letsencrypt/live /etc/letsencrypt/archive" $DRY_RUN_FLAG -d "$SEERR_DOMAIN" || {
