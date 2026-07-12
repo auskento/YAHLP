@@ -350,6 +350,10 @@ DASH_STYLE="${DASH_STYLE:-classic}"
 DASH_STYLE_BASE="${DASH_STYLE%:only}"
 CONFIG="${CONFIG//@@DASH_STYLE@@/$DASH_STYLE_BASE}"
 
+# Replace trusted LAN range for local access bypass
+TRUSTED_LAN_RANGE="${TRUSTED_LAN_RANGE:-192.168.0.0/16 10.0.0.0/8 172.16.0.0/12 127.0.0.1}"
+CONFIG="${CONFIG//@@TRUSTED_LAN_RANGE@@/$TRUSTED_LAN_RANGE}"
+
 # Generate dynamic service proxy rules with URL substitution
 generate_service_proxy_rules() {
     local proxy_rules=""
