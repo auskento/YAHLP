@@ -88,6 +88,9 @@ OIDC_EOF
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s#@@COOKIE_DOMAIN@@#$COOKIE_DOMAIN#g")
 fi
 
+# Get TRUSTED_LAN_RANGE from environment or use defaults
+TRUSTED_LAN_RANGE="${TRUSTED_LAN_RANGE:-192.168.0.0/16 10.0.0.0/8 172.16.0.0/12 127.0.0.1}"
+
 # Generate the VirtualHost configuration with embedded OIDC settings
 cat > "$VHOST_FILE" <<EOF
 <VirtualHost *:80>

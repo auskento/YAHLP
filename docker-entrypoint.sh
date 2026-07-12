@@ -307,6 +307,26 @@ if [ "$ACCESS_MODE" = "private" ]; then
     EMAIL=""
 fi
 
+# Detect LAN IP range dynamically if TRUSTED_LAN_RANGE not explicitly set
+if [ -z "$TRUSTED_LAN_RANGE" ]; then
+    # Get container's primary IP address
+    CONTAINER_IP=$(hostname -I | awk '{print $1}' 2>/dev/null)
+
+    if [ ! -z "$CONTAINER_IP" ]; then
+        # Calculate /24 subnet by replacing last octet with 0
+        SUBNET=$(echo "$CONTAINER_IP" | sed 's/\([0-9]*\.[0-9]*\.[0-9]*\)\.[0-9]*/\1.0/')
+        TRUSTED_LAN_RANGE="${SUBNET}/24 127.0.0.1"
+        echo "✓ Detected LAN IP: $CONTAINER_IP"
+        echo "✓ Detected LAN subnet: ${SUBNET}/24"
+    else
+        # Fallback to common private ranges if IP detection fails
+        TRUSTED_LAN_RANGE="192.168.0.0/16 10.0.0.0/8 172.16.0.0/12 127.0.0.1"
+        echo "⚠ Could not detect container IP, using default private ranges"
+    fi
+
+    echo "✓ Trusted LAN range: $TRUSTED_LAN_RANGE"
+fi
+
 # Map {SERVICE}_ENABLED variables to ENABLE_{SERVICE} format for backward compatibility with scripts
 # Convert SERVICE_ENABLED to ENABLE_SERVICE (new format to old format for legacy scripts)
 ENABLE_JELLYFIN="${JELLYFIN_ENABLED:-false}"
@@ -420,6 +440,7 @@ SSL_PROTOCOLS="${SSL_PROTOCOLS:-all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1}"
 SSL_CIPHERS="${SSL_CIPHERS:-HIGH:!aNULL:!MD5}"
 APACHE_LOG_LEVEL="${APACHE_LOG_LEVEL:-warn}"
 DASHBOARD_TEST="${DASHBOARD_TEST:-false}"
+TRUSTED_LAN_RANGE="${TRUSTED_LAN_RANGE}"
 ENVEOF
 
 # Now normalize and process variables that were in env.conf
