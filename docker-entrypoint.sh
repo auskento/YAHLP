@@ -357,7 +357,6 @@ ENABLE_NZBHYDRA="${ENABLE_NZBHYDRA}"
 ENABLE_JACKETT="${ENABLE_JACKETT}"
 ENABLE_BAZARR="${ENABLE_BAZARR}"
 AUTHTYPE="${AUTHTYPE:-none}"
-echo "DEBUG: Initial AUTHTYPE=$AUTHTYPE"
 BASIC_AUTH_CREDENTIALS="${BASIC_AUTH_CREDENTIALS:-}"
 ENTRA_CLIENT_ID="${ENTRA_CLIENT_ID:-}"
 ENTRA_CLIENT_SECRET="${ENTRA_CLIENT_SECRET:-}"
@@ -365,42 +364,6 @@ ENTRA_PROVIDER_METADATA_URL="${ENTRA_PROVIDER_METADATA_URL:-}"
 ENTRA_CRYPTO_PASSPHRASE="${ENTRA_CRYPTO_PASSPHRASE:-}"
 GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"
 GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET:-}"
-
-# Normalize variables to lowercase to handle user input variations
-ACCESS_MODE=$(echo "$ACCESS_MODE" | tr '[:upper:]' '[:lower:]')
-AUTHTYPE=$(echo "$AUTHTYPE" | tr '[:upper:]' '[:lower:]')
-echo "DEBUG: Normalized AUTHTYPE=$AUTHTYPE"
-DASHBOARD_TEST=$(echo "$DASHBOARD_TEST" | tr '[:upper:]' '[:lower:]')
-SKIP_CERT_GENERATION=$(echo "$SKIP_CERT_GENERATION" | tr '[:upper:]' '[:lower:]')
-
-# Auto-generate OAuth redirect URIs (Entra/Google only work with public access)
-# OAuth always uses HTTPS regardless of ACCESS_MODE, since it requires public domain
-ENTRA_REDIRECT_URI="https://${DOMAIN}/oauth2/callback"
-GOOGLE_REDIRECT_URI="https://${DOMAIN}/oauth2callback"
-
-# Auto-generate service-specific redirect URIs if service domains are configured (always HTTPS)
-# Entra uses /oauth2/callback, Google uses /oauth2callback
-echo "DEBUG: About to set OAUTH_PATH, AUTHTYPE=$AUTHTYPE"
-OAUTH_PATH="/oauth2callback"
-if [ "$AUTHTYPE" = "entra" ]; then
-    OAUTH_PATH="/oauth2/callback"
-fi
-echo "DEBUG: Set OAUTH_PATH=$OAUTH_PATH"
-
-echo "DEBUG: AUTHTYPE=$AUTHTYPE, OAUTH_PATH=$OAUTH_PATH"
-
-if [ ! -z "$SEERR_DOMAIN" ]; then
-    SEERR_REDIRECT_URI="https://${SEERR_DOMAIN}${OAUTH_PATH}"
-    echo "DEBUG: Set SEERR_REDIRECT_URI=$SEERR_REDIRECT_URI"
-fi
-if [ ! -z "$PLEX_DOMAIN" ]; then
-    PLEX_REDIRECT_URI="https://${PLEX_DOMAIN}${OAUTH_PATH}"
-    echo "DEBUG: Set PLEX_REDIRECT_URI=$PLEX_REDIRECT_URI"
-fi
-if [ ! -z "$EMBY_DOMAIN" ]; then
-    EMBY_REDIRECT_URI="https://${EMBY_DOMAIN}${OAUTH_PATH}"
-    echo "DEBUG: Set EMBY_REDIRECT_URI=$EMBY_REDIRECT_URI"
-fi
 SONARR_URL="${SONARR_URL:-}"
 RADARR_URL="${RADARR_URL:-}"
 WHISPARR_URL="${WHISPARR_URL:-}"
@@ -458,6 +421,35 @@ SSL_CIPHERS="${SSL_CIPHERS:-HIGH:!aNULL:!MD5}"
 APACHE_LOG_LEVEL="${APACHE_LOG_LEVEL:-warn}"
 DASHBOARD_TEST="${DASHBOARD_TEST:-false}"
 ENVEOF
+
+# Now normalize and process variables that were in env.conf
+# This must happen AFTER the heredoc so we can execute shell logic
+ACCESS_MODE=$(echo "$ACCESS_MODE" | tr '[:upper:]' '[:lower:]')
+AUTHTYPE=$(echo "$AUTHTYPE" | tr '[:upper:]' '[:lower:]')
+DASHBOARD_TEST=$(echo "$DASHBOARD_TEST" | tr '[:upper:]' '[:lower:]')
+SKIP_CERT_GENERATION=$(echo "$SKIP_CERT_GENERATION" | tr '[:upper:]' '[:lower:]')
+
+# Auto-generate OAuth redirect URIs (Entra/Google only work with public access)
+# OAuth always uses HTTPS regardless of ACCESS_MODE, since it requires public domain
+ENTRA_REDIRECT_URI="https://${DOMAIN}/oauth2/callback"
+GOOGLE_REDIRECT_URI="https://${DOMAIN}/oauth2callback"
+
+# Auto-generate service-specific redirect URIs if service domains are configured (always HTTPS)
+# Entra uses /oauth2/callback, Google uses /oauth2callback
+OAUTH_PATH="/oauth2callback"
+if [ "$AUTHTYPE" = "entra" ]; then
+    OAUTH_PATH="/oauth2/callback"
+fi
+
+if [ ! -z "$SEERR_DOMAIN" ]; then
+    SEERR_REDIRECT_URI="https://${SEERR_DOMAIN}${OAUTH_PATH}"
+fi
+if [ ! -z "$PLEX_DOMAIN" ]; then
+    PLEX_REDIRECT_URI="https://${PLEX_DOMAIN}${OAUTH_PATH}"
+fi
+if [ ! -z "$EMBY_DOMAIN" ]; then
+    EMBY_REDIRECT_URI="https://${EMBY_DOMAIN}${OAUTH_PATH}"
+fi
 
 echo ""
 echo "=== Environment Configuration Loaded ==="
