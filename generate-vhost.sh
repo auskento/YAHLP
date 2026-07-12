@@ -72,10 +72,21 @@ cat > "$VHOST_FILE" <<EOF
     ProxyTimeout 300
     Timeout 300
 
+    # OAuth/Auth Configuration
+    @@INCLUDE_${SERVICE_UPPER}_OAUTH@@
+
+    # Root location - require authentication
+    <Location /oauth2callback>
+        SetHandler oauth2-handler
+    </Location>
+
+    <Location />
+        AuthType openid-connect
+        Require valid-user
+    </Location>
+
     ProxyPass / $SERVICE_URL/
     ProxyPassReverse / $SERVICE_URL/
-
-    @@INCLUDE_${SERVICE_UPPER}_OAUTH@@
 
     ErrorDocument 502 /error-pages/502.html
     ErrorDocument 503 /error-pages/503.html
