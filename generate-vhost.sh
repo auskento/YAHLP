@@ -144,6 +144,10 @@ $OIDC_CONFIG
     ProxyTimeout 300
     Timeout 300
 
+    # Use ProxyPassMatch to exclude oauth paths from proxying
+    # This allows Location blocks to handle auth before proxying
+    ProxyPassMatch ^/oauth2 !
+    ProxyPassMatch ^/oauth2callback !
     ProxyPass / $SERVICE_URL/
     ProxyPassReverse / $SERVICE_URL/
 
