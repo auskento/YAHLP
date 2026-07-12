@@ -951,13 +951,18 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
     echo "Certificate path: /etc/yahlp/certs/live/$DOMAIN/fullchain.pem"
 
     # Check for staging certificates when switching from TEST to production mode
+    FORCE_RENEWAL=""
     if [ "$DASHBOARD_TEST" = "false" ]; then
         check_and_remove_staging_cert "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" "$DOMAIN"
         CERT_STATUS=$?
 
-        # If staging cert was found and removed, regenerate
+        # If staging cert was found and removed, force renewal to get production cert
         if [ $CERT_STATUS -eq 0 ]; then
-            echo "Requesting production certificate for $DOMAIN..."
+            echo "Requesting production certificate for $DOMAIN (staging removed)..."
+            FORCE_RENEWAL="--force-renewal"
+        elif [ $CERT_STATUS -eq 1 ]; then
+            echo "Production certificate found, attempting renewal..."
+            FORCE_RENEWAL=""
         fi
     fi
 
@@ -979,6 +984,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
             --non-interactive \
             --deploy-hook "chmod -R 777 /etc/letsencrypt/live /etc/letsencrypt/archive" \
             $DRY_RUN_FLAG \
+            $FORCE_RENEWAL \
             -d "$DOMAIN"; then
             echo "✓ Certificate obtained from Let's Encrypt for $DOMAIN"
         else
@@ -1013,14 +1019,23 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
         echo "Checking Emby certificate existence..."
 
         # Check for staging certificate when switching from TEST to production mode
+        EMBY_FORCE_RENEWAL=""
         if [ "$DASHBOARD_TEST" = "false" ]; then
             check_and_remove_staging_cert "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" "$EMBY_DOMAIN"
+            EMBY_STATUS=$?
+            if [ $EMBY_STATUS -eq 0 ]; then
+                EMBY_FORCE_RENEWAL="--force-renewal"
+            fi
             check_and_remove_staging_cert "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" "$EMBY_CERT_DOMAIN"
+            EMBY_STATUS=$?
+            if [ $EMBY_STATUS -eq 0 ]; then
+                EMBY_FORCE_RENEWAL="--force-renewal"
+            fi
         fi
 
         if [ ! -f "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" ]; then
             echo "Requesting certificate for Emby subdomain: $EMBY_DOMAIN"
-            certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive --deploy-hook "chmod -R 777 /etc/letsencrypt/live /etc/letsencrypt/archive" $DRY_RUN_FLAG -d "$EMBY_DOMAIN" || {
+            certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive --deploy-hook "chmod -R 777 /etc/letsencrypt/live /etc/letsencrypt/archive" $DRY_RUN_FLAG $EMBY_FORCE_RENEWAL -d "$EMBY_DOMAIN" || {
                 echo "⚠ Certbot failed for Emby subdomain, using main domain certificate"
             }
         else
@@ -1033,14 +1048,23 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
         echo "Checking Plex certificate existence..."
 
         # Check for staging certificate when switching from TEST to production mode
+        PLEX_FORCE_RENEWAL=""
         if [ "$DASHBOARD_TEST" = "false" ]; then
             check_and_remove_staging_cert "/etc/letsencrypt/live/$PLEX_DOMAIN/fullchain.pem" "$PLEX_DOMAIN"
+            PLEX_STATUS=$?
+            if [ $PLEX_STATUS -eq 0 ]; then
+                PLEX_FORCE_RENEWAL="--force-renewal"
+            fi
             check_and_remove_staging_cert "/etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem" "$PLEX_CERT_DOMAIN"
+            PLEX_STATUS=$?
+            if [ $PLEX_STATUS -eq 0 ]; then
+                PLEX_FORCE_RENEWAL="--force-renewal"
+            fi
         fi
 
         if [ ! -f "/etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$PLEX_DOMAIN/fullchain.pem" ]; then
             echo "Requesting certificate for Plex subdomain: $PLEX_DOMAIN"
-            certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive --deploy-hook "chmod -R 777 /etc/letsencrypt/live /etc/letsencrypt/archive" $DRY_RUN_FLAG -d "$PLEX_DOMAIN" || {
+            certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive --deploy-hook "chmod -R 777 /etc/letsencrypt/live /etc/letsencrypt/archive" $DRY_RUN_FLAG $PLEX_FORCE_RENEWAL -d "$PLEX_DOMAIN" || {
                 echo "⚠ Certbot failed for Plex subdomain, using main domain certificate"
             }
         else
@@ -1053,14 +1077,23 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
         echo "Checking Seerr certificate existence..."
 
         # Check for staging certificate when switching from TEST to production mode
+        SEERR_FORCE_RENEWAL=""
         if [ "$DASHBOARD_TEST" = "false" ]; then
             check_and_remove_staging_cert "/etc/letsencrypt/live/$SEERR_DOMAIN/fullchain.pem" "$SEERR_DOMAIN"
+            SEERR_STATUS=$?
+            if [ $SEERR_STATUS -eq 0 ]; then
+                SEERR_FORCE_RENEWAL="--force-renewal"
+            fi
             check_and_remove_staging_cert "/etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem" "$SEERR_CERT_DOMAIN"
+            SEERR_STATUS=$?
+            if [ $SEERR_STATUS -eq 0 ]; then
+                SEERR_FORCE_RENEWAL="--force-renewal"
+            fi
         fi
 
         if [ ! -f "/etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem" ] || [ ! -f "/etc/letsencrypt/live/$SEERR_DOMAIN/fullchain.pem" ]; then
             echo "Requesting certificate for Seerr subdomain: $SEERR_DOMAIN"
-            certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive --deploy-hook "chmod -R 777 /etc/letsencrypt/live /etc/letsencrypt/archive" $DRY_RUN_FLAG -d "$SEERR_DOMAIN" || {
+            certbot certonly --standalone --preferred-challenges http --email "$EMAIL" --agree-tos --no-eff-email --non-interactive --deploy-hook "chmod -R 777 /etc/letsencrypt/live /etc/letsencrypt/archive" $DRY_RUN_FLAG $SEERR_FORCE_RENEWAL -d "$SEERR_DOMAIN" || {
                 echo "⚠ Certbot failed for Seerr subdomain, using main domain certificate"
             }
         else
