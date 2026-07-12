@@ -1,16 +1,7 @@
 #!/bin/bash
 
-# Generate Service VirtualHost Configuration
-# Unified script for Emby, Plex, Seerr, and other services requiring subdomains
-#
+# Generate Service VirtualHost Configuration with embedded OIDC settings
 # Usage: generate-vhost.sh <service> <domain> <url> [cert_path] [authtype]
-# Example: generate-vhost.sh plex plex.example.com http://plex:32400 plex.example.com entra
-#
-# Environment Variables (from docker-entrypoint.sh):
-#   DOMAIN - Main domain for certificate fallback
-#   AUTHTYPE - Authentication type (none, basic, entra, google)
-#   SSL_PROTOCOLS - SSL protocol configuration
-#   SSL_CIPHERS - SSL cipher configuration
 
 SERVICE="${1:-}"
 SERVICE_DOMAIN="${2:-}"
@@ -21,18 +12,82 @@ AUTHTYPE="${5:-${AUTHTYPE:-none}}"
 # Validate inputs
 if [ -z "$SERVICE" ] || [ -z "$SERVICE_DOMAIN" ] || [ -z "$SERVICE_URL" ]; then
     echo "ERROR: Usage: $0 <service> <domain> <url> [cert_path] [authtype]"
-    echo "Example: $0 plex plex.example.com http://plex:32400"
     exit 1
 fi
 
-# Normalize service name to lowercase
 SERVICE=$(echo "$SERVICE" | tr '[:upper:]' '[:lower:]')
-SERVICE_UPPER=$(echo "$SERVICE" | tr '[:lower:]' '[:upper:]')
-
-# Output configuration file path
 VHOST_FILE="/etc/apache2/sites-available/${SERVICE}-vhost.conf"
 
-# Generate the VirtualHost configuration
+# Calculate cookie domain (e.g., emby.example.com → .example.com)
+COOKIE_DOMAIN=".${SERVICE_DOMAIN#*.}"
+
+# Determine OAuth callback path based on auth type
+OAUTH_CALLBACK_PATH="/oauth2callback"
+if [ "$AUTHTYPE" = "entra" ]; then
+    OAUTH_CALLBACK_PATH="/oauth2/callback"
+fi
+
+# Build OIDC configuration based on AUTHTYPE
+OIDC_CONFIG=""
+if [ "$AUTHTYPE" = "google" ]; then
+    OIDC_CONFIG=$(cat <<'OIDC_EOF'
+    # Google OpenID Connect Configuration
+    OIDCSessionType server-cache
+    OIDCClientID @@GOOGLE_CLIENT_ID@@
+    OIDCClientSecret @@GOOGLE_CLIENT_SECRET@@
+    OIDCRedirectURI @@GOOGLE_REDIRECT_URI@@
+    OIDCProviderMetadataURL https://accounts.google.com/.well-known/openid-configuration
+    OIDCScope "openid profile email"
+    OIDCSessionInactivityTimeout 3600
+    OIDCSessionMaxDuration 86400
+    OIDCClaimPrefix OIDC_
+    OIDCPassClaimsAs environment
+    OIDCCryptoPassphrase "@@GOOGLE_CRYPTO_PASSPHRASE@@"
+    OIDCSSLValidateServer On
+    OIDCClaimDelimiter ;
+    OIDCPassUserInfoAs json
+    OIDCCookieDomain @@COOKIE_DOMAIN@@
+    OIDCCookieSameSite None
+OIDC_EOF
+)
+    # Substitute placeholders
+    OIDC_CONFIG="${OIDC_CONFIG//@@GOOGLE_CLIENT_ID@@/$GOOGLE_CLIENT_ID}"
+    OIDC_CONFIG="${OIDC_CONFIG//@@GOOGLE_CLIENT_SECRET@@/$GOOGLE_CLIENT_SECRET}"
+    OIDC_CONFIG="${OIDC_CONFIG//@@GOOGLE_REDIRECT_URI@@/https://$SERVICE_DOMAIN$OAUTH_CALLBACK_PATH}"
+    OIDC_CONFIG="${OIDC_CONFIG//@@GOOGLE_CRYPTO_PASSPHRASE@@/$GOOGLE_CRYPTO_PASSPHRASE}"
+    OIDC_CONFIG="${OIDC_CONFIG//@@COOKIE_DOMAIN@@/$COOKIE_DOMAIN}"
+
+elif [ "$AUTHTYPE" = "entra" ]; then
+    OIDC_CONFIG=$(cat <<'OIDC_EOF'
+    # Entra ID OpenID Connect Configuration
+    OIDCSessionType server-cache
+    OIDCClientID @@ENTRA_CLIENT_ID@@
+    OIDCClientSecret @@ENTRA_CLIENT_SECRET@@
+    OIDCRedirectURI @@ENTRA_REDIRECT_URI@@
+    OIDCProviderMetadataURL @@ENTRA_PROVIDER_METADATA_URL@@
+    OIDCScope "openid profile email"
+    OIDCSessionInactivityTimeout 3600
+    OIDCSessionMaxDuration 86400
+    OIDCClaimPrefix OIDC_
+    OIDCPassClaimsAs environment
+    OIDCCryptoPassphrase "@@ENTRA_CRYPTO_PASSPHRASE@@"
+    OIDCSSLValidateServer On
+    OIDCClaimDelimiter ;
+    OIDCPassUserInfoAs json
+    OIDCCookieDomain @@COOKIE_DOMAIN@@
+    OIDCCookieSameSite None
+OIDC_EOF
+)
+    # Substitute placeholders
+    OIDC_CONFIG="${OIDC_CONFIG//@@ENTRA_CLIENT_ID@@/$ENTRA_CLIENT_ID}"
+    OIDC_CONFIG="${OIDC_CONFIG//@@ENTRA_CLIENT_SECRET@@/$ENTRA_CLIENT_SECRET}"
+    OIDC_CONFIG="${OIDC_CONFIG//@@ENTRA_REDIRECT_URI@@/https://$SERVICE_DOMAIN$OAUTH_CALLBACK_PATH}"
+    OIDC_CONFIG="${OIDC_CONFIG//@@ENTRA_PROVIDER_METADATA_URL@@/$ENTRA_PROVIDER_METADATA_URL}"
+    OIDC_CONFIG="${OIDC_CONFIG//@@ENTRA_CRYPTO_PASSPHRASE@@/$ENTRA_CRYPTO_PASSPHRASE}"
+    OIDC_CONFIG="${OIDC_CONFIG//@@COOKIE_DOMAIN@@/$COOKIE_DOMAIN}"
+fi
+
+# Generate the VirtualHost configuration with embedded OIDC settings
 cat > "$VHOST_FILE" <<EOF
 <VirtualHost *:80>
     ServerName $SERVICE_DOMAIN
@@ -72,7 +127,8 @@ cat > "$VHOST_FILE" <<EOF
     ProxyTimeout 300
     Timeout 300
 
-    # Require authentication before proxying
+$OIDC_CONFIG
+
     <Location /oauth2callback>
         SetHandler oauth2-handler
     </Location>
@@ -100,41 +156,6 @@ EOF
 
 echo "✓ Generated $SERVICE VirtualHost config: $VHOST_FILE"
 
-# Embed OIDC provider config inside VirtualHost with substitutions
-if [ "${AUTHTYPE}" = "google" ]; then
-    OIDC_CONFIG=$(cat /etc/apache2/conf-available/oauth2-google.conf \
-        | sed "s#@@GOOGLE_CLIENT_ID@@#${GOOGLE_CLIENT_ID}#g" \
-        | sed "s#@@GOOGLE_CLIENT_SECRET@@#${GOOGLE_CLIENT_SECRET}#g" \
-        | sed "s#@@GOOGLE_REDIRECT_URI@@#https://${SERVICE_DOMAIN}/oauth2callback#g" \
-        | sed "s#@@GOOGLE_CRYPTO_PASSPHRASE@@#${GOOGLE_CRYPTO_PASSPHRASE}#g" \
-        | sed "s#@@COOKIE_DOMAIN@@#.${SERVICE_DOMAIN#*.}#g")
-    sed -i "/<\/VirtualHost>/i\\    # OAuth2 Provider Config\\n${OIDC_CONFIG}" "$VHOST_FILE"
-elif [ "${AUTHTYPE}" = "entra" ]; then
-    OIDC_CONFIG=$(cat /etc/apache2/conf-available/oauth2-entra.conf \
-        | sed "s#@@ENTRA_CLIENT_ID@@#${ENTRA_CLIENT_ID}#g" \
-        | sed "s#@@ENTRA_CLIENT_SECRET@@#${ENTRA_CLIENT_SECRET}#g" \
-        | sed "s#@@ENTRA_REDIRECT_URI@@#https://${SERVICE_DOMAIN}/oauth2/callback#g" \
-        | sed "s#@@ENTRA_PROVIDER_METADATA_URL@@#${ENTRA_PROVIDER_METADATA_URL}#g" \
-        | sed "s#@@ENTRA_CRYPTO_PASSPHRASE@@#${ENTRA_CRYPTO_PASSPHRASE}#g" \
-        | sed "s#@@COOKIE_DOMAIN@@#.${SERVICE_DOMAIN#*.}#g")
-    sed -i "/<\/VirtualHost>/i\\    # OAuth2 Provider Config\\n${OIDC_CONFIG}" "$VHOST_FILE"
-fi
-
-# Handle OAuth configuration based on AUTHTYPE
-# Service subdomains include both OAuth2 and auth-protect using wildcard pattern
-case "${AUTHTYPE}" in
-    entra|google|basic)
-        # Replace placeholder with wildcard include (matches both oauth2 and protect files)
-        # e.g., emby-google-oauth2.conf and emby-google-protect.conf
-        sed -i "s|@@INCLUDE_${SERVICE_UPPER}_OAUTH@@|IncludeOptional /etc/apache2/conf-available/${SERVICE}-${AUTHTYPE}*.conf|" "$VHOST_FILE"
-        ;;
-    none|*)
-        # Remove placeholder if no auth
-        sed -i "/@@INCLUDE_${SERVICE_UPPER}_OAUTH@@/d" "$VHOST_FILE"
-        ;;
-esac
-
 # Enable the VirtualHost site
 a2ensite "${SERVICE}-vhost.conf" 2>/dev/null || true
 echo "✓ $SERVICE VirtualHost enabled"
-
