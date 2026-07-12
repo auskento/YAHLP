@@ -978,17 +978,28 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
     FORCE_RENEWAL=""
 
     if [ "$DASHBOARD_TEST" = "false" ]; then
+        echo "[DEBUG] DASHBOARD_TEST is false, calling check_and_remove_staging_cert..."
         check_and_remove_staging_cert "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" "$DOMAIN"
         CERT_STATUS=$?
+        echo "[DEBUG] Function returned with status: $CERT_STATUS"
 
         # If staging cert was found and removed, force renewal to get production cert
+        echo "[DEBUG] Checking CERT_STATUS value ($CERT_STATUS)..."
         if [ $CERT_STATUS -eq 0 ]; then
+            echo "[DEBUG] CERT_STATUS is 0 - staging cert was removed"
             echo "Requesting production certificate for $DOMAIN (staging removed)..."
             FORCE_RENEWAL="--force-renewal"
         elif [ $CERT_STATUS -eq 1 ]; then
+            echo "[DEBUG] CERT_STATUS is 1 - production cert exists"
             echo "✓ Production certificate already valid for $DOMAIN"
+        else
+            echo "[DEBUG] CERT_STATUS is $CERT_STATUS - unknown status"
         fi
+        echo "[DEBUG] if/elif block complete"
+    else
+        echo "[DEBUG] DASHBOARD_TEST is not false, skipping check_and_remove_staging_cert"
     fi
+    echo "[DEBUG] Certificate check section complete, FORCE_RENEWAL=$FORCE_RENEWAL"
 
     # Check if certificate needs generation/renewal
     if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ] || [ ! -z "$FORCE_RENEWAL" ]; then
