@@ -350,6 +350,54 @@ DASH_STYLE="${DASH_STYLE:-classic}"
 DASH_STYLE_BASE="${DASH_STYLE%:only}"
 CONFIG="${CONFIG//@@DASH_STYLE@@/$DASH_STYLE_BASE}"
 
+# Generate dynamic service proxy rules with URL substitution
+generate_service_proxy_rules() {
+    local proxy_rules=""
+
+    # Helper function to add proxy rule
+    add_proxy_rule() {
+        local path=$1
+        local default_url=$2
+        local service_name=$(echo "$path" | sed 's|/||g')
+        local service_url_var="${service_name^^}_URL"
+        local service_url="${!service_url_var:-$default_url}"
+
+        # Extract host:port from URL
+        local host_port=$(echo "$service_url" | sed 's|^https*://||;s|/.*||')
+        # Extract path from URL
+        local url_path=$(echo "$service_url" | sed 's|^https*://[^/]*||')
+        [ -z "$url_path" ] && url_path="/$service_name"
+
+        proxy_rules+="    ProxyPass $path http://${host_port}${url_path}
+    ProxyPassReverse $path http://${host_port}${url_path}
+"
+    }
+
+    # Only add proxy rules for enabled services
+    [ "$ENABLE_SONARR" = "true" ] && add_proxy_rule "/sonarr" "sonarr:8989/sonarr"
+    [ "$ENABLE_RADARR" = "true" ] && add_proxy_rule "/radarr" "radarr:7878/radarr"
+    [ "$ENABLE_WHISPARR" = "true" ] && add_proxy_rule "/whisparr" "whisparr:6969/whisparr"
+    [ "$ENABLE_LIDARR" = "true" ] && add_proxy_rule "/lidarr" "lidarr:8686/lidarr"
+    [ "$ENABLE_PROWLARR" = "true" ] && add_proxy_rule "/prowlarr" "prowlarr:9696/prowlarr"
+    [ "$ENABLE_JELLYFIN" = "true" ] && add_proxy_rule "/jellyfin" "jellyfin:8096/jellyfin"
+    [ "$ENABLE_TAUTULLI" = "true" ] && add_proxy_rule "/tautulli" "tautulli:8181/tautulli"
+    [ "$ENABLE_MAINTAINERR" = "true" ] && add_proxy_rule "/maintainerr" "maintainerr:6246/maintainerr"
+    [ "$ENABLE_TRANSMISSION" = "true" ] && add_proxy_rule "/transmission" "transmission:9091/transmission"
+    [ "$ENABLE_QBITTORRENT" = "true" ] && add_proxy_rule "/qbittorrent" "qbittorrent:8080/qbittorrent"
+    [ "$ENABLE_SABNZBD" = "true" ] && add_proxy_rule "/sabnzbd" "sabnzbd:8080/sabnzbd"
+    [ "$ENABLE_DELUGE" = "true" ] && add_proxy_rule "/deluge" "deluge:8112/"
+    [ "$ENABLE_NZBGET" = "true" ] && add_proxy_rule "/nzbget" "nzbget:6789/"
+    [ "$ENABLE_NZBHYDRA" = "true" ] && add_proxy_rule "/nzbhydra" "nzbhydra:5076/nzbhydra"
+    [ "$ENABLE_JACKETT" = "true" ] && add_proxy_rule "/jackett" "jackett:9117/"
+    [ "$ENABLE_BAZARR" = "true" ] && add_proxy_rule "/bazarr" "bazarr:6767/bazarr"
+    [ "$ENABLE_SEERR" = "true" ] && add_proxy_rule "/seerr" "seerr:5055/"
+
+    echo "$proxy_rules"
+}
+
+PROXY_RULES=$(generate_service_proxy_rules)
+CONFIG="${CONFIG//@@SERVICE_PROXY_RULES@@/$PROXY_RULES}"
+
 # Write output file
 echo "$CONFIG" > "$OUTPUT_FILE"
 
