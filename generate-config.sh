@@ -268,6 +268,12 @@ CONFIG="${CONFIG//@@INCLUDE_AUTH_ENTRA@@/$AUTH_ENTRA_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_AUTH_GOOGLE@@/$AUTH_GOOGLE_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_BASIC_AUTH@@/$BASIC_AUTH_INCLUDE}"
 
+# Replace OIDC configuration placeholders for reverse-proxy VirtualHost
+CONFIG="${CONFIG//@@GOOGLE_CLIENT_ID@@/$GOOGLE_CLIENT_ID}"
+CONFIG="${CONFIG//@@GOOGLE_CLIENT_SECRET@@/$GOOGLE_CLIENT_SECRET}"
+CONFIG="${CONFIG//@@GOOGLE_REDIRECT_URI@@/https:\/\/$DOMAIN\/oauth2callback}"
+CONFIG="${CONFIG//@@COOKIE_DOMAIN@@/.$DOMAIN}"
+
 # Replace DASH_STYLE for DirectoryIndex
 DASH_STYLE="${DASH_STYLE:-classic}"
 # Strip :only suffix if present for DirectoryIndex filename
