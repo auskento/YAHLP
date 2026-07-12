@@ -342,7 +342,11 @@ EOF
 esac
 
 # Replace generic OIDC placeholders for Google
-CONFIG="${CONFIG//@@COOKIE_DOMAIN@@/.$DOMAIN}"
+# Calculate cookie domain: use root domain for cross-subdomain sharing
+# e.g., transfers.limosani.net.au → .limosani.net.au
+COOKIE_DOMAIN=".${DOMAIN#*.}"
+[ "$COOKIE_DOMAIN" = "." ] && COOKIE_DOMAIN=".$DOMAIN"  # Fallback if no dot in domain
+CONFIG="${CONFIG//@@COOKIE_DOMAIN@@/$COOKIE_DOMAIN}"
 
 # Replace DASH_STYLE for DirectoryIndex
 DASH_STYLE="${DASH_STYLE:-classic}"
