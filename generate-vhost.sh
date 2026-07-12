@@ -126,11 +126,6 @@ $OIDC_CONFIG
         SetHandler oauth2-handler
     </Location>
 
-    <Location />
-        AuthType openid-connect
-        Require valid-user
-    </Location>
-
     <LocationMatch "^/(?!oauth2)">
         AuthType openid-connect
         Require valid-user
