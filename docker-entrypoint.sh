@@ -1033,7 +1033,10 @@ if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_RED
                 fi
 
                 cat /etc/apache2/conf-available/oauth2-google.conf \
+                    | sed "s#@@GOOGLE_CLIENT_ID@@#$GOOGLE_CLIENT_ID#g" \
+                    | sed "s#@@GOOGLE_CLIENT_SECRET@@#$GOOGLE_CLIENT_SECRET#g" \
                     | sed "s#@@GOOGLE_REDIRECT_URI@@#$EMBY_REDIRECT_URI#g" \
+                    | sed "s#@@GOOGLE_CRYPTO_PASSPHRASE@@#$GOOGLE_CRYPTO_PASSPHRASE#g" \
                     | sed "s#@@COOKIE_DOMAIN@@#$EMBY_COOKIE_DOMAIN#g" \
                     > /etc/apache2/conf-available/emby-google-oauth2.conf
 
@@ -1135,7 +1138,10 @@ if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_RED
                 fi
 
                 cat /etc/apache2/conf-available/oauth2-google.conf \
+                    | sed "s#@@GOOGLE_CLIENT_ID@@#$GOOGLE_CLIENT_ID#g" \
+                    | sed "s#@@GOOGLE_CLIENT_SECRET@@#$GOOGLE_CLIENT_SECRET#g" \
                     | sed "s#@@GOOGLE_REDIRECT_URI@@#$PLEX_REDIRECT_URI#g" \
+                    | sed "s#@@GOOGLE_CRYPTO_PASSPHRASE@@#$GOOGLE_CRYPTO_PASSPHRASE#g" \
                     | sed "s#@@COOKIE_DOMAIN@@#$PLEX_COOKIE_DOMAIN#g" \
                     > /etc/apache2/conf-available/plex-google-oauth2.conf
 
@@ -1167,7 +1173,10 @@ AUTHEOF
                 SEERR_COOKIE_DOMAIN=$(echo "$SEERR_DOMAIN" | sed 's|^[^.]*\.||')
 
                 cat /etc/apache2/conf-available/oauth2-google.conf \
+                    | sed "s#@@GOOGLE_CLIENT_ID@@#$GOOGLE_CLIENT_ID#g" \
+                    | sed "s#@@GOOGLE_CLIENT_SECRET@@#$GOOGLE_CLIENT_SECRET#g" \
                     | sed "s#@@GOOGLE_REDIRECT_URI@@#$SEERR_REDIRECT_URI#g" \
+                    | sed "s#@@GOOGLE_CRYPTO_PASSPHRASE@@#$GOOGLE_CRYPTO_PASSPHRASE#g" \
                     | sed "s#@@COOKIE_DOMAIN@@#$SEERR_COOKIE_DOMAIN#g" \
                     > /etc/apache2/conf-available/seerr-google-oauth2.conf
 
