@@ -42,7 +42,7 @@ if [ "$AUTHTYPE" = "google" ]; then
     OIDCSessionMaxDuration 86400
     OIDCClaimPrefix OIDC_
     OIDCPassClaimsAs environment
-    OIDCCryptoPassphrase "@@GOOGLE_CRYPTO_PASSPHRASE@@"
+    OIDCCryptoPassphrase @@GOOGLE_CRYPTO_PASSPHRASE@@
     OIDCSSLValidateServer On
     OIDCClaimDelimiter ;
     OIDCPassUserInfoAs json
@@ -50,11 +50,11 @@ if [ "$AUTHTYPE" = "google" ]; then
     OIDCCookieSameSite None
 OIDC_EOF
 )
-    # Substitute placeholders
+    # Substitute placeholders (passphrase needs quotes)
     OIDC_CONFIG="${OIDC_CONFIG//@@GOOGLE_CLIENT_ID@@/$GOOGLE_CLIENT_ID}"
     OIDC_CONFIG="${OIDC_CONFIG//@@GOOGLE_CLIENT_SECRET@@/$GOOGLE_CLIENT_SECRET}"
     OIDC_CONFIG="${OIDC_CONFIG//@@GOOGLE_REDIRECT_URI@@/https://$SERVICE_DOMAIN$OAUTH_CALLBACK_PATH}"
-    OIDC_CONFIG="${OIDC_CONFIG//@@GOOGLE_CRYPTO_PASSPHRASE@@/$GOOGLE_CRYPTO_PASSPHRASE}"
+    OIDC_CONFIG="${OIDC_CONFIG//@@GOOGLE_CRYPTO_PASSPHRASE@@/\"$GOOGLE_CRYPTO_PASSPHRASE\"}"
     OIDC_CONFIG="${OIDC_CONFIG//@@COOKIE_DOMAIN@@/$COOKIE_DOMAIN}"
 
 elif [ "$AUTHTYPE" = "entra" ]; then
@@ -70,7 +70,7 @@ elif [ "$AUTHTYPE" = "entra" ]; then
     OIDCSessionMaxDuration 86400
     OIDCClaimPrefix OIDC_
     OIDCPassClaimsAs environment
-    OIDCCryptoPassphrase "@@ENTRA_CRYPTO_PASSPHRASE@@"
+    OIDCCryptoPassphrase @@ENTRA_CRYPTO_PASSPHRASE@@
     OIDCSSLValidateServer On
     OIDCClaimDelimiter ;
     OIDCPassUserInfoAs json
@@ -78,12 +78,12 @@ elif [ "$AUTHTYPE" = "entra" ]; then
     OIDCCookieSameSite None
 OIDC_EOF
 )
-    # Substitute placeholders
+    # Substitute placeholders (passphrase needs quotes)
     OIDC_CONFIG="${OIDC_CONFIG//@@ENTRA_CLIENT_ID@@/$ENTRA_CLIENT_ID}"
     OIDC_CONFIG="${OIDC_CONFIG//@@ENTRA_CLIENT_SECRET@@/$ENTRA_CLIENT_SECRET}"
     OIDC_CONFIG="${OIDC_CONFIG//@@ENTRA_REDIRECT_URI@@/https://$SERVICE_DOMAIN$OAUTH_CALLBACK_PATH}"
     OIDC_CONFIG="${OIDC_CONFIG//@@ENTRA_PROVIDER_METADATA_URL@@/$ENTRA_PROVIDER_METADATA_URL}"
-    OIDC_CONFIG="${OIDC_CONFIG//@@ENTRA_CRYPTO_PASSPHRASE@@/$ENTRA_CRYPTO_PASSPHRASE}"
+    OIDC_CONFIG="${OIDC_CONFIG//@@ENTRA_CRYPTO_PASSPHRASE@@/\"$ENTRA_CRYPTO_PASSPHRASE\"}"
     OIDC_CONFIG="${OIDC_CONFIG//@@COOKIE_DOMAIN@@/$COOKIE_DOMAIN}"
 fi
 
