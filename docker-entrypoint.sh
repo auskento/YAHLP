@@ -1296,6 +1296,9 @@ if [ "$ACCESS_MODE" = "public" ] && [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EM
     fi
 
     /usr/local/bin/generate-vhost.sh "emby" "$EMBY_DOMAIN_NAME" "$EMBY_URL" "$EMBY_CERT_PATH" "$AUTHTYPE"
+    echo "=== GENERATED EMBY VHOST CONFIG ==="
+    cat /etc/apache2/conf-available/emby-vhost.conf
+    echo "=== END EMBY VHOST CONFIG ==="
 fi
 
 # Generate Plex VirtualHost if enabled (public mode only)
