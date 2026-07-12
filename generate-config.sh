@@ -263,6 +263,11 @@ CONFIG="${CONFIG//@@INCLUDE_JACKETT@@/$JACKETT_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_BAZARR@@/$BAZARR_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_CUSTOM_BACKEND@@/$CUSTOM_BACKEND_INCLUDE}"
 
+# Calculate cookie domain BEFORE OIDC config generation: use root domain for cross-subdomain sharing
+# e.g., transfers.limosani.net.au → .limosani.net.au
+COOKIE_DOMAIN=".${DOMAIN#*.}"
+[ "$COOKIE_DOMAIN" = "." ] && COOKIE_DOMAIN=".$DOMAIN"  # Fallback if no dot in domain
+
 # Replace auth includes
 CONFIG="${CONFIG//@@INCLUDE_AUTH_ENTRA@@/$AUTH_ENTRA_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_AUTH_GOOGLE@@/$AUTH_GOOGLE_INCLUDE}"
@@ -292,7 +297,7 @@ case "$AUTHTYPE" in
     OIDCSSLValidateServer On
     OIDCClaimDelimiter ;
     OIDCPassUserInfoAs json
-    OIDCCookieDomain .$DOMAIN
+    OIDCCookieDomain $COOKIE_DOMAIN
     OIDCCookieSameSite None"
         # Replace Google config with Entra config
         GOOGLE_PLACEHOLDER=$(cat << 'EOF'
@@ -341,11 +346,7 @@ EOF
         ;;
 esac
 
-# Replace generic OIDC placeholders for Google
-# Calculate cookie domain: use root domain for cross-subdomain sharing
-# e.g., transfers.limosani.net.au → .limosani.net.au
-COOKIE_DOMAIN=".${DOMAIN#*.}"
-[ "$COOKIE_DOMAIN" = "." ] && COOKIE_DOMAIN=".$DOMAIN"  # Fallback if no dot in domain
+# Replace generic OIDC placeholders for Google (@@COOKIE_DOMAIN@@ already calculated above)
 CONFIG="${CONFIG//@@COOKIE_DOMAIN@@/$COOKIE_DOMAIN}"
 
 # Replace DASH_STYLE for DirectoryIndex
