@@ -72,18 +72,8 @@ cat > "$VHOST_FILE" <<EOF
     ProxyTimeout 300
     Timeout 300
 
-    # OAuth/Auth Configuration
+    # OAuth/Auth Configuration (includes auth enforcement)
     @@INCLUDE_${SERVICE_UPPER}_OAUTH@@
-
-    # Root location - require authentication
-    <Location /oauth2callback>
-        SetHandler oauth2-handler
-    </Location>
-
-    <Location />
-        AuthType openid-connect
-        Require valid-user
-    </Location>
 
     ProxyPass / $SERVICE_URL/
     ProxyPassReverse / $SERVICE_URL/
