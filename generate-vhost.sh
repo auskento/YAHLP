@@ -116,3 +116,4 @@ esac
 # Enable the VirtualHost site
 a2ensite "${SERVICE}-vhost.conf" 2>/dev/null || true
 echo "✓ $SERVICE VirtualHost enabled"
+
