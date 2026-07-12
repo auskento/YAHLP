@@ -117,19 +117,6 @@ $OIDC_CONFIG
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set X-XSS-Protection "1; mode=block"
 
-    ProxyRequests Off
-    ProxyPreserveHost On
-    ProxyVia Off
-
-    <Proxy *>
-        Order deny,allow
-        Allow from all
-        Satisfy Any
-    </Proxy>
-
-    ProxyTimeout 300
-    Timeout 300
-
     <Location /oauth2callback>
         SetHandler oauth2-handler
     </Location>
@@ -142,6 +129,19 @@ $OIDC_CONFIG
         AuthType openid-connect
         Require valid-user
     </LocationMatch>
+
+    ProxyRequests Off
+    ProxyPreserveHost On
+    ProxyVia Off
+
+    <Proxy *>
+        Order deny,allow
+        Allow from all
+        Satisfy Any
+    </Proxy>
+
+    ProxyTimeout 300
+    Timeout 300
 
     ProxyPass / $SERVICE_URL/
     ProxyPassReverse / $SERVICE_URL/
