@@ -41,7 +41,6 @@
     <Proxy *>
         Order deny,allow
         Allow from all
-        Satisfy Any
     </Proxy>
 
     # Default timeout settings

@@ -138,7 +138,6 @@ $OIDC_CONFIG
     <Proxy *>
         Order deny,allow
         Allow from all
-        Satisfy Any
     </Proxy>
 
     ProxyTimeout 300
