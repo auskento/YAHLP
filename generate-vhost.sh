@@ -142,7 +142,7 @@ $OIDC_CONFIG
         Order deny,allow
         Allow from all
         <RequireAny>
-            Require ip @@TRUSTED_LAN_RANGE@@
+            Require ip $TRUSTED_LAN_RANGE
             Require valid-user
         </RequireAny>
     </Proxy>
