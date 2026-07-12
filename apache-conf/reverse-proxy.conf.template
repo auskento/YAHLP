@@ -48,6 +48,23 @@
     ProxyTimeout 300
     Timeout 300
 
+    # Google OpenID Connect Configuration
+    OIDCSessionType client-cookie:persistent
+    OIDCClientID @@GOOGLE_CLIENT_ID@@
+    OIDCClientSecret @@GOOGLE_CLIENT_SECRET@@
+    OIDCRedirectURI @@GOOGLE_REDIRECT_URI@@
+    OIDCProviderMetadataURL https://accounts.google.com/.well-known/openid-configuration
+    OIDCScope "openid profile email"
+    OIDCSessionInactivityTimeout 3600
+    OIDCSessionMaxDuration 86400
+    OIDCClaimPrefix OIDC_
+    OIDCPassClaimsAs environment
+    OIDCSSLValidateServer On
+    OIDCClaimDelimiter ;
+    OIDCPassUserInfoAs json
+    OIDCCookieDomain @@COOKIE_DOMAIN@@
+    OIDCCookieSameSite None
+
     # Proxy API requests to the aggregator service
     ProxyPass /api http://localhost:3000/api
     ProxyPassReverse /api http://localhost:3000/api
