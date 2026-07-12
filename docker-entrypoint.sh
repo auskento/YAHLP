@@ -606,6 +606,12 @@ echo ""
 echo "=== Apache Setup ==="
 echo "Style: $DASH_STYLE (Auth: $AUTHTYPE)"
 
+# Calculate cookie domain for OIDC session sharing before generating config
+COOKIE_DOMAIN=".${DOMAIN#*.}"
+[ "$COOKIE_DOMAIN" = "." ] && COOKIE_DOMAIN=".$DOMAIN"
+export COOKIE_DOMAIN
+echo "DEBUG: DOMAIN=$DOMAIN, COOKIE_DOMAIN=$COOKIE_DOMAIN"
+
 # Generate Apache configuration from template based on environment variables
 echo "Generating Apache configuration with enabled services..."
 /usr/local/bin/generate-config.sh \
