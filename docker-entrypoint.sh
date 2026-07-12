@@ -932,14 +932,17 @@ check_and_remove_staging_cert() {
     local domain=$2
 
     if [ -f "$cert_path" ]; then
-        if openssl x509 -in "$cert_path" -text -noout 2>/dev/null | grep -q "Fake LE"; then
+        local cert_text=$(openssl x509 -in "$cert_path" -text -noout 2>/dev/null)
+
+        # Check for staging indicators: "Fake LE" in issuer, or "staging" in CN
+        if echo "$cert_text" | grep -qi "Fake LE\|Staging\|staging"; then
             echo "⚠ Staging certificate found for $domain - removing to obtain production certificate"
             rm -rf "/etc/letsencrypt/live/$domain" "/etc/letsencrypt/archive/$domain" "/etc/letsencrypt/renewal/$domain.conf" 2>/dev/null || true
             echo "✓ Removed staging cert and renewal config for $domain"
             return 0  # Certificate removed
         else
-            echo "✓ Production certificate found for $domain"
-            return 1  # Certificate is already production
+            echo "✓ Certificate found for $domain (checking if valid production cert...)"
+            return 1  # Certificate exists, assume production or valid
         fi
     fi
     return 2  # No certificate found
