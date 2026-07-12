@@ -100,10 +100,24 @@ EOF
 
 echo "✓ Generated $SERVICE VirtualHost config: $VHOST_FILE"
 
-# Include OIDC provider config from oauth2-{authtype}.conf in the VirtualHost file
-# This needs to be inside the VirtualHost for Location blocks to work properly
-if [ "${AUTHTYPE}" = "google" ] || [ "${AUTHTYPE}" = "entra" ]; then
-    sed -i "/<\/VirtualHost>/i\\    Include /etc/apache2/conf-available/oauth2-${AUTHTYPE}.conf" "$VHOST_FILE"
+# Embed OIDC provider config inside VirtualHost with substitutions
+if [ "${AUTHTYPE}" = "google" ]; then
+    OIDC_CONFIG=$(cat /etc/apache2/conf-available/oauth2-google.conf \
+        | sed "s#@@GOOGLE_CLIENT_ID@@#${GOOGLE_CLIENT_ID}#g" \
+        | sed "s#@@GOOGLE_CLIENT_SECRET@@#${GOOGLE_CLIENT_SECRET}#g" \
+        | sed "s#@@GOOGLE_REDIRECT_URI@@#https://${SERVICE_DOMAIN}/oauth2callback#g" \
+        | sed "s#@@GOOGLE_CRYPTO_PASSPHRASE@@#${GOOGLE_CRYPTO_PASSPHRASE}#g" \
+        | sed "s#@@COOKIE_DOMAIN@@#.${SERVICE_DOMAIN#*.}#g")
+    sed -i "/<\/VirtualHost>/i\\    # OAuth2 Provider Config\\n${OIDC_CONFIG}" "$VHOST_FILE"
+elif [ "${AUTHTYPE}" = "entra" ]; then
+    OIDC_CONFIG=$(cat /etc/apache2/conf-available/oauth2-entra.conf \
+        | sed "s#@@ENTRA_CLIENT_ID@@#${ENTRA_CLIENT_ID}#g" \
+        | sed "s#@@ENTRA_CLIENT_SECRET@@#${ENTRA_CLIENT_SECRET}#g" \
+        | sed "s#@@ENTRA_REDIRECT_URI@@#https://${SERVICE_DOMAIN}/oauth2/callback#g" \
+        | sed "s#@@ENTRA_PROVIDER_METADATA_URL@@#${ENTRA_PROVIDER_METADATA_URL}#g" \
+        | sed "s#@@ENTRA_CRYPTO_PASSPHRASE@@#${ENTRA_CRYPTO_PASSPHRASE}#g" \
+        | sed "s#@@COOKIE_DOMAIN@@#.${SERVICE_DOMAIN#*.}#g")
+    sed -i "/<\/VirtualHost>/i\\    # OAuth2 Provider Config\\n${OIDC_CONFIG}" "$VHOST_FILE"
 fi
 
 # Handle OAuth configuration based on AUTHTYPE
