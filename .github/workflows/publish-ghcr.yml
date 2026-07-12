@@ -9,6 +9,7 @@ on:
     paths:
       - 'Dockerfile'
       - 'docker-entrypoint.sh'
+      - 'generate-vhost.sh'
       - 'generate-html-menu.sh'
       - 'generate-sites-config.sh'
       - 'apache-conf/**'
