@@ -16,7 +16,7 @@ if [ -z "$SERVICE" ] || [ -z "$SERVICE_DOMAIN" ] || [ -z "$SERVICE_URL" ]; then
 fi
 
 SERVICE=$(echo "$SERVICE" | tr '[:upper:]' '[:lower:]')
-VHOST_FILE="/etc/apache2/sites-available/${SERVICE}-vhost.conf"
+VHOST_FILE="/etc/apache2/conf-available/${SERVICE}-vhost.conf"
 
 # Calculate cookie domain (e.g., emby.example.com → .example.com)
 COOKIE_DOMAIN=".${SERVICE_DOMAIN#*.}"
@@ -50,11 +50,12 @@ if [ "$AUTHTYPE" = "google" ]; then
     OIDCCookieSameSite None
 OIDC_EOF
 )
-    # Substitute placeholders using sed for proper escaping
+    # Substitute placeholders using sed with proper escaping
+    ESCAPED_PASS=$(echo "$GOOGLE_CRYPTO_PASSPHRASE" | sed 's/[&/\]/\\&/g')
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@GOOGLE_CLIENT_ID@@|$GOOGLE_CLIENT_ID|g")
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@GOOGLE_CLIENT_SECRET@@|$GOOGLE_CLIENT_SECRET|g")
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@GOOGLE_REDIRECT_URI@@|https://$SERVICE_DOMAIN$OAUTH_CALLBACK_PATH|g")
-    OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|$GOOGLE_CRYPTO_PASSPHRASE|g")
+    OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|$ESCAPED_PASS|g")
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@COOKIE_DOMAIN@@|$COOKIE_DOMAIN|g")
 
 elif [ "$AUTHTYPE" = "entra" ]; then
@@ -78,12 +79,13 @@ elif [ "$AUTHTYPE" = "entra" ]; then
     OIDCCookieSameSite None
 OIDC_EOF
 )
-    # Substitute placeholders using sed for proper escaping
+    # Substitute placeholders using sed with proper escaping
+    ESCAPED_PASS=$(echo "$ENTRA_CRYPTO_PASSPHRASE" | sed 's/[&/\]/\\&/g')
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@ENTRA_CLIENT_ID@@|$ENTRA_CLIENT_ID|g")
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@ENTRA_CLIENT_SECRET@@|$ENTRA_CLIENT_SECRET|g")
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@ENTRA_REDIRECT_URI@@|https://$SERVICE_DOMAIN$OAUTH_CALLBACK_PATH|g")
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@ENTRA_PROVIDER_METADATA_URL@@|$ENTRA_PROVIDER_METADATA_URL|g")
-    OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@ENTRA_CRYPTO_PASSPHRASE@@|$ENTRA_CRYPTO_PASSPHRASE|g")
+    OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@ENTRA_CRYPTO_PASSPHRASE@@|$ESCAPED_PASS|g")
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@COOKIE_DOMAIN@@|$COOKIE_DOMAIN|g")
 fi
 
@@ -162,6 +164,6 @@ EOF
 
 echo "✓ Generated $SERVICE VirtualHost config: $VHOST_FILE"
 
-# Enable the VirtualHost site
-a2ensite "${SERVICE}-vhost.conf" 2>/dev/null || true
-echo "✓ $SERVICE VirtualHost enabled"
+# Enable the configuration
+a2enconf "${SERVICE}-vhost" 2>/dev/null || true
+echo "✓ $SERVICE VirtualHost config enabled"
