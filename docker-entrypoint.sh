@@ -935,6 +935,7 @@ check_and_remove_staging_cert() {
         if openssl x509 -in "$cert_path" -text -noout 2>/dev/null | grep -q "Fake LE"; then
             echo "⚠ Staging certificate found for $domain - removing to obtain production certificate"
             rm -rf "/etc/letsencrypt/live/$domain" "/etc/letsencrypt/archive/$domain" "/etc/letsencrypt/renewal/$domain.conf" 2>/dev/null || true
+            echo "✓ Removed staging cert and renewal config for $domain"
             return 0  # Certificate removed
         else
             echo "✓ Production certificate found for $domain"
@@ -952,6 +953,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
 
     # Check for staging certificates when switching from TEST to production mode
     FORCE_RENEWAL=""
+
     if [ "$DASHBOARD_TEST" = "false" ]; then
         check_and_remove_staging_cert "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" "$DOMAIN"
         CERT_STATUS=$?
@@ -961,20 +963,18 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
             echo "Requesting production certificate for $DOMAIN (staging removed)..."
             FORCE_RENEWAL="--force-renewal"
         elif [ $CERT_STATUS -eq 1 ]; then
-            echo "Production certificate found, attempting renewal..."
-            FORCE_RENEWAL=""
+            echo "✓ Production certificate already valid for $DOMAIN"
         fi
     fi
 
-    # Check if certificate exists, if not generate it
-    if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
-        echo "Certificate not found, requesting from Let's Encrypt..."
+    # Check if certificate needs generation/renewal
+    if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ] || [ ! -z "$FORCE_RENEWAL" ]; then
+        echo "Requesting certificate for main domain: $DOMAIN..."
 
         # Ensure directory exists
         mkdir -p "/etc/letsencrypt/live/$DOMAIN"
 
         # Obtain certificate using standalone method
-        echo "Requesting certificate for main domain: $DOMAIN..."
         if certbot certonly \
             --standalone \
             --preferred-challenges http \
