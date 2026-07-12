@@ -1106,11 +1106,13 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
 fi
 
 # Fix certificate folder permissions (certbot creates dirs with 755, we need 777 for web server write access)
-echo "Fixing certificate folder permissions..."
+echo "[PROGRESS] $(date '+%H:%M:%S') Fixing certificate folder permissions..."
 chmod -R 777 /etc/yahlp/certs
 echo "✓ Certificate permissions fixed"
+echo "[PROGRESS] Certificate permissions done - starting OAuth sections"
 
 # Handle Emby subdomain with separate OAuth if enabled (only for OAuth auth types)
+echo "[PROGRESS] Starting Emby OAuth Debug"
 echo "=== Emby OAuth Debug ==="
 echo "ENABLE_EMBY: $ENABLE_EMBY"
 echo "EMBY_DOMAIN: $EMBY_DOMAIN"
@@ -1214,8 +1216,10 @@ AUTHEOF
             ;;
     esac
 fi
+echo "[PROGRESS] Emby OAuth setup complete - continuing to Plex"
 
 # Handle Plex subdomain with separate OAuth if enabled (only for OAuth auth types)
+echo "[PROGRESS] Starting Plex OAuth Debug"
 echo "=== Plex OAuth Debug ==="
 echo "ENABLE_PLEX: $ENABLE_PLEX"
 echo "PLEX_DOMAIN: $PLEX_DOMAIN"
@@ -1391,8 +1395,11 @@ AUTHEOF
     esac
 fi
 
+echo "[PROGRESS] All OAuth sections complete - starting VirtualHost generation"
+
 # Generate Emby VirtualHost if enabled (public mode only)
 if [ "$ACCESS_MODE" = "public" ] && [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ]; then
+    echo "[PROGRESS] Generating Emby VirtualHost"
     echo ""
     echo "=== Generating Emby VirtualHost ==="
 
@@ -1458,10 +1465,11 @@ else
     fi
 fi
 
+echo "[PROGRESS] VirtualHost generation complete - updating Apache configuration"
 
 # Update Apache configuration based on mode
 if [ "$ACCESS_MODE" = "private" ]; then
-    echo "Configuring for private mode (HTTP only)"
+    echo "[PROGRESS] Configuring for private mode (HTTP only)"
 
     # Normalize IP variable
     IP=$(echo "$IP" | xargs)
@@ -1488,21 +1496,28 @@ if [ "$ACCESS_MODE" = "private" ]; then
 
     mv /tmp/reverse-proxy.tmp /etc/apache2/sites-available/reverse-proxy.conf
 else
+    echo "[PROGRESS] Configuring for public mode (HTTPS)"
     echo "Configuring for public mode (HTTPS)"
     sed -i "s|@@DOMAIN@@|$DOMAIN|g" /etc/apache2/sites-available/reverse-proxy.conf
 fi
 
+echo "[PROGRESS] Apache config updated - setting up cron"
+
 # Setup cron for certificate renewal
+echo "[PROGRESS] Setting up certificate renewal cron job..."
 echo "Setting up certificate renewal cron job..."
 if ! crontab -l 2>/dev/null | grep -q "certbot renew"; then
     (crontab -l 2>/dev/null; echo "0 3 * * * /usr/bin/certbot renew --webroot --webroot-path $CERTBOT_WEBROOT --quiet && /usr/sbin/apache2ctl graceful") | crontab -
 fi
 
 # Start cron daemon
+echo "[PROGRESS] Starting cron daemon for certificate renewal..."
 echo "Starting cron daemon for certificate renewal..."
 service cron start
+echo "[PROGRESS] Cron daemon started - testing Apache config"
 
 # Test Apache configuration
+echo "[PROGRESS] Testing Apache configuration..."
 echo "Testing Apache configuration..."
 echo ""
 echo "=== Generated reverse-proxy.conf ===" 
@@ -1514,11 +1529,13 @@ apache2ctl configtest || {
     exit 1
 }
 
+echo "[PROGRESS] Apache config test passed - starting Node proxy"
 echo "=== Starting Node.js API Proxy ==="
 cd /opt/proxy
 node proxy.js &
 PROXY_PID=$!
 echo "✓ API Proxy started (PID: $PROXY_PID)"
+echo "[PROGRESS] Node proxy started (PID: $PROXY_PID) - starting Apache"
 
 echo "=== Starting Apache ==="
 
