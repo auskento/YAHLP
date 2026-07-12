@@ -109,15 +109,57 @@
     @@INCLUDE_BASIC_AUTH@@
 
     # ============================================
+    # SERVICE PROXY RULES (VirtualHost level, translation phase)
+    # ============================================
+    # These claim requests for proxying, but Location blocks below still enforce auth
+    ProxyPass /sonarr http://sonarr:8989/sonarr
+    ProxyPassReverse /sonarr http://sonarr:8989/sonarr
+    ProxyPass /radarr http://radarr:7878/radarr
+    ProxyPassReverse /radarr http://radarr:7878/radarr
+    ProxyPass /whisparr http://whisparr:6969/whisparr
+    ProxyPassReverse /whisparr http://whisparr:6969/whisparr
+    ProxyPass /lidarr http://lidarr:8686/lidarr
+    ProxyPassReverse /lidarr http://lidarr:8686/lidarr
+    ProxyPass /prowlarr http://prowlarr:9696/prowlarr
+    ProxyPassReverse /prowlarr http://prowlarr:9696/prowlarr
+    ProxyPass /jellyfin http://jellyfin:8096/jellyfin
+    ProxyPassReverse /jellyfin http://jellyfin:8096/jellyfin
+    ProxyPass /tautulli http://tautulli:8181/tautulli
+    ProxyPassReverse /tautulli http://tautulli:8181/tautulli
+    ProxyPass /maintainerr http://maintainerr:6246/maintainerr
+    ProxyPassReverse /maintainerr http://maintainerr:6246/maintainerr
+    ProxyPass /transmission http://transmission:9091/transmission
+    ProxyPassReverse /transmission http://transmission:9091/transmission
+    ProxyPass /qbittorrent http://qbittorrent:8080/qbittorrent
+    ProxyPassReverse /qbittorrent http://qbittorrent:8080/qbittorrent
+    ProxyPass /sabnzbd http://sabnzbd:8080/sabnzbd
+    ProxyPassReverse /sabnzbd http://sabnzbd:8080/sabnzbd
+    ProxyPass /deluge http://deluge:8112/
+    ProxyPassReverse /deluge http://deluge:8112/
+    ProxyPass /nzbget http://nzbget:6789/
+    ProxyPassReverse /nzbget http://nzbget:6789/
+    ProxyPass /nzbhydra http://nzbhydra:5076/nzbhydra
+    ProxyPassReverse /nzbhydra http://nzbhydra:5076/nzbhydra
+    ProxyPass /jackett http://jackett:9117/
+    ProxyPassReverse /jackett http://jackett:9117/
+    ProxyPass /bazarr http://bazarr:6767/bazarr
+    ProxyPassReverse /bazarr http://bazarr:6767/bazarr
+    ProxyPass /seerr http://seerr:5055/
+    ProxyPassReverse /seerr http://seerr:5055/
+
+    # ============================================
+    # AUTH ENFORCEMENT (enforced via Location blocks)
+    # ============================================
+    # Authentication includes set up Location blocks for auth enforcement
+    @@INCLUDE_AUTH_ENTRA@@
+    @@INCLUDE_AUTH_GOOGLE@@
+
+    # ============================================
     # CONDITIONAL SERVICE INCLUDES
     # ============================================
 
-    # These sections will be included/excluded based on environment variables
-    # See /etc/apache2/sites-available/services/*.conf
-
-    # Authentication includes (mutually exclusive: entra, google, or basic)
-    @@INCLUDE_AUTH_ENTRA@@
-    @@INCLUDE_AUTH_GOOGLE@@
+    # Service includes with ProxyPass
+    # These inherit auth protection from Location blocks above
     @@INCLUDE_SONARR@@
     @@INCLUDE_RADARR@@
     @@INCLUDE_WHISPARR@@
@@ -137,24 +179,6 @@
     @@INCLUDE_JACKETT@@
     @@INCLUDE_BAZARR@@
     @@INCLUDE_CUSTOM_BACKEND@@
-    
-    # ============================================
-    # END CONDITIONAL INCLUDES
-    # ============================================
-
-    # Protect all paths with OAuth authentication (after all service includes)
-    <Location /oauth2callback>
-        SetHandler oauth2-handler
-    </Location>
-
-    <Location /oauth2>
-        SetHandler oauth2-handler
-    </Location>
-
-    <LocationMatch "^/(?!oauth2|health|api|icons|sites|error-pages)">
-        AuthType openid-connect
-        Require valid-user
-    </LocationMatch>
 
     # Error pages
     ErrorDocument 502 /error-pages/502.html
