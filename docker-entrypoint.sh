@@ -383,14 +383,19 @@ if [ "$AUTHTYPE" = "entra" ]; then
     OAUTH_PATH="/oauth2/callback"
 fi
 
+echo "DEBUG: AUTHTYPE=$AUTHTYPE, OAUTH_PATH=$OAUTH_PATH"
+
 if [ ! -z "$SEERR_DOMAIN" ]; then
     SEERR_REDIRECT_URI="https://${SEERR_DOMAIN}${OAUTH_PATH}"
+    echo "DEBUG: Set SEERR_REDIRECT_URI=$SEERR_REDIRECT_URI"
 fi
 if [ ! -z "$PLEX_DOMAIN" ]; then
     PLEX_REDIRECT_URI="https://${PLEX_DOMAIN}${OAUTH_PATH}"
+    echo "DEBUG: Set PLEX_REDIRECT_URI=$PLEX_REDIRECT_URI"
 fi
 if [ ! -z "$EMBY_DOMAIN" ]; then
     EMBY_REDIRECT_URI="https://${EMBY_DOMAIN}${OAUTH_PATH}"
+    echo "DEBUG: Set EMBY_REDIRECT_URI=$EMBY_REDIRECT_URI"
 fi
 SONARR_URL="${SONARR_URL:-}"
 RADARR_URL="${RADARR_URL:-}"
