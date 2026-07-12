@@ -32,7 +32,7 @@ OIDC_CONFIG=""
 if [ "$AUTHTYPE" = "google" ]; then
     OIDC_CONFIG=$(cat <<'OIDC_EOF'
     # Google OpenID Connect Configuration
-    OIDCSessionType server-cache
+    OIDCSessionType sharedcache
     OIDCClientID @@GOOGLE_CLIENT_ID@@
     OIDCClientSecret @@GOOGLE_CLIENT_SECRET@@
     OIDCRedirectURI @@GOOGLE_REDIRECT_URI@@
@@ -60,7 +60,7 @@ OIDC_EOF
 elif [ "$AUTHTYPE" = "entra" ]; then
     OIDC_CONFIG=$(cat <<'OIDC_EOF'
     # Entra ID OpenID Connect Configuration
-    OIDCSessionType server-cache
+    OIDCSessionType sharedcache
     OIDCClientID @@ENTRA_CLIENT_ID@@
     OIDCClientSecret @@ENTRA_CLIENT_SECRET@@
     OIDCRedirectURI @@ENTRA_REDIRECT_URI@@
