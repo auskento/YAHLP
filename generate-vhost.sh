@@ -42,7 +42,7 @@ if [ "$AUTHTYPE" = "google" ]; then
     OIDCSessionMaxDuration 86400
     OIDCClaimPrefix OIDC_
     OIDCPassClaimsAs environment
-    OIDCCryptoPassphrase @@GOOGLE_CRYPTO_PASSPHRASE@@
+    OIDCCryptoPassphrase "@@GOOGLE_CRYPTO_PASSPHRASE@@"
     OIDCSSLValidateServer On
     OIDCClaimDelimiter ;
     OIDCPassUserInfoAs json
@@ -50,8 +50,8 @@ if [ "$AUTHTYPE" = "google" ]; then
     OIDCCookieSameSite None
 OIDC_EOF
 )
-    # Substitute placeholders using sed with proper escaping
-    ESCAPED_PASS=$(echo "$GOOGLE_CRYPTO_PASSPHRASE" | sed 's/[&/\]/\\&/g')
+    # Substitute placeholders using sed with proper escaping (escape quotes, backslashes, and sed delimiters)
+    ESCAPED_PASS=$(echo "$GOOGLE_CRYPTO_PASSPHRASE" | sed 's/[\"\\&/]/\\&/g')
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@GOOGLE_CLIENT_ID@@|$GOOGLE_CLIENT_ID|g")
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@GOOGLE_CLIENT_SECRET@@|$GOOGLE_CLIENT_SECRET|g")
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@GOOGLE_REDIRECT_URI@@|https://$SERVICE_DOMAIN$OAUTH_CALLBACK_PATH|g")
@@ -71,7 +71,7 @@ elif [ "$AUTHTYPE" = "entra" ]; then
     OIDCSessionMaxDuration 86400
     OIDCClaimPrefix OIDC_
     OIDCPassClaimsAs environment
-    OIDCCryptoPassphrase @@ENTRA_CRYPTO_PASSPHRASE@@
+    OIDCCryptoPassphrase "@@ENTRA_CRYPTO_PASSPHRASE@@"
     OIDCSSLValidateServer On
     OIDCClaimDelimiter ;
     OIDCPassUserInfoAs json
@@ -79,8 +79,8 @@ elif [ "$AUTHTYPE" = "entra" ]; then
     OIDCCookieSameSite None
 OIDC_EOF
 )
-    # Substitute placeholders using sed with proper escaping
-    ESCAPED_PASS=$(echo "$ENTRA_CRYPTO_PASSPHRASE" | sed 's/[&/\]/\\&/g')
+    # Substitute placeholders using sed with proper escaping (escape quotes, backslashes, and sed delimiters)
+    ESCAPED_PASS=$(echo "$ENTRA_CRYPTO_PASSPHRASE" | sed 's/[\"\\&/]/\\&/g')
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@ENTRA_CLIENT_ID@@|$ENTRA_CLIENT_ID|g")
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@ENTRA_CLIENT_SECRET@@|$ENTRA_CLIENT_SECRET|g")
     OIDC_CONFIG=$(echo "$OIDC_CONFIG" | sed "s|@@ENTRA_REDIRECT_URI@@|https://$SERVICE_DOMAIN$OAUTH_CALLBACK_PATH|g")
