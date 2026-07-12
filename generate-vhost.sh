@@ -102,6 +102,9 @@ cat > "$VHOST_FILE" <<EOF
 
 <VirtualHost *:443>
     ServerName $SERVICE_DOMAIN
+
+$OIDC_CONFIG
+
     SSLEngine on
     SSLCertificateFile /etc/letsencrypt/live/$CERT_PATH/fullchain.pem
     SSLCertificateKeyFile /etc/letsencrypt/live/$CERT_PATH/privkey.pem
@@ -126,8 +129,6 @@ cat > "$VHOST_FILE" <<EOF
 
     ProxyTimeout 300
     Timeout 300
-
-$OIDC_CONFIG
 
     <Location /oauth2callback>
         SetHandler oauth2-handler
