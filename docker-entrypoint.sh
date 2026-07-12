@@ -357,6 +357,7 @@ ENABLE_NZBHYDRA="${ENABLE_NZBHYDRA}"
 ENABLE_JACKETT="${ENABLE_JACKETT}"
 ENABLE_BAZARR="${ENABLE_BAZARR}"
 AUTHTYPE="${AUTHTYPE:-none}"
+echo "DEBUG: Initial AUTHTYPE=$AUTHTYPE"
 BASIC_AUTH_CREDENTIALS="${BASIC_AUTH_CREDENTIALS:-}"
 ENTRA_CLIENT_ID="${ENTRA_CLIENT_ID:-}"
 ENTRA_CLIENT_SECRET="${ENTRA_CLIENT_SECRET:-}"
@@ -368,6 +369,7 @@ GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET:-}"
 # Normalize variables to lowercase to handle user input variations
 ACCESS_MODE=$(echo "$ACCESS_MODE" | tr '[:upper:]' '[:lower:]')
 AUTHTYPE=$(echo "$AUTHTYPE" | tr '[:upper:]' '[:lower:]')
+echo "DEBUG: Normalized AUTHTYPE=$AUTHTYPE"
 DASHBOARD_TEST=$(echo "$DASHBOARD_TEST" | tr '[:upper:]' '[:lower:]')
 SKIP_CERT_GENERATION=$(echo "$SKIP_CERT_GENERATION" | tr '[:upper:]' '[:lower:]')
 
@@ -378,10 +380,12 @@ GOOGLE_REDIRECT_URI="https://${DOMAIN}/oauth2callback"
 
 # Auto-generate service-specific redirect URIs if service domains are configured (always HTTPS)
 # Entra uses /oauth2/callback, Google uses /oauth2callback
+echo "DEBUG: About to set OAUTH_PATH, AUTHTYPE=$AUTHTYPE"
 OAUTH_PATH="/oauth2callback"
 if [ "$AUTHTYPE" = "entra" ]; then
     OAUTH_PATH="/oauth2/callback"
 fi
+echo "DEBUG: Set OAUTH_PATH=$OAUTH_PATH"
 
 echo "DEBUG: AUTHTYPE=$AUTHTYPE, OAUTH_PATH=$OAUTH_PATH"
 
