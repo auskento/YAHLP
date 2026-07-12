@@ -42,7 +42,6 @@ if [ "$AUTHTYPE" = "google" ]; then
     OIDCSessionMaxDuration 86400
     OIDCClaimPrefix OIDC_
     OIDCPassClaimsAs environment
-    OIDCCryptoPassphrase "@@GOOGLE_CRYPTO_PASSPHRASE@@"
     OIDCSSLValidateServer On
     OIDCClaimDelimiter ;
     OIDCPassUserInfoAs json
