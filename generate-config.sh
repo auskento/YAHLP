@@ -269,9 +269,79 @@ CONFIG="${CONFIG//@@INCLUDE_AUTH_GOOGLE@@/$AUTH_GOOGLE_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_BASIC_AUTH@@/$BASIC_AUTH_INCLUDE}"
 
 # Replace OIDC configuration placeholders for reverse-proxy VirtualHost
-CONFIG="${CONFIG//@@GOOGLE_CLIENT_ID@@/$GOOGLE_CLIENT_ID}"
-CONFIG="${CONFIG//@@GOOGLE_CLIENT_SECRET@@/$GOOGLE_CLIENT_SECRET}"
-CONFIG="${CONFIG//@@GOOGLE_REDIRECT_URI@@/https:\/\/$DOMAIN\/oauth2callback}"
+case "$AUTHTYPE" in
+    google)
+        CONFIG="${CONFIG//@@GOOGLE_CLIENT_ID@@/$GOOGLE_CLIENT_ID}"
+        CONFIG="${CONFIG//@@GOOGLE_CLIENT_SECRET@@/$GOOGLE_CLIENT_SECRET}"
+        CONFIG="${CONFIG//@@GOOGLE_REDIRECT_URI@@/https:\/\/$DOMAIN\/oauth2callback}"
+        ;;
+    entra)
+        # For Entra, replace placeholder config with Entra-specific configuration
+        ENTRA_OIDC_CONFIG="    # Entra ID OpenID Connect Configuration
+    OIDCSessionType client-cookie:persistent
+    OIDCClientID $ENTRA_CLIENT_ID
+    OIDCClientSecret $ENTRA_CLIENT_SECRET
+    OIDCRedirectURI https://$DOMAIN/oauth2/callback
+    OIDCProviderMetadataURL $ENTRA_PROVIDER_METADATA_URL
+    OIDCScope \"openid profile email\"
+    OIDCSessionInactivityTimeout 3600
+    OIDCSessionMaxDuration 86400
+    OIDCClaimPrefix OIDC_
+    OIDCPassClaimsAs environment
+    OIDCCryptoPassphrase \"$ENTRA_CRYPTO_PASSPHRASE\"
+    OIDCSSLValidateServer On
+    OIDCClaimDelimiter ;
+    OIDCPassUserInfoAs json
+    OIDCCookieDomain .$DOMAIN
+    OIDCCookieSameSite None"
+        # Replace Google config with Entra config
+        GOOGLE_PLACEHOLDER=$(cat << 'EOF'
+    # Google OpenID Connect Configuration
+    OIDCSessionType client-cookie:persistent
+    OIDCClientID @@GOOGLE_CLIENT_ID@@
+    OIDCClientSecret @@GOOGLE_CLIENT_SECRET@@
+    OIDCRedirectURI @@GOOGLE_REDIRECT_URI@@
+    OIDCProviderMetadataURL https://accounts.google.com/.well-known/openid-configuration
+    OIDCScope "openid profile email"
+    OIDCSessionInactivityTimeout 3600
+    OIDCSessionMaxDuration 86400
+    OIDCClaimPrefix OIDC_
+    OIDCPassClaimsAs environment
+    OIDCSSLValidateServer On
+    OIDCClaimDelimiter ;
+    OIDCPassUserInfoAs json
+    OIDCCookieDomain @@COOKIE_DOMAIN@@
+    OIDCCookieSameSite None
+EOF
+)
+        CONFIG="${CONFIG//$GOOGLE_PLACEHOLDER/$ENTRA_OIDC_CONFIG}"
+        ;;
+    *)
+        # For no auth or basic auth, remove OIDC config
+        GOOGLE_PLACEHOLDER=$(cat << 'EOF'
+    # Google OpenID Connect Configuration
+    OIDCSessionType client-cookie:persistent
+    OIDCClientID @@GOOGLE_CLIENT_ID@@
+    OIDCClientSecret @@GOOGLE_CLIENT_SECRET@@
+    OIDCRedirectURI @@GOOGLE_REDIRECT_URI@@
+    OIDCProviderMetadataURL https://accounts.google.com/.well-known/openid-configuration
+    OIDCScope "openid profile email"
+    OIDCSessionInactivityTimeout 3600
+    OIDCSessionMaxDuration 86400
+    OIDCClaimPrefix OIDC_
+    OIDCPassClaimsAs environment
+    OIDCSSLValidateServer On
+    OIDCClaimDelimiter ;
+    OIDCPassUserInfoAs json
+    OIDCCookieDomain @@COOKIE_DOMAIN@@
+    OIDCCookieSameSite None
+EOF
+)
+        CONFIG="${CONFIG//$GOOGLE_PLACEHOLDER/}"
+        ;;
+esac
+
+# Replace generic OIDC placeholders for Google
 CONFIG="${CONFIG//@@COOKIE_DOMAIN@@/.$DOMAIN}"
 
 # Replace DASH_STYLE for DirectoryIndex
