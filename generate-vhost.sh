@@ -72,8 +72,19 @@ cat > "$VHOST_FILE" <<EOF
     ProxyTimeout 300
     Timeout 300
 
-    # OAuth/Auth Configuration (includes auth enforcement)
-    @@INCLUDE_${SERVICE_UPPER}_OAUTH@@
+    # Require authentication before proxying
+    <Location /oauth2callback>
+        SetHandler oauth2-handler
+    </Location>
+
+    <Location /oauth2>
+        SetHandler oauth2-handler
+    </Location>
+
+    <LocationMatch "^/(?!oauth2)">
+        AuthType openid-connect
+        Require valid-user
+    </LocationMatch>
 
     ProxyPass / $SERVICE_URL/
     ProxyPassReverse / $SERVICE_URL/
@@ -88,6 +99,12 @@ cat > "$VHOST_FILE" <<EOF
 EOF
 
 echo "✓ Generated $SERVICE VirtualHost config: $VHOST_FILE"
+
+# Include OIDC provider config from oauth2-{authtype}.conf in the VirtualHost file
+# This needs to be inside the VirtualHost for Location blocks to work properly
+if [ "${AUTHTYPE}" = "google" ] || [ "${AUTHTYPE}" = "entra" ]; then
+    sed -i "/<\/VirtualHost>/i\\    Include /etc/apache2/conf-available/oauth2-${AUTHTYPE}.conf" "$VHOST_FILE"
+fi
 
 # Handle OAuth configuration based on AUTHTYPE
 # Service subdomains include both OAuth2 and auth-protect using wildcard pattern
