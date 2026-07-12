@@ -979,7 +979,10 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
 
     if [ "$DASHBOARD_TEST" = "false" ]; then
         echo "[DEBUG] DASHBOARD_TEST is false, calling check_and_remove_staging_cert..."
-        check_and_remove_staging_cert "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" "$DOMAIN"; CERT_STATUS=$?
+        set +e
+        check_and_remove_staging_cert "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" "$DOMAIN"
+        CERT_STATUS=$?
+        set -e
         echo "[DEBUG] Function returned with status: $CERT_STATUS"
 
         # If staging cert was found and removed, force renewal to get production cert
@@ -1054,11 +1057,17 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
         # Check for staging certificate when switching from TEST to production mode
         EMBY_FORCE_RENEWAL=""
         if [ "$DASHBOARD_TEST" = "false" ]; then
-            check_and_remove_staging_cert "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" "$EMBY_DOMAIN"; EMBY_STATUS=$?
+            set +e
+            check_and_remove_staging_cert "/etc/letsencrypt/live/$EMBY_DOMAIN/fullchain.pem" "$EMBY_DOMAIN"
+            EMBY_STATUS=$?
+            set -e
             if [ $EMBY_STATUS -eq 0 ]; then
                 EMBY_FORCE_RENEWAL="--force-renewal"
             fi
-            check_and_remove_staging_cert "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" "$EMBY_CERT_DOMAIN"; EMBY_STATUS=$?
+            set +e
+            check_and_remove_staging_cert "/etc/letsencrypt/live/$EMBY_CERT_DOMAIN/fullchain.pem" "$EMBY_CERT_DOMAIN"
+            EMBY_STATUS=$?
+            set -e
             if [ $EMBY_STATUS -eq 0 ]; then
                 EMBY_FORCE_RENEWAL="--force-renewal"
             fi
@@ -1081,11 +1090,17 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
         # Check for staging certificate when switching from TEST to production mode
         PLEX_FORCE_RENEWAL=""
         if [ "$DASHBOARD_TEST" = "false" ]; then
-            check_and_remove_staging_cert "/etc/letsencrypt/live/$PLEX_DOMAIN/fullchain.pem" "$PLEX_DOMAIN"; PLEX_STATUS=$?
+            set +e
+            check_and_remove_staging_cert "/etc/letsencrypt/live/$PLEX_DOMAIN/fullchain.pem" "$PLEX_DOMAIN"
+            PLEX_STATUS=$?
+            set -e
             if [ $PLEX_STATUS -eq 0 ]; then
                 PLEX_FORCE_RENEWAL="--force-renewal"
             fi
-            check_and_remove_staging_cert "/etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem" "$PLEX_CERT_DOMAIN"; PLEX_STATUS=$?
+            set +e
+            check_and_remove_staging_cert "/etc/letsencrypt/live/$PLEX_CERT_DOMAIN/fullchain.pem" "$PLEX_CERT_DOMAIN"
+            PLEX_STATUS=$?
+            set -e
             if [ $PLEX_STATUS -eq 0 ]; then
                 PLEX_FORCE_RENEWAL="--force-renewal"
             fi
@@ -1108,11 +1123,17 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
         # Check for staging certificate when switching from TEST to production mode
         SEERR_FORCE_RENEWAL=""
         if [ "$DASHBOARD_TEST" = "false" ]; then
-            check_and_remove_staging_cert "/etc/letsencrypt/live/$SEERR_DOMAIN/fullchain.pem" "$SEERR_DOMAIN"; SEERR_STATUS=$?
+            set +e
+            check_and_remove_staging_cert "/etc/letsencrypt/live/$SEERR_DOMAIN/fullchain.pem" "$SEERR_DOMAIN"
+            SEERR_STATUS=$?
+            set -e
             if [ $SEERR_STATUS -eq 0 ]; then
                 SEERR_FORCE_RENEWAL="--force-renewal"
             fi
-            check_and_remove_staging_cert "/etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem" "$SEERR_CERT_DOMAIN"; SEERR_STATUS=$?
+            set +e
+            check_and_remove_staging_cert "/etc/letsencrypt/live/$SEERR_CERT_DOMAIN/fullchain.pem" "$SEERR_CERT_DOMAIN"
+            SEERR_STATUS=$?
+            set -e
             if [ $SEERR_STATUS -eq 0 ]; then
                 SEERR_FORCE_RENEWAL="--force-renewal"
             fi
