@@ -72,10 +72,10 @@ cat > "$VHOST_FILE" <<EOF
     ProxyTimeout 300
     Timeout 300
 
-    @@INCLUDE_${SERVICE_UPPER}_OAUTH@@
-
     ProxyPass / $SERVICE_URL/
     ProxyPassReverse / $SERVICE_URL/
+
+    @@INCLUDE_${SERVICE_UPPER}_OAUTH@@
 
     ErrorDocument 502 /error-pages/502.html
     ErrorDocument 503 /error-pages/503.html
