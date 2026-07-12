@@ -1004,6 +1004,13 @@ chmod -R 777 /etc/yahlp/certs
 echo "✓ Certificate permissions fixed"
 
 # Handle Emby subdomain with separate OAuth if enabled (only for OAuth auth types)
+echo "=== Emby OAuth Debug ==="
+echo "ENABLE_EMBY: $ENABLE_EMBY"
+echo "EMBY_DOMAIN: $EMBY_DOMAIN"
+echo "EMBY_REDIRECT_URI: $EMBY_REDIRECT_URI"
+echo "AUTHTYPE: $AUTHTYPE"
+echo ""
+
 if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
     echo ""
     echo "=== Emby Subdomain OAuth Setup ==="
@@ -1099,6 +1106,13 @@ AUTHEOF
 fi
 
 # Handle Plex subdomain with separate OAuth if enabled (only for OAuth auth types)
+echo "=== Plex OAuth Debug ==="
+echo "ENABLE_PLEX: $ENABLE_PLEX"
+echo "PLEX_DOMAIN: $PLEX_DOMAIN"
+echo "PLEX_REDIRECT_URI: $PLEX_REDIRECT_URI"
+echo "AUTHTYPE: $AUTHTYPE"
+echo ""
+
 if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
     echo ""
     echo "=== Plex Subdomain OAuth Setup ==="
