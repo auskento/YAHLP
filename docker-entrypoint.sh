@@ -931,8 +931,27 @@ check_and_remove_staging_cert() {
     local cert_path=$1
     local domain=$2
 
+    echo "[DEBUG] check_and_remove_staging_cert called for: $domain"
+
     if [ -f "$cert_path" ]; then
-        local cert_text=$(openssl x509 -in "$cert_path" -text -noout 2>/dev/null)
+        echo "[DEBUG] Certificate file exists: $cert_path"
+        echo "[DEBUG] Running openssl with 10s timeout..."
+
+        # Use timeout to prevent openssl from hanging
+        local cert_text=$(timeout 10 openssl x509 -in "$cert_path" -text -noout 2>/dev/null)
+        local openssl_status=$?
+
+        if [ $openssl_status -eq 124 ]; then
+            echo "[ERROR] openssl command timed out after 10 seconds for $domain"
+            return 2
+        fi
+
+        if [ $openssl_status -ne 0 ]; then
+            echo "[DEBUG] openssl failed with status $openssl_status, assuming valid cert"
+            return 1
+        fi
+
+        echo "[DEBUG] Certificate text obtained, checking for staging indicators..."
 
         # Check for staging indicators: "Fake LE" in issuer, or "staging" in CN
         if echo "$cert_text" | grep -qi "Fake LE\|Staging\|staging"; then
@@ -945,6 +964,7 @@ check_and_remove_staging_cert() {
             return 1  # Certificate exists, assume production or valid
         fi
     fi
+    echo "[DEBUG] Certificate file does not exist: $cert_path"
     return 2  # No certificate found
 }
 
