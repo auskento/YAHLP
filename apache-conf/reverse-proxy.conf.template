@@ -124,7 +124,21 @@
     # ============================================
     # END CONDITIONAL INCLUDES
     # ============================================
-    
+
+    # Protect all paths with OAuth authentication (after all service includes)
+    <Location /oauth2callback>
+        SetHandler oauth2-handler
+    </Location>
+
+    <Location /oauth2>
+        SetHandler oauth2-handler
+    </Location>
+
+    <LocationMatch "^/(?!oauth2|health|api|icons|sites|error-pages)">
+        AuthType openid-connect
+        Require valid-user
+    </LocationMatch>
+
     # Error pages
     ErrorDocument 502 /error-pages/502.html
     ErrorDocument 503 /error-pages/503.html
