@@ -137,10 +137,11 @@ RADARR_INCLUDE=$(generate_include "radarr" "$ENABLE_RADARR")
 WHISPARR_INCLUDE=$(generate_include "whisparr" "$ENABLE_WHISPARR")
 LIDARR_INCLUDE=$(generate_include "lidarr" "$ENABLE_LIDARR")
 PROWLARR_INCLUDE=$(generate_include "prowlarr" "$ENABLE_PROWLARR")
-SEERR_INCLUDE=$(generate_include "seerr" "$ENABLE_SEERR")
+# Emby, Plex, Seerr use VirtualHost configs only - no service includes
+SEERR_INCLUDE=""
 JELLYFIN_INCLUDE=$(generate_include "jellyfin" "$ENABLE_JELLYFIN")
-EMBY_INCLUDE=$(generate_include "emby" "$ENABLE_EMBY")
-PLEX_INCLUDE=$(generate_include "plex" "$ENABLE_PLEX")
+EMBY_INCLUDE=""
+PLEX_INCLUDE=""
 TAUTULLI_INCLUDE=$(generate_include "tautulli" "$ENABLE_TAUTULLI")
 MAINTAINERR_INCLUDE=$(generate_include "maintainerr" "$ENABLE_MAINTAINERR")
 TRANSMISSION_INCLUDE=$(generate_include "transmission" "$ENABLE_TRANSMISSION")
