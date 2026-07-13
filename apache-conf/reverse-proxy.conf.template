@@ -112,13 +112,6 @@
     @@INCLUDE_BASIC_AUTH@@
 
     # ============================================
-    # SERVICE PROXY RULES (VirtualHost level, translation phase)
-    # ============================================
-    # Dynamically generated based on enabled services and custom URLs
-    # Auth Location blocks below still enforce authentication
-    @@SERVICE_PROXY_RULES@@
-
-    # ============================================
     # AUTH ENFORCEMENT (enforced via Location blocks)
     # ============================================
     # Authentication includes set up Location blocks for auth enforcement
