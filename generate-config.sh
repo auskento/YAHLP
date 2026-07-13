@@ -376,16 +376,7 @@ generate_service_proxy_rules() {
         local host_port=$(echo "$service_url" | sed 's|^https*://||;s|/.*||')
         # Extract path from URL
         local url_path=$(echo "$service_url" | sed 's|^https*://[^/]*||')
-
-        # If no path, default based on service type
-        # Services that run at root: deluge, qbittorrent, nzbget, jackett, seerr
-        if [ -z "$url_path" ]; then
-            if [ "$service_name" = "deluge" ] || [ "$service_name" = "qbittorrent" ] || [ "$service_name" = "nzbget" ] || [ "$service_name" = "jackett" ] || [ "$service_name" = "seerr" ]; then
-                url_path="/"
-            else
-                url_path="/$service_name"
-            fi
-        fi
+        [ -z "$url_path" ] && url_path="/$service_name"
 
         proxy_rules+="    ProxyPass $path http://${host_port}${url_path}
     ProxyPassReverse $path http://${host_port}${url_path}
