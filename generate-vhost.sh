@@ -16,7 +16,7 @@ if [ -z "$SERVICE" ] || [ -z "$SERVICE_DOMAIN" ] || [ -z "$SERVICE_URL" ]; then
 fi
 
 SERVICE=$(echo "$SERVICE" | tr '[:upper:]' '[:lower:]')
-VHOST_FILE="/etc/apache2/conf-available/${SERVICE}-vhost.conf"
+VHOST_FILE="/etc/apache2/sites-available/${SERVICE}-vhost.conf"
 
 # Calculate cookie domain (e.g., emby.example.com → .example.com)
 COOKIE_DOMAIN=".${SERVICE_DOMAIN#*.}"

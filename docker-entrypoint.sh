@@ -1466,8 +1466,12 @@ if [ "$ACCESS_MODE" = "public" ] && [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EM
 
     /usr/local/bin/generate-vhost.sh "emby" "$EMBY_DOMAIN_NAME" "$EMBY_URL" "$EMBY_CERT_PATH" "$AUTHTYPE"
     echo "=== GENERATED EMBY VHOST CONFIG ==="
-    cat /etc/apache2/conf-available/emby-vhost.conf
+    cat /etc/apache2/sites-available/emby-vhost.conf
     echo "=== END EMBY VHOST CONFIG ==="
+
+    # Enable the Emby VirtualHost
+    a2ensite emby-vhost
+    echo "✓ Enabled Emby VirtualHost"
 fi
 
 # Generate Plex VirtualHost if enabled (public mode only)
@@ -1488,6 +1492,10 @@ if [ "$ACCESS_MODE" = "public" ] && [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PL
     fi
 
     /usr/local/bin/generate-vhost.sh "plex" "$PLEX_DOMAIN_NAME" "$PLEX_URL" "$PLEX_CERT_PATH" "$AUTHTYPE"
+
+    # Enable the Plex VirtualHost
+    a2ensite plex-vhost
+    echo "✓ Enabled Plex VirtualHost"
 fi
 
 # Configure Seerr subdomain VirtualHost (if SEERR_DOMAIN and SEERR_URL are set and in public mode)
@@ -1508,6 +1516,10 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$SEERR_DOMAIN" ] && [ ! -z "$SEERR_U
     fi
 
     /usr/local/bin/generate-vhost.sh "seerr" "$SEERR_DOMAIN_NAME" "$SEERR_URL" "$SEERR_CERT_PATH" "$AUTHTYPE"
+
+    # Enable the Seerr VirtualHost
+    a2ensite seerr-vhost
+    echo "✓ Enabled Seerr VirtualHost"
 else
     if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$SEERR_DOMAIN" ]; then
         echo "⚠ SEERR_DOMAIN is set but SEERR_URL is missing - skipping Seerr VirtualHost"
