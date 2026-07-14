@@ -1,12 +1,23 @@
+# Catch-all VirtualHost for unrecognized domains (port 80)
+<VirtualHost *:80>
+    ServerName _
+    DocumentRoot /var/www/html
+    <Directory /var/www/html>
+        Require all denied
+    </Directory>
+    ErrorDocument 403 "Access Denied"
+</VirtualHost>
+
+# Main VirtualHost for configured domain (port 80)
 <VirtualHost *:80>
     ServerName @@DOMAIN@@
     ServerAlias www.@@DOMAIN@@
-    
+
     # Redirect HTTP to HTTPS
     RewriteEngine On
     RewriteCond %{HTTPS} off
     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-    
+
     # Let's Encrypt ACME challenge
     DocumentRoot /var/www/letsencrypt
     <Directory /var/www/letsencrypt>
@@ -153,6 +164,28 @@
     ErrorDocument 503 /error-pages/503.html
     
     # Logging
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+    LogLevel warn
+</VirtualHost>
+
+# Catch-all VirtualHost for unrecognized domains (port 443)
+# Must come after specific VirtualHosts to have lower priority
+<VirtualHost *:443>
+    ServerName _
+    SSLEngine on
+    SSLCertificateFile /etc/letsencrypt/live/@@DOMAIN@@/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/@@DOMAIN@@/privkey.pem
+    SSLProtocol @@SSL_PROTOCOLS@@
+    SSLCipherSuite @@SSL_CIPHERS@@
+    SSLHonorCipherOrder on
+
+    DocumentRoot /var/www/html
+    <Directory /var/www/html>
+        Require all denied
+    </Directory>
+    ErrorDocument 403 "Access Denied"
+
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
     LogLevel warn
