@@ -368,7 +368,7 @@ app.get('/api/prowlarr/health', async (req, res) => {
   }
 });
 
-// Jackett health check
+// Jackett health check (handles both subdomain and folder-based)
 app.get('/api/jackett/health', async (req, res) => {
   try {
     const cached = cache.get('jackett-health');
@@ -379,8 +379,17 @@ app.get('/api/jackett/health', async (req, res) => {
       return res.status(404).json({ error: 'Jackett not configured' });
     }
 
-    // Jackett API endpoint for health check (assumes /jackett baseURL like other proxies)
-    const healthUrl = `${config.url}/jackett/api/v2.0/indexers/all/results?apikey=${encodeURIComponent(config.key)}&Query=test`;
+    // Determine health check URL based on deployment mode
+    let healthUrl;
+    const jacketDomain = process.env.JACKETT_DOMAIN;
+
+    if (jacketDomain) {
+      // Subdomain mode: query Jackett on its subdomain at root
+      healthUrl = `https://${jacketDomain}/api/v2.0/indexers/all/results?apikey=${encodeURIComponent(config.key)}&Query=test`;
+    } else {
+      // Folder-based mode: use internal URL with /jackett path
+      healthUrl = `${config.url}/jackett/api/v2.0/indexers/all/results?apikey=${encodeURIComponent(config.key)}&Query=test`;
+    }
 
     const response = await fetch(healthUrl);
 
@@ -432,7 +441,8 @@ app.get('/api/nzbhydra', nzbhydraHandler);
 app.post('/api/nzbhydra', nzbhydraHandler);
 
 // Generic health check endpoints for services
-const healthServices = ['sonarr', 'radarr', 'lidarr', 'whisparr', 'jellyfin', 'emby', 'plex', 'tautulli', 'maintainerr', 'transmission', 'qbittorrent', 'sabnzbd', 'deluge', 'nzbget', 'bazarr'];
+// Generic health check endpoints for services
+const healthServices = ['sonarr', 'radarr', 'lidarr', 'whisparr', 'jellyfin', 'emby', 'plex', 'tautulli', 'maintainerr', 'transmission', 'qbittorrent', 'sabnzbd', 'deluge', 'nzbget', 'jackett', 'bazarr'];
 
 healthServices.forEach(service => {
   app.get(`/api/${service}/health`, async (req, res) => {
