@@ -351,10 +351,24 @@ ENABLE_MAINTAINERR="${MAINTAINERR_ENABLED:-false}"
 
 # Write environment variables to config file for scripts to source
 # Note: DOMAIN and EMAIL are cleared for private mode before this step
+# Generate subdomain URLs for public mode
+if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$DOMAIN" ]; then
+    PLEX_DOMAIN="plex.${DOMAIN}"
+    EMBY_DOMAIN="emby.${DOMAIN}"
+    SEERR_DOMAIN="seerr.${DOMAIN}"
+else
+    PLEX_DOMAIN=""
+    EMBY_DOMAIN=""
+    SEERR_DOMAIN=""
+fi
+
 cat > /etc/apache2/env.conf << ENVEOF
 ACCESS_MODE="${ACCESS_MODE:-public}"
 DOMAIN="${DOMAIN}"
 EMAIL="${EMAIL}"
+PLEX_DOMAIN="${PLEX_DOMAIN:-}"
+EMBY_DOMAIN="${EMBY_DOMAIN:-}"
+SEERR_DOMAIN="${SEERR_DOMAIN:-}"
 DASH_STYLE="${DASH_STYLE:-classic}"
 DASHBOARD_THEME="${DASHBOARD_THEME:-dark}"
 ENABLE_SONARR="${ENABLE_SONARR}"
