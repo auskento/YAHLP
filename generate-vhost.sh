@@ -91,6 +91,26 @@ fi
 # Get TRUSTED_LAN_RANGE from environment or use defaults
 TRUSTED_LAN_RANGE="${TRUSTED_LAN_RANGE:-192.168.0.0/16 10.0.0.0/8 172.16.0.0/12 127.0.0.1}"
 
+# Build OAuth2 handlers and auth config only for OIDC auth types
+OAUTH2_CONFIG=""
+if [ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]; then
+    OAUTH2_CONFIG=$(cat <<'OAUTH2_EOF'
+    <Location /oauth2callback>
+        SetHandler oauth2-handler
+    </Location>
+
+    <Location /oauth2>
+        SetHandler oauth2-handler
+    </Location>
+
+    <LocationMatch "^/(?!oauth2)">
+        AuthType openid-connect
+        Require valid-user
+    </LocationMatch>
+OAUTH2_EOF
+)
+fi
+
 # Generate the VirtualHost configuration with embedded OIDC settings
 cat > "$VHOST_FILE" <<EOF
 <VirtualHost *:80>
@@ -121,18 +141,7 @@ $OIDC_CONFIG
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set X-XSS-Protection "1; mode=block"
 
-    <Location /oauth2callback>
-        SetHandler oauth2-handler
-    </Location>
-
-    <Location /oauth2>
-        SetHandler oauth2-handler
-    </Location>
-
-    <LocationMatch "^/(?!oauth2)">
-        AuthType openid-connect
-        Require valid-user
-    </LocationMatch>
+$OAUTH2_CONFIG
 
     ProxyRequests Off
     ProxyPreserveHost On
