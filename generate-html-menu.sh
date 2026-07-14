@@ -390,8 +390,6 @@ generate_services_array() {
         local popup="false"
         [[ "$href" == http* ]] && popup="true"
         [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
-        # Jackett opens in-window, not as popup
-        [ "$service_key" = "JACKETT" ] && popup="false"
         # MEDIA services open as popup only if they're external (http) or SUBDOMAIN; subfolder services stay in-window
         if [ "$category" = "MEDIA" ] && [[ "$href" != /* ]]; then
             popup="true"
