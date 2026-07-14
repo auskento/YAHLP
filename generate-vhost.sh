@@ -175,8 +175,10 @@ $OAUTH2_CONFIG
     # This allows Location blocks to handle auth before proxying
     ProxyPassMatch ^/oauth2 !
     ProxyPassMatch ^/oauth2callback !
-    ProxyPass / $SERVICE_URL/
-    ProxyPassReverse / $SERVICE_URL/
+    # Strip service path suffix (e.g., /jackett, /sonarr) for subdomain vhosts
+    SERVICE_BACKEND_URL=$(echo "$SERVICE_URL" | sed -E "s|/$SERVICE$||")
+    ProxyPass / $SERVICE_BACKEND_URL/
+    ProxyPassReverse / $SERVICE_BACKEND_URL/
 
     ErrorDocument 502 /error-pages/502.html
     ErrorDocument 503 /error-pages/503.html
