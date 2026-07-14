@@ -111,6 +111,12 @@ generate_include() {
             echo "# Seerr using vhost ($(basename /etc/apache2/sites-available/seerr-vhost.conf))"
             return
         fi
+    elif [ "$service_name" = "jackett" ]; then
+        # Check for jackett vhost (created when JACKETT_DOMAIN is set in public mode)
+        if [ -f "/etc/apache2/sites-available/jackett-vhost.conf" ]; then
+            echo "# Jackett using vhost ($(basename /etc/apache2/sites-available/jackett-vhost.conf))"
+            return
+        fi
     fi
 
     local service_file="/etc/apache2/sites-available/services/${service_name}.conf"
@@ -137,11 +143,11 @@ RADARR_INCLUDE=$(generate_include "radarr" "$ENABLE_RADARR")
 WHISPARR_INCLUDE=$(generate_include "whisparr" "$ENABLE_WHISPARR")
 LIDARR_INCLUDE=$(generate_include "lidarr" "$ENABLE_LIDARR")
 PROWLARR_INCLUDE=$(generate_include "prowlarr" "$ENABLE_PROWLARR")
-# Emby, Plex, Seerr use VirtualHost configs only - no service includes
-SEERR_INCLUDE=""
+# Emby, Plex, Seerr, Jackett use VirtualHost configs when DOMAIN is set - fall back to service includes otherwise
+SEERR_INCLUDE=$(generate_include "seerr" "$ENABLE_SEERR")
 JELLYFIN_INCLUDE=$(generate_include "jellyfin" "$ENABLE_JELLYFIN")
-EMBY_INCLUDE=""
-PLEX_INCLUDE=""
+EMBY_INCLUDE=$(generate_include "emby" "$ENABLE_EMBY")
+PLEX_INCLUDE=$(generate_include "plex" "$ENABLE_PLEX")
 TAUTULLI_INCLUDE=$(generate_include "tautulli" "$ENABLE_TAUTULLI")
 MAINTAINERR_INCLUDE=$(generate_include "maintainerr" "$ENABLE_MAINTAINERR")
 TRANSMISSION_INCLUDE=$(generate_include "transmission" "$ENABLE_TRANSMISSION")

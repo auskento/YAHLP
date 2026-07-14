@@ -140,11 +140,10 @@
     @@INCLUDE_DELUGE@@
     @@INCLUDE_NZBGET@@
     @@INCLUDE_NZBHYDRA@@
-    @@INCLUDE_JACKETT@@
     @@INCLUDE_BAZARR@@
     @@INCLUDE_CUSTOM_BACKEND@@
 
-    # Note: Emby, Plex, and Seerr are served via VirtualHost files, not included here
+    # Note: Emby, Plex, Seerr, and Jackett are served via VirtualHost files, not included here
 
     # ============================================
     # LAYER 2: AUTHENTICATION ENFORCEMENT
