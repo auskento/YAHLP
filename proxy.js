@@ -431,6 +431,24 @@ const nzbhydraHandler = async (req, res) => {
 app.get('/api/nzbhydra', nzbhydraHandler);
 app.post('/api/nzbhydra', nzbhydraHandler);
 
+// Generic health check endpoints for services
+const healthServices = ['sonarr', 'radarr', 'lidarr', 'whisparr', 'jellyfin', 'emby', 'plex', 'tautulli', 'maintainerr', 'transmission', 'qbittorrent', 'sabnzbd', 'deluge', 'nzbget', 'bazarr'];
+
+healthServices.forEach(service => {
+  app.get(`/api/${service}/health`, async (req, res) => {
+    try {
+      const cached = cache.get(`${service}-health`);
+      if (cached) return res.json(cached);
+
+      const data = await makeRequest(service, '/api/v3/health');
+      cache.set(`${service}-health`, data);
+      res.json(data);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+});
+
 // Sonarr endpoints
 app.get('/api/sonarr/queue', async (req, res) => {
   try {
