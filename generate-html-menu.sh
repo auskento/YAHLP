@@ -145,7 +145,7 @@ declare -A SERVICES=(
 
     # SEARCH category
     [SEERR]="SEARCH|Seerr|Requests|/icons/seerr.png|SUBDOMAIN|#00a4dc"
-    [JACKETT]="SEARCH|Jackett|Indexer aggregator|/icons/jackett.png|/jackett/|#0d47a1"
+    [JACKETT]="SEARCH|Jackett|Indexer aggregator|/icons/jackett.png|SUBDOMAIN|#0d47a1"
     [PROWLARR]="SEARCH|Prowlarr|Indexer manager|/icons/prowlarr.png|/prowlarr/|#e8810e"
     [BAZARR]="SEARCH|Bazarr|Subtitles|/icons/bazarr.png|/bazarr/|#e91e63"
 
@@ -376,6 +376,13 @@ generate_services_array() {
                     [ -z "$SEERR_URL" ] && continue
                     href="$SEERR_URL"
                 fi
+            elif [ "$service_key" = "JACKETT" ]; then
+                if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$JACKETT_DOMAIN" ]; then
+                    href="https://$JACKETT_DOMAIN/"
+                else
+                    [ -z "$JACKETT_URL" ] && continue
+                    href="$JACKETT_URL"
+                fi
             fi
         fi
 
@@ -383,6 +390,8 @@ generate_services_array() {
         local popup="false"
         [[ "$href" == http* ]] && popup="true"
         [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
+        # Jackett opens in-window, not as popup
+        [ "$service_key" = "JACKETT" ] && popup="false"
         # MEDIA services open as popup only if they're external (http) or SUBDOMAIN; subfolder services stay in-window
         if [ "$category" = "MEDIA" ] && [[ "$href" != /* ]]; then
             popup="true"
