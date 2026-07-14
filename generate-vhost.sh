@@ -91,9 +91,21 @@ fi
 # Get TRUSTED_LAN_RANGE from environment or use defaults
 TRUSTED_LAN_RANGE="${TRUSTED_LAN_RANGE:-192.168.0.0/16 10.0.0.0/8 172.16.0.0/12 127.0.0.1}"
 
-# Build OAuth2 handlers and auth config only for OIDC auth types
+# Build auth config based on AUTHTYPE
 OAUTH2_CONFIG=""
-if [ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]; then
+if [ "$AUTHTYPE" = "basic" ]; then
+    # Basic Authentication
+    OAUTH2_CONFIG=$(cat <<'OAUTH2_EOF'
+    <Location />
+        AuthType Basic
+        AuthName "YAHLP"
+        AuthUserFile /etc/apache2/.htpasswd
+        Require valid-user
+    </Location>
+OAUTH2_EOF
+)
+elif [ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]; then
+    # OIDC Authentication
     OAUTH2_CONFIG=$(cat <<'OAUTH2_EOF'
     <Location /oauth2callback>
         SetHandler oauth2-handler
