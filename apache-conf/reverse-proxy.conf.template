@@ -68,9 +68,11 @@
     OIDCCookieDomain @@COOKIE_DOMAIN@@
     OIDCCookieSameSite None
 
-    # Proxy API requests to the aggregator service
+    # Proxy API and health endpoints to the aggregator service
     ProxyPass /api http://localhost:3000/api
     ProxyPassReverse /api http://localhost:3000/api
+    ProxyPass /health http://localhost:3000/health
+    ProxyPassReverse /health http://localhost:3000/health
 
     # Set DASH_STYLE environment variable for rewrite rules
     SetEnv DASH_STYLE @@DASH_STYLE@@
@@ -108,30 +110,17 @@
         Require all granted
     </Directory>
 
-    # Basic Authentication (if enabled)
-    @@INCLUDE_BASIC_AUTH@@
-
     # ============================================
-    # AUTH ENFORCEMENT (enforced via Location blocks)
+    # LAYER 1: SERVICE ROUTING (ProxyPass directives)
     # ============================================
-    # Authentication includes set up Location blocks for auth enforcement
-    @@INCLUDE_AUTH_ENTRA@@
-    @@INCLUDE_AUTH_GOOGLE@@
-
-    # ============================================
-    # CONDITIONAL SERVICE INCLUDES
-    # ============================================
-
-    # Service includes with ProxyPass
-    # These inherit auth protection from Location blocks above
+    # Service includes contain ONLY ProxyPass/ProxyPassReverse directives
+    # These are applied in translation phase (before auth checks)
     @@INCLUDE_SONARR@@
     @@INCLUDE_RADARR@@
     @@INCLUDE_WHISPARR@@
     @@INCLUDE_LIDARR@@
     @@INCLUDE_PROWLARR@@
     @@INCLUDE_JELLYFIN@@
-    @@INCLUDE_EMBY@@
-    @@INCLUDE_PLEX@@
     @@INCLUDE_TAUTULLI@@
     @@INCLUDE_MAINTAINERR@@
     @@INCLUDE_TRANSMISSION@@
@@ -144,6 +133,21 @@
     @@INCLUDE_BAZARR@@
     @@INCLUDE_CUSTOM_BACKEND@@
 
+    # Note: Emby, Plex, and Seerr are served via VirtualHost files, not included here
+
+    # ============================================
+    # LAYER 2: AUTHENTICATION ENFORCEMENT
+    # ============================================
+    # Auth includes set up Location blocks for auth enforcement
+    # These are applied in content phase (after proxy routing)
+
+    # Basic Authentication (if enabled)
+    @@INCLUDE_BASIC_AUTH@@
+
+    # OIDC Authentication (Google or Entra)
+    @@INCLUDE_AUTH_GOOGLE@@
+    @@INCLUDE_AUTH_ENTRA@@
+
     # Error pages
     ErrorDocument 502 /error-pages/502.html
     ErrorDocument 503 /error-pages/503.html
@@ -152,10 +156,4 @@
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
     LogLevel warn
-
-    # Health check endpoint (proxy to API aggregator)
-    <Location /health>
-        ProxyPass http://localhost:3000/health
-        ProxyPassReverse http://localhost:3000/health
-    </Location>
 </VirtualHost>
