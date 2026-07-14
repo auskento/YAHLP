@@ -54,6 +54,9 @@ if (@@DASHBOARD_LOCKED@@) {
     localStorage.removeItem('dashboard-locked');
 }
 
+// Set window mode for service links (popout or newtab)
+const DASHBOARD_WINDOWS = '@@DASHBOARD_WINDOWS@@' || 'popout';
+
 // Immediately calculate average color for content panel
 document.addEventListener('DOMContentLoaded', function() {
     const styleTag = document.querySelector('style');
@@ -664,14 +667,20 @@ async function loadDashboard() {
             }
 
             if (isPopup) {
-                // Open in new window for certain services, new tab for others
-                const windowServices = ['qBittorrent', 'Seerr', 'Emby', 'Plex'];
-                const openAsWindow = windowServices.includes(serviceName);
-
-                if (openAsWindow) {
-                    window.open(href, '_blank', 'popup=yes,width=1400,height=900,resizable=yes,scrollbars=yes');
-                } else {
+                // Respect DASHBOARD_WINDOWS setting for how to open external links
+                if (DASHBOARD_WINDOWS === 'newtab') {
+                    // Open in new browser tab
                     window.open(href, '_blank');
+                } else {
+                    // Open as popout window (default)
+                    const windowServices = ['qBittorrent', 'Seerr', 'Emby', 'Plex'];
+                    const openAsWindow = windowServices.includes(serviceName);
+
+                    if (openAsWindow) {
+                        window.open(href, '_blank', 'popup=yes,width=1400,height=900,resizable=yes,scrollbars=yes');
+                    } else {
+                        window.open(href, '_blank');
+                    }
                 }
             } else {
                 frame.src = href;
