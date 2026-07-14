@@ -672,15 +672,8 @@ async function loadDashboard() {
                     // Open in new browser tab
                     window.open(href, '_blank');
                 } else {
-                    // Open as popout window (default)
-                    const windowServices = ['qBittorrent', 'Seerr', 'Emby', 'Plex'];
-                    const openAsWindow = windowServices.includes(serviceName);
-
-                    if (openAsWindow) {
-                        window.open(href, '_blank', 'popup=yes,width=1400,height=900,resizable=yes,scrollbars=yes');
-                    } else {
-                        window.open(href, '_blank');
-                    }
+                    // Open as popout window (default) - all services as resizable popouts
+                    window.open(href, '_blank', 'popup=yes,width=1400,height=900,resizable=yes,scrollbars=yes');
                 }
             } else {
                 frame.src = href;
