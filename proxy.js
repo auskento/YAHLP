@@ -236,7 +236,7 @@ async function makeRequest(serviceKey, endpoint, options = {}) {
       headers['X-Api-Key'] = config.key;
       break;
     case 'query':
-      finalUrl += `${endpoint.includes('?') ? '&' : '?'}api_key=${encodeURIComponent(config.key)}`;
+      finalUrl += `${endpoint.includes('?') ? '&' : '?'}apikey=${encodeURIComponent(config.key)}`;
       break;
     case 'plex':
       finalUrl += `${endpoint.includes('?') ? '&' : '?'}X-Plex-Token=${encodeURIComponent(config.key)}`;
