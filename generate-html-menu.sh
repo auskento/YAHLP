@@ -551,6 +551,7 @@ generate_css_based_templates() {
         html_content="${html_content//@@DASHBOARD_LANDING@@/$DASHBOARD_LANDING}"
         html_content="${html_content//@@DASHBOARD_COLOR_OVERRIDE@@/$dashboard_color_override}"
         html_content="${html_content//@@DASHBOARD_LOCKED@@/$dashboard_locked}"
+        html_content="${html_content//@@DASHBOARD_WINDOWS@@/${DASHBOARD_WINDOWS:-popout}}"
 
         echo "$html_content" > "/var/www/html/${layout}.html"
         echo "  ✓ Generated ${layout}.html"

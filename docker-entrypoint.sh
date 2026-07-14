@@ -361,6 +361,7 @@ EMBY_DOMAIN="${EMBY_DOMAIN:-}"
 SEERR_DOMAIN="${SEERR_DOMAIN:-}"
 DASH_STYLE="${DASH_STYLE:-classic}"
 DASHBOARD_THEME="${DASHBOARD_THEME:-dark}"
+DASHBOARD_WINDOWS="${DASHBOARD_WINDOWS:-popout}"
 ENABLE_SONARR="${ENABLE_SONARR}"
 ENABLE_RADARR="${ENABLE_RADARR}"
 ENABLE_WHISPARR="${ENABLE_WHISPARR}"
@@ -554,6 +555,7 @@ fi
 
 # Update env.conf with modified DASH_STYLE (in case basic auth forced it to classic)
 sed -i "s/^DASH_STYLE=.*/DASH_STYLE=\"${DASH_STYLE}\"/" /etc/apache2/env.conf
+sed -i "s/^DASHBOARD_WINDOWS=.*/DASHBOARD_WINDOWS=\"${DASHBOARD_WINDOWS}\"/" /etc/apache2/env.conf || echo "DASHBOARD_WINDOWS=\"${DASHBOARD_WINDOWS}\"" >> /etc/apache2/env.conf
 
 # Configuration - clean up ACCESS_MODE if it was set
 ACCESS_MODE=$(echo "${ACCESS_MODE}" | tr '[:upper:]' '[:lower:]' | sed "s/'//g" | sed 's/"//g' | xargs)
