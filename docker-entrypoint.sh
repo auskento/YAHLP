@@ -1526,6 +1526,34 @@ else
     fi
 fi
 
+# Configure Jackett subdomain VirtualHost (if JACKETT_DOMAIN and JACKETT_URL are set and in public mode)
+if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$JACKETT_DOMAIN" ] && [ ! -z "$JACKETT_URL" ]; then
+    echo ""
+    echo "=== Generating Jackett VirtualHost ==="
+
+    # Determine certificate path (subdomain cert, base domain cert, or main domain fallback)
+    JACKETT_DOMAIN_NAME="$JACKETT_DOMAIN"
+    JACKETT_CERT_DOMAIN=$(echo "$JACKETT_DOMAIN" | sed -E 's|^https?://||' | sed -E 's|[^.]+\.(.+)$|\1|')
+
+    if [ -f "/etc/letsencrypt/live/$JACKETT_DOMAIN_NAME/fullchain.pem" ]; then
+        JACKETT_CERT_PATH="$JACKETT_DOMAIN_NAME"
+    elif [ -f "/etc/letsencrypt/live/$JACKETT_CERT_DOMAIN/fullchain.pem" ]; then
+        JACKETT_CERT_PATH="$JACKETT_CERT_DOMAIN"
+    else
+        JACKETT_CERT_PATH="$DOMAIN"
+    fi
+
+    /usr/local/bin/generate-vhost.sh "jackett" "$JACKETT_DOMAIN_NAME" "$JACKETT_URL" "$JACKETT_CERT_PATH" "$AUTHTYPE"
+
+    # Enable the Jackett VirtualHost
+    a2ensite jackett-vhost
+    echo "✓ Enabled Jackett VirtualHost"
+else
+    if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$JACKETT_DOMAIN" ]; then
+        echo "⚠ JACKETT_DOMAIN is set but JACKETT_URL is missing - skipping Jackett VirtualHost"
+    fi
+fi
+
 echo "[PROGRESS] VirtualHost generation complete - updating Apache configuration"
 
 # Update Apache configuration based on mode
