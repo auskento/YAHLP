@@ -1318,6 +1318,19 @@ server.on('listening', () => {
     const status = isServiceConfigured(service, config) ? '✅' : '⏳';
     console.log(`   ${status} ${service}`);
   });
+
+  // Display YAHLP release version
+  const fs = require('fs');
+  try {
+    const version = fs.readFileSync('/app/VERSION', 'utf8').trim();
+    if (version) {
+      console.log('\n=========================================');
+      console.log(`✓ YAHLP Release: ${version}`);
+      console.log('=========================================');
+    }
+  } catch (err) {
+    // VERSION file not found or readable, skip
+  }
 });
 
 server6.on('error', (err) => {
