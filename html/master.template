@@ -720,17 +720,18 @@ async function buildServiceMenu() {
             const app = document.querySelector('.app');
             const isMobile = app.getAttribute('data-layout') === 'mobile';
 
-            if (isMobile || isPopup) {
-                // Open in new window for certain services, new tab for others
-                const windowServices = ['qBittorrent', 'Seerr', 'Emby', 'Plex'];
-                const openAsWindow = windowServices.includes(serviceName);
-
-                if (openAsWindow) {
-                    window.open(href, '_blank', 'popup=yes,width=1400,height=900,resizable=yes,scrollbars=yes');
-                } else {
+            if (isPopup) {
+                // Respect DASHBOARD_WINDOWS setting for all external services
+                if (DASHBOARD_WINDOWS === 'newtab') {
                     window.open(href, '_blank');
+                } else {
+                    window.open(href, '_blank', 'popup=yes,width=1400,height=900,resizable=yes,scrollbars=yes');
                 }
+            } else if (isMobile) {
+                // Mobile devices open external links in new tab
+                window.open(href, '_blank');
             } else {
+                // Folder-based services load in frame
                 frame.src = href;
                 frame.style.display = 'block';
                 dashboardView.style.display = 'none';
