@@ -1676,4 +1676,13 @@ if [ $APACHE_EXIT -ne 0 ]; then
     done
 fi
 
+# Display YAHLP release version
+if [ -f /app/VERSION ]; then
+    YAHLP_VERSION=$(cat /app/VERSION)
+    echo ""
+    echo "========================================="
+    echo "✓ YAHLP Release: $YAHLP_VERSION"
+    echo "========================================="
+fi
+
 

@@ -92,6 +92,10 @@ RUN a2dissite 000-default.conf
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+# Copy version file
+COPY VERSION /app/
+RUN mkdir -p /app && chmod 644 /app/VERSION
+
 # Copy supervisord configuration
 COPY supervisord.conf /etc/supervisor/conf.d/yahlp.conf
 
