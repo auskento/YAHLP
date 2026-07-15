@@ -64,3 +64,4 @@ data/
 
 # Marketing website (generated, not part of core repo)
 website/
+release.ps1
