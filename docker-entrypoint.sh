@@ -101,6 +101,11 @@ chown -R ${PUID:-0}:${PGID:-0} /etc/yahlp/site_icons
 chmod 775 /etc/yahlp/site_icons
 echo "✓ Site icons folder created: /etc/yahlp/site_icons"
 
+# Copy icon configuration guide to config folder
+cp /app/ICON_CONFIGURATION.md /etc/yahlp/ICON_CONFIGURATION.md 2>/dev/null || true
+chmod 644 /etc/yahlp/ICON_CONFIGURATION.md 2>/dev/null || true
+echo "✓ Icon configuration guide available: /etc/yahlp/ICON_CONFIGURATION.md"
+
 # Configuration loading:
 # 1. If yahlp.json5 is provided (mounted), convert it to environment variables
 # 2. These become the defaults for the entire startup process
