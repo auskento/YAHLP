@@ -18,10 +18,10 @@ Complete setup guides for all 19 supported services.
 | RAD | Radarr | Search | 7878 | Optional API Key |
 | LID | Lidarr | Search | 8686 | Optional API Key |
 | WHI | Whisparr | Search | 6969 | Optional API Key |
-| SEE | Seerr | Infrastructure | 5055 | Optional API Key |
-| BAZ | Bazarr | Infrastructure | 6767 | Optional API Key |
-| TAU | Tautulli | Infrastructure | 8181 | Optional API Key |
-| MNT | Maintainerr | Infrastructure | 6246 | Optional API Key |
+| SEE | Seerr | Utilities | 5055 | Optional API Key |
+| BAZ | Bazarr | Utilities | 6767 | Optional API Key |
+| TAU | Tautulli | Utilities | 8181 | Optional API Key |
+| MNT | Maintainerr | Utilities | 6246 | Optional API Key |
 | JEL | Jellyfin | Media | 8096 | Optional API Key |
 | EMB | Emby | Media | 8096 | Optional API Key |
 | PLX | Plex | Media | 32400 | Optional API Key |
@@ -409,7 +409,7 @@ DELUGE_PASSWORD=your-password  # Required (set in deluge config)
 
 ---
 
-## Infrastructure Services
+## Utilities Services
 
 ### Seerr (SEE)
 

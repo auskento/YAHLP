@@ -40,7 +40,7 @@ See [Deployment Guide](docs/installation.md) for mode selection and tradeoffs.
 | **Usenet** | 3 | SABnzbd, NZBGet, NZBHydra |
 | **Torrents** | 3 | Transmission, qBittorrent, Deluge |
 | **Search & Automation** | 6 | Prowlarr, Jackett, Sonarr, Radarr, Lidarr, Whisparr |
-| **Infrastructure** | 4 | Seerr, Bazarr, Tautulli, Maintainerr |
+| **Utilities** | 4 | Seerr, Bazarr, Tautulli, Maintainerr |
 | **Media Servers** | 3 | Jellyfin, Emby, Plex |
 
 Each service is optionally enabled/disabled via configuration. Only enabled services appear in the dashboard.
