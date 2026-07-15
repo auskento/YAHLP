@@ -937,16 +937,43 @@ app.get('/api/jellyfin/info', async (req, res) => {
   }
 });
 
-// Emby endpoints
+// Emby endpoints (handles both subdomain and folder-based)
 app.get('/api/emby/info', async (req, res) => {
   try {
     const cached = cache.get('emby-info');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('emby', '/System/Info');
+    const config = services['emby'];
+    if (!config || !config.url || !config.key) {
+      return res.status(404).json({ error: 'Emby not configured' });
+    }
+
+    // For subdomain mode, use internal URL at root; folder-based uses config.url
+    const embyDomain = process.env.EMBY_DOMAIN;
+    let endpoint = '/System/Info';
+    let baseUrl = config.url;
+
+    // Subdomain mode: use internal URL, Emby serves at root
+    if (embyDomain && config.url.startsWith('http://')) {
+      // Already using internal URL, just use it as-is
+      baseUrl = config.url;
+    } else if (embyDomain && !config.url.startsWith('http://')) {
+      // If config.url is a domain, construct internal URL
+      baseUrl = `http://emby:5000`;
+    }
+
+    const finalUrl = `${baseUrl}${endpoint}?api_key=${encodeURIComponent(config.key)}`;
+    const response = await fetch(finalUrl);
+
+    if (!response.ok) {
+      throw new Error(`Emby returned ${response.status}`);
+    }
+
+    const data = await response.json();
     cache.set('emby-info', data);
     res.json(data);
   } catch (err) {
+    console.error('[Emby Health Check Exception]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
