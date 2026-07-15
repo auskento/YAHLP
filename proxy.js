@@ -69,21 +69,6 @@ if (fs.existsSync(configPath)) {
   try {
     jsonConfig = JSON5.parse(fs.readFileSync(configPath, 'utf8'));
     console.log('✓ Configuration loaded from yahlp.json5');
-    console.log('  Note: Environment variables will override JSON5 values');
-
-    // Log what's configured
-    const enabledServices = jsonConfig.enabled || {};
-    const enabledCount = Object.values(enabledServices).filter(v => v === true).length;
-    const hasAuth = jsonConfig.access?.type;
-    const hasGoogleAuth = jsonConfig.google?.client_id;
-    const hasEntraAuth = jsonConfig.entra?.client_id;
-    const hasDashboard = jsonConfig.dashboard?.name;
-
-    console.log('  Services in JSON5:', enabledCount);
-    console.log('  Auth configured:', hasAuth || 'none');
-    if (hasGoogleAuth) console.log('  Google OAuth: configured');
-    if (hasEntraAuth) console.log('  Entra OAuth: configured');
-    if (hasDashboard) console.log('  Dashboard: ' + jsonConfig.dashboard.name);
   } catch (err) {
     console.error('Error loading yahlp.json5:', err.message);
   }
@@ -922,12 +907,8 @@ app.get('/api/jellyfin/auth', async (req, res) => {
     const username = getConfigValue('jellyfin', 'username');
     const password = getConfigValue('jellyfin', 'password');
 
-    console.log('[Jellyfin Auth] Username provided:', !!username, 'Password provided:', !!password);
-    console.log('[Jellyfin Auth] Jellyfin URL:', config?.url);
-
     // If credentials not provided, skip auto-auth
     if (!username || !password) {
-      console.log('[Jellyfin Auth] Credentials not configured, skipping auto-auth');
       return res.json({ authenticated: false, error: 'Credentials not configured' });
     }
 
@@ -1313,20 +1294,14 @@ server.on('listening', () => {
   console.log(`🔀 API Aggregator listening on port ${PORT}`);
   console.log(`   IPv4: http://localhost:${PORT}`);
   console.log(`   IPv6: http://[::1]:${PORT}`);
-  console.log(`   Cache TTL: 30 seconds`);
   console.log(`   Health check: http://localhost:${PORT}/health`);
-  console.log('\nConfigured services:');
-  Object.entries(services).forEach(([service, config]) => {
-    const status = isServiceConfigured(service, config) ? '✅' : '⏳';
-    console.log(`   ${status} ${service}`);
-  });
 
   // Display YAHLP release version
   const fs = require('fs');
   try {
     const version = fs.readFileSync('/app/VERSION', 'utf8').trim();
     if (version) {
-      console.log('\n=========================================');
+      console.log('=========================================');
       console.log(`✓ YAHLP Release: ${version}`);
       console.log('=========================================');
     }

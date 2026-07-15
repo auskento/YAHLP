@@ -715,8 +715,134 @@ Example (Sonarr):
 
 ---
 
-## See Also
+## Health Check Endpoints
 
+All services support health check endpoints for monitoring and integration with external systems.
+
+### Generic Health Check Format
+
+Every enabled service has a health check endpoint at:
+```
+GET /api/{service}/health
+```
+
+**Response (Success - HTTP 200):**
+```json
+{
+  "status": "ok",
+  "version": "4.0.1",
+  // Additional service-specific fields
+}
+```
+
+**Response (Failure - HTTP 500):**
+```json
+{
+  "error": "Connection refused"
+}
+```
+
+### Service-Specific Health Check Endpoints
+
+| Service | Generic Endpoint | Custom Endpoint | Response Fields |
+|---------|------------------|-----------------|-----------------|
+| **Sonarr** | `/api/sonarr/health` | — | Array of health entries |
+| **Radarr** | `/api/radarr/health` | — | Array of health entries |
+| **Lidarr** | `/api/lidarr/health` | — | Array of health entries |
+| **Whisparr** | `/api/whisparr/health` | — | Array of health entries |
+| **Jellyfin** | `/api/jellyfin/health` | — | version, operatingSystem |
+| **Emby** | `/api/emby/health` | — | version, operatingSystem |
+| **Plex** | `/api/plex/health` | `/api/plex/server` | identifier, friendlyName, version |
+| **Tautulli** | `/api/tautulli/health` | `/api/tautulli/status` | topUser, users, libraries |
+| **Bazarr** | `/api/bazarr/health` | `/api/bazarr/status` | health, episodes_wanted_count |
+| **Prowlarr** | `/api/prowlarr/health` | — | Array of health entries |
+| **Jackett** | `/api/jackett/health` | — | status, results (count) |
+| **NZBHydra** | `/api/nzbhydra/health` | — | Empty object `{}` if online |
+| **Transmission** | `/api/transmission/health` | — | version, rpc-version |
+| **qBittorrent** | `/api/qbittorrent/health` | — | version |
+| **SABnzbd** | `/api/sabnzbd/health` | — | version |
+| **NZBGet** | `/api/nzbget/health` | — | version, architecture |
+| **Deluge** | `/api/deluge/health` | — | deluge_version, libtorrent_version |
+| **Seerr** | `/api/seerr/health` | `/api/seerr/status` | version, commitTag, initialized |
+| **Maintainerr** | `/api/maintainerr/health` | — | version |
+
+### Caching Behavior
+
+- All health check responses are **cached for 30 seconds**
+- First request fetches live data from service
+- Subsequent requests within 30 seconds return cached data
+- After 30 seconds, next request fetches fresh data
+
+### Monitoring Integration
+
+Health checks are exempt from authentication for monitoring systems:
+
+**Example Nagios/Icinga script:**
+```bash
+#!/bin/bash
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://yourdomain.com/api/sonarr/health)
+if [ "$STATUS" -eq 200 ]; then
+  echo "Sonarr OK"
+  exit 0
+else
+  echo "Sonarr DOWN (HTTP $STATUS)"
+  exit 2
+fi
+```
+
+**Example with Basic Auth:**
+```bash
+curl -s https://yourdomain.com/api/radarr/health \
+  -u "username:password" | jq '.[] | select(.type=="error")'
+```
+
+### Service-Specific Responses
+
+**Plex Server Info:**
+```json
+{
+  "identifier": "abc123def456",
+  "friendlyName": "My Plex Server",
+  "version": "1.32.5.7237",
+  "scrobbleServers": "https://scrobble.plex.tv"
+}
+```
+
+**Seerr Status:**
+```json
+{
+  "version": "0.1.1",
+  "commitTag": "develop-abc123",
+  "initialized": true,
+  "totalRequests": 42,
+  "totalMediaItems": 150
+}
+```
+
+**Tautulli Statistics:**
+```json
+{
+  "topUser": "Alice",
+  "users": 3,
+  "libraries": 5
+}
+```
+
+**Sonarr/Radarr Health:**
+```json
+[
+  {
+    "source": "SystemTasks",
+    "type": "notice",
+    "message": "System completed failed backup",
+    "wikiUrl": "https://wiki.servarr.com/sonarr/system#backup"
+  }
+]
+```
+
+### See Also
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) - Comprehensive health check endpoint documentation
 - [CONFIGURATION.md](CONFIGURATION.md) - All configuration options
 - [INSTALLATION.md](INSTALLATION.md) - Setup instructions
 - [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Service troubleshooting

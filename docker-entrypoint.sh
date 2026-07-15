@@ -616,7 +616,6 @@ echo "Style: $DASH_STYLE (Auth: $AUTHTYPE)"
 COOKIE_DOMAIN=".${DOMAIN#*.}"
 [ "$COOKIE_DOMAIN" = "." ] && COOKIE_DOMAIN=".$DOMAIN"
 export COOKIE_DOMAIN
-echo "DEBUG: DOMAIN=$DOMAIN, COOKIE_DOMAIN=$COOKIE_DOMAIN"
 
 # Generate Apache configuration from template based on environment variables
 echo "Generating Apache configuration with enabled services..."
@@ -937,12 +936,7 @@ check_and_remove_staging_cert() {
     local cert_path=$1
     local domain=$2
 
-    echo "[DEBUG] check_and_remove_staging_cert called for: $domain"
-
     if [ -f "$cert_path" ]; then
-        echo "[DEBUG] Certificate file exists: $cert_path"
-        echo "[DEBUG] Running openssl with 10s timeout..."
-
         # Use timeout to prevent openssl from hanging
         local cert_text=$(timeout 10 openssl x509 -in "$cert_path" -text -noout 2>/dev/null)
         local openssl_status=$?
@@ -953,11 +947,8 @@ check_and_remove_staging_cert() {
         fi
 
         if [ $openssl_status -ne 0 ]; then
-            echo "[DEBUG] openssl failed with status $openssl_status, assuming valid cert"
             return 1
         fi
-
-        echo "[DEBUG] Certificate text obtained, checking for staging indicators..."
 
         # Check for staging indicators: "Fake LE" in issuer, or "staging" in CN
         if echo "$cert_text" | grep -qi "Fake LE\|Staging\|staging"; then
@@ -970,7 +961,6 @@ check_and_remove_staging_cert() {
             return 1  # Certificate exists, assume production or valid
         fi
     fi
-    echo "[DEBUG] Certificate file does not exist: $cert_path"
     return 2  # No certificate found
 }
 
@@ -984,30 +974,19 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
     FORCE_RENEWAL=""
 
     if [ "$DASHBOARD_TEST" = "false" ]; then
-        echo "[DEBUG] DASHBOARD_TEST is false, calling check_and_remove_staging_cert..."
         set +e
         check_and_remove_staging_cert "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" "$DOMAIN"
         CERT_STATUS=$?
         set -e
-        echo "[DEBUG] Function returned with status: $CERT_STATUS"
 
         # If staging cert was found and removed, force renewal to get production cert
-        echo "[DEBUG] Checking CERT_STATUS value ($CERT_STATUS)..."
         if [ $CERT_STATUS -eq 0 ]; then
-            echo "[DEBUG] CERT_STATUS is 0 - staging cert was removed"
             echo "Requesting production certificate for $DOMAIN (staging removed)..."
             FORCE_RENEWAL="--force-renewal"
         elif [ $CERT_STATUS -eq 1 ]; then
-            echo "[DEBUG] CERT_STATUS is 1 - production cert exists"
             echo "✓ Production certificate already valid for $DOMAIN"
-        else
-            echo "[DEBUG] CERT_STATUS is $CERT_STATUS - unknown status"
         fi
-        echo "[DEBUG] if/elif block complete"
-    else
-        echo "[DEBUG] DASHBOARD_TEST is not false, skipping check_and_remove_staging_cert"
     fi
-    echo "[DEBUG] Certificate check section complete, FORCE_RENEWAL=$FORCE_RENEWAL"
 
     # Check if certificate needs generation/renewal
     if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ] || [ ! -z "$FORCE_RENEWAL" ]; then
@@ -1157,19 +1136,8 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
 fi
 
 # Fix certificate folder permissions (certbot creates dirs with 755, we need 777 for web server write access)
-echo "[PROGRESS] $(date '+%H:%M:%S') Fixing certificate folder permissions..."
 chmod -R 777 /etc/yahlp/certs
 echo "✓ Certificate permissions fixed"
-echo "[PROGRESS] Certificate permissions done - starting OAuth sections"
-
-# Handle Emby subdomain with separate OAuth if enabled (only for OAuth auth types)
-echo "[PROGRESS] Starting Emby OAuth Debug"
-echo "=== Emby OAuth Debug ==="
-echo "ENABLE_EMBY: $ENABLE_EMBY"
-echo "EMBY_DOMAIN: $EMBY_DOMAIN"
-echo "EMBY_REDIRECT_URI: $EMBY_REDIRECT_URI"
-echo "AUTHTYPE: $AUTHTYPE"
-echo ""
 
 if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
     echo ""
@@ -1267,16 +1235,6 @@ AUTHEOF
             ;;
     esac
 fi
-echo "[PROGRESS] Emby OAuth setup complete - continuing to Plex"
-
-# Handle Plex subdomain with separate OAuth if enabled (only for OAuth auth types)
-echo "[PROGRESS] Starting Plex OAuth Debug"
-echo "=== Plex OAuth Debug ==="
-echo "ENABLE_PLEX: $ENABLE_PLEX"
-echo "PLEX_DOMAIN: $PLEX_DOMAIN"
-echo "PLEX_REDIRECT_URI: $PLEX_REDIRECT_URI"
-echo "AUTHTYPE: $AUTHTYPE"
-echo ""
 
 if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
     echo ""
@@ -1446,12 +1404,8 @@ AUTHEOF
     esac
 fi
 
-echo "[PROGRESS] All OAuth sections complete - starting VirtualHost generation"
-
 # Generate Emby VirtualHost if enabled (public mode only)
 if [ "$ACCESS_MODE" = "public" ] && [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ]; then
-    echo "[PROGRESS] Generating Emby VirtualHost"
-    echo ""
     echo "=== Generating Emby VirtualHost ==="
 
     # Determine certificate path (subdomain cert, base domain cert, or main domain fallback)
@@ -1556,11 +1510,8 @@ else
     fi
 fi
 
-echo "[PROGRESS] VirtualHost generation complete - updating Apache configuration"
-
 # Update Apache configuration based on mode
 if [ "$ACCESS_MODE" = "private" ]; then
-    echo "[PROGRESS] Configuring for private mode (HTTP only)"
 
     # Normalize IP variable
     IP=$(echo "$IP" | xargs)
@@ -1587,29 +1538,17 @@ if [ "$ACCESS_MODE" = "private" ]; then
 
     mv /tmp/reverse-proxy.tmp /etc/apache2/sites-available/reverse-proxy.conf
 else
-    echo "[PROGRESS] Configuring for public mode (HTTPS)"
     echo "Configuring for public mode (HTTPS)"
     sed -i "s|@@DOMAIN@@|$DOMAIN|g" /etc/apache2/sites-available/reverse-proxy.conf
 fi
 
-echo "[PROGRESS] Apache config updated - setting up cron"
-
 # Setup cron for certificate renewal
-echo "[PROGRESS] Setting up certificate renewal cron job..."
-echo "Setting up certificate renewal cron job..."
 if ! crontab -l 2>/dev/null | grep -q "certbot renew"; then
     (crontab -l 2>/dev/null; echo "0 3 * * * /usr/bin/certbot renew --webroot --webroot-path $CERTBOT_WEBROOT --quiet && /usr/sbin/apache2ctl graceful") | crontab -
 fi
 
 # Start cron daemon
-echo "[PROGRESS] Starting cron daemon for certificate renewal..."
-echo "Starting cron daemon for certificate renewal..."
 service cron start
-echo "[PROGRESS] Cron daemon started - testing Apache config"
-
-# Test Apache configuration
-echo "[PROGRESS] Testing Apache configuration..."
-echo "Testing Apache configuration..."
 echo ""
 echo "=== Generated reverse-proxy.conf ===" 
 cat /etc/apache2/sites-available/reverse-proxy.conf
@@ -1620,13 +1559,11 @@ apache2ctl configtest || {
     exit 1
 }
 
-echo "[PROGRESS] Apache config test passed - starting Node proxy"
 echo "=== Starting Node.js API Proxy ==="
 cd /opt/proxy
 node proxy.js &
 PROXY_PID=$!
 echo "✓ API Proxy started (PID: $PROXY_PID)"
-echo "[PROGRESS] Node proxy started (PID: $PROXY_PID) - starting Apache"
 
 echo "=== Starting Apache ==="
 

@@ -163,7 +163,6 @@ docker run -d \
   -p 80:80 \
   -p 443:443 \
   -v ./config:/etc/yahlp \
-  -v ./appdata/logs:/var/log/apache2 \
   -e DOMAIN=yourdomain.com \
   -e EMAIL=admin@yourdomain.com \
   -e ACCESS_MODE=public \
@@ -171,6 +170,7 @@ docker run -d \
   -e SONARR_URL=http://sonarr:8989 \
   auskento/yahlp
 ```
+**Note:** Single volume mount to `/etc/yahlp` for all persistent data (config, certificates, logs, icons)
 
 **Create config folder first:**
 ```bash
@@ -249,8 +249,13 @@ YAHLP provides two templates for easy Unraid installation:
    - Add authentication details if needed
 
 4. **Configure Storage**
-   - Map `/etc/letsencrypt` to appdata location
-   - Map `/etc/yahlp` to config location
+   - Map `/etc/yahlp` to config location (single mount for everything: certificates, config, logs, icons)
+   - This single volume stores:
+     - `yahlp.json5` - Configuration file
+     - `certs/` - SSL certificates (auto-managed)
+     - `service_icons/` - Custom service icons
+     - `site_icons/` - Custom site icons
+     - `logs/` - Apache logs
 
 5. **Apply and Start**
    - Click "Apply"
@@ -270,10 +275,10 @@ If not using template:
      -e DOMAIN=yourdomain.com \
      -e EMAIL=admin@yourdomain.com \
      -e ACCESS_MODE=public \
-     -v /mnt/user/appdata/yahlp:/etc/letsencrypt \
-     -v /mnt/user/appdata/yahlp/config:/etc/yahlp \
+     -v /mnt/user/appdata/yahlp:/etc/yahlp \
      auskento/yahlp
    ```
+   **Important:** Only one volume mount needed for `/etc/yahlp` - it contains certificates, config, logs, and icon folders
 
 3. **Monitor Logs**
    - Unraid dashboard: Docker tab → yahlp container → Logs

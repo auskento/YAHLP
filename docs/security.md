@@ -15,14 +15,45 @@ YAHLP implements multiple layers of security to protect your homelab infrastruct
 - **Provider:** Let's Encrypt
 - **Renewal:** Automatic 30 days before expiration
 - **Certificates:** Stored in `/etc/letsencrypt/` volume
-- **Security:** TLS 1.2+ enforced, weak ciphers disabled
+- **Security:** TLS 1.2+ enforced, modern ECDHE ciphers, weak ciphers disabled
+- **Cipher Suites:** ECDHE (Elliptic Curve Diffie-Hellman Ephemeral) for forward secrecy
 
+#### Modern SSL/TLS Configuration
+```
+TLS Versions: 1.2 (minimum) and 1.3 (preferred)
+Protocols: -SSLv2 -SSLv3 -TLSv1 -TLSv1.1 (all disabled)
+
+Cipher Suites (in order of preference):
+- ECDHE-RSA-AES256-GCM-SHA384  (TLS 1.2/1.3, ECDHE, AES-256-GCM)
+- ECDHE-RSA-AES128-GCM-SHA256  (TLS 1.2/1.3, ECDHE, AES-128-GCM)
+- ECDHE-RSA-CHACHA20-POLY1305  (TLS 1.2/1.3, ECDHE, ChaCha20-Poly1305)
+
+Disabled Ciphers:
+- aNULL (no authentication)
+- MD5 (broken hash algorithm)
+- RC4 (weak stream cipher)
+- DES (too small key)
+```
+
+**Configuration (auto-applied):**
 ```bash
-# Verify certificate
+SSL_PROTOCOLS=all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+SSL_CIPHERS=HIGH:!aNULL:!MD5
+```
+
+#### Verify Configuration
+```bash
+# Verify certificate and dates
 docker exec -it yahlp openssl x509 -noout -dates -in /etc/letsencrypt/live/yourdomain.com/cert.pem
 
-# Check SSL protocols
+# Test SSL/TLS protocols and ciphers
 docker exec -it yahlp openssl s_client -connect localhost:443 -tls1_2
+
+# Verify ECDHE is enabled
+docker exec -it yahlp openssl s_client -connect localhost:443 -cipher "ECDHE"
+
+# Test with external tool (Mozilla SSL Configuration Generator)
+# Visit: https://ssl-config.mozilla.org/ to validate
 ```
 
 ### Manual HTTPS (Private Mode)

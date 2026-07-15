@@ -33,9 +33,13 @@
     SSLEngine on
     SSLCertificateFile /etc/letsencrypt/live/@@DOMAIN@@/fullchain.pem
     SSLCertificateKeyFile /etc/letsencrypt/live/@@DOMAIN@@/privkey.pem
-    SSLProtocol @@SSL_PROTOCOLS@@
-    SSLCipherSuite @@SSL_CIPHERS@@
-    SSLHonorCipherOrder on
+
+    # Protocol settings (Disables obsolete and vulnerable versions)
+    SSLProtocol all -SSLv3 -TLSv1 -TLSv1.1
+
+    # Cipher Suites (Enforces Perfect Forward Security and AEAD)
+    SSLCipherSuite ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305
+    SSLHonorCipherOrder off
     
     # Security Headers
     Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
@@ -175,9 +179,13 @@
     SSLEngine on
     SSLCertificateFile /etc/letsencrypt/live/@@DOMAIN@@/fullchain.pem
     SSLCertificateKeyFile /etc/letsencrypt/live/@@DOMAIN@@/privkey.pem
-    SSLProtocol @@SSL_PROTOCOLS@@
-    SSLCipherSuite @@SSL_CIPHERS@@
-    SSLHonorCipherOrder on
+
+    # Protocol settings (Disables obsolete and vulnerable versions)
+    SSLProtocol all -SSLv3 -TLSv1 -TLSv1.1
+
+    # Cipher Suites (Enforces Perfect Forward Security and AEAD)
+    SSLCipherSuite ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305
+    SSLHonorCipherOrder off
 
     DocumentRoot /var/www/html
     <Directory /var/www/html>

@@ -1,5 +1,55 @@
 # Upgrading YAHLP
 
+## Version Information
+
+YAHLP tracks version information in two ways:
+
+### VERSION File
+- **Location:** `/VERSION` in repository root
+- **Format:** Semantic versioning (e.g., `b.2.0.27`)
+- **Purpose:** Identifies the current build/release version
+- **Container Location:** Copied to `/etc/yahlp/VERSION` during Docker build
+
+**Reading Version in Running Container:**
+```bash
+# From host
+docker exec yahlp cat /VERSION
+
+# Or check mounted config
+cat ./config/VERSION
+
+# Check git version (if cloned)
+git describe --tags
+git log -1 --oneline
+```
+
+**Version Format:**
+- `b.2.0.27` = Build 2, Major version 0, Minor version 27
+- Always check VERSION before major upgrades
+- Build number increments on each release
+
+### Checking Current Version
+
+```bash
+# In container
+cat /VERSION
+
+# From host (if mounted)
+docker exec -it yahlp cat /etc/yahlp/VERSION
+
+# Via git (if cloned from repo)
+cd /path/to/yahlp
+git log -1 --oneline
+cat VERSION
+```
+
+**Example Output:**
+```
+b.2.0.27
+```
+
+---
+
 ## Before You Upgrade
 
 ### Backup Your Data

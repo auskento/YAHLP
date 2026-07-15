@@ -3,39 +3,32 @@
   // Quick Links/Sites Configuration (JSON5 Format)
   // ============================================================================
   //
-  // This file defines the quick link sites displayed in the dashboard sidebar.
+  // This file defines custom quick link sites displayed in the dashboard.
+  // Built-in torrent/usenet sites are configured via DASHBOARD_SITES env variable.
   //
   // To use this configuration:
   // 1. Copy this file to sites.json5
-  // 2. Add/remove/customize sites as needed
+  // 2. Add/remove/customize custom sites as needed
   // 3. Mount it in Docker: -v $(pwd)/sites.json5:/etc/yahlp/sites.json5
   //
-  // Sites are displayed as small icons in a row below the service menu.
-  // Each site has a name, URL, and icon URL.
+  // Each site displays as a small icon in the dashboard.
+  // Required fields: name, url, icon
+  // Optional fields: enabled (default: true if omitted)
+  //
+  // Icon URL can be:
+  //   - Full URL to favicon (e.g., https://example.com/favicon.ico)
+  //   - Data URL (inline SVG or PNG base64)
+  //   - Relative path if icons are mounted locally
   //
   // ============================================================================
 
   sites: [
+    // Example custom sites - modify or remove as needed
     {
       name: 'Google',
       url: 'https://google.com',
       icon: 'https://www.google.com/favicon.ico',
-    },
-    {
-      name: 'GitHub',
-      url: 'https://github.com',
-      icon: 'https://github.githubassets.com/favicon.ico',
-    },
-    {
-      name: 'Stack Overflow',
-      url: 'https://stackoverflow.com',
-      icon: 'https://stackoverflow.com/favicon.ico',
-    },
-    {
-      name: 'Google',
-      url: 'https://google.com',
-      icon: 'https://www.google.com/favicon.ico',
-      enabled: true,
+      enabled: true,  // Optional: true by default
     },
     {
       name: 'GitHub',
@@ -50,11 +43,18 @@
       enabled: true,
     },
 
-    // Add more sites as needed:
+    // Add more sites as needed - examples:
     // {
-    //   name: 'Example',
-    //   url: 'https://example.com',
-    //   icon: 'https://example.com/favicon.ico',
+    //   name: 'Router',
+    //   url: 'http://192.168.1.1',
+    //   icon: 'https://example.com/router.png',
+    //   enabled: true,
+    // },
+    // {
+    //   name: 'Wiki',
+    //   url: 'https://wiki.example.com',
+    //   icon: 'https://wiki.example.com/favicon.ico',
+    //   enabled: true,
     // },
   ],
 }

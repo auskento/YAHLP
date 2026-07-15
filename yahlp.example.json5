@@ -13,12 +13,21 @@
   domain: 'yourdomain.com',      // -e DOMAIN
   email: 'admin@yourdomain.com', // -e EMAIL
 
+  // Service-specific subdomains (optional - for public mode only)
+  plex_domain: 'plex.yourdomain.com',         // -e PLEX_DOMAIN
+  emby_domain: 'emby.yourdomain.com',         // -e EMBY_DOMAIN
+  seerr_domain: 'seerr.yourdomain.com',       // -e SEERR_DOMAIN
+  jackett_domain: '',                         // -e JACKETT_DOMAIN
+
   // Dashboard configuration
   dashboard: {
     name: 'YAHLP',               // -e DASHBOARD_NAME
     style: 'modern',             // -e DASHBOARD_STYLE  ('classic', 'modern', 'sleek', 'minimal')
     color: '#00A99D',            // -e DASHBOARD_COLOR
+    icon_url: '',                // -e DASHBOARD_ICON_URL  (Optional dashboard logo/icon URL)
+    theme: 'dark',               // -e DASHBOARD_THEME  ('dark', 'light')
     landing: '',                 // -e DASHBOARD_LANDING  (Empty = show all services)
+    windows: 'popout',           // -e DASHBOARD_WINDOWS  ('popout' = new window, 'newtab' = new tab)
     order: 'SAB,GET,HYD,TRA,QBI,DEL,PRO,JAC,SON,RAD,LID,WHI,SEE,BAZ,TAU,MNT,JEL,PLX,EMB', // -e DASHBOARD_ORDER
   },
 
@@ -97,11 +106,13 @@
   // Usernames (for services that use them)
   username: {
     nzbget: '',                  // -e NZBGET_USERNAME
+    jellyfin: '',                // -e JELLYFIN_USERNAME
   },
 
   // Passwords (for services that use them)
   password: {
     nzbget: '',                  // -e NZBGET_PASSWORD
+    jellyfin: '',                // -e JELLYFIN_PASSWORD
     transmission: '',            // -e TRANSMISSION_PASSWORD
     deluge: '',                  // -e DELUGE_PASSWORD
   },
@@ -115,27 +126,33 @@
   // System automatically loads SVG if available, falls back to PNG
 
   // Landing pages for services (e.g., 'sonarr/calendar')
+  // Optional: specify a default page when clicking service icon
   landing: {
-    sonarr: '',                  // -e SONARR_LANDING
-    radarr: '',                  // -e RADARR_LANDING
-    whisparr: '',                // -e WHISPARR_LANDING
+    sonarr: '',                  // -e SONARR_LANDING  (e.g., 'calendar', 'wanted/upcoming')
+    radarr: '',                  // -e RADARR_LANDING  (e.g., 'calendar', 'wanted/upcoming')
+    whisparr: '',                // -e WHISPARR_LANDING  (e.g., 'calendar', 'wanted/upcoming')
+    lidarr: '',                  // -e LIDARR_LANDING
   },
 
   // OAuth Configuration
   // Redirect URIs are automatically constructed from configured domains:
   //   - Google OAuth: https://domain/oauth2callback
-  //   - Entra OAuth: https://domain/oauth2callback
+  //   - Entra OAuth: https://domain/oauth2/callback
   //   - Seerr: https://SEERR_DOMAIN/oauth2callback (requires SEERR_DOMAIN env var)
   //   - Emby: https://EMBY_DOMAIN/oauth2callback (requires EMBY_DOMAIN env var)
   //   - Plex: https://PLEX_DOMAIN/oauth2callback (requires PLEX_DOMAIN env var)
   // No need to configure redirect_uri - it's auto-generated from the domain settings
   google: {
     client_id: '',               // -e GOOGLE_CLIENT_ID
+    // Session encryption passphrase (optional - auto-generated if not set)
+    crypto_passphrase: '',       // -e GOOGLE_CRYPTO_PASSPHRASE
     // redirect_uri auto-generated: https://domain/oauth2callback
   },
 
   entra: {
     client_id: '',               // -e ENTRA_CLIENT_ID
-    // redirect_uri auto-generated: https://domain/oauth2callback
+    // Session encryption passphrase (optional - auto-generated if not set)
+    crypto_passphrase: '',       // -e ENTRA_CRYPTO_PASSPHRASE
+    // redirect_uri auto-generated: https://domain/oauth2/callback
   },
 }

@@ -1,0 +1,282 @@
+version: '3.8'
+
+# ============================================================================
+# YAHLP Docker Compose Configuration Example
+# ============================================================================
+# This is a comprehensive example showing all available configuration options.
+# Copy to docker-compose.yml and customize for your deployment.
+#
+# For detailed documentation on each variable, see:
+#   - .env.example (environment variables)
+#   - yahlp.example.json5 (service configuration)
+#   - sites.example.json5 (custom quick links)
+# ============================================================================
+
+services:
+  apache-reverse-proxy:
+    build: .
+    container_name: apache-reverse-proxy
+    restart: unless-stopped
+
+    # Port mappings
+    ports:
+      - "80:80"         # HTTP (Let's Encrypt validation, private mode)
+      - "443:443"       # HTTPS (public mode, SSL/TLS)
+      - "3000:3000"     # Node.js API Proxy
+      - "[::]:80:80"    # IPv6 HTTP
+      - "[::]:443:443"  # IPv6 HTTPS
+      - "[::]:3000:3000" # IPv6 API Proxy
+
+    environment:
+      # ========================================================================
+      # DEPLOYMENT MODE (REQUIRED)
+      # ========================================================================
+      # Options: public (internet-facing with Let's Encrypt), private (LAN only, HTTP)
+      ACCESS_MODE: "public"
+
+      # ========================================================================
+      # DOMAIN & SSL CONFIGURATION (REQUIRED for public mode)
+      # ========================================================================
+      DOMAIN: "example.com"
+      EMAIL: "admin@example.com"
+
+      # Let's Encrypt test mode (use staging server, certificates are not valid)
+      # Set to false for production certificates
+      DASHBOARD_TEST: "true"
+
+      # ========================================================================
+      # PRIVATE MODE CONFIGURATION
+      # ========================================================================
+      # Uncomment and set if using private mode (ACCESS_MODE=private)
+      # IP: "192.168.1.100"
+      # TRUSTED_LAN_RANGE: "192.168.1.0/24 192.168.0.0/16"
+
+      # ========================================================================
+      # CONTAINER PERMISSIONS
+      # ========================================================================
+      # Process UID/GID for file ownership (defaults to 0:0)
+      # PUID: "1000"
+      # PGID: "1000"
+
+      # ========================================================================
+      # DASHBOARD CUSTOMIZATION
+      # ========================================================================
+      DASHBOARD_NAME: "YAHLP"
+      DASH_STYLE: "modern"               # Options: modern, classic, sleek, minimal
+      DASHBOARD_THEME: "dark"            # Options: dark, light
+      DASHBOARD_COLOR: "#1a1a1a"         # Menu background color (hex)
+      DASHBOARD_ICON_URL: ""             # Optional dashboard logo URL
+      DASHBOARD_LANDING: ""              # Optional: default page on load
+      DASHBOARD_WINDOWS: "popout"        # Options: popout, newtab
+
+      # Service display order (3-letter codes)
+      DASHBOARD_ORDER: "SAB,GET,HYD,TRA,QBI,DEL,PRO,JAC,SON,RAD,LID,WHI,SEE,BAZ,TAU,MNT,JEL,PLX,EMB"
+
+      # Built-in torrent/usenet sites (comma-separated codes)
+      # Torrent: TPB, FIL, HDB, IPT, 1337, YTS, LAT, NYA, PTP
+      # Usenet: DOG, DRS, NLF, NFW, NGK, PLA, TAB
+      DASHBOARD_SITES: ""
+
+      # ========================================================================
+      # AUTHENTICATION METHOD
+      # ========================================================================
+      # Options: none (default), basic, entra (Microsoft Entra ID), google
+      AUTHTYPE: "none"
+
+      # Basic Authentication (required if AUTHTYPE=basic)
+      # Format: "username:password|username2:password2"
+      BASIC_AUTH_CREDENTIALS: ""
+
+      # ========================================================================
+      # MICROSOFT ENTRA ID (AZURE AD) OAUTH2
+      # ========================================================================
+      # Required if AUTHTYPE=entra
+      ENTRA_CLIENT_ID: ""
+      ENTRA_CLIENT_SECRET: ""
+      ENTRA_PROVIDER_METADATA_URL: ""
+      ENTRA_CRYPTO_PASSPHRASE: ""  # Optional - auto-generated if not set
+
+      # ========================================================================
+      # GOOGLE OAUTH2
+      # ========================================================================
+      # Required if AUTHTYPE=google
+      GOOGLE_CLIENT_ID: ""
+      GOOGLE_CLIENT_SECRET: ""
+      GOOGLE_CRYPTO_PASSPHRASE: ""  # Optional - auto-generated if not set
+
+      # ========================================================================
+      # MEDIA SERVERS
+      # ========================================================================
+      # Jellyfin
+      JELLYFIN_ENABLED: "false"
+      JELLYFIN_URL: "http://jellyfin:8096"
+      JELLYFIN_API_KEY: ""
+      JELLYFIN_USERNAME: ""  # Optional: for remote library access
+      JELLYFIN_PASSWORD: ""  # Optional: for remote library access
+
+      # Plex
+      PLEX_ENABLED: "false"
+      PLEX_URL: "http://plex:32400"
+      PLEX_API_KEY: ""
+      PLEX_DOMAIN: ""  # Optional: custom subdomain for Plex
+
+      # Emby
+      EMBY_ENABLED: "false"
+      EMBY_URL: "http://emby:8096"
+      EMBY_API_KEY: ""
+      EMBY_DOMAIN: ""  # Optional: custom subdomain for Emby
+
+      # ========================================================================
+      # CONTENT MANAGERS (DVR/Automation)
+      # ========================================================================
+      # Sonarr (TV Shows)
+      SONARR_ENABLED: "false"
+      SONARR_URL: "http://sonarr:8989"
+      SONARR_API_KEY: ""
+      SONARR_LANDING: ""  # Optional: e.g., "calendar", "wanted/upcoming"
+
+      # Radarr (Movies)
+      RADARR_ENABLED: "false"
+      RADARR_URL: "http://radarr:7878"
+      RADARR_API_KEY: ""
+      RADARR_LANDING: ""  # Optional: e.g., "calendar"
+
+      # Lidarr (Music)
+      LIDARR_ENABLED: "false"
+      LIDARR_URL: "http://lidarr:8686"
+      LIDARR_API_KEY: ""
+      LIDARR_LANDING: ""  # Optional
+
+      # Whisparr (Adult)
+      WHISPARR_ENABLED: "false"
+      WHISPARR_URL: "http://whisparr:6969"
+      WHISPARR_API_KEY: ""
+      WHISPARR_LANDING: ""  # Optional
+
+      # ========================================================================
+      # INDEXERS & REQUEST MANAGERS
+      # ========================================================================
+      # Prowlarr (Indexer Manager)
+      PROWLARR_ENABLED: "false"
+      PROWLARR_URL: "http://prowlarr:9696"
+      PROWLARR_API_KEY: ""
+
+      # Jackett (Indexer Aggregator)
+      JACKETT_ENABLED: "false"
+      JACKETT_URL: "http://jackett:9117"
+      JACKETT_API_KEY: ""
+      JACKETT_DOMAIN: ""  # Optional: custom subdomain for Jackett
+
+      # Seerr (Request Manager)
+      SEERR_ENABLED: "false"
+      SEERR_URL: "http://seerr:5055"
+      SEERR_API_KEY: ""
+      SEERR_DOMAIN: ""  # Optional: custom subdomain for Seerr
+
+      # ========================================================================
+      # DOWNLOAD CLIENTS - TORRENT
+      # ========================================================================
+      # Transmission
+      TRANSMISSION_ENABLED: "false"
+      TRANSMISSION_URL: "http://transmission:9091"
+      TRANSMISSION_PASSWORD: ""  # Optional: RPC password
+
+      # qBittorrent
+      QBITTORRENT_ENABLED: "false"
+      QBITTORRENT_URL: "http://qbittorrent:8080"
+      QBITTORRENT_API_KEY: ""
+
+      # Deluge
+      DELUGE_ENABLED: "false"
+      DELUGE_URL: "http://deluge:8112"
+      DELUGE_PASSWORD: ""  # Optional: authentication password
+
+      # ========================================================================
+      # DOWNLOAD CLIENTS - USENET
+      # ========================================================================
+      # SABnzbd
+      SABNZBD_ENABLED: "false"
+      SABNZBD_URL: "http://sabnzbd:8080"
+      SABNZBD_API_KEY: ""
+
+      # NZBGet
+      NZBGET_ENABLED: "false"
+      NZBGET_URL: "http://nzbget:6789"
+      NZBGET_USERNAME: ""  # Optional
+      NZBGET_PASSWORD: ""  # Optional
+
+      # ========================================================================
+      # UTILITIES & METADATA
+      # ========================================================================
+      # NZBHydra (Usenet Meta Indexer)
+      NZBHYDRA_ENABLED: "false"
+      NZBHYDRA_URL: "http://nzbhydra:5076"
+      NZBHYDRA_API_KEY: ""
+
+      # Bazarr (Subtitle Manager)
+      BAZARR_ENABLED: "false"
+      BAZARR_URL: "http://bazarr:6767"
+      BAZARR_API_KEY: ""
+
+      # Tautulli (Plex Analytics)
+      TAUTULLI_ENABLED: "false"
+      TAUTULLI_URL: "http://tautulli:8181"
+      TAUTULLI_API_KEY: ""
+
+      # Maintainerr (Media Server Maintenance)
+      MAINTAINERR_ENABLED: "false"
+      MAINTAINERR_URL: "http://maintainerr:6246"
+      MAINTAINERR_API_KEY: ""
+
+      # ========================================================================
+      # SSL/TLS CONFIGURATION (Advanced)
+      # ========================================================================
+      SSL_PROTOCOLS: "all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1"
+      SSL_CIPHERS: "HIGH:!aNULL:!MD5"
+
+      # ========================================================================
+      # LOGGING
+      # ========================================================================
+      APACHE_LOG_LEVEL: "warn"  # Options: emerg, alert, crit, error, warn, notice, info, debug
+
+    # ========================================================================
+    # VOLUME MOUNTS
+    # ========================================================================
+    volumes:
+      # Config folder: stores certificates, configuration, templates, logs, icons
+      - ./config:/etc/yahlp
+
+      # Timezone synchronization (optional but recommended)
+      # Container will use host's timezone for logs and certificates
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
+      # Optional: Mount custom configuration files
+      # - ./yahlp.json5:/etc/yahlp/yahlp.json5:ro
+      # - ./sites.json5:/etc/yahlp/sites.json5:ro
+
+    networks:
+      - proxy-network
+
+    # ========================================================================
+    # HEALTH CHECK
+    # ========================================================================
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# ============================================================================
+# NETWORK CONFIGURATION
+# ============================================================================
+networks:
+  proxy-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "true"
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+        - subnet: 2001:db8::/32

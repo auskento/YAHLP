@@ -8,7 +8,8 @@ Customize the look, feel, and layout of your YAHLP dashboard.
 3. [Color & Appearance](#color--appearance)
 4. [Service Organization](#service-organization)
 5. [Landing Pages](#landing-pages)
-6. [Built-in Sites](#built-in-sites)
+6. [Service Window Behavior](#service-window-behavior)
+7. [Built-in Sites](#built-in-sites)
 
 ---
 
@@ -446,6 +447,92 @@ DASHBOARD_LANDING=radarr
 DASHBOARD_LANDING=jellyfin
 # When accessing dashboard, immediately shows Jellyfin library
 ```
+
+---
+
+## Service Window Behavior
+
+Control how service links open when clicked from the dashboard.
+
+### DASHBOARD_WINDOWS Options
+
+#### Popup Mode (Default)
+```bash
+DASHBOARD_WINDOWS=popout
+```
+Service links open in separate popup windows.
+
+**Benefits:**
+- Keep dashboard visible while browsing services
+- Multiple services open simultaneously
+- Easy task switching between services and dashboard
+
+**Best for:**
+- Multi-monitor setups
+- Power users managing multiple services
+- Desktop browsing
+
+**Behavior:**
+- First click opens popup in new window
+- Popup floats on top of dashboard
+- Can close popup and return to dashboard
+- Multiple service popups can be open
+
+#### New Tab Mode
+```bash
+DASHBOARD_WINDOWS=newtab
+```
+Service links open in new browser tabs.
+
+**Benefits:**
+- Cleaner browser tab management
+- Use browser tab switching for navigation
+- Familiar browser behavior
+- Better for single-monitor setups
+
+**Best for:**
+- Mobile and tablet browsing
+- Users familiar with tabbed navigation
+- Minimalist preference
+
+**Behavior:**
+- First click opens service in new tab
+- Dashboard tab remains in original tab
+- Use browser back button to return to dashboard
+- One service visible at a time
+
+### Default Behavior
+
+If not configured, YAHLP defaults to `popout` mode.
+
+```bash
+# Using defaults (no DASHBOARD_WINDOWS variable needed):
+# Service links open in popup windows
+```
+
+### Examples
+
+**Popup Windows (Keep Dashboard Visible):**
+```bash
+DASHBOARD_WINDOWS=popout  # Service links open in popups
+# Good for: managing multiple services simultaneously
+```
+
+**New Tab Mode (Single-Monitor Setup):**
+```bash
+DASHBOARD_WINDOWS=newtab  # Service links open in new tabs
+# Good for: mobile, tablet, or single-monitor desktop
+```
+
+### Browser Compatibility
+
+Both modes work with all modern browsers:
+- Chrome/Chromium ✅
+- Firefox ✅
+- Safari ✅
+- Edge ✅
+
+**Mobile Note:** Popup windows may behave differently on mobile (converting to new tabs).
 
 ---
 
