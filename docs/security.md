@@ -2,7 +2,7 @@
 
 ## Overview
 
-YAHLP implements multiple layers of security to protect your homelab infrastructure:
+YAHLP implements multiple layers of security to protect your homelab utilities:
 
 1. **Network Security** - Reverse proxy, TLS encryption, isolated containers
 2. **Authentication** - Basic auth, OAuth2 (Entra/Google), session management
