@@ -147,9 +147,9 @@ $OIDC_CONFIG
     SSLEngine on
     SSLCertificateFile /etc/letsencrypt/live/$CERT_PATH/fullchain.pem
     SSLCertificateKeyFile /etc/letsencrypt/live/$CERT_PATH/privkey.pem
-    SSLProtocol ${SSL_PROTOCOLS:-all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1}
-    SSLCipherSuite ${SSL_CIPHERS:-HIGH:!aNULL:!MD5}
-    SSLHonorCipherOrder on
+    SSLProtocol ${SSL_PROTOCOLS:-all -SSLv3 -TLSv1 -TLSv1.1}
+    SSLCipherSuite ${SSL_CIPHERS:-ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305}
+    SSLHonorCipherOrder off
 
     Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
     Header always set X-Content-Type-Options "nosniff"
