@@ -266,30 +266,76 @@ async function makeRequest(serviceKey, endpoint, options = {}) {
   return contentType?.includes('application/json') ? await response.json() : await response.text();
 }
 
-// Plex endpoints
+// Plex endpoints (handles both subdomain and folder-based)
 app.get('/api/plex/server', async (req, res) => {
   try {
     const cached = cache.get('plex-server');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('plex', '/identity');
+    const config = services['plex'];
+    if (!config || !config.url || !config.key) {
+      return res.status(404).json({ error: 'Plex not configured' });
+    }
+
+    const accessMode = (process.env.ACCESS_MODE || 'private').toLowerCase();
+    let finalUrl;
+
+    if (accessMode === 'public') {
+      // Public mode: Plex on subdomain, use internal URL at root
+      finalUrl = `${config.url}/identity?X-Plex-Token=${encodeURIComponent(config.key)}`;
+    } else {
+      // Private mode: use config.url as-is (folder-based or internal)
+      finalUrl = `${config.url}/identity?X-Plex-Token=${encodeURIComponent(config.key)}`;
+    }
+
+    const response = await fetch(finalUrl);
+    if (!response.ok) {
+      throw new Error(`Plex returned ${response.status}`);
+    }
+
+    const data = await response.json();
     cache.set('plex-server', data);
     res.json(data);
   } catch (err) {
+    console.error('[Plex Health Check Exception]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Seerr endpoints
+// Seerr endpoints (handles both subdomain and folder-based)
 app.get('/api/seerr/status', async (req, res) => {
   try {
     const cached = cache.get('seerr-status');
     if (cached) return res.json(cached);
 
-    const data = await makeRequest('seerr', '/api/v1/status');
+    const config = services['seerr'];
+    if (!config || !config.url || !config.key) {
+      return res.status(404).json({ error: 'Seerr not configured' });
+    }
+
+    const accessMode = (process.env.ACCESS_MODE || 'private').toLowerCase();
+    let finalUrl;
+
+    if (accessMode === 'public') {
+      // Public mode: Seerr on subdomain, use internal URL at root
+      finalUrl = `${config.url}/api/v1/status`;
+    } else {
+      // Private mode: use config.url as-is (folder-based or internal)
+      finalUrl = `${config.url}/api/v1/status`;
+    }
+
+    const headers = { 'X-Api-Key': config.key };
+    const response = await fetch(finalUrl, { headers });
+
+    if (!response.ok) {
+      throw new Error(`Seerr returned ${response.status}`);
+    }
+
+    const data = await response.json();
     cache.set('seerr-status', data);
     res.json(data);
   } catch (err) {
+    console.error('[Seerr Health Check Exception]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
