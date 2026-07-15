@@ -381,13 +381,13 @@ app.get('/api/jackett/health', async (req, res) => {
 
     // Determine health check URL based on deployment mode
     let healthUrl;
-    const jacketDomain = process.env.JACKETT_DOMAIN;
+    const accessMode = (process.env.ACCESS_MODE || 'private').toLowerCase();
 
-    if (jacketDomain) {
-      // Subdomain mode: query Jackett internal URL at root (proxy serves at /)
+    if (accessMode === 'public') {
+      // Public mode: Jackett on subdomain, use internal URL at root (proxy serves at /)
       healthUrl = `${config.url}/api/v2.0/indexers/all/results?apikey=${encodeURIComponent(config.key)}&Query=test`;
     } else {
-      // Folder-based mode: use internal URL with /jackett path
+      // Private mode: folder-based, use internal URL with /jackett path
       healthUrl = `${config.url}/jackett/api/v2.0/indexers/all/results?apikey=${encodeURIComponent(config.key)}&Query=test`;
     }
 
@@ -948,21 +948,18 @@ app.get('/api/emby/info', async (req, res) => {
       return res.status(404).json({ error: 'Emby not configured' });
     }
 
-    // For subdomain mode, use internal URL at root; folder-based uses config.url
-    const embyDomain = process.env.EMBY_DOMAIN;
-    let endpoint = '/System/Info';
-    let baseUrl = config.url;
+    // Determine health check URL based on deployment mode
+    const accessMode = (process.env.ACCESS_MODE || 'private').toLowerCase();
+    let finalUrl;
 
-    // Subdomain mode: use internal URL, Emby serves at root
-    if (embyDomain && config.url.startsWith('http://')) {
-      // Already using internal URL, just use it as-is
-      baseUrl = config.url;
-    } else if (embyDomain && !config.url.startsWith('http://')) {
-      // If config.url is a domain, construct internal URL
-      baseUrl = `http://emby:5000`;
+    if (accessMode === 'public') {
+      // Public mode: Emby on subdomain, use internal URL at root
+      finalUrl = `${config.url}/System/Info?api_key=${encodeURIComponent(config.key)}`;
+    } else {
+      // Private mode: use config.url as-is (folder-based or internal)
+      finalUrl = `${config.url}/System/Info?api_key=${encodeURIComponent(config.key)}`;
     }
 
-    const finalUrl = `${baseUrl}${endpoint}?api_key=${encodeURIComponent(config.key)}`;
     const response = await fetch(finalUrl);
 
     if (!response.ok) {
