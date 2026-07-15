@@ -282,13 +282,15 @@ app.get('/api/plex/server', async (req, res) => {
 
     if (accessMode === 'public') {
       // Public mode: Plex on subdomain, use internal URL at root
-      finalUrl = `${config.url}/identity?X-Plex-Token=${encodeURIComponent(config.key)}`;
+      finalUrl = `${config.url}/identity?X-Plex-Token=${encodeURIComponent(config.key)}&format=json`;
     } else {
       // Private mode: use config.url as-is (folder-based or internal)
-      finalUrl = `${config.url}/identity?X-Plex-Token=${encodeURIComponent(config.key)}`;
+      finalUrl = `${config.url}/identity?X-Plex-Token=${encodeURIComponent(config.key)}&format=json`;
     }
 
-    const response = await fetch(finalUrl);
+    const response = await fetch(finalUrl, {
+      headers: { 'Accept': 'application/json' }
+    });
     if (!response.ok) {
       throw new Error(`Plex returned ${response.status}`);
     }
