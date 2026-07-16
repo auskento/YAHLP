@@ -153,11 +153,12 @@ if [ ! -f /etc/yahlp/yahlp.json5 ]; then
     done
 
     # Use defaults if no services detected
+    # When no services are configured, don't enable any by default - let user configure
     if [ -z "$SERVICES_ENABLED_JSON" ]; then
-        SERVICES_ENABLED_JSON="    jellyfin: true,"$'\n'"    plex: false,"$'\n'"    emby: false,"$'\n'"    sonarr: false,"$'\n'"    radarr: false"
+        SERVICES_ENABLED_JSON=""
     fi
     if [ -z "$SERVICES_URL_JSON" ]; then
-        SERVICES_URL_JSON="    jellyfin: 'http://jellyfin:8096',"$'\n'"    plex: 'http://plex:32400'"
+        SERVICES_URL_JSON=""
     fi
 
     cat > /etc/yahlp/yahlp.json5 << JSONEOF
