@@ -1587,6 +1587,17 @@ for vhost in /etc/apache2/sites-available/*vhost*.conf; do
     fi
 done
 
+# Check for staging certificates in custom domains when switching from TEST to production
+if [ "$ACCESS_MODE" = "public" ] && [ "$DASHBOARD_TEST" = "false" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
+    echo ""
+    echo "Checking for staging certificates in custom domains..."
+    for domain in $CUSTOM_DOMAINS; do
+        set +e
+        check_and_remove_staging_cert "/etc/letsencrypt/live/$domain/fullchain.pem" "$domain"
+        set -e
+    done
+fi
+
 # Request SSL certificates for custom domains BEFORE enabling vhosts
 if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
     echo ""
