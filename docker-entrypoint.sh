@@ -611,6 +611,17 @@ if [ "$DASHBOARD_TEST" = "true" ]; then
     echo "⚠ TEST mode enabled - using Let's Encrypt staging server (insecure test certificates)"
 else
     echo "✓ Production mode - certificates will be issued from production Let's Encrypt"
+
+    # Clean up staging accounts when switching from TEST to production mode
+    if [ -d "/etc/letsencrypt/accounts" ]; then
+        staging_accounts=$(find /etc/letsencrypt/accounts -type d -name "*staging*" 2>/dev/null)
+        if [ ! -z "$staging_accounts" ]; then
+            echo "Cleaning up staging accounts..."
+            echo "$staging_accounts" | while read staging_dir; do
+                rm -rf "$staging_dir" 2>/dev/null && echo "  ✓ Removed: $staging_dir"
+            done
+        fi
+    fi
 fi
 
 echo ""
