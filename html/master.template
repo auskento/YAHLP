@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <footer class="app-footer">
   <div class="footer-left">
-    <a href="/" onclick="return goHome(event)" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; cursor: pointer;">
+    <a href="/" onclick="return goHome(event)" id="footerHomeBtn" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; cursor: pointer;" title="Home">
       <img src="@@DASHBOARD_ICON@@" alt="Dashboard" class="footer-icon">
       <span class="footer-name">@@DASHBOARD_NAME@@</span>
     </a>
@@ -497,6 +497,17 @@ async function loadDashboard() {
         configuredServices = health.services || {};
     } catch (err) {
         console.warn('[Health Check] Could not verify configured services:', err);
+    }
+
+    // Update footer tooltip with unconfigured services count
+    const unconfiguredCount = Object.values(configuredServices).filter(s => !s?.configured).length;
+    const footerBtn = document.getElementById('footerHomeBtn');
+    if (footerBtn) {
+        if (unconfiguredCount > 0) {
+            footerBtn.title = `${unconfiguredCount} service${unconfiguredCount !== 1 ? 's' : ''} incomplete - missing credentials`;
+        } else {
+            footerBtn.title = 'Home';
+        }
     }
 
     const app = document.querySelector('.app');
