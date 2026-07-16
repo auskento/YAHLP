@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Disable default Apache sites that conflict with YAHLP configuration
+a2dissite 000-default.conf default-ssl.conf 2>/dev/null || true
+
 # Ensure config folder exists (required for all deployments)
 if [ ! -d /etc/yahlp ]; then
     echo "ERROR: Config folder not mounted to /etc/yahlp"
