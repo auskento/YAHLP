@@ -1590,7 +1590,8 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
 
         if [ ! -f "/etc/letsencrypt/live/$domain/fullchain.pem" ]; then
             echo "  Requesting certificate for: $domain"
-            certbot certonly \
+            set +e
+            certbot_output=$(certbot certonly \
                 --webroot \
                 --webroot-path "$CERTBOT_WEBROOT" \
                 --email "$EMAIL" \
@@ -1598,7 +1599,16 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
                 --no-eff-email \
                 --non-interactive \
                 $([ "$DASHBOARD_TEST" = "true" ] && echo "--staging" || echo "") \
-                -d "$domain" 2>&1 | grep -E "(Successfully received|ERROR|FAILED|Renewal)" || true
+                -d "$domain" 2>&1)
+            certbot_status=$?
+            set -e
+
+            if [ $certbot_status -eq 0 ]; then
+                echo "    ✓ Certificate requested successfully"
+            else
+                echo "    ⚠ Certificate request status: $certbot_status"
+                echo "    Output: $certbot_output" | head -5
+            fi
         else
             echo "  ✓ Certificate exists for: $domain"
         fi
