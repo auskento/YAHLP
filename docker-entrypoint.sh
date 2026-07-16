@@ -1557,6 +1557,7 @@ service cron start
 
 # Auto-enable all VirtualHost configuration files in sites-available
 echo "Enabling VirtualHost configurations..."
+CUSTOM_DOMAINS=""
 for vhost in /etc/apache2/sites-available/*.conf; do
     filename=$(basename "$vhost" .conf)
     # Skip reverse-proxy (already enabled) and template files
@@ -1564,9 +1565,39 @@ for vhost in /etc/apache2/sites-available/*.conf; do
         if [ -f "$vhost" ]; then
             a2ensite "$filename" 2>/dev/null || true
             echo "  ✓ Enabled: $filename"
+
+            # Extract ServerName from vhost for SSL certificate generation
+            if [ "$ACCESS_MODE" = "public" ]; then
+                domain=$(grep -oP '(?<=ServerName\s)\S+' "$vhost" | head -1)
+                if [ ! -z "$domain" ] && [ "$domain" != "$DOMAIN" ]; then
+                    CUSTOM_DOMAINS="$CUSTOM_DOMAINS $domain"
+                fi
+            fi
         fi
     fi
 done
+
+# Request SSL certificates for custom domains if in public mode
+if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
+    echo ""
+    echo "Requesting SSL certificates for custom service domains..."
+    for domain in $CUSTOM_DOMAINS; do
+        if [ ! -f "/etc/letsencrypt/live/$domain/fullchain.pem" ]; then
+            echo "  Requesting certificate for: $domain"
+            certbot certonly \
+                --webroot \
+                --webroot-path "$CERTBOT_WEBROOT" \
+                --email "$EMAIL" \
+                --agree-tos \
+                --no-eff-email \
+                --non-interactive \
+                $([ "$DASHBOARD_TEST" = "true" ] && echo "--staging" || echo "") \
+                -d "$domain" 2>&1 | grep -E "(Successfully received|ERROR|FAILED)" || true
+        else
+            echo "  ✓ Certificate exists for: $domain"
+        fi
+    done
+fi
 
 echo ""
 echo "=== Generated reverse-proxy.conf ==="
