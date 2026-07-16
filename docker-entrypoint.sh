@@ -1605,14 +1605,18 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
             # Get the most recent certbot account (highest timestamp)
             account_id=$(certbot accounts list 2>/dev/null | grep -oP '^\d+\s+\K\S+' | tail -1)
 
+            # Stop Apache temporarily to use standalone authenticator for new certs
+            # (standalone doesn't require Apache running, but can't run while Apache is listening on port 80)
+            echo "    Stopping Apache temporarily for certificate request..."
+            apache2ctl stop 2>/dev/null || true
+            sleep 2
+
             certbot_output=$(certbot certonly \
-                --webroot \
-                --webroot-path "$CERTBOT_WEBROOT" \
+                --standalone \
                 --email "$EMAIL" \
                 --agree-tos \
                 --no-eff-email \
                 --non-interactive \
-                --expand \
                 $([ ! -z "$account_id" ] && echo "--account $account_id" || echo "") \
                 $([ "$DASHBOARD_TEST" = "true" ] && echo "--staging" || echo "") \
                 -d "$domain" 2>&1)
