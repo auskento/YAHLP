@@ -100,6 +100,7 @@ Start with the [Installation Guide](docs/installation.md) for detailed setup ins
 
 ### Using & Managing
 - [**Dashboard Customization**](docs/dashboard-customization.md) — Layouts, themes, service ordering, custom CSS
+- [**Custom Services**](docs/custom-services.md) — Add optional services via VirtualHost files without code changes
 - [**Troubleshooting**](docs/troubleshooting.md) — Common issues, error messages, solutions
 - [**Upgrading**](docs/upgrading.md) — Version updates, breaking changes, rollback procedures
 - [**Backup & Restore**](docs/backup-restore.md) — Data persistence, disaster recovery, test procedures
