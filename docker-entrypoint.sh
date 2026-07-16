@@ -1591,6 +1591,9 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
         if [ ! -f "/etc/letsencrypt/live/$domain/fullchain.pem" ]; then
             echo "  Requesting certificate for: $domain"
             set +e
+            # Get the most recent certbot account (highest timestamp)
+            account_id=$(certbot accounts list 2>/dev/null | grep -oP '^\d+\s+\K\S+' | tail -1)
+
             certbot_output=$(certbot certonly \
                 --webroot \
                 --webroot-path "$CERTBOT_WEBROOT" \
@@ -1599,6 +1602,7 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
                 --no-eff-email \
                 --non-interactive \
                 --expand \
+                $([ ! -z "$account_id" ] && echo "--account $account_id" || echo "") \
                 $([ "$DASHBOARD_TEST" = "true" ] && echo "--staging" || echo "") \
                 -d "$domain" 2>&1)
             certbot_status=$?
