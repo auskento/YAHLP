@@ -115,8 +115,6 @@ echo "✓ Icon configuration guide available: /etc/yahlp/ICON_CONFIGURATION.md"
 # 3. Any -e environment variables passed to Docker override these defaults
 # 4. If no yahlp.json5, use environment variables only
 
-echo "=== Configuration Loading ==="
-
 # Generate example yahlp.json5 on first run if it doesn't exist
 if [ ! -f /etc/yahlp/yahlp.json5 ]; then
     echo "Creating example yahlp.json5 configuration file..."
@@ -486,8 +484,6 @@ if [ ! -z "$EMBY_DOMAIN" ]; then
 fi
 
 echo ""
-echo "=== Environment Configuration Loaded ==="
-echo ""
 
 # Source env.conf to load defaults for variables not set in environment
 # Use set -a to export all variables so they're available to child processes
@@ -502,9 +498,6 @@ chmod 775 /etc/yahlp || {
 }
 
 # Setup templates folder in config directory (users need write access for custom templates)
-echo ""
-echo "=== Setting up Config Templates ==="
-
 # Create templates folder if it doesn't exist
 if [ ! -d /etc/yahlp/templates ]; then
     mkdir -p /etc/yahlp/templates || {
@@ -1664,14 +1657,12 @@ for vhost in /etc/apache2/sites-available/*vhost*.conf; do
 done
 
 echo ""
-echo "=== Generated reverse-proxy.conf ==="
-cat /etc/apache2/sites-available/reverse-proxy.conf
-echo "===================================="
-echo ""
 apache2ctl configtest || {
     echo "Apache configuration error!"
+    echo "Config file: /etc/apache2/sites-available/reverse-proxy.conf"
     exit 1
 }
+echo "✓ Apache configuration valid"
 
 echo "=== Starting Node.js API Proxy ==="
 cd /opt/proxy
