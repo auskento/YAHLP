@@ -19,7 +19,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libapache2-mod-auth-openidc \
     nodejs \
     npm \
-    supervisor \
     && rm -rf /var/lib/apt/lists/*
 
 # Enable IPv6
@@ -97,9 +96,6 @@ COPY VERSION /app/
 COPY ICON_CONFIGURATION.md /app/
 RUN mkdir -p /app && chmod 644 /app/VERSION /app/ICON_CONFIGURATION.md
 
-# Copy supervisord configuration
-COPY supervisord.conf /etc/supervisor/conf.d/yahlp.conf
-
 # Create renewal check script
 RUN mkdir -p /etc/cron.d
 COPY cert-renewal-cron /etc/cron.d/certbot-renewal
@@ -113,4 +109,3 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost/health || exit 1
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/yahlp.conf"]
