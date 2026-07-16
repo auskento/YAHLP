@@ -496,11 +496,19 @@ async function loadDashboard() {
     // Count ENABLED services that are NOT configured (missing credentials)
     // Map service names to check if they're in SERVICES array (enabled)
     const enabledServiceNames = SERVICES.map(s => s.name.toLowerCase());
+    console.log('[Tooltip Debug] SERVICES:', SERVICES);
+    console.log('[Tooltip Debug] enabledServiceNames:', enabledServiceNames);
+    console.log('[Tooltip Debug] configuredServices:', configuredServices);
+
     const incompleteEnabledCount = Object.entries(configuredServices)
         .filter(([serviceName, status]) => {
-            // Only count if service is enabled AND not configured
-            return enabledServiceNames.includes(serviceName.toLowerCase()) && !status?.configured;
+            const isEnabled = enabledServiceNames.includes(serviceName.toLowerCase());
+            const isNotConfigured = !status?.configured;
+            console.log(`[Tooltip Debug] ${serviceName}: enabled=${isEnabled}, notConfigured=${isNotConfigured}`);
+            return isEnabled && isNotConfigured;
         }).length;
+
+    console.log('[Tooltip Debug] incompleteEnabledCount:', incompleteEnabledCount);
 
     // Update footer tooltip with incomplete enabled services count
     const footerBtn = document.getElementById('footerHomeBtn');
@@ -510,6 +518,9 @@ async function loadDashboard() {
         } else {
             footerBtn.title = 'Home';
         }
+        console.log('[Tooltip Debug] Set button title to:', footerBtn.title);
+    } else {
+        console.warn('[Tooltip Debug] footerHomeBtn not found');
     }
 
     const app = document.querySelector('.app');
