@@ -1559,8 +1559,10 @@ else
 fi
 
 # Setup cron for certificate renewal
+# Use --pre-hook and --post-hook to stop/start Apache for --standalone authenticator
+# certbot renew will use the correct authenticator for each cert (--webroot for main, --standalone for custom domains)
 if ! crontab -l 2>/dev/null | grep -q "certbot renew"; then
-    (crontab -l 2>/dev/null; echo "0 3 * * * /usr/bin/certbot renew --webroot --webroot-path $CERTBOT_WEBROOT --quiet && /usr/sbin/apache2ctl graceful") | crontab -
+    (crontab -l 2>/dev/null; echo "0 3 * * * /usr/bin/certbot renew --pre-hook 'apache2ctl stop' --post-hook 'apache2ctl start' --quiet") | crontab -
 fi
 
 # Start cron daemon
