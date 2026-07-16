@@ -1566,17 +1566,14 @@ fi
 # Start cron daemon
 service cron start
 
-# Auto-enable all VirtualHost configuration files in sites-available
-echo "Enabling VirtualHost configurations..."
+# First pass: Collect custom domains from vhost files WITHOUT enabling them yet
+echo "Collecting custom service domains..."
 CUSTOM_DOMAINS=""
 for vhost in /etc/apache2/sites-available/*.conf; do
     filename=$(basename "$vhost" .conf)
     # Skip reverse-proxy (already enabled) and template files
     if [ "$filename" != "reverse-proxy" ] && [ ! "$filename" = *".template" ]; then
         if [ -f "$vhost" ]; then
-            a2ensite "$filename" 2>/dev/null || true
-            echo "  ✓ Enabled: $filename"
-
             # Extract ServerName from vhost for SSL certificate generation
             if [ "$ACCESS_MODE" = "public" ]; then
                 domain=$(grep -E '^\s*ServerName\s+' "$vhost" | grep -oE '[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' | head -1)
@@ -1588,7 +1585,7 @@ for vhost in /etc/apache2/sites-available/*.conf; do
     fi
 done
 
-# Request SSL certificates for custom domains if in public mode
+# Request SSL certificates for custom domains BEFORE enabling vhosts
 if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
     echo ""
     echo "Requesting SSL certificates for custom service domains..."
@@ -1640,6 +1637,20 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
         fi
     done
 fi
+
+# Second pass: Now enable all vhost files (after certificates have been requested)
+echo ""
+echo "Enabling VirtualHost configurations..."
+for vhost in /etc/apache2/sites-available/*.conf; do
+    filename=$(basename "$vhost" .conf)
+    # Skip reverse-proxy (already enabled) and template files
+    if [ "$filename" != "reverse-proxy" ] && [ ! "$filename" = *".template" ]; then
+        if [ -f "$vhost" ]; then
+            a2ensite "$filename" 2>/dev/null || true
+            echo "  ✓ Enabled: $filename"
+        fi
+    fi
+done
 
 echo ""
 echo "=== Generated reverse-proxy.conf ==="
