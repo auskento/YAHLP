@@ -271,11 +271,6 @@ async function initDelugeSession() {
     }
 }
 
-// Only initialize Deluge session if Deluge is enabled
-if (SERVICES.some(s => s.name.toLowerCase() === 'deluge')) {
-    initDelugeSession();
-}
-
 async function initJellyfinAuth() {
     try {
         const response = await fetch(`/api/jellyfin/auth`);
@@ -292,11 +287,6 @@ async function initJellyfinAuth() {
     } catch (err) {
         console.error('Jellyfin auth fetch error:', err);
     }
-}
-
-// Only initialize Jellyfin auth if Jellyfin is enabled
-if (SERVICES.some(s => s.name.toLowerCase() === 'jellyfin')) {
-    initJellyfinAuth();
 }
 
 function updateDateTime() {
@@ -893,6 +883,14 @@ async function checkConfiguredServices() {
     await buildServiceMenu();
     await buildSitesGrid();
     adjustIconSizes();
+
+    // Initialize Deluge and Jellyfin only if they're enabled
+    if (SERVICES.some(s => s.name.toLowerCase() === 'deluge')) {
+        initDelugeSession();
+    }
+    if (SERVICES.some(s => s.name.toLowerCase() === 'jellyfin')) {
+        initJellyfinAuth();
+    }
 
     const layout = document.querySelector('.app')?.getAttribute('data-layout');
     const isFocusLayout = layout === 'focus';
