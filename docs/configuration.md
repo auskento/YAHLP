@@ -955,3 +955,5 @@ DASHBOARD_SITES=YTS,TPB,DOG
 ```
 
 For service-specific setup details, see [SERVICES.md](SERVICES.md).
+
+For adding custom services via VirtualHost files, see [CUSTOM-SERVICES.md](custom-services.md).
