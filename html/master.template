@@ -482,6 +482,24 @@ window.addEventListener('resize', () => {
     calculateDynamicIconSize();
 });
 
+// Update home button tooltip with count of incomplete services
+function updateHomeButtonTooltip(configuredServices) {
+    const enabledServiceNames = SERVICES.map(s => s.name.toLowerCase());
+    const incompleteEnabledCount = Object.entries(configuredServices)
+        .filter(([serviceName, status]) => {
+            return enabledServiceNames.includes(serviceName.toLowerCase()) && !status?.configured;
+        }).length;
+
+    const footerBtn = document.getElementById('footerHomeBtn');
+    if (footerBtn) {
+        if (incompleteEnabledCount > 0) {
+            footerBtn.title = `${incompleteEnabledCount} service${incompleteEnabledCount !== 1 ? 's' : ''} need credentials`;
+        } else {
+            footerBtn.title = 'Home';
+        }
+    }
+}
+
 async function loadDashboard() {
     // Get health status to know which services are configured
     let configuredServices = {};
@@ -493,35 +511,8 @@ async function loadDashboard() {
         console.warn('[Health Check] Could not verify configured services:', err);
     }
 
-    // Count ENABLED services that are NOT configured (missing credentials)
-    // Map service names to check if they're in SERVICES array (enabled)
-    const enabledServiceNames = SERVICES.map(s => s.name.toLowerCase());
-    console.log('[Tooltip Debug] SERVICES:', SERVICES);
-    console.log('[Tooltip Debug] enabledServiceNames:', enabledServiceNames);
-    console.log('[Tooltip Debug] configuredServices:', configuredServices);
-
-    const incompleteEnabledCount = Object.entries(configuredServices)
-        .filter(([serviceName, status]) => {
-            const isEnabled = enabledServiceNames.includes(serviceName.toLowerCase());
-            const isNotConfigured = !status?.configured;
-            console.log(`[Tooltip Debug] ${serviceName}: enabled=${isEnabled}, notConfigured=${isNotConfigured}`);
-            return isEnabled && isNotConfigured;
-        }).length;
-
-    console.log('[Tooltip Debug] incompleteEnabledCount:', incompleteEnabledCount);
-
     // Update footer tooltip with incomplete enabled services count
-    const footerBtn = document.getElementById('footerHomeBtn');
-    if (footerBtn) {
-        if (incompleteEnabledCount > 0) {
-            footerBtn.title = `${incompleteEnabledCount} service${incompleteEnabledCount !== 1 ? 's' : ''} need credentials`;
-        } else {
-            footerBtn.title = 'Home';
-        }
-        console.log('[Tooltip Debug] Set button title to:', footerBtn.title);
-    } else {
-        console.warn('[Tooltip Debug] footerHomeBtn not found');
-    }
+    updateHomeButtonTooltip(configuredServices);
 
     const app = document.querySelector('.app');
     const layout = app?.getAttribute('data-layout');
@@ -922,6 +913,9 @@ async function checkConfiguredServices() {
         const response = await fetch(`/health`);
         const health = await response.json();
         const hasAnyConfigured = Object.values(health.services || {}).some(s => s.configured);
+
+        // Update tooltip with count of services needing credentials
+        updateHomeButtonTooltip(health.services || {});
 
         // Show welcome screen if NO services are configured (missing credentials)
         // OR if no services are enabled at all
