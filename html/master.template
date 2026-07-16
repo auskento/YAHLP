@@ -529,7 +529,7 @@ async function loadDashboard() {
     let html = '';
 
     if (isFocusLayout) {
-        // For focus layout: show full panels for configured, icons for unconfigured
+        // For focus layout: show full panels for configured services only
         const statusMap = new Map(statuses.filter(s => s).map(s => [s.name.toLowerCase(), s]));
 
         SERVICES.forEach(app => {
@@ -538,8 +538,8 @@ async function loadDashboard() {
 
             const status = statusMap.get(app.name.toLowerCase());
 
+            // Only render configured services - show full panel
             if (status) {
-                // Configured service - show full panel
                 const isOnline = status.status === 'Online';
                 const statusClass = isOnline ? 'online' : 'offline';
                 html += `
@@ -562,17 +562,11 @@ async function loadDashboard() {
                         `).join('')}
                     </div>
                 `;
-            } else {
-                // Unconfigured service - show icon only
-                html += `
-                    <div class="service-icon-only" data-service-name="${app.name}" data-service-icon="${app.icon}" title="Not configured">
-                        <img src="${getIconPath(app.icon)}" alt="${app.name}" />
-                    </div>
-                `;
             }
+            // Skip unconfigured services - don't show them at all
         });
     } else {
-        // Standard layout: show all services (configured and unconfigured)
+        // Standard layout: show only configured services
         const statusMap = new Map(statuses.filter(s => s).map(s => [s.name.toLowerCase(), s]));
 
         SERVICES.forEach(app => {
@@ -581,6 +575,7 @@ async function loadDashboard() {
 
             const status = statusMap.get(app.name.toLowerCase());
 
+            // Only render services that are configured (have full status)
             if (status) {
                 // Configured service - show full panel with status
                 const isOnline = status.status === 'Online';
@@ -605,23 +600,8 @@ async function loadDashboard() {
                         `).join('')}
                     </div>
                 `;
-            } else {
-                // Unconfigured service - show panel with "Not Configured" status
-                html += `
-                    <div class="service-card service-card-unconfigured" title="Not configured - add API key to enable">
-                        <div class="service-card-header">
-                            <div class="service-card-icon">
-                                <img src="${getIconPath(app.icon)}" alt="${app.name}" />
-                            </div>
-                            <div class="service-card-title">${app.name}</div>
-                            <div class="service-card-status">
-                                <span class="status-dot offline"></span>
-                                Not Configured
-                            </div>
-                        </div>
-                    </div>
-                `;
             }
+            // Skip unconfigured services - don't show them at all
         });
     }
 
