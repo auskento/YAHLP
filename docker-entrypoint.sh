@@ -1572,19 +1572,16 @@ fi
 service cron start
 
 # First pass: Collect custom domains from vhost files WITHOUT enabling them yet
+# Only process files with "vhost" in the name
 echo "Collecting custom service domains..."
 CUSTOM_DOMAINS=""
-for vhost in /etc/apache2/sites-available/*.conf; do
-    filename=$(basename "$vhost" .conf)
-    # Skip reverse-proxy (already enabled) and template files
-    if [ "$filename" != "reverse-proxy" ] && [ ! "$filename" = *".template" ]; then
-        if [ -f "$vhost" ]; then
-            # Extract ServerName from vhost for SSL certificate generation
-            if [ "$ACCESS_MODE" = "public" ]; then
-                domain=$(grep -E '^\s*ServerName\s+' "$vhost" | grep -oE '[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' | head -1)
-                if [ ! -z "$domain" ] && [ "$domain" != "$DOMAIN" ]; then
-                    CUSTOM_DOMAINS="$CUSTOM_DOMAINS $domain"
-                fi
+for vhost in /etc/apache2/sites-available/*vhost*.conf; do
+    if [ -f "$vhost" ]; then
+        # Extract ServerName from vhost for SSL certificate generation
+        if [ "$ACCESS_MODE" = "public" ]; then
+            domain=$(grep -E '^\s*ServerName\s+' "$vhost" | grep -oE '[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' | head -1)
+            if [ ! -z "$domain" ] && [ "$domain" != "$DOMAIN" ]; then
+                CUSTOM_DOMAINS="$CUSTOM_DOMAINS $domain"
             fi
         fi
     fi
@@ -1644,16 +1641,14 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
 fi
 
 # Second pass: Now enable all vhost files (after certificates have been requested)
+# Only enable files with "vhost" in the name to avoid conflicts with default Apache configs
 echo ""
 echo "Enabling VirtualHost configurations..."
-for vhost in /etc/apache2/sites-available/*.conf; do
-    filename=$(basename "$vhost" .conf)
-    # Skip reverse-proxy (already enabled) and template files
-    if [ "$filename" != "reverse-proxy" ] && [ ! "$filename" = *".template" ]; then
-        if [ -f "$vhost" ]; then
-            a2ensite "$filename" 2>/dev/null || true
-            echo "  ✓ Enabled: $filename"
-        fi
+for vhost in /etc/apache2/sites-available/*vhost*.conf; do
+    if [ -f "$vhost" ]; then
+        filename=$(basename "$vhost" .conf)
+        a2ensite "$filename" 2>/dev/null || true
+        echo "  ✓ Enabled: $filename"
     fi
 done
 
