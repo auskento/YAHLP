@@ -1568,7 +1568,7 @@ for vhost in /etc/apache2/sites-available/*.conf; do
 
             # Extract ServerName from vhost for SSL certificate generation
             if [ "$ACCESS_MODE" = "public" ]; then
-                domain=$(grep -oP '(?<=ServerName\s)\S+' "$vhost" | head -1)
+                domain=$(grep -E '^\s*ServerName\s+' "$vhost" | grep -oE '[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' | head -1)
                 if [ ! -z "$domain" ] && [ "$domain" != "$DOMAIN" ]; then
                     CUSTOM_DOMAINS="$CUSTOM_DOMAINS $domain"
                 fi
@@ -1582,6 +1582,12 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
     echo ""
     echo "Requesting SSL certificates for custom service domains..."
     for domain in $CUSTOM_DOMAINS; do
+        # Validate domain format (must contain at least one dot)
+        if ! echo "$domain" | grep -qE '^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'; then
+            echo "  ⚠ Skipping invalid domain: $domain"
+            continue
+        fi
+
         if [ ! -f "/etc/letsencrypt/live/$domain/fullchain.pem" ]; then
             echo "  Requesting certificate for: $domain"
             certbot certonly \
@@ -1592,7 +1598,7 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
                 --no-eff-email \
                 --non-interactive \
                 $([ "$DASHBOARD_TEST" = "true" ] && echo "--staging" || echo "") \
-                -d "$domain" 2>&1 | grep -E "(Successfully received|ERROR|FAILED)" || true
+                -d "$domain" 2>&1 | grep -E "(Successfully received|ERROR|FAILED|Renewal)" || true
         else
             echo "  ✓ Certificate exists for: $domain"
         fi
