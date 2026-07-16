@@ -1554,8 +1554,22 @@ fi
 
 # Start cron daemon
 service cron start
+
+# Auto-enable all VirtualHost configuration files in sites-available
+echo "Enabling VirtualHost configurations..."
+for vhost in /etc/apache2/sites-available/*.conf; do
+    filename=$(basename "$vhost" .conf)
+    # Skip reverse-proxy (already enabled) and template files
+    if [ "$filename" != "reverse-proxy" ] && [ ! "$filename" = *".template" ]; then
+        if [ -f "$vhost" ]; then
+            a2ensite "$filename" 2>/dev/null || true
+            echo "  ✓ Enabled: $filename"
+        fi
+    fi
+done
+
 echo ""
-echo "=== Generated reverse-proxy.conf ===" 
+echo "=== Generated reverse-proxy.conf ==="
 cat /etc/apache2/sites-available/reverse-proxy.conf
 echo "===================================="
 echo ""
