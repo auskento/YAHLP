@@ -1220,43 +1220,22 @@ function isServiceConfigured(serviceName, config) {
   if (!config.enabled) return false;
   if (!config.url) return false;
 
-  // In private mode (no auth required), just having a URL is enough
-  const accessMode = getConfig('access.mode', 'localhost');
-  const authType = getConfig('auth.type', 'none');
-  const isPrivateMode = accessMode === 'localhost' || accessMode === 'private';
-
-  if (isPrivateMode && authType === 'none') {
-    // In private mode with no auth, just having URL is enough for most services
-    switch (config.authType) {
-      case 'transmission':
-        return !!config.url;
-      case 'deluge':
-        // Deluge needs password, or just URL in private no-auth mode
-        return !!config.url;
-      case 'nzbget':
-        // NZBGet can work with just URL in private mode
-        return !!config.url;
-      default:
-        // Other services can work with just URL in private no-auth mode
-        return !!config.url;
-    }
-  }
-
-  // Standard (public) mode or auth-enabled mode - stricter requirements
+  // All services require proper credentials to function
+  // Regardless of access mode, the dashboard only shows services that can actually be used
   switch (config.authType) {
     case 'transmission':
+      // Transmission only needs URL
+      return !!config.url;
     case 'deluge':
-      // These download clients only show as configured if other services with API keys are also configured
-      if (!hasConfiguredApiServices()) return false;
-      if (config.authType === 'transmission') return !!config.url;
-      if (config.authType === 'deluge') return !!config.url && !!config.key;
-      break;
+      // Deluge needs both URL and password
+      return !!config.url && !!config.key;
     case 'qbittorrent':
       return !!config.url && !!config.key;
     case 'nzbget':
       return !!config.username && !!config.password;
     default:
-      return !!config.key;
+      // All other services (Sonarr, Radarr, etc.) require API key
+      return !!config.url && !!config.key;
   }
 }
 
