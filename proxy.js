@@ -1249,7 +1249,10 @@ app.get('/health', (req, res) => {
       ttl: cache.getStats().kexpired || 0
     },
     services: Object.keys(services).reduce((acc, svc) => {
-      acc[svc] = { configured: isServiceConfigured(svc, services[svc]) };
+      // Only include enabled services in health response
+      if (services[svc].enabled) {
+        acc[svc] = { configured: isServiceConfigured(svc, services[svc]) };
+      }
       return acc;
     }, {})
   });
