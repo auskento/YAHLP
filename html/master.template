@@ -904,14 +904,25 @@ async function checkConfiguredServices() {
         return;
     }
 
-    // Show welcome screen only if NO services are enabled at all
-    if (SERVICES.length === 0 && !isFocusLayout) {
-        dashboardView.style.display = 'none';
-        welcomeScreen.style.display = 'flex';
-        return;
+    // Check if any services are actually configured (have credentials)
+    try {
+        const response = await fetch(`/health`);
+        const health = await response.json();
+        const hasAnyConfigured = Object.values(health.services || {}).some(s => s.configured);
+
+        // Show welcome screen if NO services are configured (missing credentials)
+        // OR if no services are enabled at all
+        if ((SERVICES.length === 0 || !hasAnyConfigured) && !isFocusLayout) {
+            dashboardView.style.display = 'none';
+            welcomeScreen.style.display = 'flex';
+            return;
+        }
+    } catch (err) {
+        console.warn('[Initial Check] Could not verify services:', err);
+        // If health check fails, still try to load dashboard
     }
 
-    // Load dashboard (shows empty panel if services are enabled but not configured yet)
+    // Load dashboard (shows services with credentials, empty if none configured)
     loadDashboard();
     setInterval(loadDashboard, 30000);
 }
