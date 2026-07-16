@@ -499,12 +499,20 @@ async function loadDashboard() {
         console.warn('[Health Check] Could not verify configured services:', err);
     }
 
-    // Update footer tooltip with unconfigured services count
-    const unconfiguredCount = Object.values(configuredServices).filter(s => !s?.configured).length;
+    // Count ENABLED services that are NOT configured (missing credentials)
+    // Map service names to check if they're in SERVICES array (enabled)
+    const enabledServiceNames = SERVICES.map(s => s.name.toLowerCase());
+    const incompleteEnabledCount = Object.entries(configuredServices)
+        .filter(([serviceName, status]) => {
+            // Only count if service is enabled AND not configured
+            return enabledServiceNames.includes(serviceName.toLowerCase()) && !status?.configured;
+        }).length;
+
+    // Update footer tooltip with incomplete enabled services count
     const footerBtn = document.getElementById('footerHomeBtn');
     if (footerBtn) {
-        if (unconfiguredCount > 0) {
-            footerBtn.title = `${unconfiguredCount} service${unconfiguredCount !== 1 ? 's' : ''} incomplete - missing credentials`;
+        if (incompleteEnabledCount > 0) {
+            footerBtn.title = `${incompleteEnabledCount} service${incompleteEnabledCount !== 1 ? 's' : ''} need credentials`;
         } else {
             footerBtn.title = 'Home';
         }
@@ -514,11 +522,11 @@ async function loadDashboard() {
     const layout = app?.getAttribute('data-layout');
     const isFocusLayout = layout === 'focus';
 
-    // Check if ANY services are configured
-    const hasAnyConfigured = Object.values(configuredServices).some(s => s?.configured);
+    // Check if ANY services are enabled (regardless of configuration)
+    const hasAnyEnabled = SERVICES.length > 0;
 
-    // If no services configured and not focus layout, show welcome screen
-    if (!hasAnyConfigured && !isFocusLayout) {
+    // If no services enabled and not focus layout, show welcome screen
+    if (!hasAnyEnabled && !isFocusLayout) {
         frame.style.display = 'none';
         dashboardView.style.display = 'none';
         welcomeScreen.style.display = 'flex';
