@@ -1623,7 +1623,13 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
                 echo "    ✓ Certificate requested successfully"
             else
                 echo "    ⚠ Certificate request status: $certbot_status"
-                echo "    Output: $certbot_output" | head -5
+                echo "    Full output:"
+                echo "$certbot_output" | sed 's/^/      /'
+                echo ""
+                echo "    Check:"
+                echo "      - Is DNS for $domain pointing to this server?"
+                echo "      - Run: nslookup $domain"
+                echo "      - Check: /var/log/letsencrypt/letsencrypt.log for details"
             fi
         else
             echo "  ✓ Certificate exists for: $domain"
