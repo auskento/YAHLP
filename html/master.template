@@ -271,8 +271,10 @@ async function initDelugeSession() {
     }
 }
 
-// Call early on page load
-initDelugeSession();
+// Only initialize Deluge session if Deluge is enabled
+if (SERVICES.some(s => s.name.toLowerCase() === 'deluge')) {
+    initDelugeSession();
+}
 
 async function initJellyfinAuth() {
     try {
@@ -292,8 +294,10 @@ async function initJellyfinAuth() {
     }
 }
 
-// Call early on page load
-initJellyfinAuth();
+// Only initialize Jellyfin auth if Jellyfin is enabled
+if (SERVICES.some(s => s.name.toLowerCase() === 'jellyfin')) {
+    initJellyfinAuth();
+}
 
 function updateDateTime() {
     const now = new Date();
