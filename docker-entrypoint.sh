@@ -1598,6 +1598,7 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
                 --agree-tos \
                 --no-eff-email \
                 --non-interactive \
+                --expand \
                 $([ "$DASHBOARD_TEST" = "true" ] && echo "--staging" || echo "") \
                 -d "$domain" 2>&1)
             certbot_status=$?
