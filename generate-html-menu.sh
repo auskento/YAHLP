@@ -245,6 +245,7 @@ generate_services_array() {
     local array=""
     local first=true
     local order_array=()
+    local services_count=0
 
     # Use DASHBOARD_ORDER if provided, otherwise use SERVICE_ORDER
     if [ ! -z "$DASHBOARD_ORDER" ]; then
@@ -404,7 +405,11 @@ generate_services_array() {
 
         # Add service object with correct accent color
         array+="{ id: '$id', name: '$name', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
+        ((services_count++))
     done
+
+    # Debug: log enabled services count
+    [ "$services_count" -gt 0 ] && echo "[Services] Enabled $services_count services" >&2
 
     echo "[$array]"
 }
