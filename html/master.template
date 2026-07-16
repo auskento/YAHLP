@@ -904,30 +904,16 @@ async function checkConfiguredServices() {
         return;
     }
 
-    try {
-        const response = await fetch(`/health`);
-        const health = await response.json();
-        const hasAnyConfigured = Object.values(health.services || {}).some(s => s.configured);
-
-        if (!hasAnyConfigured && !isFocusLayout) {
-            dashboardView.style.display = 'none';
-            welcomeScreen.style.display = 'flex';
-            return;
-        }
-
-        loadDashboard();
-        setInterval(loadDashboard, 30000);
-    } catch (err) {
-        console.error('[Health Check] Error:', err);
-        // If health check fails, show welcome screen (unless focus layout)
-        if (!isFocusLayout) {
-            dashboardView.style.display = 'none';
-            welcomeScreen.style.display = 'flex';
-        } else {
-            loadDashboard();
-            setInterval(loadDashboard, 30000);
-        }
+    // Show welcome screen only if NO services are enabled at all
+    if (SERVICES.length === 0 && !isFocusLayout) {
+        dashboardView.style.display = 'none';
+        welcomeScreen.style.display = 'flex';
+        return;
     }
+
+    // Load dashboard (shows empty panel if services are enabled but not configured yet)
+    loadDashboard();
+    setInterval(loadDashboard, 30000);
 }
 
 // Logo/name click in the header or footer - show service panel if configured, else welcome
