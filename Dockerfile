@@ -84,8 +84,8 @@ COPY generate-config.sh generate-html-menu.sh generate-sites-config.sh generate-
 COPY support.js /usr/local/bin/
 RUN chmod +x /usr/local/bin/generate-config.sh /usr/local/bin/generate-html-menu.sh /usr/local/bin/generate-sites-config.sh /usr/local/bin/generate-vhost.sh
 
-# Disable default site (will enable reverse proxy config in entrypoint)
-RUN a2dissite 000-default.conf
+# Disable default sites (will enable reverse proxy config in entrypoint)
+RUN a2dissite 000-default.conf default-ssl.conf 2>/dev/null || true
 
 # Copy entrypoint script
 COPY docker-entrypoint.sh /usr/local/bin/
