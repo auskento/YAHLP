@@ -503,6 +503,17 @@ async function loadDashboard() {
     const layout = app?.getAttribute('data-layout');
     const isFocusLayout = layout === 'focus';
 
+    // Check if ANY services are configured
+    const hasAnyConfigured = Object.values(configuredServices).some(s => s?.configured);
+
+    // If no services configured and not focus layout, show welcome screen
+    if (!hasAnyConfigured && !isFocusLayout) {
+        frame.style.display = 'none';
+        dashboardView.style.display = 'none';
+        welcomeScreen.style.display = 'flex';
+        return;
+    }
+
     const statuses = await Promise.all(SERVICES.map(app => {
         const service = codeToService[app.id];
         if (!service) return Promise.resolve(null);
