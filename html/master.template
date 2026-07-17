@@ -484,11 +484,21 @@ window.addEventListener('resize', () => {
 
 // Update home button tooltip with count of incomplete services
 function updateHomeButtonTooltip(configuredServices) {
+    console.log('[Tooltip] SERVICES:', SERVICES);
+    console.log('[Tooltip] configuredServices:', configuredServices);
+
     const enabledServiceNames = SERVICES.map(s => s.name.toLowerCase());
+    console.log('[Tooltip] enabledServiceNames:', enabledServiceNames);
+
     const incompleteEnabledCount = Object.entries(configuredServices)
         .filter(([serviceName, status]) => {
-            return enabledServiceNames.includes(serviceName.toLowerCase()) && !status?.configured;
+            const isEnabled = enabledServiceNames.includes(serviceName.toLowerCase());
+            const isNotConfigured = !status?.configured;
+            console.log(`[Tooltip] ${serviceName}: enabled=${isEnabled}, notConfigured=${isNotConfigured}`);
+            return isEnabled && isNotConfigured;
         }).length;
+
+    console.log('[Tooltip] incompleteEnabledCount:', incompleteEnabledCount);
 
     const footerBtn = document.getElementById('footerHomeBtn');
     if (footerBtn) {
@@ -497,6 +507,9 @@ function updateHomeButtonTooltip(configuredServices) {
         } else {
             footerBtn.title = 'Home';
         }
+        console.log('[Tooltip] Set button title to:', footerBtn.title);
+    } else {
+        console.warn('[Tooltip] footerHomeBtn not found');
     }
 }
 
