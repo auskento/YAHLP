@@ -556,21 +556,37 @@ async function loadDashboard() {
         const service = codeToService[app.id];
         if (!service) return Promise.resolve(null);
 
-        // For configured services, fetch full status
-        if (configuredServices[service]?.configured) {
-            return fetchServiceStatus(service, app);
+        // Only fetch status for configured services
+        if (!configuredServices[service]?.configured) {
+            return Promise.resolve(null);
         }
 
-        // For unconfigured services, create a placeholder so they still display as links
-        return Promise.resolve({
-            name: app.name,
-            href: app.href,
-            popup: app.popup,
-            icon: app.icon,
-            status: 'Not Configured',
-            stats: []
-        });
+        return fetchServiceStatus(service, app);
     }));
+
+    // Special handling for Transmission: show it if it's alone OR if other services are configured
+    // Transmission doesn't require credentials, only a URL
+    const transmissionApp = SERVICES.find(app => app.name.toLowerCase() === 'transmission');
+    if (transmissionApp && configuredServices['transmission']?.configured) {
+        const otherConfiguredCount = statuses.filter(s => s && s.name.toLowerCase() !== 'transmission').length;
+        const isOnlyService = SERVICES.length === 1;
+
+        // Show Transmission if: (a) it's the only enabled service, OR (b) other services are configured
+        if (isOnlyService || otherConfiguredCount > 0) {
+            // Add Transmission status to the list (create a placeholder with just the URL)
+            const transmissionStatus = await fetchServiceStatus('transmission', transmissionApp).catch(() => {
+                return {
+                    name: transmissionApp.name,
+                    href: transmissionApp.href,
+                    popup: transmissionApp.popup,
+                    icon: transmissionApp.icon,
+                    status: 'Online',
+                    stats: []
+                };
+            });
+            statuses[SERVICES.findIndex(app => app.name.toLowerCase() === 'transmission')] = transmissionStatus;
+        }
+    }
 
     let html = '';
 
