@@ -165,8 +165,9 @@ const services = {
 };
 
 // Check if any services are configured
-// Services that don't require API keys: transmission, qbittorrent
-const noKeyRequired = ['transmission', 'qbittorrent'];
+// Services that don't require API keys: transmission
+// Note: qBittorrent requires an API key
+const noKeyRequired = ['transmission'];
 const configuredServices = Object.keys(services).filter(key => {
   const svc = services[key];
   if (noKeyRequired.includes(key)) {
