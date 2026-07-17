@@ -491,9 +491,18 @@ function updateHomeButtonTooltip(configuredServices) {
     const enabledServiceNames = SERVICES.map(s => s.name.toLowerCase());
     console.log('[Tooltip] enabledServiceNames:', enabledServiceNames);
 
+    // Check if any service (other than Transmission) is configured
+    const hasOtherConfigured = Object.entries(configuredServices)
+        .filter(([svc, status]) => svc.toLowerCase() !== 'transmission' && status?.configured)
+        .length > 0;
+
     const incompleteEnabledCount = Object.entries(configuredServices)
         .filter(([serviceName, status]) => {
             const isEnabled = enabledServiceNames.includes(serviceName.toLowerCase());
+            // Transmission counts as configured if any other service is configured
+            if (serviceName.toLowerCase() === 'transmission' && hasOtherConfigured) {
+                return false; // Don't count as incomplete
+            }
             const isNotConfigured = !status?.configured;
             console.log(`[Tooltip] ${serviceName}: enabled=${isEnabled}, notConfigured=${isNotConfigured}`);
             return isEnabled && isNotConfigured;
