@@ -1030,6 +1030,7 @@ async function goHome(e) {
             console.log('[Home Click] Showing dashboard (services configured)');
             dashboardView.style.display = 'flex';
             welcomeScreen.style.display = 'none';
+            loadDashboard();
         } else {
             console.log('[Home Click] Showing welcome screen (no services configured)');
             dashboardView.style.display = 'none';
