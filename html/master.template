@@ -894,6 +894,7 @@ function adjustIconSizes() {
 }
 
 async function checkConfiguredServices() {
+    console.log('[checkConfiguredServices] Starting...');
     // Always build menus and sites, regardless of dashboard landing or API configuration
     await buildServiceMenu();
     await buildSitesGrid();
