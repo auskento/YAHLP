@@ -556,12 +556,20 @@ async function loadDashboard() {
         const service = codeToService[app.id];
         if (!service) return Promise.resolve(null);
 
-        // Skip unconfigured services - don't fetch status for them
-        if (!configuredServices[service]?.configured) {
-            return Promise.resolve(null);
+        // For configured services, fetch full status
+        if (configuredServices[service]?.configured) {
+            return fetchServiceStatus(service, app);
         }
 
-        return fetchServiceStatus(service, app);
+        // For unconfigured services, create a placeholder so they still display as links
+        return Promise.resolve({
+            name: app.name,
+            href: app.href,
+            popup: app.popup,
+            icon: app.icon,
+            status: 'Not Configured',
+            stats: []
+        });
     }));
 
     let html = '';
