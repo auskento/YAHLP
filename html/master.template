@@ -573,17 +573,15 @@ async function loadDashboard() {
 
         // Show Transmission if: (a) it's the only enabled service, OR (b) other services are configured
         if (isOnlyService || otherConfiguredCount > 0) {
-            // Add Transmission status to the list (create a placeholder with just the URL)
-            const transmissionStatus = await fetchServiceStatus('transmission', transmissionApp).catch(() => {
-                return {
-                    name: transmissionApp.name,
-                    href: transmissionApp.href,
-                    popup: transmissionApp.popup,
-                    icon: transmissionApp.icon,
-                    status: 'Online',
-                    stats: []
-                };
-            });
+            // Add Transmission status to the list (create a placeholder without fetching)
+            const transmissionStatus = {
+                name: transmissionApp.name,
+                href: transmissionApp.href,
+                popup: transmissionApp.popup,
+                icon: transmissionApp.icon,
+                status: 'Online',
+                stats: []
+            };
             statuses[SERVICES.findIndex(app => app.name.toLowerCase() === 'transmission')] = transmissionStatus;
         }
     }
