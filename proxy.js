@@ -1220,17 +1220,20 @@ function isServiceConfigured(serviceName, config) {
   if (!config.enabled) return false;
   if (!config.url) return false;
 
-  // All services require proper credentials to function
-  // Regardless of access mode, the dashboard only shows services that can actually be used
+  // For dashboard purposes, only services with actual credentials count as "configured"
+  // Services that don't require auth (transmission, qbittorrent) don't count as configured
+  // unless they have explicit credentials set. This ensures the welcome screen shows
+  // until services with real credentials are configured.
   switch (config.authType) {
     case 'transmission':
-      // Transmission only needs URL
-      return !!config.url;
+      // Transmission doesn't need auth, so don't count as configured
+      return false;
     case 'deluge':
       // Deluge needs both URL and password
       return !!config.url && !!config.key;
     case 'qbittorrent':
-      return !!config.url && !!config.key;
+      // qBittorrent doesn't inherently need auth for the dashboard to function
+      return false;
     case 'nzbget':
       return !!config.username && !!config.password;
     default:
