@@ -301,17 +301,27 @@ function updateDateTime() {
 updateDateTime();
 setInterval(updateDateTime, 1000);
 
+function withTimeout(promise, timeoutMs) {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), timeoutMs)
+        )
+    ]);
+}
+
 async function fetchServiceStatus(service, app) {
+    console.log(`[fetchServiceStatus] Starting for ${service}`);
     try {
         // Special handling for maintainerr - needs two endpoints
         if (service === 'maintainerr') {
             const sectionsUrl = `${apiBase}/maintainerr/api/overlays/sections`;
             const sizesUrl = `${apiBase}/maintainerr/api/storage-metrics/library-sizes`;
 
-            const [sectionsResp, sizesResp] = await Promise.all([
+            const [sectionsResp, sizesResp] = await withTimeout(Promise.all([
                 fetch(sectionsUrl, { mode: 'cors', redirect: 'follow' }),
                 fetch(sizesUrl, { mode: 'cors', redirect: 'follow' })
-            ]);
+            ]), 5000);
 
             if (!sectionsResp.ok || !sizesResp.ok) {
                 throw new Error(`HTTP ${sectionsResp.status}/${sizesResp.status}`);
@@ -352,7 +362,10 @@ async function fetchServiceStatus(service, app) {
             return null;
         }
 
-        const response = await fetch(url, { mode: 'cors', redirect: 'follow', method: service === 'nzbget' || service === 'transmission' || service === 'deluge' || service === 'nzbhydra' ? 'POST' : 'GET' });
+        const response = await withTimeout(
+            fetch(url, { mode: 'cors', redirect: 'follow', method: service === 'nzbget' || service === 'transmission' || service === 'deluge' || service === 'nzbhydra' ? 'POST' : 'GET' }),
+            5000
+        );
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             if (errorData.error && errorData.error.includes('not configured')) {
@@ -361,7 +374,7 @@ async function fetchServiceStatus(service, app) {
             throw new Error(`HTTP ${response.status}`);
         }
 
-        const data = await response.json();
+        const data = await withTimeout(response.json(), 5000);
         if (!data) return null;
 
         let stats = [];
@@ -410,9 +423,10 @@ async function fetchServiceStatus(service, app) {
             stats = [{ label: 'Results', value: data.results || 0 }];
         }
 
+        console.log(`[fetchServiceStatus] Completed for ${service}`);
         return { ...app, status: 'Online', stats };
     } catch (err) {
-        console.error(`[${service}] Error:`, err);
+        console.error(`[fetchServiceStatus] Error for ${service}:`, err.message);
         return { ...app, status: 'Offline', stats: [] };
     }
 }
@@ -561,17 +575,21 @@ async function loadDashboard() {
         return;
     }
 
+    console.log('[loadDashboard] Starting to fetch service statuses');
     const statuses = await Promise.all(SERVICES.map(app => {
         const service = codeToService[app.id];
         if (!service) return Promise.resolve(null);
 
         // Only fetch status for configured services
         if (!configuredServices[service]?.configured) {
+            console.log(`[loadDashboard] Skipping ${service} - not configured`);
             return Promise.resolve(null);
         }
 
+        console.log(`[loadDashboard] Fetching status for ${service}`);
         return fetchServiceStatus(service, app);
     }));
+    console.log('[loadDashboard] All service statuses fetched:', statuses);
 
     // Special handling for Transmission: show it if any other service is configured
     // Transmission doesn't require credentials, only a URL
