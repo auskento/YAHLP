@@ -943,23 +943,27 @@ async function goHome(e) {
         const health = await response.json();
         const hasAnyConfigured = Object.values(health.services || {}).some(s => s.configured);
 
+        console.log('[Home Click] Health response:', health);
+        console.log('[Home Click] hasAnyConfigured:', hasAnyConfigured);
+
         frame.style.display = 'none';
         frame.src = '';
 
         if (hasAnyConfigured) {
-            // Show dashboard if services are configured
+            console.log('[Home Click] Showing dashboard (services configured)');
             dashboardView.style.display = 'flex';
             welcomeScreen.style.display = 'none';
         } else {
-            // Show welcome screen if no services configured
+            console.log('[Home Click] Showing welcome screen (no services configured)');
             dashboardView.style.display = 'none';
             welcomeScreen.style.display = 'flex';
         }
     } catch (err) {
         console.error('[Home Click] Error checking services:', err);
-        // Default to dashboard if check fails
-        dashboardView.style.display = 'flex';
-        welcomeScreen.style.display = 'none';
+        console.log('[Home Click] Showing welcome screen (error fallback)');
+        // Default to welcome screen if check fails
+        dashboardView.style.display = 'none';
+        welcomeScreen.style.display = 'flex';
     }
     return false;
 }
