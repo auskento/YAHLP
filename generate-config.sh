@@ -366,6 +366,17 @@ CONFIG="${CONFIG//@@DASH_STYLE@@/$DASH_STYLE_BASE}"
 TRUSTED_LAN_RANGE="${TRUSTED_LAN_RANGE:-192.168.0.0/16 10.0.0.0/8 172.16.0.0/12 127.0.0.1}"
 CONFIG="${CONFIG//@@TRUSTED_LAN_RANGE@@/$TRUSTED_LAN_RANGE}"
 
+# Remove catch-all HTTPS vhost for public deployments
+# For public mode with a domain, the catch-all vhost conflicts with the specific domain vhost
+if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$DOMAIN" ]; then
+    # Remove the entire catch-all vhost block (between markers)
+    CONFIG=$(echo "$CONFIG" | sed '/^# @@IF_PRIVATE_MODE@@$/,/^# @@END_IF_PRIVATE@@$/d')
+else
+    # For private mode, keep the vhost but remove the conditional markers
+    CONFIG="${CONFIG//# @@IF_PRIVATE_MODE@@/}"
+    CONFIG="${CONFIG//# @@END_IF_PRIVATE@@/}"
+fi
+
 # Generate dynamic service proxy rules with URL substitution
 generate_service_proxy_rules() {
     local proxy_rules=""

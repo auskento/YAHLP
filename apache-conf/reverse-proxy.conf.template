@@ -172,8 +172,10 @@
     LogLevel warn
 </VirtualHost>
 
-# Catch-all VirtualHost for unrecognized domains (port 443)
+# Catch-all VirtualHost for unrecognized domains (port 443) - PRIVATE MODE ONLY
+# For public deployments with a specific domain, this is not included (generated via generate-config.sh)
 # Must come after specific VirtualHosts to have lower priority
+# @@IF_PRIVATE_MODE@@
 <VirtualHost *:443>
     ServerName _
     SSLEngine on
@@ -197,3 +199,4 @@
     CustomLog ${APACHE_LOG_DIR}/access.log combined
     LogLevel warn
 </VirtualHost>
+# @@END_IF_PRIVATE@@
