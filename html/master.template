@@ -908,6 +908,15 @@ async function checkConfiguredServices() {
         initJellyfinAuth();
     }
 
+    // Update tooltip with count of services needing credentials (do this early, before any early returns)
+    try {
+        const response = await fetch(`/health`);
+        const health = await response.json();
+        updateHomeButtonTooltip(health.services || {});
+    } catch (err) {
+        console.warn('[checkConfiguredServices] Could not update tooltip:', err);
+    }
+
     const layout = document.querySelector('.app')?.getAttribute('data-layout');
     const isFocusLayout = layout === 'focus';
 
@@ -927,9 +936,6 @@ async function checkConfiguredServices() {
         const response = await fetch(`/health`);
         const health = await response.json();
         const hasAnyConfigured = Object.values(health.services || {}).some(s => s.configured);
-
-        // Update tooltip with count of services needing credentials
-        updateHomeButtonTooltip(health.services || {});
 
         // Show welcome screen if NO services are configured (missing credentials)
         // OR if no services are enabled at all
