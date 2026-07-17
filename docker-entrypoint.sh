@@ -143,8 +143,9 @@ if [ ! -f /etc/yahlp/yahlp.json5 ]; then
         fi
         SERVICES_ENABLED_JSON="${SERVICES_ENABLED_JSON}    ${service}: $([ "$SERVICE_ENABLED" = "true" ] && echo "true" || echo "false")"
 
-        # Add to URL section if service URL is set
-        if [ ! -z "$SERVICE_URL" ]; then
+        # Add to URL section only if service is ENABLED and URL is set
+        # Don't include URLs for disabled services, even if env vars are set to defaults
+        if [ "$SERVICE_ENABLED" = "true" ] && [ ! -z "$SERVICE_URL" ]; then
             if [ ! -z "$SERVICES_URL_JSON" ]; then
                 SERVICES_URL_JSON="${SERVICES_URL_JSON},"$'\n'
             fi
