@@ -66,12 +66,6 @@ if [ ! -f "$SITES_JSON" ]; then
       "category": "torrent"
     },
     {
-      "code": "PTP",
-      "name": "PassThePopcorn",
-      "url": "https://passthepopcorn.me",
-      "category": "torrent"
-    },
-    {
       "code": "DOG",
       "name": "DOGnzb",
       "url": "https://dognzb.cr/browse",
