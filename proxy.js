@@ -1233,8 +1233,8 @@ function isServiceConfigured(serviceName, config) {
       // Deluge needs both URL and password
       return !!config.url && !!config.key;
     case 'qbittorrent':
-      // qBittorrent doesn't inherently need auth for the dashboard to function
-      return false;
+      // qBittorrent requires URL and API key
+      return !!config.url && !!config.key;
     case 'nzbget':
       return !!config.username && !!config.password;
     default:
