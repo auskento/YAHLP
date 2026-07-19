@@ -1233,8 +1233,16 @@ function isServiceConfigured(serviceName, config) {
       // Deluge needs both URL and password
       return !!config.url && !!config.key;
     case 'qbittorrent':
-      // qBittorrent doesn't inherently need auth for the dashboard to function
-      return false;
+      // qBittorrent requires URL and API key
+      return !!config.url && !!config.key;
+    case 'transmission':
+      // Transmission shows as configured if it has a URL and any other service is configured
+      if (!config.url) return false;
+      // Check if any other service (besides transmission) is configured
+      const otherConfigured = Object.entries(services).some(([svc, cfg]) =>
+        svc !== 'transmission' && cfg.enabled && isServiceConfigured(svc)
+      );
+      return !!otherConfigured;
     case 'nzbget':
       return !!config.username && !!config.password;
     default:
