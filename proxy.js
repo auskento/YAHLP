@@ -1236,8 +1236,35 @@ function isServiceConfigured(serviceName, config) {
       // qBittorrent requires URL and API key
       return !!config.url && !!config.key;
     case 'transmission':
-      // Transmission only requires a URL (no credentials needed)
-      return !!config.url;
+      // Transmission requires a URL and either:
+      // 1. Is the only enabled service, OR
+      // 2. Other services are enabled with credentials
+      if (!config.url) return false;
+
+      // Check if any other service is enabled and configured
+      const otherServicesEnabled = Object.entries(services).some(([svc, cfg]) =>
+        svc !== 'transmission' && cfg.enabled
+      );
+
+      if (!otherServicesEnabled) {
+        // Transmission is the only service enabled
+        return true;
+      }
+
+      // Check if any enabled service (besides transmission) is configured with credentials
+      const otherServiceConfigured = Object.entries(services).some(([svc, cfg]) => {
+        if (svc === 'transmission' || !cfg.enabled) return false;
+
+        // Check if this service has the required credentials
+        const noKeyRequired = ['transmission'];
+        if (noKeyRequired.includes(svc)) {
+          return !!cfg.url;
+        }
+        // All other services require API key or username/password
+        return !!cfg.key || (!!cfg.username && !!cfg.password);
+      });
+
+      return !!otherServiceConfigured;
     case 'nzbget':
       return !!config.username && !!config.password;
     default:
