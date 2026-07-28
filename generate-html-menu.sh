@@ -319,7 +319,11 @@ generate_services_array() {
                 if [ "$code" = "SEP" ] || [ "$code" = "VIS" ]; then
                     order_array+=("$code")
                 elif [ -n "${SERVICE_CODE_MAP[$code]}" ]; then
+                    # Service found in built-in code map
                     order_array+=("${SERVICE_CODE_MAP[$code]}")
+                elif [ -n "${SERVICES[$code]}" ]; then
+                    # Service is an additional/custom service (use code as key directly)
+                    order_array+=("$code")
                 fi
             fi
         done
