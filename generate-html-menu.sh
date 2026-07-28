@@ -210,12 +210,22 @@ ADDITIONAL_CONF_DIR="/config/additional-conf"
 if [ -d "$ADDITIONAL_CONF_DIR" ]; then
     for conf_file in "$ADDITIONAL_CONF_DIR"/*.conf; do
         if [ -f "$conf_file" ]; then
-            filename=$(basename "$conf_file" .conf)
+            filename=$(basename "$conf_file")
 
-            # Only process 3-letter service codes
-            if [[ "$filename" =~ ^[a-zA-Z]{3}$ ]]; then
-                # Check if corresponding icon exists in sites-icons
-                app_code="$filename"
+            # Skip example files
+            if [[ "$filename" == *"example"* ]]; then
+                continue
+            fi
+
+            # Skip vhost files (not added to menu)
+            if [[ "$filename" == *"vhost"* ]]; then
+                continue
+            fi
+
+            # Only process 3-4 letter service codes
+            code=$(basename "$conf_file" .conf)
+            if [[ "$code" =~ ^[a-zA-Z]{3,4}$ ]]; then
+                app_code="$code"
                 app_icon="/images/sites-icons/${app_code,,}.png"
                 app_key="${app_code^^}"  # Convert to uppercase for array key
 

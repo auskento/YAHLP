@@ -709,7 +709,7 @@ echo "Generating dashboard menu based on enabled services..."
 # Enable reverse proxy site
 a2ensite reverse-proxy.conf 2>/dev/null || true
 
-# Enable additional configurations (vhost files or service conf files)
+# Enable additional configurations (service or vhost conf files)
 echo ""
 echo "Loading additional configurations..."
 ADDITIONAL_CONF_DIR="/config/additional-conf"
@@ -717,22 +717,23 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
     CONF_COUNT=0
     VHOST_COUNT=0
     for conf_file in "$ADDITIONAL_CONF_DIR"/*.conf; do
-        # Skip example files and .gitkeep
-        if [[ "$conf_file" == *".example"* ]] || [[ "$conf_file" == *".gitkeep" ]]; then
-            continue
-        fi
-
         if [ -f "$conf_file" ]; then
             filename=$(basename "$conf_file")
 
-            # Check if it's a service config (3-letter code) or a vhost file
-            if [[ "$filename" =~ ^[a-zA-Z]{3}\.conf$ ]]; then
+            # Skip example files
+            if [[ "$filename" == *"example"* ]]; then
+                continue
+            fi
+
+            # Check if it's a service config (3-4 letter code)
+            if [[ "$filename" =~ ^[a-zA-Z]{3,4}\.conf$ ]]; then
                 # It's a service config, enable it
                 a2ensite "$filename" 2>/dev/null || true
                 ((CONF_COUNT++))
                 echo "  ✓ Loaded service config: $filename"
-            else
-                # It's a vhost file, include it
+            # Check if it's a vhost file
+            elif [[ "$filename" == *"vhost"* ]]; then
+                # Copy vhost file to sites-available and enable it
                 cp "$conf_file" "/etc/apache2/sites-available/"
                 a2ensite "$(basename "$conf_file" .conf)" 2>/dev/null || true
                 ((VHOST_COUNT++))
