@@ -732,7 +732,7 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
                 service_wrapper="/etc/apache2/sites-available/${service_name}.conf"
                 cat > "$service_wrapper" << SERVICEEOF
 # Auto-generated wrapper - includes actual config from /etc/yahlp/additional-conf/
-Include $conf_file
+IncludeOptional $conf_file
 SERVICEEOF
                 a2ensite "$service_name" 2>/dev/null || true
                 ((CONF_COUNT++))
@@ -744,7 +744,7 @@ SERVICEEOF
                 vhost_wrapper="/etc/apache2/sites-available/${vhost_name}.conf"
                 cat > "$vhost_wrapper" << VHOSTEOF
 # Auto-generated wrapper - includes actual config from /etc/yahlp/additional-conf/
-Include $conf_file
+IncludeOptional $conf_file
 VHOSTEOF
                 a2ensite "$vhost_name" 2>/dev/null || true
                 ((VHOST_COUNT++))
