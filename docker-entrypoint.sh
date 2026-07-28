@@ -709,44 +709,46 @@ echo "Generating dashboard menu based on enabled services..."
 # Enable reverse proxy site
 a2ensite reverse-proxy.conf 2>/dev/null || true
 
-# Enable modular app configurations
+# Enable additional configurations (vhost files or service conf files)
 echo ""
-echo "Loading modular app configurations..."
-APPS_DIR="/etc/apache2/sites-available/apps"
-if [ -d "$APPS_DIR" ]; then
-    APP_COUNT=0
-    for app_conf in "$APPS_DIR"/*.conf; do
-        # Skip example files
-        if [[ "$app_conf" == *".example"* ]]; then
+echo "Loading additional configurations..."
+ADDITIONAL_CONF_DIR="/config/additional-conf"
+if [ -d "$ADDITIONAL_CONF_DIR" ]; then
+    CONF_COUNT=0
+    VHOST_COUNT=0
+    for conf_file in "$ADDITIONAL_CONF_DIR"/*.conf; do
+        # Skip example files and .gitkeep
+        if [[ "$conf_file" == *".example"* ]] || [[ "$conf_file" == *".gitkeep" ]]; then
             continue
         fi
 
-        if [ -f "$app_conf" ]; then
-            # Extract app code from filename (e.g., tda.conf -> tda)
-            app_code=$(basename "$app_conf" .conf)
+        if [ -f "$conf_file" ]; then
+            filename=$(basename "$conf_file")
 
-            # Create a site config that includes this app
-            APP_SITE="/etc/apache2/sites-available/${app_code}-app.conf"
-            cat > "$APP_SITE" << APPEOF
-# Modular app: $app_code
-Include $app_conf
-APPEOF
-
-            # Enable the site
-            a2ensite "${app_code}-app" 2>/dev/null || true
-            ((APP_COUNT++))
-            echo "  ✓ Loaded modular app: $app_code"
+            # Check if it's a service config (3-letter code) or a vhost file
+            if [[ "$filename" =~ ^[a-zA-Z]{3}\.conf$ ]]; then
+                # It's a service config, enable it
+                a2ensite "$filename" 2>/dev/null || true
+                ((CONF_COUNT++))
+                echo "  ✓ Loaded service config: $filename"
+            else
+                # It's a vhost file, include it
+                cp "$conf_file" "/etc/apache2/sites-available/"
+                a2ensite "$(basename "$conf_file" .conf)" 2>/dev/null || true
+                ((VHOST_COUNT++))
+                echo "  ✓ Loaded vhost: $filename"
+            fi
         fi
     done
 
-    if [ $APP_COUNT -gt 0 ]; then
-        echo "✓ Loaded $APP_COUNT modular app(s)"
+    if [ $CONF_COUNT -gt 0 ] || [ $VHOST_COUNT -gt 0 ]; then
+        echo "✓ Loaded $CONF_COUNT service config(s) and $VHOST_COUNT vhost(s)"
     else
-        echo "  (no modular apps configured)"
+        echo "  (no additional configurations found)"
     fi
 else
-    echo "  (apps directory not found, creating...)"
-    mkdir -p "$APPS_DIR"
+    echo "  (additional-conf directory not found, creating...)"
+    mkdir -p "$ADDITIONAL_CONF_DIR"
 fi
 
 # Enable required Apache modules for OAuth2 and Basic Auth
