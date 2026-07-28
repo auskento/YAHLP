@@ -226,7 +226,7 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
             code=$(basename "$conf_file" .conf)
             if [[ "$code" =~ ^[a-zA-Z]{3,4}$ ]]; then
                 app_code="$code"
-                app_icon="/images/sites-icons/${app_code,,}.png"
+                app_icon="/sites-icons/${app_code,,}.png"
                 app_key="${app_code^^}"  # Convert to uppercase for array key
 
                 # Get friendly name from code
