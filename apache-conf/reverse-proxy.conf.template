@@ -147,6 +147,9 @@
     @@INCLUDE_BAZARR@@
     @@INCLUDE_CUSTOM_BACKEND@@
 
+    # Additional service configurations (from /etc/yahlp/additional-conf/)
+    @@INCLUDE_ADDITIONAL_SERVICES@@
+
     # Note: Emby, Plex, Seerr, and Jackett are served via VirtualHost files, not included here
 
     # ============================================
