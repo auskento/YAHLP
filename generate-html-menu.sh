@@ -306,28 +306,38 @@ generate_services_array() {
 
     # Use DASHBOARD_ORDER if provided, otherwise use SERVICE_ORDER
     if [ ! -z "$DASHBOARD_ORDER" ]; then
+        echo "[Menu] Using DASHBOARD_ORDER: $DASHBOARD_ORDER" >&2
         # Parse DASHBOARD_ORDER (service codes format: SAB,GET,HYD,etc + SEP for separators)
         IFS=',' read -ra codes <<< "$DASHBOARD_ORDER"
         for code in "${codes[@]}"; do
             code=$(echo "$code" | xargs)
+            echo "[Menu] Processing code: $code" >&2
             # Handle labeled separators (LBL:Label)
             if [[ "$code" =~ ^LBL: ]]; then
                 order_array+=("$code")
+                echo "[Menu] Added separator: $code" >&2
             else
                 code=$(echo "$code" | tr '[:lower:]' '[:upper:]')
+                echo "[Menu] Converted to uppercase: $code" >&2
                 # Handle separator markers (SEP=invisible gap, VIS=visible line)
                 if [ "$code" = "SEP" ] || [ "$code" = "VIS" ]; then
                     order_array+=("$code")
+                    echo "[Menu] Added marker: $code" >&2
                 elif [ -n "${SERVICE_CODE_MAP[$code]}" ]; then
                     # Service found in built-in code map
                     order_array+=("${SERVICE_CODE_MAP[$code]}")
+                    echo "[Menu] Added from CODE_MAP: $code → ${SERVICE_CODE_MAP[$code]}" >&2
                 elif [ -n "${SERVICES[$code]}" ]; then
                     # Service is an additional/custom service (use code as key directly)
                     order_array+=("$code")
+                    echo "[Menu] Added from SERVICES: $code" >&2
+                else
+                    echo "[Menu] NOT FOUND: $code (not in CODE_MAP or SERVICES)" >&2
                 fi
             fi
         done
     else
+        echo "[Menu] Using default SERVICE_ORDER (no DASHBOARD_ORDER)" >&2
         order_array=("${SERVICE_ORDER[@]}")
     fi
 
