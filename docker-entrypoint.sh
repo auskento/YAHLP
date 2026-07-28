@@ -715,6 +715,19 @@ echo "Loading additional service configurations..."
 ADDITIONAL_CONF_DIR="/etc/yahlp/additional-conf"
 CONF_COUNT=0
 mkdir -p "$ADDITIONAL_CONF_DIR"
+
+# Copy example service configs if they don't exist
+if [ -d "/app/examples/additional-conf" ]; then
+    for example_file in /app/examples/additional-conf/*.example.conf; do
+        if [ -f "$example_file" ]; then
+            dest_file="$ADDITIONAL_CONF_DIR/$(basename "$example_file")"
+            if [ ! -f "$dest_file" ]; then
+                cp "$example_file" "$dest_file"
+                echo "  (copied example: $(basename "$example_file"))"
+            fi
+        fi
+    done
+fi
 if [ -d "$ADDITIONAL_CONF_DIR" ]; then
     for conf_file in "$ADDITIONAL_CONF_DIR"/*.conf; do
         if [ -f "$conf_file" ]; then
@@ -744,6 +757,19 @@ echo "Loading additional vhost configurations..."
 ADDITIONAL_VHOST_DIR="/etc/yahlp/additional-vhost"
 VHOST_COUNT=0
 mkdir -p "$ADDITIONAL_VHOST_DIR"
+
+# Copy example vhost configs if they don't exist
+if [ -d "/app/examples/additional-vhost" ]; then
+    for example_file in /app/examples/additional-vhost/*.example.conf; do
+        if [ -f "$example_file" ]; then
+            dest_file="$ADDITIONAL_VHOST_DIR/$(basename "$example_file")"
+            if [ ! -f "$dest_file" ]; then
+                cp "$example_file" "$dest_file"
+                echo "  (copied example: $(basename "$example_file"))"
+            fi
+        fi
+    done
+fi
 if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
     for vhost_file in "$ADDITIONAL_VHOST_DIR"/*.conf; do
         if [ -f "$vhost_file" ]; then
