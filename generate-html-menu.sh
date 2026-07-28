@@ -203,30 +203,34 @@ SERVICES[RADARR]="CONTENT|Radarr|Movies|/icons/radarr.png|$RADARR_LANDING|#febc2
 SERVICES[LIDARR]="CONTENT|Lidarr|Music|/icons/lidarr.png|$LIDARR_LANDING|#2ecd6f"
 SERVICES[WHISPARR]="CONTENT|Whisparr|Adult content|/icons/whisparr.png|$WHISPARR_LANDING|#ef7e30"
 
-# Scan for modular apps
-echo "[Apps] Scanning for modular applications..." >&2
-MODULAR_APPS=()
-APPS_DIR="/var/www/html/apps-icons"
-if [ -d "$APPS_DIR" ]; then
-    for icon_file in "$APPS_DIR"/*.png; do
-        if [ -f "$icon_file" ]; then
-            # Extract app code from icon filename (e.g., tda.png -> tda)
-            app_code=$(basename "$icon_file" .png | tr '[:lower:]' '[:upper:]')
+# Scan for additional service configurations
+echo "[Apps] Scanning for additional service configurations..." >&2
+ADDITIONAL_APPS=()
+ADDITIONAL_CONF_DIR="/config/additional-conf"
+if [ -d "$ADDITIONAL_CONF_DIR" ]; then
+    for conf_file in "$ADDITIONAL_CONF_DIR"/*.conf; do
+        if [ -f "$conf_file" ]; then
+            filename=$(basename "$conf_file" .conf)
 
-            # Convert to uppercase for array key
-            app_key="${app_code}"
+            # Only process 3-letter service codes
+            if [[ "$filename" =~ ^[a-zA-Z]{3}$ ]]; then
+                # Check if corresponding icon exists in sites-icons
+                app_code="$filename"
+                app_icon="/images/sites-icons/${app_code,,}.png"
+                app_key="${app_code^^}"  # Convert to uppercase for array key
 
-            # Get friendly name from code (capitalize first letter, lowercase rest)
-            app_name=$(echo "$app_code" | sed 's/^\(.\)/\U\1/' | tr '[:upper:]' '[:lower:]' | sed 's/^\(.\)/\U\1/')
+                # Get friendly name from code
+                app_name=$(echo "$app_code" | sed 's/^\(.\)/\U\1/' | tr '[:upper:]' '[:lower:]' | sed 's/^\(.\)/\U\1/')
 
-            # Add to modular apps array
-            MODULAR_APPS+=("$app_key")
+                # Add to additional apps array
+                ADDITIONAL_APPS+=("$app_key")
 
-            # Add to SERVICES array with modular app metadata
-            # Format: SERVICE_KEY="CUSTOM|Name|Description|Icon|Href|Accent"
-            SERVICES[$app_key]="CUSTOM|$app_name|Custom application|/apps-icons/${app_code,,}.png|/${app_code,,}/|#6366f1"
+                # Add to SERVICES array with custom app metadata
+                # Format: SERVICE_KEY="CUSTOM|Name|Description|Icon|Href|Accent"
+                SERVICES[$app_key]="CUSTOM|$app_name|Custom application|$app_icon|/${app_code,,}/|#6366f1"
 
-            echo "[Apps] Found modular app: $app_key" >&2
+                echo "[Apps] Found additional service: $app_key" >&2
+            fi
         fi
     done
 fi
@@ -243,8 +247,8 @@ declare -a SERVICE_ORDER=(
     "SEERR" "JACKETT" "PROWLARR" "BAZARR"
     # MEDIA
     "EMBY" "PLEX" "JELLYFIN" "TAUTULLI" "MAINTAINERR"
-    # MODULAR (custom apps)
-    "${MODULAR_APPS[@]}"
+    # ADDITIONAL (custom apps)
+    "${ADDITIONAL_APPS[@]}"
 )
 
 # Service code to service key mapping
