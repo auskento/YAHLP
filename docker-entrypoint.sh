@@ -807,35 +807,16 @@ fi
 echo "✓ Additional configurations loaded"
 echo ""
 
-# Build includes for additional service configurations
+# Configure additional service proxies via wildcard IncludeOptional
 echo "Configuring additional service proxies..."
-ADDITIONAL_SERVICE_INCLUDES=""
-if [ -d "$ADDITIONAL_CONF_DIR" ] && [ $CONF_COUNT -gt 0 ]; then
-    for conf_file in "$ADDITIONAL_CONF_DIR"/*.conf; do
-        if [ -f "$conf_file" ]; then
-            filename=$(basename "$conf_file")
-
-            # Skip example files
-            if [[ "$filename" == *"example"* ]]; then
-                continue
-            fi
-
-            # Only process 3-4 letter service codes
-            if [[ "$filename" =~ ^[a-zA-Z]{3,4}\.conf$ ]]; then
-                ADDITIONAL_SERVICE_INCLUDES="${ADDITIONAL_SERVICE_INCLUDES}Include $conf_file\n    "
-                echo "  ✓ Including service config: $filename"
-            fi
-        fi
-    done
-fi
-
-# Replace placeholder in reverse-proxy.conf with additional service includes
-if [ -z "$ADDITIONAL_SERVICE_INCLUDES" ]; then
+if [ $CONF_COUNT -gt 0 ]; then
+    # Use IncludeOptional with wildcard to include all service configs
+    sed -i "s|@@INCLUDE_ADDITIONAL_SERVICES@@|IncludeOptional /etc/yahlp/additional-conf/*.conf|g" /etc/apache2/sites-available/reverse-proxy.conf
+    echo "  ✓ Additional service configs will be included via IncludeOptional"
+else
     # No additional services, just remove the placeholder line
     sed -i '/@@INCLUDE_ADDITIONAL_SERVICES@@/d' /etc/apache2/sites-available/reverse-proxy.conf
-else
-    # Insert the includes
-    sed -i "s|@@INCLUDE_ADDITIONAL_SERVICES@@|${ADDITIONAL_SERVICE_INCLUDES}|g" /etc/apache2/sites-available/reverse-proxy.conf
+    echo "  (no additional service configs)"
 fi
 
 # Enable required Apache modules for OAuth2 and Basic Auth
