@@ -271,7 +271,7 @@ CONFIG="${CONFIG//@@INCLUDE_BAZARR@@/$BAZARR_INCLUDE}"
 CONFIG="${CONFIG//@@INCLUDE_CUSTOM_BACKEND@@/$CUSTOM_BACKEND_INCLUDE}"
 
 # Calculate cookie domain BEFORE OIDC config generation: use root domain for cross-subdomain sharing
-# e.g., transfers.limosani.net.au → .limosani.net.au
+# e.g., transfers.example.com → .example.com
 COOKIE_DOMAIN=".${DOMAIN#*.}"
 [ "$COOKIE_DOMAIN" = "." ] && COOKIE_DOMAIN=".$DOMAIN"  # Fallback if no dot in domain
 
