@@ -734,7 +734,10 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
             # Check if it's a vhost file
             elif [[ "$filename" == *"vhost"* ]]; then
                 # Copy vhost file to sites-available and enable it
-                cp "$conf_file" "/etc/apache2/sites-available/"
+                cp "$conf_file" "/etc/apache2/sites-available/" || {
+                    echo "  ✗ Failed to copy vhost: $filename"
+                    continue
+                }
                 a2ensite "$(basename "$conf_file" .conf)" 2>/dev/null || true
                 ((VHOST_COUNT++))
                 echo "  ✓ Loaded vhost: $filename"
