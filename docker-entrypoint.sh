@@ -742,7 +742,7 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
 
             # Only process 3-4 letter service codes
             if [[ "$filename" =~ ^[a-zA-Z]{3,4}\.conf$ ]]; then
-                ((CONF_COUNT++))
+                ((CONF_COUNT++)) || true
                 echo "  ✓ Found service config: $filename"
             fi
         fi
@@ -794,7 +794,7 @@ if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
             a2ensite "$vhost_name" 2>/dev/null || true
             ENSITE_EXIT=$?
             echo "    a2ensite exit code: $ENSITE_EXIT"
-            ((VHOST_COUNT++))
+            ((VHOST_COUNT++)) || true
             echo "  ✓ Loaded vhost: $filename"
         fi
     done
