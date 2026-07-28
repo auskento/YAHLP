@@ -709,13 +709,13 @@ echo "Generating dashboard menu based on enabled services..."
 # Enable reverse proxy site
 a2ensite reverse-proxy.conf 2>/dev/null || true
 
-# Enable additional configurations (service or vhost conf files)
+# Enable additional service proxy configurations (Location blocks)
 echo ""
-echo "Loading additional configurations..."
+echo "Loading additional service configurations..."
 ADDITIONAL_CONF_DIR="/etc/yahlp/additional-conf"
+CONF_COUNT=0
+mkdir -p "$ADDITIONAL_CONF_DIR"
 if [ -d "$ADDITIONAL_CONF_DIR" ]; then
-    CONF_COUNT=0
-    VHOST_COUNT=0
     for conf_file in "$ADDITIONAL_CONF_DIR"/*.conf; do
         if [ -f "$conf_file" ]; then
             filename=$(basename "$conf_file")
@@ -725,43 +725,51 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
                 continue
             fi
 
-            # Check if it's a service config (3-4 letter code)
+            # Only process 3-4 letter service codes
             if [[ "$filename" =~ ^[a-zA-Z]{3,4}\.conf$ ]]; then
-                # Create wrapper that includes service config (keeps source as reference)
-                service_name=$(basename "$conf_file" .conf)
-                service_wrapper="/etc/apache2/sites-available/${service_name}.conf"
-                cat > "$service_wrapper" << SERVICEEOF
-# Auto-generated wrapper - includes actual config from /etc/yahlp/additional-conf/
-IncludeOptional $conf_file
-SERVICEEOF
-                a2ensite "$service_name" 2>/dev/null || true
                 ((CONF_COUNT++))
-                echo "  ✓ Loaded service config: $filename"
-            # Check if it's a vhost file
-            elif [[ "$filename" == *"vhost"* ]]; then
-                # Create wrapper that includes vhost file (avoids copying, keeps source as reference)
-                vhost_name=$(basename "$conf_file" .conf)
-                vhost_wrapper="/etc/apache2/sites-available/${vhost_name}.conf"
-                cat > "$vhost_wrapper" << VHOSTEOF
-# Auto-generated wrapper - includes actual config from /etc/yahlp/additional-conf/
-IncludeOptional $conf_file
-VHOSTEOF
-                a2ensite "$vhost_name" 2>/dev/null || true
-                ((VHOST_COUNT++))
-                echo "  ✓ Loaded vhost: $filename"
+                echo "  ✓ Found service config: $filename"
             fi
         fi
     done
+fi
 
-    if [ $CONF_COUNT -gt 0 ] || [ $VHOST_COUNT -gt 0 ]; then
-        echo "✓ Loaded $CONF_COUNT service config(s) and $VHOST_COUNT vhost(s)"
-    else
-        echo "  (no additional configurations found)"
-    fi
-else
-    echo "  (additional-conf directory not found, creating...)"
-    mkdir -p "$ADDITIONAL_CONF_DIR"
-    echo "  Example configs available in /app/examples/additional-conf"
+if [ $CONF_COUNT -eq 0 ]; then
+    echo "  (no additional service configurations found)"
+fi
+
+# Enable additional VirtualHost configurations
+echo ""
+echo "Loading additional vhost configurations..."
+ADDITIONAL_VHOST_DIR="/etc/yahlp/additional-vhost"
+VHOST_COUNT=0
+mkdir -p "$ADDITIONAL_VHOST_DIR"
+if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
+    for vhost_file in "$ADDITIONAL_VHOST_DIR"/*.conf; do
+        if [ -f "$vhost_file" ]; then
+            filename=$(basename "$vhost_file")
+
+            # Skip example files
+            if [[ "$filename" == *"example"* ]]; then
+                continue
+            fi
+
+            # Create wrapper that includes vhost file (keeps source as reference)
+            vhost_name=$(basename "$vhost_file" .conf)
+            vhost_wrapper="/etc/apache2/sites-available/${vhost_name}.conf"
+            cat > "$vhost_wrapper" << VHOSTEOF
+# Auto-generated wrapper - includes actual config from /etc/yahlp/additional-vhost/
+IncludeOptional $vhost_file
+VHOSTEOF
+            a2ensite "$vhost_name" 2>/dev/null || true
+            ((VHOST_COUNT++))
+            echo "  ✓ Loaded vhost: $filename"
+        fi
+    done
+fi
+
+if [ $VHOST_COUNT -eq 0 ]; then
+    echo "  (no additional vhost configurations found)"
 fi
 
 # Enable required Apache modules for OAuth2 and Basic Auth
