@@ -811,10 +811,14 @@ echo ""
 echo "Configuring additional service proxies..."
 if [ $CONF_COUNT -gt 0 ]; then
     # Use IncludeOptional with wildcard to include all service configs
+    echo "  Replacing @@INCLUDE_ADDITIONAL_SERVICES@@ with IncludeOptional directive"
     sed -i "s|@@INCLUDE_ADDITIONAL_SERVICES@@|IncludeOptional /etc/yahlp/additional-conf/*.conf|g" /etc/apache2/sites-available/reverse-proxy.conf
     echo "  ✓ Additional service configs will be included via IncludeOptional"
+    echo "  Checking reverse-proxy.conf for the include..."
+    grep -n "INCLUDE_ADDITIONAL\|IncludeOptional.*additional" /etc/apache2/sites-available/reverse-proxy.conf || echo "  (placeholder not found)"
 else
     # No additional services, just remove the placeholder line
+    echo "  Removing @@INCLUDE_ADDITIONAL_SERVICES@@ placeholder (no additional services)"
     sed -i '/@@INCLUDE_ADDITIONAL_SERVICES@@/d' /etc/apache2/sites-available/reverse-proxy.conf
     echo "  (no additional service configs)"
 fi
