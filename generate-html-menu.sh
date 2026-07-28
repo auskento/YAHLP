@@ -237,6 +237,14 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
                 app_icon="/sites-icons/${app_code,,}.png"
                 app_key="${app_code^^}"  # Convert to uppercase for array key
 
+                # Check if icon file exists
+                icon_file="/etc/yahlp/sites-icons/${app_code,,}.png"
+                if [ ! -f "$icon_file" ]; then
+                    echo "[Apps] WARNING: Icon not found for $app_code at $icon_file" >&2
+                    echo "[Apps] Skipping service (icon required)" >&2
+                    continue
+                fi
+
                 # Get friendly name from code
                 app_name=$(echo "$app_code" | sed 's/^\(.\)/\U\1/' | tr '[:upper:]' '[:lower:]' | sed 's/^\(.\)/\U\1/')
 
@@ -247,7 +255,7 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
                 # Format: SERVICE_KEY="CUSTOM|Name|Description|Icon|Href|Accent"
                 SERVICES[$app_key]="CUSTOM|$app_name|Custom application|$app_icon|/${app_code,,}/|#6366f1"
 
-                echo "[Apps] Found additional service: $app_key" >&2
+                echo "[Apps] Found additional service: $app_key (icon: $icon_file)" >&2
             fi
         fi
     done
