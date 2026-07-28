@@ -795,8 +795,11 @@ IncludeOptional $vhost_file
 VHOSTEOF
             then
                 echo "    Wrapper created successfully"
+                echo "    Running: a2ensite $vhost_name"
                 a2ensite "$vhost_name" 2>/dev/null || true
+                echo "    a2ensite completed with exit code: $?"
                 ((VHOST_COUNT++))
+                echo "    VHOST_COUNT=$VHOST_COUNT"
                 echo "  ✓ Loaded vhost: $filename"
             else
                 echo "  ✗ Failed to create wrapper for vhost: $filename"
