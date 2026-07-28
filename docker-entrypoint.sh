@@ -727,18 +727,26 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
 
             # Check if it's a service config (3-4 letter code)
             if [[ "$filename" =~ ^[a-zA-Z]{3,4}\.conf$ ]]; then
-                # It's a service config, enable it
-                a2ensite "$filename" 2>/dev/null || true
+                # Create wrapper that includes service config (keeps source as reference)
+                service_name=$(basename "$conf_file" .conf)
+                service_wrapper="/etc/apache2/sites-available/${service_name}.conf"
+                cat > "$service_wrapper" << SERVICEEOF
+# Auto-generated wrapper - includes actual config from /etc/yahlp/additional-conf/
+Include $conf_file
+SERVICEEOF
+                a2ensite "$service_name" 2>/dev/null || true
                 ((CONF_COUNT++))
                 echo "  ✓ Loaded service config: $filename"
             # Check if it's a vhost file
             elif [[ "$filename" == *"vhost"* ]]; then
-                # Copy vhost file to sites-available and enable it
-                cp "$conf_file" "/etc/apache2/sites-available/" || {
-                    echo "  ✗ Failed to copy vhost: $filename"
-                    continue
-                }
-                a2ensite "$(basename "$conf_file" .conf)" 2>/dev/null || true
+                # Create wrapper that includes vhost file (avoids copying, keeps source as reference)
+                vhost_name=$(basename "$conf_file" .conf)
+                vhost_wrapper="/etc/apache2/sites-available/${vhost_name}.conf"
+                cat > "$vhost_wrapper" << VHOSTEOF
+# Auto-generated wrapper - includes actual config from /etc/yahlp/additional-conf/
+Include $conf_file
+VHOSTEOF
+                a2ensite "$vhost_name" 2>/dev/null || true
                 ((VHOST_COUNT++))
                 echo "  ✓ Loaded vhost: $filename"
             fi
