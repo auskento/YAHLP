@@ -787,11 +787,14 @@ if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
             # Create wrapper that includes vhost file (keeps source as reference)
             vhost_name=$(basename "$vhost_file" .conf)
             vhost_wrapper="/etc/apache2/sites-available/${vhost_name}.conf"
+            echo "    Creating wrapper: $vhost_wrapper"
+            echo "    Including: $vhost_file"
             if cat > "$vhost_wrapper" << VHOSTEOF
 # Auto-generated wrapper - includes actual config from /etc/yahlp/additional-vhost/
 IncludeOptional $vhost_file
 VHOSTEOF
             then
+                echo "    Wrapper created successfully"
                 a2ensite "$vhost_name" 2>/dev/null || true
                 ((VHOST_COUNT++))
                 echo "  ✓ Loaded vhost: $filename"
@@ -805,6 +808,9 @@ fi
 if [ $VHOST_COUNT -eq 0 ]; then
     echo "  (no additional vhost configurations found)"
 fi
+
+echo "✓ Additional configurations loaded"
+echo ""
 
 # Enable required Apache modules for OAuth2 and Basic Auth
 echo "Enabling Apache modules..."
