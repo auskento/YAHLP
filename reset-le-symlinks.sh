@@ -73,7 +73,7 @@ for domain_archive in "$ARCHIVE_DIR"/*; do
     ln -s "../archive/$domain/fullchain${fullchain_version}.pem" "$domain_live/fullchain.pem"
 
     echo "  ✓ Created symlinks to version $cert_version"
-    ((RESET_COUNT++))
+    ((RESET_COUNT++)) || true
 done
 
 echo ""
