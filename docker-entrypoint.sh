@@ -709,6 +709,46 @@ echo "Generating dashboard menu based on enabled services..."
 # Enable reverse proxy site
 a2ensite reverse-proxy.conf 2>/dev/null || true
 
+# Enable modular app configurations
+echo ""
+echo "Loading modular app configurations..."
+APPS_DIR="/etc/apache2/sites-available/apps"
+if [ -d "$APPS_DIR" ]; then
+    APP_COUNT=0
+    for app_conf in "$APPS_DIR"/*.conf; do
+        # Skip example files
+        if [[ "$app_conf" == *".example"* ]]; then
+            continue
+        fi
+
+        if [ -f "$app_conf" ]; then
+            # Extract app code from filename (e.g., tda.conf -> tda)
+            app_code=$(basename "$app_conf" .conf)
+
+            # Create a site config that includes this app
+            APP_SITE="/etc/apache2/sites-available/${app_code}-app.conf"
+            cat > "$APP_SITE" << APPEOF
+# Modular app: $app_code
+Include $app_conf
+APPEOF
+
+            # Enable the site
+            a2ensite "${app_code}-app" 2>/dev/null || true
+            ((APP_COUNT++))
+            echo "  ✓ Loaded modular app: $app_code"
+        fi
+    done
+
+    if [ $APP_COUNT -gt 0 ]; then
+        echo "✓ Loaded $APP_COUNT modular app(s)"
+    else
+        echo "  (no modular apps configured)"
+    fi
+else
+    echo "  (apps directory not found, creating...)"
+    mkdir -p "$APPS_DIR"
+fi
+
 # Enable required Apache modules for OAuth2 and Basic Auth
 echo "Enabling Apache modules..."
 a2enmod auth_openidc 2>/dev/null || true
