@@ -867,7 +867,7 @@ case "${AUTHTYPE}" in
             fi
 
             # Extract domain from ENTRA_REDIRECT_URI for wildcard cookie domain
-            # Example: https://transfers.limosani.net.au/oauth2callback → .limosani.net.au
+            # Example: https://transfers.example.com/oauth2callback → .example.com
             COOKIE_DOMAIN=$(echo "$ENTRA_REDIRECT_URI" | sed -E 's|^https?://[^.]+\.([^/]+).*$|.\1|')
             if [ -z "$COOKIE_DOMAIN" ] || [ "$COOKIE_DOMAIN" = "$ENTRA_REDIRECT_URI" ]; then
                 # Fallback: if URL doesn't have subdomain, use full domain
@@ -916,7 +916,7 @@ case "${AUTHTYPE}" in
             GOOGLE_CRYPTO_PASSPHRASE=$(openssl rand -base64 24)
 
             # Extract domain from GOOGLE_REDIRECT_URI for wildcard cookie domain
-            # Example: https://transfers.limosani.net.au/oauth2callback → .limosani.net.au
+            # Example: https://transfers.example.com/oauth2callback → .example.com
             COOKIE_DOMAIN=$(echo "$GOOGLE_REDIRECT_URI" | sed -E 's|^https?://[^.]+\.([^/]+).*$|.\1|')
             if [ -z "$COOKIE_DOMAIN" ] || [ "$COOKIE_DOMAIN" = "$GOOGLE_REDIRECT_URI" ]; then
                 # Fallback: if URL doesn't have subdomain, use full domain
@@ -1212,10 +1212,10 @@ if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_RED
     echo "=== Emby Subdomain OAuth Setup ==="
     echo "Emby domain: $EMBY_DOMAIN"
 
-    # Extract subdomain from EMBY_DOMAIN (e.g., emby.limosani.net.au → emby)
+    # Extract subdomain from EMBY_DOMAIN (e.g., emby.example.com → emby)
     EMBY_SUBDOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://([^.]+)\..*|\1|')
 
-    # Extract domain for certificate (limosani.net.au)
+    # Extract domain for certificate (example.com)
     EMBY_CERT_DOMAIN=$(echo "$EMBY_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
 
     echo "Emby subdomain: $EMBY_SUBDOMAIN, cert domain: $EMBY_CERT_DOMAIN"
@@ -1309,10 +1309,10 @@ if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_RED
     echo "=== Plex Subdomain OAuth Setup ==="
     echo "Plex domain: $PLEX_DOMAIN"
 
-    # Extract subdomain from PLEX_DOMAIN (e.g., plex.limosani.net.au → plex)
+    # Extract subdomain from PLEX_DOMAIN (e.g., plex.example.com → plex)
     PLEX_SUBDOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://([^.]+)\..*|\1|')
 
-    # Extract domain for certificate (limosani.net.au)
+    # Extract domain for certificate (example.com)
     PLEX_CERT_DOMAIN=$(echo "$PLEX_DOMAIN" | sed -E 's|^https?://[^.]+\.(.+)$|\1|')
 
     echo "Plex subdomain: $PLEX_SUBDOMAIN, cert domain: $PLEX_CERT_DOMAIN"
