@@ -1787,9 +1787,10 @@ APACHE_PID=$!
 # Wait for Apache process and check if it exits unexpectedly
 wait ${APACHE_PID}
 APACHE_EXIT=$?
+echo "Apache exited with code: $APACHE_EXIT"
 
-# If Apache exited with error, show diagnostic info
-if [ $APACHE_EXIT -ne 0 ]; then
+# Apache should never exit - if it does, show diagnostic info
+if true; then
     echo ""
     echo "========================================="
     echo "APACHE STARTUP FAILED (Exit code: $APACHE_EXIT)"
