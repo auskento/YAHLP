@@ -784,26 +784,18 @@ if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
                 continue
             fi
 
-            # Create wrapper that includes vhost file (keeps source as reference)
+            # Create symlink to vhost file in sites-available (keeps source as reference)
             vhost_name=$(basename "$vhost_file" .conf)
-            vhost_wrapper="/etc/apache2/sites-available/${vhost_name}.conf"
-            echo "    Creating wrapper: $vhost_wrapper"
-            echo "    Including: $vhost_file"
-            if cat > "$vhost_wrapper" << VHOSTEOF
-# Auto-generated wrapper - includes actual config from /etc/yahlp/additional-vhost/
-IncludeOptional $vhost_file
-VHOSTEOF
-            then
-                echo "    Wrapper created successfully"
-                echo "    Running: a2ensite $vhost_name"
-                a2ensite "$vhost_name" 2>/dev/null || true
-                echo "    a2ensite completed with exit code: $?"
-                ((VHOST_COUNT++))
-                echo "    VHOST_COUNT=$VHOST_COUNT"
-                echo "  ✓ Loaded vhost: $filename"
-            else
-                echo "  ✗ Failed to create wrapper for vhost: $filename"
-            fi
+            vhost_link="/etc/apache2/sites-available/${vhost_name}.conf"
+            echo "    Creating symlink: $vhost_link → $vhost_file"
+            rm -f "$vhost_link" 2>/dev/null
+            ln -s "$vhost_file" "$vhost_link"
+            echo "    Symlink created, enabling with a2ensite..."
+            a2ensite "$vhost_name" 2>/dev/null || true
+            ENSITE_EXIT=$?
+            echo "    a2ensite exit code: $ENSITE_EXIT"
+            ((VHOST_COUNT++))
+            echo "  ✓ Loaded vhost: $filename"
         fi
     done
 fi
