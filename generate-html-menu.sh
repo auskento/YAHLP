@@ -341,6 +341,27 @@ generate_services_array() {
         order_array=("${SERVICE_ORDER[@]}")
     fi
 
+    # Add any additional services that aren't already in the order array
+    if [ ${#ADDITIONAL_APPS[@]} -gt 0 ]; then
+        echo "[Menu] Checking if additional apps are in order array..." >&2
+        for app in "${ADDITIONAL_APPS[@]}"; do
+            # Check if this app is already in order_array
+            found=false
+            for item in "${order_array[@]}"; do
+                if [ "$item" = "$app" ]; then
+                    found=true
+                    echo "[Menu] $app already in order array" >&2
+                    break
+                fi
+            done
+            # If not found, add it to the end
+            if [ "$found" = false ]; then
+                order_array+=("$app")
+                echo "[Menu] Added $app to end of order array" >&2
+            fi
+        done
+    fi
+
     for service_key in "${order_array[@]}"; do
         # Handle labeled separators (LBL:Label)
         if [[ "$service_key" =~ ^LBL: ]]; then
