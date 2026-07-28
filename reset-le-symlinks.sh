@@ -66,11 +66,11 @@ for domain_archive in "$ARCHIVE_DIR"/*; do
         fi
     done
 
-    # Create symlinks to latest versions
-    ln -s "../archive/$domain/cert${cert_version}.pem" "$domain_live/cert.pem"
-    ln -s "../archive/$domain/privkey${privkey_version}.pem" "$domain_live/privkey.pem"
-    ln -s "../archive/$domain/chain${chain_version}.pem" "$domain_live/chain.pem"
-    ln -s "../archive/$domain/fullchain${fullchain_version}.pem" "$domain_live/fullchain.pem"
+    # Create symlinks to latest versions (../../ to go up from /live/domain to /letsencrypt)
+    ln -s "../../archive/$domain/cert${cert_version}.pem" "$domain_live/cert.pem"
+    ln -s "../../archive/$domain/privkey${privkey_version}.pem" "$domain_live/privkey.pem"
+    ln -s "../../archive/$domain/chain${chain_version}.pem" "$domain_live/chain.pem"
+    ln -s "../../archive/$domain/fullchain${fullchain_version}.pem" "$domain_live/fullchain.pem"
 
     echo "  ✓ Created symlinks to version $cert_version"
     ((RESET_COUNT++)) || true
