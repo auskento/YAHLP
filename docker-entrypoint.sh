@@ -750,6 +750,17 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
 else
     echo "  (additional-conf directory not found, creating...)"
     mkdir -p "$ADDITIONAL_CONF_DIR"
+
+    # Copy example files for first-time setup
+    if [ -d "/app/config/additional-conf" ]; then
+        echo "  Copying example configuration files..."
+        for example_file in /app/config/additional-conf/*.example.conf; do
+            if [ -f "$example_file" ]; then
+                cp "$example_file" "$ADDITIONAL_CONF_DIR/"
+                echo "    ✓ Copied $(basename "$example_file")"
+            fi
+        done
+    fi
 fi
 
 # Enable required Apache modules for OAuth2 and Basic Auth
