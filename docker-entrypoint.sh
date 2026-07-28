@@ -783,13 +783,17 @@ if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
             # Create wrapper that includes vhost file (keeps source as reference)
             vhost_name=$(basename "$vhost_file" .conf)
             vhost_wrapper="/etc/apache2/sites-available/${vhost_name}.conf"
-            cat > "$vhost_wrapper" << VHOSTEOF
+            if cat > "$vhost_wrapper" << VHOSTEOF
 # Auto-generated wrapper - includes actual config from /etc/yahlp/additional-vhost/
 IncludeOptional $vhost_file
 VHOSTEOF
-            a2ensite "$vhost_name" 2>/dev/null || true
-            ((VHOST_COUNT++))
-            echo "  ✓ Loaded vhost: $filename"
+            then
+                a2ensite "$vhost_name" 2>/dev/null || true
+                ((VHOST_COUNT++))
+                echo "  ✓ Loaded vhost: $filename"
+            else
+                echo "  ✗ Failed to create wrapper for vhost: $filename"
+            fi
         fi
     done
 fi
