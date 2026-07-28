@@ -207,24 +207,32 @@ SERVICES[WHISPARR]="CONTENT|Whisparr|Adult content|/icons/whisparr.png|$WHISPARR
 echo "[Apps] Scanning for additional service configurations..." >&2
 ADDITIONAL_APPS=()
 ADDITIONAL_CONF_DIR="/etc/yahlp/additional-conf"
+echo "[Apps] Directory: $ADDITIONAL_CONF_DIR" >&2
 if [ -d "$ADDITIONAL_CONF_DIR" ]; then
+    echo "[Apps] Directory exists, scanning for *.conf files..." >&2
     for conf_file in "$ADDITIONAL_CONF_DIR"/*.conf; do
+        echo "[Apps] Found file: $conf_file" >&2
         if [ -f "$conf_file" ]; then
             filename=$(basename "$conf_file")
+            echo "[Apps] Processing: $filename" >&2
 
             # Skip example files
             if [[ "$filename" == *"example"* ]]; then
+                echo "[Apps] Skipping (example): $filename" >&2
                 continue
             fi
 
             # Skip vhost files (not added to menu)
             if [[ "$filename" == *"vhost"* ]]; then
+                echo "[Apps] Skipping (vhost): $filename" >&2
                 continue
             fi
 
             # Only process 3-4 letter service codes
             code=$(basename "$conf_file" .conf)
+            echo "[Apps] Code: $code" >&2
             if [[ "$code" =~ ^[a-zA-Z]{3,4}$ ]]; then
+                echo "[Apps] Code matches pattern!" >&2
                 app_code="$code"
                 app_icon="/sites-icons/${app_code,,}.png"
                 app_key="${app_code^^}"  # Convert to uppercase for array key
