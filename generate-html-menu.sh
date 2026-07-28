@@ -206,7 +206,7 @@ SERVICES[WHISPARR]="CONTENT|Whisparr|Adult content|/icons/whisparr.png|$WHISPARR
 # Scan for additional service configurations
 echo "[Apps] Scanning for additional service configurations..." >&2
 ADDITIONAL_APPS=()
-ADDITIONAL_CONF_DIR="/config/additional-conf"
+ADDITIONAL_CONF_DIR="/etc/yahlp/additional-conf"
 if [ -d "$ADDITIONAL_CONF_DIR" ]; then
     for conf_file in "$ADDITIONAL_CONF_DIR"/*.conf; do
         if [ -f "$conf_file" ]; then

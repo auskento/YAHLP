@@ -712,7 +712,7 @@ a2ensite reverse-proxy.conf 2>/dev/null || true
 # Enable additional configurations (service or vhost conf files)
 echo ""
 echo "Loading additional configurations..."
-ADDITIONAL_CONF_DIR="/config/additional-conf"
+ADDITIONAL_CONF_DIR="/etc/yahlp/additional-conf"
 if [ -d "$ADDITIONAL_CONF_DIR" ]; then
     CONF_COUNT=0
     VHOST_COUNT=0
@@ -752,9 +752,9 @@ else
     mkdir -p "$ADDITIONAL_CONF_DIR"
 
     # Copy example files for first-time setup
-    if [ -d "/app/config/additional-conf" ]; then
+    if [ -d "/app/examples/additional-conf" ]; then
         echo "  Copying example configuration files..."
-        for example_file in /app/config/additional-conf/*.example.conf; do
+        for example_file in /app/examples/additional-conf/*.example.conf; do
             if [ -f "$example_file" ]; then
                 cp "$example_file" "$ADDITIONAL_CONF_DIR/"
                 echo "    ✓ Copied $(basename "$example_file")"
