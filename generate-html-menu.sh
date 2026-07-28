@@ -265,9 +265,14 @@ declare -a SERVICE_ORDER=(
     "SEERR" "JACKETT" "PROWLARR" "BAZARR"
     # MEDIA
     "EMBY" "PLEX" "JELLYFIN" "TAUTULLI" "MAINTAINERR"
-    # ADDITIONAL (custom apps)
-    "${ADDITIONAL_APPS[@]}"
 )
+
+# Add additional apps to the end of SERVICE_ORDER
+if [ ${#ADDITIONAL_APPS[@]} -gt 0 ]; then
+    echo "[Apps] Adding ${#ADDITIONAL_APPS[@]} additional app(s) to menu" >&2
+    SERVICE_ORDER+=("${ADDITIONAL_APPS[@]}")
+    echo "[Apps] SERVICE_ORDER now has ${#SERVICE_ORDER[@]} total services" >&2
+fi
 
 # Service code to service key mapping
 declare -A SERVICE_CODE_MAP=(
