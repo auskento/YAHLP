@@ -715,6 +715,8 @@ echo "Loading additional service configurations..."
 ADDITIONAL_CONF_DIR="/etc/yahlp/additional-conf"
 CONF_COUNT=0
 mkdir -p "$ADDITIONAL_CONF_DIR"
+chown ${PUID:-0}:${PGID:-0} "$ADDITIONAL_CONF_DIR"
+chmod 775 "$ADDITIONAL_CONF_DIR"
 
 # Copy example service configs if they don't exist
 if [ -d "/app/examples/additional-conf" ]; then
@@ -757,6 +759,8 @@ echo "Loading additional vhost configurations..."
 ADDITIONAL_VHOST_DIR="/etc/yahlp/additional-vhost"
 VHOST_COUNT=0
 mkdir -p "$ADDITIONAL_VHOST_DIR"
+chown ${PUID:-0}:${PGID:-0} "$ADDITIONAL_VHOST_DIR"
+chmod 775 "$ADDITIONAL_VHOST_DIR"
 
 # Copy example vhost configs if they don't exist
 if [ -d "/app/examples/additional-vhost" ]; then
