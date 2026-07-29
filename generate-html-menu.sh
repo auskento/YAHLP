@@ -510,8 +510,11 @@ generate_services_array() {
         # Determine if popup based on DASHBOARD_WINDOWS environment variable
         local popup="false"
 
-        # Check if service is in DASHBOARD_WINDOWS list
-        if [[ "$DASHBOARD_WINDOWS" == *"$service_key"* ]]; then
+        # Check if service is in DASHBOARD_WINDOWS list (case-insensitive)
+        local service_key_upper=$(echo "$service_key" | tr '[:lower:]' '[:upper:]')
+        local dashboard_windows_upper=$(echo "$DASHBOARD_WINDOWS" | tr '[:lower:]' '[:upper:]')
+
+        if [[ "$dashboard_windows_upper" == *"$service_key_upper"* ]]; then
             popup="true"
         else
             # Default behavior for services not in DASHBOARD_WINDOWS
