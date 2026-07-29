@@ -701,14 +701,7 @@ fi
 echo ""
 /usr/local/bin/generate-sites-config.sh
 
-# Generate HTML dashboard based on enabled services and DASH_STYLE
-echo ""
-echo "Generating dashboard menu based on enabled services..."
-/usr/local/bin/generate-html-menu.sh
-
-# Enable reverse proxy site
-a2ensite reverse-proxy.conf 2>/dev/null || true
-
+# Load additional service and vhost configurations BEFORE generating menu
 # Enable additional service proxy configurations (Location blocks)
 echo ""
 echo "Loading additional service configurations..."
@@ -806,6 +799,13 @@ fi
 
 echo "✓ Additional configurations loaded"
 echo ""
+
+# Now that additional services are discovered, generate the HTML dashboard menu
+echo "Generating dashboard menu based on enabled services..."
+/usr/local/bin/generate-html-menu.sh
+
+# Enable reverse proxy site
+a2ensite reverse-proxy.conf 2>/dev/null || true
 
 # Configure additional service proxies via wildcard IncludeOptional
 echo "Configuring additional service proxies..."
