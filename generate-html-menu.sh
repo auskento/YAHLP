@@ -507,8 +507,12 @@ generate_services_array() {
             fi
         fi
 
-        # Determine if popup (external link, qBittorrent, or MEDIA services with external URLs)
+        # Determine if popup (external link, qBittorrent, MEDIA services with external URLs, or CUSTOM services)
         local popup="false"
+        # CUSTOM services always open as popup/new tab
+        if [ "$category" = "CUSTOM" ]; then
+            popup="true"
+        fi
         [[ "$href" == http* ]] && popup="true"
         [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
         # MEDIA services open as popup only if they're external (http) or SUBDOMAIN; subfolder services stay in-window
