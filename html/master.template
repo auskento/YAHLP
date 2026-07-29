@@ -187,7 +187,11 @@ const codeToService = {
 // Convert icon path to SVG when available, fallback to PNG
 function getIconPath(iconPath) {
     if (!iconPath) return iconPath;
-    // Replace .png with .svg, keep everything else as-is
+    // Don't convert custom app icons (from /icons/ folder) - they're PNG only
+    if (iconPath.startsWith('/icons/')) {
+        return iconPath;
+    }
+    // Replace .png with .svg for built-in services, keep everything else as-is
     return iconPath.replace(/\.png$/i, '.svg');
 }
 
