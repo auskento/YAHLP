@@ -41,6 +41,31 @@ elif [ -d /etc/letsencrypt ] && [ ! -L /etc/letsencrypt ]; then
     echo "✓ Replaced /etc/letsencrypt with symlink → /etc/yahlp/certs"
 fi
 
+# Setup service icons folder in web root
+# Create /var/www/html/icons as symlink to /etc/yahlp/service_icons
+if [ ! -L /var/www/html/icons ] && [ ! -d /var/www/html/icons ]; then
+    # First run: create service_icons folder if it doesn't exist
+    mkdir -p /etc/yahlp/service_icons
+    chmod 775 /etc/yahlp/service_icons
+
+    # Copy pre-loaded service icons if they exist
+    if [ -d /app/service_icons ]; then
+        cp /app/service_icons/* /etc/yahlp/service_icons/ 2>/dev/null || true
+        echo "✓ Copied pre-loaded service icons"
+    fi
+
+    # Create symlink
+    ln -s /etc/yahlp/service_icons /var/www/html/icons
+    echo "✓ Created symlink: /var/www/html/icons → /etc/yahlp/service_icons"
+elif [ -d /var/www/html/icons ] && [ ! -L /var/www/html/icons ]; then
+    echo "Removing /var/www/html/icons directory to create symlink..."
+    rm -rf /var/www/html/icons
+    mkdir -p /etc/yahlp/service_icons
+    chmod 775 /etc/yahlp/service_icons
+    ln -s /etc/yahlp/service_icons /var/www/html/icons
+    echo "✓ Replaced /var/www/html/icons with symlink → /etc/yahlp/service_icons"
+fi
+
 # Verify symlink
 if [ -L /etc/letsencrypt ]; then
     LINK_TARGET=$(readlink /etc/letsencrypt)

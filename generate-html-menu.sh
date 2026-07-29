@@ -255,13 +255,22 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
                 # Get friendly name from code
                 app_name=$(echo "$app_code" | sed 's/^\(.\)/\U\1/' | tr '[:upper:]' '[:lower:]' | sed 's/^\(.\)/\U\1/')
 
+                # Extract href from <Location> directive in the config file
+                app_href=$(grep -oP '(?<=<Location\s)[^\s>]*' "$conf_file" | head -1)
+                if [ -z "$app_href" ]; then
+                    app_href="/${app_code,,}/"
+                    echo "[Apps] No Location directive found, using default href: $app_href" >&2
+                else
+                    echo "[Apps] Extracted href from config: $app_href" >&2
+                fi
+
                 # Add to additional apps array
                 ADDITIONAL_APPS+=("$app_key")
 
                 # Add to SERVICES array with custom app metadata
                 # Format: SERVICE_KEY="CUSTOM|Name|Description|Icon|Href|Accent"
-                app_icon="/service-icons/${app_code,,}.png"
-                SERVICES[$app_key]="CUSTOM|$app_name|Custom application|$app_icon|/${app_code,,}/|#6366f1"
+                app_icon="/icons/${app_code,,}.png"
+                SERVICES[$app_key]="CUSTOM|$app_name|Custom application|$app_icon|$app_href|#6366f1"
 
                 echo "[Apps] Found additional service: $app_key (icon: $icon_file)" >&2
             fi
