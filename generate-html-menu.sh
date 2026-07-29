@@ -257,6 +257,9 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
 
                 # Extract href from <Location> directive in the config file
                 app_href=$(grep -oP '(?<=<Location\s)[^\s>]*' "$conf_file" | head -1)
+                # Remove quotes if present
+                app_href="${app_href%\"}"
+                app_href="${app_href#\"}"
                 if [ -z "$app_href" ]; then
                     app_href="/${app_code,,}/"
                     echo "[Apps] No Location directive found, using default href: $app_href" >&2
