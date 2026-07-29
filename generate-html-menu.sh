@@ -237,10 +237,17 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
                 app_icon="/sites-icons/${app_code,,}.png"
                 app_key="${app_code^^}"  # Convert to uppercase for array key
 
-                # Check if icon file exists
-                icon_file="/etc/yahlp/sites-icons/${app_code,,}.png"
+                # Check if icon file exists (check both locations)
+                icon_file="/etc/yahlp/service_icons/${app_code,,}.png"
                 if [ ! -f "$icon_file" ]; then
-                    echo "[Apps] WARNING: Icon not found for $app_code at $icon_file" >&2
+                    # Try sites-icons as fallback
+                    icon_file="/etc/yahlp/sites-icons/${app_code,,}.png"
+                fi
+
+                if [ ! -f "$icon_file" ]; then
+                    echo "[Apps] WARNING: Icon not found for $app_code" >&2
+                    echo "[Apps]   Checked: /etc/yahlp/service_icons/${app_code,,}.png" >&2
+                    echo "[Apps]   Checked: /etc/yahlp/sites-icons/${app_code,,}.png" >&2
                     echo "[Apps] Skipping service (icon required)" >&2
                     continue
                 fi
@@ -253,6 +260,7 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
 
                 # Add to SERVICES array with custom app metadata
                 # Format: SERVICE_KEY="CUSTOM|Name|Description|Icon|Href|Accent"
+                app_icon="/service-icons/${app_code,,}.png"
                 SERVICES[$app_key]="CUSTOM|$app_name|Custom application|$app_icon|/${app_code,,}/|#6366f1"
 
                 echo "[Apps] Found additional service: $app_key (icon: $icon_file)" >&2
