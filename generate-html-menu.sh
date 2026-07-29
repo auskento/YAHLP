@@ -507,17 +507,20 @@ generate_services_array() {
             fi
         fi
 
-        # Determine if popup (external link, qBittorrent, MEDIA services with external URLs, or CUSTOM services)
+        # Determine if popup based on DASHBOARD_WINDOWS environment variable
         local popup="false"
-        # CUSTOM services always open as popup/new tab
-        if [ "$category" = "CUSTOM" ]; then
+
+        # Check if service is in DASHBOARD_WINDOWS list
+        if [[ "$DASHBOARD_WINDOWS" == *"$service_key"* ]]; then
             popup="true"
-        fi
-        [[ "$href" == http* ]] && popup="true"
-        [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
-        # MEDIA services open as popup only if they're external (http) or SUBDOMAIN; subfolder services stay in-window
-        if [ "$category" = "MEDIA" ] && [[ "$href" != /* ]]; then
-            popup="true"
+        else
+            # Default behavior for services not in DASHBOARD_WINDOWS
+            [[ "$href" == http* ]] && popup="true"
+            [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
+            # MEDIA services open as popup only if they're external (http) or SUBDOMAIN; subfolder services stay in-window
+            if [ "$category" = "MEDIA" ] && [[ "$href" != /* ]]; then
+                popup="true"
+            fi
         fi
 
         # Add comma between items (with newline for readability)
