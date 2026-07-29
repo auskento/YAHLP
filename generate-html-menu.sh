@@ -403,17 +403,20 @@ generate_services_array() {
             continue
         fi
 
-        # Check if service is enabled
-        local enable_var="ENABLE_${service_key}"
-        local is_enabled="${!enable_var}"
-
-        # Skip disabled services
-        if [ "$is_enabled" != "true" ]; then
-            continue
-        fi
-
         # Parse service metadata (format: category|name|desc|icon|href|accent)
         IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
+
+        # Check if service is enabled
+        # CUSTOM services are always enabled (they're already in additional-conf)
+        if [ "$category" != "CUSTOM" ]; then
+            local enable_var="ENABLE_${service_key}"
+            local is_enabled="${!enable_var}"
+
+            # Skip disabled built-in services
+            if [ "$is_enabled" != "true" ]; then
+                continue
+            fi
+        fi
 
         # Find the 3-letter code for this service key
         local id=""
