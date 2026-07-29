@@ -507,23 +507,17 @@ generate_services_array() {
             fi
         fi
 
-        # Determine if popup based on DASHBOARD_WINDOWS environment variable
+        # Determine if popup (opens in new tab or popout based on DASHBOARD_WINDOWS setting)
         local popup="false"
-
-        # Check if service is in DASHBOARD_WINDOWS list (case-insensitive)
-        local service_key_upper=$(echo "$service_key" | tr '[:lower:]' '[:upper:]')
-        local dashboard_windows_upper=$(echo "$DASHBOARD_WINDOWS" | tr '[:lower:]' '[:upper:]')
-
-        if [[ "$dashboard_windows_upper" == *"$service_key_upper"* ]]; then
+        [[ "$href" == http* ]] && popup="true"
+        [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
+        # MEDIA services open as popup only if they're external (http) or SUBDOMAIN; subfolder services stay in-window
+        if [ "$category" = "MEDIA" ] && [[ "$href" != /* ]]; then
             popup="true"
-        else
-            # Default behavior for services not in DASHBOARD_WINDOWS
-            [[ "$href" == http* ]] && popup="true"
-            [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
-            # MEDIA services open as popup only if they're external (http) or SUBDOMAIN; subfolder services stay in-window
-            if [ "$category" = "MEDIA" ] && [[ "$href" != /* ]]; then
-                popup="true"
-            fi
+        fi
+        # CUSTOM services always open as popup (method controlled by DASHBOARD_WINDOWS)
+        if [ "$category" = "CUSTOM" ]; then
+            popup="true"
         fi
 
         # Add comma between items (with newline for readability)
