@@ -207,6 +207,7 @@ SERVICES[WHISPARR]="CONTENT|Whisparr|Adult content|/icons/whisparr.png|$WHISPARR
 echo "[Apps] Scanning for additional service configurations..." >&2
 ADDITIONAL_APPS=()
 declare -A SERVICE_OVERRIDES  # Per-service dashboard setting overrides
+declare -A SERVICE_APPNAMES   # Per-service display name overrides
 ADDITIONAL_CONF_DIR="/etc/yahlp/additional-conf"
 echo "[Apps] Directory: $ADDITIONAL_CONF_DIR" >&2
 if [ -d "$ADDITIONAL_CONF_DIR" ]; then
@@ -268,11 +269,20 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
                     echo "[Apps] Extracted href from config: $app_href" >&2
                 fi
 
-                # Extract per-service dashboard settings from comments (e.g., #DASHBOARD_WINDOW=popout)
+                # Extract per-service settings from comments
+                # #DASHBOARD_WINDOW=popout
                 local app_dashboard_window=$(grep -oP '#\s*DASHBOARD_WINDOW=\K\w+' "$conf_file" | head -1)
                 if [ ! -z "$app_dashboard_window" ]; then
                     echo "[Apps] Found dashboard setting for $app_key: DASHBOARD_WINDOW=$app_dashboard_window" >&2
                     SERVICE_OVERRIDES[$app_key]="$app_dashboard_window"
+                fi
+
+                # #APPNAME=Tdarr or similar
+                local app_display_name=$(grep -oP '#\s*APPNAME=\K.+' "$conf_file" | head -1)
+                if [ ! -z "$app_display_name" ]; then
+                    echo "[Apps] Found app name for $app_key: APPNAME=$app_display_name" >&2
+                    SERVICE_APPNAMES[$app_key]="$app_display_name"
+                    app_name="$app_display_name"
                 fi
 
                 # Add to additional apps array
@@ -426,6 +436,12 @@ generate_services_array() {
         # Parse service metadata (format: category|name|desc|icon|href|accent)
         IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
 
+        # Check for per-service appname override (from #APPNAME= in conf file)
+        local appname="${SERVICE_APPNAMES[$service_key]}"
+        if [ -z "$appname" ]; then
+            appname="$name"
+        fi
+
         # Check if service is enabled
         # CUSTOM services are always enabled (they're already in additional-conf)
         if [ "$category" != "CUSTOM" ]; then
@@ -550,8 +566,8 @@ generate_services_array() {
             array+=",$( printf '\n    ')"
         fi
 
-        # Add service object with correct accent color
-        array+="{ id: '$id', name: '$name', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
+        # Add service object with correct accent color and appname
+        array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
         ((services_count++))
     done
 
