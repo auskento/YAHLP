@@ -551,26 +551,32 @@ generate_services_array() {
 
         # Check for per-service override (#DASHBOARD_WINDOW=embed or popout in conf file)
         local service_override="${SERVICE_OVERRIDES[$service_key]}"
-        if [ ! -z "$service_override" ]; then
-            # Per-service override: "embed" = iframe, "popout" = new window/tab
+
+        # CUSTOM services: default to popup=true unless explicitly set to embed
+        if [ "$category" = "CUSTOM" ]; then
             if [ "$service_override" = "embed" ]; then
                 popup="false"
                 window_method=""
             else
-                # "popout" = use DASHBOARD_WINDOWS method (newtab or popout)
+                # Default or "popout" = popup using DASHBOARD_WINDOWS method
+                popup="true"
+                window_method="${DASHBOARD_WINDOWS:-popout}"
+            fi
+        # Built-in services: use per-service override if set
+        elif [ ! -z "$service_override" ]; then
+            if [ "$service_override" = "embed" ]; then
+                popup="false"
+                window_method=""
+            else
                 popup="true"
                 window_method="${DASHBOARD_WINDOWS:-popout}"
             fi
         else
-            # Default behavior if no per-service override
+            # Default behavior for built-in services if no per-service override
             [[ "$href" == http* ]] && popup="true"
             [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
             # MEDIA services open as popup only if they're external (http) or SUBDOMAIN
             if [ "$category" = "MEDIA" ] && [[ "$href" != /* ]]; then
-                popup="true"
-            fi
-            # CUSTOM services always open as popup (method from DASHBOARD_WINDOWS)
-            if [ "$category" = "CUSTOM" ]; then
                 popup="true"
             fi
         fi
