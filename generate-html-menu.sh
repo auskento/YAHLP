@@ -275,15 +275,15 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
                 fi
 
                 # Extract per-service settings from comments
-                # #DASHBOARD_WINDOW=popout
-                local app_dashboard_window=$(grep -oP '#\s*DASHBOARD_WINDOW=\K\w+' "$conf_file" | head -1)
+                # #DASHBOARD_WINDOW=embed or #DASHBOARD_WINDOW=popout
+                local app_dashboard_window=$(grep -oP '#\s*DASHBOARD_WINDOW=\s*\K\w+' "$conf_file" | head -1 | xargs)
                 if [ ! -z "$app_dashboard_window" ]; then
-                    log_debug "[Apps] Found dashboard setting for $app_key: DASHBOARD_WINDOW=$app_dashboard_window"
+                    log_debug "[Apps] Found window setting for $app_key: DASHBOARD_WINDOW=$app_dashboard_window"
                     SERVICE_OVERRIDES[$app_key]="$app_dashboard_window"
                 fi
 
                 # #APPNAME=Tdarr or similar
-                local app_display_name=$(grep -oP '#\s*APPNAME=\K.+' "$conf_file" | head -1)
+                local app_display_name=$(grep -oP '#\s*APPNAME=\s*\K[^\n]+' "$conf_file" | head -1 | xargs)
                 if [ ! -z "$app_display_name" ]; then
                     log_debug "[Apps] Found app name for $app_key: APPNAME=$app_display_name"
                     SERVICE_APPNAMES[$app_key]="$app_display_name"
@@ -461,12 +461,18 @@ generate_services_array() {
 
         # Find the 3-letter code for this service key
         local id=""
-        for code in "${!SERVICE_CODE_MAP[@]}"; do
-            if [ "${SERVICE_CODE_MAP[$code]}" = "$service_key" ]; then
-                id="$code"
-                break
-            fi
-        done
+        if [ "$category" = "CUSTOM" ]; then
+            # For custom services, use lowercase app code as id
+            id="${service_key,,}"
+        else
+            # For built-in services, look up the code mapping
+            for code in "${!SERVICE_CODE_MAP[@]}"; do
+                if [ "${SERVICE_CODE_MAP[$code]}" = "$service_key" ]; then
+                    id="$code"
+                    break
+                fi
+            done
+        fi
 
         # Check for custom icon version
         icon=$(get_service_icon_path "$service_key" "$icon")
@@ -539,34 +545,34 @@ generate_services_array() {
             fi
         fi
 
-        # Determine if popup and window method
+        # Determine if popup (window_method controls how it opens)
         local popup="false"
         local window_method="${DASHBOARD_WINDOWS:-popout}"
 
-        # Check for per-service override (e.g., #DASHBOARD_WINDOW=embed|popout|newtab from conf file)
+        # Check for per-service override (#DASHBOARD_WINDOW=embed or popout in conf file)
         local service_override="${SERVICE_OVERRIDES[$service_key]}"
         if [ ! -z "$service_override" ]; then
-            # Per-service override controls both popup and method
+            # Per-service override: "embed" = iframe, "popout" = new window/tab
             if [ "$service_override" = "embed" ]; then
                 popup="false"
+                window_method=""
             else
-                # "popout" or "newtab" = popup true with specified method
+                # "popout" = use DASHBOARD_WINDOWS method (newtab or popout)
                 popup="true"
-                window_method="$service_override"
+                window_method="${DASHBOARD_WINDOWS:-popout}"
             fi
         else
             # Default behavior if no per-service override
             [[ "$href" == http* ]] && popup="true"
             [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
-            # MEDIA services open as popup only if they're external (http) or SUBDOMAIN; subfolder services stay in-window
+            # MEDIA services open as popup only if they're external (http) or SUBDOMAIN
             if [ "$category" = "MEDIA" ] && [[ "$href" != /* ]]; then
                 popup="true"
             fi
-            # CUSTOM services always open as popup (method controlled by DASHBOARD_WINDOWS)
+            # CUSTOM services always open as popup (method from DASHBOARD_WINDOWS)
             if [ "$category" = "CUSTOM" ]; then
                 popup="true"
             fi
-            # window_method already set to DASHBOARD_WINDOWS above for all services
         fi
 
         # Add comma between items (with newline for readability)
