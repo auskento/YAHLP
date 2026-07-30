@@ -279,16 +279,14 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
 
                 # Extract per-service settings from comments
                 # #DASHBOARD_WINDOW=embed or #DASHBOARD_WINDOW=popout
-                local app_dashboard_window=$(grep 'DASHBOARD_WINDOW' "$conf_file" | grep '^[[:space:]]*#' | sed 's/.*DASHBOARD_WINDOW[[:space:]]*=[[:space:]]*//;s/[[:space:]]*$//' | head -1)
-                echo "[Apps] DEBUG: extracted DASHBOARD_WINDOW='$app_dashboard_window' from $conf_file" >&2
+                app_dashboard_window=$(grep -i 'DASHBOARD_WINDOW' "$conf_file" | sed 's/^[[:space:]]*#*[[:space:]]*//' | sed 's/DASHBOARD_WINDOW[[:space:]]*=[[:space:]]*//' | head -1 | tr -d ' ')
                 if [ ! -z "$app_dashboard_window" ]; then
                     echo "[Apps] ✓ Found window setting for $app_key: DASHBOARD_WINDOW=$app_dashboard_window" >&2
                     SERVICE_OVERRIDES[$app_key]="$app_dashboard_window"
                 fi
 
                 # #APPNAME=Tdarr or similar
-                local app_display_name=$(grep 'APPNAME' "$conf_file" | grep '^[[:space:]]*#' | sed 's/.*APPNAME[[:space:]]*=[[:space:]]*//;s/[[:space:]]*$//' | head -1)
-                echo "[Apps] DEBUG: extracted APPNAME='$app_display_name' from $conf_file" >&2
+                app_display_name=$(grep -i 'APPNAME' "$conf_file" | sed 's/^[[:space:]]*#*[[:space:]]*//' | sed 's/APPNAME[[:space:]]*=[[:space:]]*//' | head -1)
                 if [ ! -z "$app_display_name" ]; then
                     echo "[Apps] ✓ Found app name for $app_key: APPNAME=$app_display_name" >&2
                     SERVICE_APPNAMES[$app_key]="$app_display_name"
