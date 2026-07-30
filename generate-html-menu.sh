@@ -206,6 +206,7 @@ SERVICES[WHISPARR]="CONTENT|Whisparr|Adult content|/icons/whisparr.png|$WHISPARR
 # Scan for additional service configurations
 echo "[Apps] Scanning for additional service configurations..." >&2
 ADDITIONAL_APPS=()
+declare -A SERVICE_OVERRIDES  # Per-service dashboard setting overrides
 ADDITIONAL_CONF_DIR="/etc/yahlp/additional-conf"
 echo "[Apps] Directory: $ADDITIONAL_CONF_DIR" >&2
 if [ -d "$ADDITIONAL_CONF_DIR" ]; then
@@ -265,6 +266,13 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
                     echo "[Apps] No Location directive found, using default href: $app_href" >&2
                 else
                     echo "[Apps] Extracted href from config: $app_href" >&2
+                fi
+
+                # Extract per-service dashboard settings from comments (e.g., #DASHBOARD_WINDOW=popout)
+                local app_dashboard_window=$(grep -oP '#\s*DASHBOARD_WINDOW=\K\w+' "$conf_file" | head -1)
+                if [ ! -z "$app_dashboard_window" ]; then
+                    echo "[Apps] Found dashboard setting for $app_key: DASHBOARD_WINDOW=$app_dashboard_window" >&2
+                    SERVICE_OVERRIDES[$app_key]="$app_dashboard_window"
                 fi
 
                 # Add to additional apps array
@@ -512,15 +520,27 @@ generate_services_array() {
 
         # Determine if popup (opens in new tab or popout based on DASHBOARD_WINDOWS setting)
         local popup="false"
-        [[ "$href" == http* ]] && popup="true"
-        [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
-        # MEDIA services open as popup only if they're external (http) or SUBDOMAIN; subfolder services stay in-window
-        if [ "$category" = "MEDIA" ] && [[ "$href" != /* ]]; then
-            popup="true"
-        fi
-        # CUSTOM services always open as popup (method controlled by DASHBOARD_WINDOWS)
-        if [ "$category" = "CUSTOM" ]; then
-            popup="true"
+
+        # Check for per-service override (e.g., #DASHBOARD_WINDOW=embed from conf file)
+        local service_override="${SERVICE_OVERRIDES[$service_key]}"
+        if [ ! -z "$service_override" ]; then
+            if [ "$service_override" = "embed" ]; then
+                popup="false"
+            elif [ "$service_override" = "popout" ] || [ "$service_override" = "newtab" ]; then
+                popup="true"
+            fi
+        else
+            # Default behavior if no per-service override
+            [[ "$href" == http* ]] && popup="true"
+            [[ "$service_key" == "QBITTORRENT" ]] && popup="true"
+            # MEDIA services open as popup only if they're external (http) or SUBDOMAIN; subfolder services stay in-window
+            if [ "$category" = "MEDIA" ] && [[ "$href" != /* ]]; then
+                popup="true"
+            fi
+            # CUSTOM services always open as popup (method controlled by DASHBOARD_WINDOWS)
+            if [ "$category" = "CUSTOM" ]; then
+                popup="true"
+            fi
         fi
 
         # Add comma between items (with newline for readability)
