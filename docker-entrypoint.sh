@@ -813,13 +813,13 @@ if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
             # Create symlink to vhost file in sites-available (keeps source as reference)
             vhost_name=$(basename "$vhost_file" .conf)
             vhost_link="/etc/apache2/sites-available/${vhost_name}.conf"
-            echo "    Creating symlink: $vhost_link → $vhost_file"
+            log_debug "    Creating symlink: $vhost_link → $vhost_file"
             rm -f "$vhost_link" 2>/dev/null
             ln -s "$vhost_file" "$vhost_link"
-            echo "    Symlink created, enabling with a2ensite..."
+            log_debug "    Symlink created, enabling with a2ensite..."
             a2ensite "$vhost_name" 2>/dev/null || true
             ENSITE_EXIT=$?
-            echo "    a2ensite exit code: $ENSITE_EXIT"
+            log_debug "    a2ensite exit code: $ENSITE_EXIT"
             ((VHOST_COUNT++)) || true
             echo "  ✓ Loaded vhost: $filename"
         fi
