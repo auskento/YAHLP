@@ -270,7 +270,7 @@ ${SERVICES_URL_JSON}
 }
 JSONEOF
     chmod 644 /etc/yahlp/yahlp.json5
-    log_debug "✓ Created /etc/yahlp/yahlp.json5 - edit this file to configure services"
+    echo "✓ Created /etc/yahlp/yahlp.json5 - edit this file to configure services"
 fi
 
 log_debug ""
@@ -1873,6 +1873,7 @@ if [ -f /app/VERSION ]; then
     echo "✓ YAHLP Release: $YAHLP_VERSION"
     echo "========================================="
 fi
+
 
 
 
