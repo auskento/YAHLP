@@ -2,7 +2,10 @@
 
 # Debug logging helper - only output if DEBUG=true
 log_debug() {
-    [ "$DEBUG" = "true" ] && echo "$@" >&2
+    if [ "$DEBUG" = "true" ]; then
+        echo "$@" >&2
+    fi
+    return 0
 }
 
 # Generate HTML Menu Based on Enabled Services
