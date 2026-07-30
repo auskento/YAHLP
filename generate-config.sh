@@ -49,6 +49,11 @@ process_service_config() {
     fi
 
     # Replace ProxyPass URLs, preserving the path
+    # Skip if service config file doesn't exist (service may be vhost-based)
+    if [ ! -f "$service_file" ]; then
+        return
+    fi
+
     # Special handling for services that proxy to root (/)
     if [ "$service_name" = "deluge" ] || [ "$service_name" = "qbittorrent" ] || [ "$service_name" = "seerr" ] || [ "$service_name" = "nzbget" ] || [ "$service_name" = "jackett" ]; then
         sed -i "s|http://${service_name}:${template_port}|http://${service_host_with_port}|g" "$service_file"
