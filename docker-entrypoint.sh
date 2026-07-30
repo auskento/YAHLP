@@ -292,8 +292,8 @@ if [ -f /etc/yahlp/yahlp.json5 ]; then
 
         if [ "$EXPORT_COUNT" -gt 0 ]; then
             echo "✓ Script generated $EXPORT_COUNT export statements"
-            echo "Sample exports:"
-            head -5 "$JSON5_ENV_FILE" | sed 's/^/  /'
+            log_debug "Sample exports:"
+            log_debug "$(head -5 "$JSON5_ENV_FILE" | sed 's/^/  /')"
 
             # Source the exports
             set -a
