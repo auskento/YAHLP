@@ -279,14 +279,14 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
 
                 # Extract per-service settings from comments
                 # #DASHBOARD_WINDOW=embed or #DASHBOARD_WINDOW=popout
-                local app_dashboard_window=$(grep -oP '#\s*DASHBOARD_WINDOW=\s*\K\w+' "$conf_file" | head -1 | xargs)
+                local app_dashboard_window=$(grep '^#.*DASHBOARD_WINDOW' "$conf_file" | sed 's/.*DASHBOARD_WINDOW[[:space:]]*=[[:space:]]*//;s/[[:space:]]*$//' | head -1)
                 if [ ! -z "$app_dashboard_window" ]; then
                     log_debug "[Apps] Found window setting for $app_key: DASHBOARD_WINDOW=$app_dashboard_window"
                     SERVICE_OVERRIDES[$app_key]="$app_dashboard_window"
                 fi
 
                 # #APPNAME=Tdarr or similar
-                local app_display_name=$(grep -oP '#\s*APPNAME=\s*\K[^\n]+' "$conf_file" | head -1 | xargs)
+                local app_display_name=$(grep '^#.*APPNAME' "$conf_file" | sed 's/.*APPNAME[[:space:]]*=[[:space:]]*//;s/[[:space:]]*$//' | head -1)
                 if [ ! -z "$app_display_name" ]; then
                     log_debug "[Apps] Found app name for $app_key: APPNAME=$app_display_name"
                     SERVICE_APPNAMES[$app_key]="$app_display_name"
@@ -591,8 +591,8 @@ generate_services_array() {
             array+=",$( printf '\n    ')"
         fi
 
-        # Add service object with correct accent color, appname, and window method
-        array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, windowMethod: '$window_method' }"
+        # Add service object with correct accent color and appname
+        array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
         ((services_count++))
     done
 
