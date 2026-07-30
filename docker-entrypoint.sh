@@ -1582,9 +1582,9 @@ if [ "$ACCESS_MODE" = "public" ] && [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EM
     fi
 
     /usr/local/bin/generate-vhost.sh "emby" "$EMBY_DOMAIN_NAME" "$EMBY_URL" "$EMBY_CERT_PATH" "$AUTHTYPE"
-    echo "=== GENERATED EMBY VHOST CONFIG ==="
-    cat /etc/apache2/sites-available/emby-vhost.conf
-    echo "=== END EMBY VHOST CONFIG ==="
+    log_debug "=== GENERATED EMBY VHOST CONFIG ==="
+    log_debug "$(cat /etc/apache2/sites-available/emby-vhost.conf)"
+    log_debug "=== END EMBY VHOST CONFIG ==="
 
     # Enable the Emby VirtualHost
     a2ensite emby-vhost
