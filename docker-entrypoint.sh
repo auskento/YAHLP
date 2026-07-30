@@ -3,7 +3,10 @@ set -e
 
 # Debug logging helper - only output if DEBUG=true
 log_debug() {
-    [ "$DEBUG" = "true" ] && echo "$@"
+    if [ "$DEBUG" = "true" ]; then
+        echo "$@"
+    fi
+    return 0
 }
 
 # Disable default Apache sites that conflict with YAHLP configuration
