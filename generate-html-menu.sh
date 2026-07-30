@@ -534,16 +534,20 @@ generate_services_array() {
             fi
         fi
 
-        # Determine if popup (opens in new tab or popout based on DASHBOARD_WINDOWS setting)
+        # Determine if popup and window method
         local popup="false"
+        local window_method="${DASHBOARD_WINDOWS:-popout}"
 
-        # Check for per-service override (e.g., #DASHBOARD_WINDOW=embed from conf file)
+        # Check for per-service override (e.g., #DASHBOARD_WINDOW=embed|popout|newtab from conf file)
         local service_override="${SERVICE_OVERRIDES[$service_key]}"
         if [ ! -z "$service_override" ]; then
+            # Per-service override controls both popup and method
             if [ "$service_override" = "embed" ]; then
                 popup="false"
-            elif [ "$service_override" = "popout" ] || [ "$service_override" = "newtab" ]; then
+            else
+                # "popout" or "newtab" = popup true with specified method
                 popup="true"
+                window_method="$service_override"
             fi
         else
             # Default behavior if no per-service override
@@ -557,6 +561,7 @@ generate_services_array() {
             if [ "$category" = "CUSTOM" ]; then
                 popup="true"
             fi
+            # window_method already set to DASHBOARD_WINDOWS above for all services
         fi
 
         # Add comma between items (with newline for readability)
@@ -566,8 +571,8 @@ generate_services_array() {
             array+=",$( printf '\n    ')"
         fi
 
-        # Add service object with correct accent color and appname
-        array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
+        # Add service object with correct accent color, appname, and window method
+        array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, windowMethod: '$window_method' }"
         ((services_count++))
     done
 
