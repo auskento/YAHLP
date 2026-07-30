@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+# Debug logging helper - only output if DEBUG=true
+log_debug() {
+    [ "$DEBUG" = "true" ] && echo "$@"
+}
+
 # Disable default Apache sites that conflict with YAHLP configuration
 a2dissite 000-default.conf default-ssl.conf 2>/dev/null || true
 
@@ -33,12 +38,12 @@ chmod -R 777 /etc/yahlp/certs/live /etc/yahlp/certs/archive /etc/yahlp/certs/ren
 # Create symlink from /etc/letsencrypt to /etc/yahlp/certs for certbot compatibility
 if [ ! -L /etc/letsencrypt ] && [ ! -d /etc/letsencrypt ]; then
     ln -s /etc/yahlp/certs /etc/letsencrypt
-    echo "✓ Created symlink: /etc/letsencrypt → /etc/yahlp/certs"
+    log_debug "✓ Created symlink: /etc/letsencrypt → /etc/yahlp/certs"
 elif [ -d /etc/letsencrypt ] && [ ! -L /etc/letsencrypt ]; then
-    echo "Removing /etc/letsencrypt directory to create symlink..."
+    log_debug "Removing /etc/letsencrypt directory to create symlink..."
     rm -rf /etc/letsencrypt
     ln -s /etc/yahlp/certs /etc/letsencrypt
-    echo "✓ Replaced /etc/letsencrypt with symlink → /etc/yahlp/certs"
+    log_debug "✓ Replaced /etc/letsencrypt with symlink → /etc/yahlp/certs"
 fi
 
 # Setup service icons folder in web root
@@ -51,25 +56,25 @@ if [ ! -L /var/www/html/icons ] && [ ! -d /var/www/html/icons ]; then
     # Copy pre-loaded service icons if they exist
     if [ -d /app/service_icons ]; then
         cp /app/service_icons/* /etc/yahlp/service_icons/ 2>/dev/null || true
-        echo "✓ Copied pre-loaded service icons"
+        log_debug "✓ Copied pre-loaded service icons"
     fi
 
     # Create symlink
     ln -s /etc/yahlp/service_icons /var/www/html/icons
-    echo "✓ Created symlink: /var/www/html/icons → /etc/yahlp/service_icons"
+    log_debug "✓ Created symlink: /var/www/html/icons → /etc/yahlp/service_icons"
 elif [ -d /var/www/html/icons ] && [ ! -L /var/www/html/icons ]; then
-    echo "Removing /var/www/html/icons directory to create symlink..."
+    log_debug "Removing /var/www/html/icons directory to create symlink..."
     rm -rf /var/www/html/icons
     mkdir -p /etc/yahlp/service_icons
     chmod 775 /etc/yahlp/service_icons
     ln -s /etc/yahlp/service_icons /var/www/html/icons
-    echo "✓ Replaced /var/www/html/icons with symlink → /etc/yahlp/service_icons"
+    log_debug "✓ Replaced /var/www/html/icons with symlink → /etc/yahlp/service_icons"
 fi
 
 # Verify symlink
 if [ -L /etc/letsencrypt ]; then
     LINK_TARGET=$(readlink /etc/letsencrypt)
-    echo "✓ /etc/letsencrypt symlink verified → $LINK_TARGET"
+    log_debug "✓ /etc/letsencrypt symlink verified → $LINK_TARGET"
 else
     echo "ERROR: /etc/letsencrypt is not a symlink!"
     exit 1
@@ -89,13 +94,13 @@ chmod -R 775 /etc/yahlp/logs || {
 # Create symlink from /var/log/apache2 to /etc/yahlp/logs for Apache compatibility
 if [ ! -L /var/log/apache2 ] && [ ! -d /var/log/apache2 ]; then
     ln -s /etc/yahlp/logs /var/log/apache2
-    echo "✓ Created symlink: /var/log/apache2 → /etc/yahlp/logs"
+    log_debug "✓ Created symlink: /var/log/apache2 → /etc/yahlp/logs"
 elif [ -d /var/log/apache2 ] && [ ! -L /var/log/apache2 ]; then
-    echo "WARNING: /var/log/apache2 exists as a real directory"
-    echo "  Removing to create symlink to /etc/yahlp/logs"
+    log_debug "WARNING: /var/log/apache2 exists as a real directory"
+    log_debug "  Removing to create symlink to /etc/yahlp/logs"
     rm -rf /var/log/apache2
     ln -s /etc/yahlp/logs /var/log/apache2
-    echo "✓ Created symlink: /var/log/apache2 → /etc/yahlp/logs"
+    log_debug "✓ Created symlink: /var/log/apache2 → /etc/yahlp/logs"
 fi
 
 # Ensure sites directory exists in logs folder
@@ -117,7 +122,7 @@ mkdir -p /etc/yahlp/service_icons || {
 cp -r /var/www/html/icons/* /etc/yahlp/service_icons/ 2>/dev/null || true
 chown -R ${PUID:-0}:${PGID:-0} /etc/yahlp/service_icons
 chmod 775 /etc/yahlp/service_icons
-echo "✓ Service icons folder created: /etc/yahlp/service_icons"
+log_debug "✓ Service icons folder created: /etc/yahlp/service_icons"
 
 # Setup site icons folder and copy bundled icons
 mkdir -p /etc/yahlp/site_icons || {
@@ -127,12 +132,12 @@ mkdir -p /etc/yahlp/site_icons || {
 cp -r /var/www/html/sites-icons/* /etc/yahlp/site_icons/ 2>/dev/null || true
 chown -R ${PUID:-0}:${PGID:-0} /etc/yahlp/site_icons
 chmod 775 /etc/yahlp/site_icons
-echo "✓ Site icons folder created: /etc/yahlp/site_icons"
+log_debug "✓ Site icons folder created: /etc/yahlp/site_icons"
 
 # Copy icon configuration guide to config folder
 cp /app/ICON_CONFIGURATION.md /etc/yahlp/ICON_CONFIGURATION.md 2>/dev/null || true
 chmod 644 /etc/yahlp/ICON_CONFIGURATION.md 2>/dev/null || true
-echo "✓ Icon configuration guide available: /etc/yahlp/ICON_CONFIGURATION.md"
+log_debug "✓ Icon configuration guide available: /etc/yahlp/ICON_CONFIGURATION.md"
 
 # Configuration loading:
 # 1. If yahlp.json5 is provided (mounted), convert it to environment variables
@@ -142,7 +147,7 @@ echo "✓ Icon configuration guide available: /etc/yahlp/ICON_CONFIGURATION.md"
 
 # Generate example yahlp.json5 on first run if it doesn't exist
 if [ ! -f /etc/yahlp/yahlp.json5 ]; then
-    echo "Creating example yahlp.json5 configuration file..."
+    log_debug "Creating example yahlp.json5 configuration file..."
     # Use environment variables if provided, otherwise use defaults
     JSON_DOMAIN="${DOMAIN:-yourdomain.com}"
     JSON_EMAIL="${EMAIL:-admin@yourdomain.com}"
@@ -265,10 +270,10 @@ ${SERVICES_URL_JSON}
 }
 JSONEOF
     chmod 644 /etc/yahlp/yahlp.json5
-    echo "✓ Created /etc/yahlp/yahlp.json5 - edit this file to configure services"
+    log_debug "✓ Created /etc/yahlp/yahlp.json5 - edit this file to configure services"
 fi
 
-echo ""
+log_debug ""
 echo "Checking for /etc/yahlp/yahlp.json5..."
 
 if [ -f /etc/yahlp/yahlp.json5 ]; then
@@ -309,7 +314,7 @@ else
     echo "  If using yahlp.json5, mount it to /etc/yahlp/yahlp.json5:ro"
     echo "  Otherwise, configure services via -e environment variables"
 fi
-echo ""
+log_debug ""
 
 # Load persistent dashboard configuration if it exists (legacy support)
 # This allows changing UI style and landing page without rebuilding the image
@@ -510,7 +515,7 @@ if [ ! -z "$EMBY_DOMAIN" ]; then
     EMBY_REDIRECT_URI="https://${EMBY_DOMAIN}${OAUTH_PATH}"
 fi
 
-echo ""
+log_debug ""
 
 # Source env.conf to load defaults for variables not set in environment
 # Use set -a to export all variables so they're available to child processes
@@ -552,7 +557,7 @@ if [ -f /templates/README.md ] && [ ! -f /etc/yahlp/templates/README.md ]; then
 fi
 
 # Verify all permissions are correctly set
-echo ""
+log_debug ""
 echo "=== Verifying Folder Permissions ==="
 echo "Folder Permissions Summary:"
 ls -ld /etc/yahlp | awk '{print "  /etc/yahlp: " $1}'
@@ -562,7 +567,7 @@ ls -ld /etc/yahlp/logs | awk '{print "  /etc/yahlp/logs: " $1}'
 ls -ld /etc/yahlp/logs/sites | awk '{print "  /etc/yahlp/logs/sites: " $1}'
 
 # Verify symlinks
-echo ""
+log_debug ""
 echo "Symlinks:"
 if [ -L /etc/letsencrypt ]; then
     echo "  /etc/letsencrypt → $(readlink /etc/letsencrypt)"
@@ -571,7 +576,7 @@ if [ -L /var/log/apache2 ]; then
     echo "  /var/log/apache2 → $(readlink /var/log/apache2)"
 fi
 
-echo ""
+log_debug ""
 echo "=== Setting Global ServerName ==="
 # Set global ServerName to suppress the warning (only if DOMAIN is set)
 if ! grep -q "^ServerName" /etc/apache2/apache2.conf; then
@@ -625,7 +630,7 @@ else
     exit 1
 fi
 
-echo ""
+log_debug ""
 echo "=== Test Mode Configuration ==="
 # Setup staging flag for certbot if TEST mode is enabled
 DRY_RUN_FLAG=""
@@ -647,7 +652,7 @@ else
     fi
 fi
 
-echo ""
+log_debug ""
 echo "=== Apache Setup ==="
 echo "Style: $DASH_STYLE (Auth: $AUTHTYPE)"
 
@@ -723,12 +728,12 @@ else
 fi
 
 # Initialize and manage torrent/usenet sites
-echo ""
+log_debug ""
 /usr/local/bin/generate-sites-config.sh
 
 # Load additional service and vhost configurations BEFORE generating menu
 # Enable additional service proxy configurations (Location blocks)
-echo ""
+log_debug ""
 echo "Loading additional service configurations..."
 ADDITIONAL_CONF_DIR="/etc/yahlp/additional-conf"
 CONF_COUNT=0
@@ -772,7 +777,7 @@ if [ $CONF_COUNT -eq 0 ]; then
 fi
 
 # Enable additional VirtualHost configurations
-echo ""
+log_debug ""
 echo "Loading additional vhost configurations..."
 ADDITIONAL_VHOST_DIR="/etc/yahlp/additional-vhost"
 VHOST_COUNT=0
@@ -823,7 +828,7 @@ if [ $VHOST_COUNT -eq 0 ]; then
 fi
 
 echo "✓ Additional configurations loaded"
-echo ""
+log_debug ""
 
 # Now that additional services are discovered, generate the HTML dashboard menu
 echo "Generating dashboard menu based on enabled services..."
@@ -1119,7 +1124,7 @@ check_and_remove_staging_cert() {
 
 # Generate certificate only if not skipped (public mode)
 if [ "$SKIP_CERT_GENERATION" = "false" ]; then
-    echo ""
+    log_debug ""
     echo "=== Obtaining Let's Encrypt Certificate ==="
     echo "Certificate path: /etc/yahlp/certs/live/$DOMAIN/fullchain.pem"
 
@@ -1181,7 +1186,7 @@ if [ "$SKIP_CERT_GENERATION" = "false" ]; then
         echo "✓ Certificate already exists for main domain: $DOMAIN"
     fi
 else
-    echo ""
+    log_debug ""
     echo "=== Certificate Generation Skipped (Private Mode - HTTP Only) ==="
     echo "✓ Private mode uses HTTP only (no SSL)"
 fi
@@ -1293,7 +1298,7 @@ chmod -R 777 /etc/yahlp/certs
 echo "✓ Certificate permissions fixed"
 
 if [ "${ENABLE_EMBY}" = "true" ] && [ ! -z "$EMBY_DOMAIN" ] && [ ! -z "$EMBY_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
-    echo ""
+    log_debug ""
     echo "=== Emby Subdomain OAuth Setup ==="
     echo "Emby domain: $EMBY_DOMAIN"
 
@@ -1390,7 +1395,7 @@ AUTHEOF
 fi
 
 if [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ] && [ ! -z "$PLEX_REDIRECT_URI" ] && ([ "$AUTHTYPE" = "google" ] || [ "$AUTHTYPE" = "entra" ]); then
-    echo ""
+    log_debug ""
     echo "=== Plex Subdomain OAuth Setup ==="
     echo "Plex domain: $PLEX_DOMAIN"
 
@@ -1585,7 +1590,7 @@ fi
 
 # Generate Plex VirtualHost if enabled (public mode only)
 if [ "$ACCESS_MODE" = "public" ] && [ "${ENABLE_PLEX}" = "true" ] && [ ! -z "$PLEX_DOMAIN" ]; then
-    echo ""
+    log_debug ""
     echo "=== Generating Plex VirtualHost ==="
 
     # Determine certificate path (subdomain cert, base domain cert, or main domain fallback)
@@ -1609,7 +1614,7 @@ fi
 
 # Configure Seerr subdomain VirtualHost (if SEERR_DOMAIN and SEERR_URL are set and in public mode)
 if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$SEERR_DOMAIN" ] && [ ! -z "$SEERR_URL" ]; then
-    echo ""
+    log_debug ""
     echo "=== Generating Seerr VirtualHost ==="
 
     # Determine certificate path (subdomain cert, base domain cert, or main domain fallback)
@@ -1637,7 +1642,7 @@ fi
 
 # Configure Jackett subdomain VirtualHost (if JACKETT_DOMAIN and JACKETT_URL are set and in public mode)
 if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$JACKETT_DOMAIN" ] && [ ! -z "$JACKETT_URL" ]; then
-    echo ""
+    log_debug ""
     echo "=== Generating Jackett VirtualHost ==="
 
     # Determine certificate path (subdomain cert, base domain cert, or main domain fallback)
@@ -1723,7 +1728,7 @@ done
 
 # Check for staging certificates in custom domains when switching from TEST to production
 if [ "$ACCESS_MODE" = "public" ] && [ "$DASHBOARD_TEST" = "false" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
-    echo ""
+    log_debug ""
     echo "Checking for staging certificates in custom domains..."
     for domain in $CUSTOM_DOMAINS; do
         set +e
@@ -1734,7 +1739,7 @@ fi
 
 # Request SSL certificates for custom domains BEFORE enabling vhosts
 if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
-    echo ""
+    log_debug ""
     echo "Requesting SSL certificates for custom service domains..."
     for domain in $CUSTOM_DOMAINS; do
         # Validate domain format (must contain at least one dot)
@@ -1761,8 +1766,8 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
                 --agree-tos \
                 --no-eff-email \
                 --non-interactive \
-                $([ ! -z "$account_id" ] && echo "--account $account_id" || echo "") \
-                $([ "$DASHBOARD_TEST" = "true" ] && echo "--staging" || echo "") \
+                $([ ! -z "$account_id" ] && echo "--account $account_id" || log_debug "") \
+                $([ "$DASHBOARD_TEST" = "true" ] && echo "--staging" || log_debug "") \
                 -d "$domain" 2>&1)
             certbot_status=$?
             set -e
@@ -1773,7 +1778,7 @@ if [ "$ACCESS_MODE" = "public" ] && [ ! -z "$CUSTOM_DOMAINS" ]; then
                 echo "    ⚠ Certificate request status: $certbot_status"
                 echo "    Full output:"
                 echo "$certbot_output" | sed 's/^/      /'
-                echo ""
+                log_debug ""
                 echo "    Check:"
                 echo "      - Is DNS for $domain pointing to this server?"
                 echo "      - Run: nslookup $domain"
@@ -1787,7 +1792,7 @@ fi
 
 # Second pass: Now enable all vhost files (after certificates have been requested)
 # Only enable files with "vhost" in the name to avoid conflicts with default Apache configs
-echo ""
+log_debug ""
 echo "Enabling VirtualHost configurations..."
 for vhost in /etc/apache2/sites-available/*vhost*.conf; do
     if [ -f "$vhost" ]; then
@@ -1797,7 +1802,7 @@ for vhost in /etc/apache2/sites-available/*vhost*.conf; do
     fi
 done
 
-echo ""
+log_debug ""
 apache2ctl configtest || {
     echo "Apache configuration error!"
     echo "Config file: /etc/apache2/sites-available/reverse-proxy.conf"
@@ -1827,31 +1832,31 @@ echo "Apache exited with code: $APACHE_EXIT"
 
 # Apache should never exit - if it does, show diagnostic info
 if true; then
-    echo ""
+    log_debug ""
     echo "========================================="
     echo "APACHE STARTUP FAILED (Exit code: $APACHE_EXIT)"
     echo "========================================="
-    echo ""
+    log_debug ""
     echo "=== Apache Error Log ==="
     cat /var/log/apache2/error.log 2>/dev/null || echo "(No error log found)"
-    echo ""
+    log_debug ""
     echo "=== Apache Access Log ==="
     tail -20 /var/log/apache2/access.log 2>/dev/null || echo "(No access log found)"
-    echo ""
+    log_debug ""
     echo "=== Generated Reverse Proxy Config ==="
     cat /etc/apache2/sites-available/reverse-proxy.conf 2>/dev/null || echo "(Config not found)"
-    echo ""
+    log_debug ""
     echo "=== Service VirtualHost Configs ==="
     ls -la /etc/apache2/sites-available/*-vhost.conf 2>/dev/null || echo "(No service VirtualHosts found)"
-    echo ""
+    log_debug ""
     echo "=== Available Config Files ==="
     ls -la /etc/apache2/conf-available/ | grep -E "emby|plex|seerr|google|entra" || echo "(No relevant configs found)"
-    echo ""
+    log_debug ""
     echo "========================================="
     echo "Container will keep running for debugging."
     echo "Check logs above for errors."
     echo "========================================="
-    echo ""
+    log_debug ""
 
     # Keep container running so you can debug
     while true; do
@@ -1863,10 +1868,11 @@ fi
 # Display YAHLP release version
 if [ -f /app/VERSION ]; then
     YAHLP_VERSION=$(cat /app/VERSION)
-    echo ""
+    log_debug ""
     echo "========================================="
     echo "✓ YAHLP Release: $YAHLP_VERSION"
     echo "========================================="
 fi
+
 
 

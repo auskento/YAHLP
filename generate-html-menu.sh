@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Debug logging helper - only output if DEBUG=true
+log_debug() {
+    [ "$DEBUG" = "true" ] && echo "$@" >&2
+}
+
 # Generate HTML Menu Based on Enabled Services
 # Uses index.html.template with dynamic service icons
 # Organized in same categories as React dashboard
@@ -204,37 +209,37 @@ SERVICES[LIDARR]="CONTENT|Lidarr|Music|/icons/lidarr.png|$LIDARR_LANDING|#2ecd6f
 SERVICES[WHISPARR]="CONTENT|Whisparr|Adult content|/icons/whisparr.png|$WHISPARR_LANDING|#ef7e30"
 
 # Scan for additional service configurations
-echo "[Apps] Scanning for additional service configurations..." >&2
+log_debug "[Apps] Scanning for additional service configurations..."
 ADDITIONAL_APPS=()
 declare -A SERVICE_OVERRIDES  # Per-service dashboard setting overrides
 declare -A SERVICE_APPNAMES   # Per-service display name overrides
 ADDITIONAL_CONF_DIR="/etc/yahlp/additional-conf"
-echo "[Apps] Directory: $ADDITIONAL_CONF_DIR" >&2
+log_debug "[Apps] Directory: $ADDITIONAL_CONF_DIR"
 if [ -d "$ADDITIONAL_CONF_DIR" ]; then
-    echo "[Apps] Directory exists, scanning for *.conf files..." >&2
+    log_debug "[Apps] Directory exists, scanning for *.conf files..."
     for conf_file in "$ADDITIONAL_CONF_DIR"/*.conf; do
-        echo "[Apps] Found file: $conf_file" >&2
+        log_debug "[Apps] Found file: $conf_file"
         if [ -f "$conf_file" ]; then
             filename=$(basename "$conf_file")
-            echo "[Apps] Processing: $filename" >&2
+            log_debug "[Apps] Processing: $filename"
 
             # Skip example files
             if [[ "$filename" == *"example"* ]]; then
-                echo "[Apps] Skipping (example): $filename" >&2
+                log_debug "[Apps] Skipping (example): $filename"
                 continue
             fi
 
             # Skip vhost files (not added to menu)
             if [[ "$filename" == *"vhost"* ]]; then
-                echo "[Apps] Skipping (vhost): $filename" >&2
+                log_debug "[Apps] Skipping (vhost): $filename"
                 continue
             fi
 
             # Only process 3-4 letter service codes
             code=$(basename "$conf_file" .conf)
-            echo "[Apps] Code: $code" >&2
+            log_debug "[Apps] Code: $code"
             if [[ "$code" =~ ^[a-zA-Z]{3,4}$ ]]; then
-                echo "[Apps] Code matches pattern!" >&2
+                log_debug "[Apps] Code matches pattern!"
                 app_code="$code"
                 app_icon="/sites-icons/${app_code,,}.png"
                 app_key="${app_code^^}"  # Convert to uppercase for array key
@@ -247,10 +252,10 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
                 fi
 
                 if [ ! -f "$icon_file" ]; then
-                    echo "[Apps] WARNING: Icon not found for $app_code" >&2
-                    echo "[Apps]   Checked: /etc/yahlp/service_icons/${app_code,,}.png" >&2
-                    echo "[Apps]   Checked: /etc/yahlp/sites-icons/${app_code,,}.png" >&2
-                    echo "[Apps] Skipping service (icon required)" >&2
+                    log_debug "[Apps] WARNING: Icon not found for $app_code"
+                    log_debug "[Apps]   Checked: /etc/yahlp/service_icons/${app_code,,}.png"
+                    log_debug "[Apps]   Checked: /etc/yahlp/sites-icons/${app_code,,}.png"
+                    log_debug "[Apps] Skipping service (icon required)"
                     continue
                 fi
 
@@ -264,23 +269,23 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
                 app_href="${app_href#\"}"
                 if [ -z "$app_href" ]; then
                     app_href="/${app_code,,}/"
-                    echo "[Apps] No Location directive found, using default href: $app_href" >&2
+                    log_debug "[Apps] No Location directive found, using default href: $app_href"
                 else
-                    echo "[Apps] Extracted href from config: $app_href" >&2
+                    log_debug "[Apps] Extracted href from config: $app_href"
                 fi
 
                 # Extract per-service settings from comments
                 # #DASHBOARD_WINDOW=popout
                 local app_dashboard_window=$(grep -oP '#\s*DASHBOARD_WINDOW=\K\w+' "$conf_file" | head -1)
                 if [ ! -z "$app_dashboard_window" ]; then
-                    echo "[Apps] Found dashboard setting for $app_key: DASHBOARD_WINDOW=$app_dashboard_window" >&2
+                    log_debug "[Apps] Found dashboard setting for $app_key: DASHBOARD_WINDOW=$app_dashboard_window"
                     SERVICE_OVERRIDES[$app_key]="$app_dashboard_window"
                 fi
 
                 # #APPNAME=Tdarr or similar
                 local app_display_name=$(grep -oP '#\s*APPNAME=\K.+' "$conf_file" | head -1)
                 if [ ! -z "$app_display_name" ]; then
-                    echo "[Apps] Found app name for $app_key: APPNAME=$app_display_name" >&2
+                    log_debug "[Apps] Found app name for $app_key: APPNAME=$app_display_name"
                     SERVICE_APPNAMES[$app_key]="$app_display_name"
                     app_name="$app_display_name"
                 fi
@@ -293,7 +298,7 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
                 app_icon="/icons/${app_code,,}.png"
                 SERVICES[$app_key]="CUSTOM|$app_name|Custom application|$app_icon|$app_href|#6366f1"
 
-                echo "[Apps] Found additional service: $app_key (icon: $icon_file)" >&2
+                log_debug "[Apps] Found additional service: $app_key (icon: $icon_file)"
             fi
         fi
     done
@@ -315,9 +320,9 @@ declare -a SERVICE_ORDER=(
 
 # Add additional apps to the end of SERVICE_ORDER
 if [ ${#ADDITIONAL_APPS[@]} -gt 0 ]; then
-    echo "[Apps] Adding ${#ADDITIONAL_APPS[@]} additional app(s) to menu" >&2
+    log_debug "[Apps] Adding ${#ADDITIONAL_APPS[@]} additional app(s) to menu"
     SERVICE_ORDER+=("${ADDITIONAL_APPS[@]}")
-    echo "[Apps] SERVICE_ORDER now has ${#SERVICE_ORDER[@]} total services" >&2
+    log_debug "[Apps] SERVICE_ORDER now has ${#SERVICE_ORDER[@]} total services"
 fi
 
 # Service code to service key mapping
@@ -352,58 +357,58 @@ generate_services_array() {
 
     # Use DASHBOARD_ORDER if provided, otherwise use SERVICE_ORDER
     if [ ! -z "$DASHBOARD_ORDER" ]; then
-        echo "[Menu] Using DASHBOARD_ORDER: $DASHBOARD_ORDER" >&2
+        log_debug "[Menu] Using DASHBOARD_ORDER: $DASHBOARD_ORDER"
         # Parse DASHBOARD_ORDER (service codes format: SAB,GET,HYD,etc + SEP for separators)
         IFS=',' read -ra codes <<< "$DASHBOARD_ORDER"
         for code in "${codes[@]}"; do
             code=$(echo "$code" | xargs)
-            echo "[Menu] Processing code: $code" >&2
+            log_debug "[Menu] Processing code: $code"
             # Handle labeled separators (LBL:Label)
             if [[ "$code" =~ ^LBL: ]]; then
                 order_array+=("$code")
-                echo "[Menu] Added separator: $code" >&2
+                log_debug "[Menu] Added separator: $code"
             else
                 code=$(echo "$code" | tr '[:lower:]' '[:upper:]')
-                echo "[Menu] Converted to uppercase: $code" >&2
+                log_debug "[Menu] Converted to uppercase: $code"
                 # Handle separator markers (SEP=invisible gap, VIS=visible line)
                 if [ "$code" = "SEP" ] || [ "$code" = "VIS" ]; then
                     order_array+=("$code")
-                    echo "[Menu] Added marker: $code" >&2
+                    log_debug "[Menu] Added marker: $code"
                 elif [ -n "${SERVICE_CODE_MAP[$code]}" ]; then
                     # Service found in built-in code map
                     order_array+=("${SERVICE_CODE_MAP[$code]}")
-                    echo "[Menu] Added from CODE_MAP: $code → ${SERVICE_CODE_MAP[$code]}" >&2
+                    log_debug "[Menu] Added from CODE_MAP: $code → ${SERVICE_CODE_MAP[$code]}"
                 elif [ -n "${SERVICES[$code]}" ]; then
                     # Service is an additional/custom service (use code as key directly)
                     order_array+=("$code")
-                    echo "[Menu] Added from SERVICES: $code" >&2
+                    log_debug "[Menu] Added from SERVICES: $code"
                 else
-                    echo "[Menu] NOT FOUND: $code (not in CODE_MAP or SERVICES)" >&2
+                    log_debug "[Menu] NOT FOUND: $code (not in CODE_MAP or SERVICES)"
                 fi
             fi
         done
     else
-        echo "[Menu] Using default SERVICE_ORDER (no DASHBOARD_ORDER)" >&2
+        log_debug "[Menu] Using default SERVICE_ORDER (no DASHBOARD_ORDER)"
         order_array=("${SERVICE_ORDER[@]}")
     fi
 
     # Add any additional services that aren't already in the order array
     if [ ${#ADDITIONAL_APPS[@]} -gt 0 ]; then
-        echo "[Menu] Checking if additional apps are in order array..." >&2
+        log_debug "[Menu] Checking if additional apps are in order array..."
         for app in "${ADDITIONAL_APPS[@]}"; do
             # Check if this app is already in order_array
             found=false
             for item in "${order_array[@]}"; do
                 if [ "$item" = "$app" ]; then
                     found=true
-                    echo "[Menu] $app already in order array" >&2
+                    log_debug "[Menu] $app already in order array"
                     break
                 fi
             done
             # If not found, add it to the end
             if [ "$found" = false ]; then
                 order_array+=("$app")
-                echo "[Menu] Added $app to end of order array" >&2
+                log_debug "[Menu] Added $app to end of order array"
             fi
         done
     fi
@@ -577,7 +582,7 @@ generate_services_array() {
     done
 
     # Debug: log enabled services count
-    [ "$services_count" -gt 0 ] && echo "[Services] Enabled $services_count services" >&2
+    [ "$services_count" -gt 0 ] && log_debug "[Services] Enabled $services_count services"
 
     echo "[$array]"
 }
@@ -834,6 +839,7 @@ generate_html() {
 
 # Run generation
 generate_html
+
 
 
 
