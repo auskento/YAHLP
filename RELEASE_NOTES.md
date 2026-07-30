@@ -1,5 +1,92 @@
 # YAHLP Release Notes
 
+## Version 2.1.0 - Modular Services Framework
+
+**Release Date:** July 30, 2026
+
+### 🎉 Major Features
+
+#### Custom Service Support (Now Fully Modular)
+- Add custom services without rebuilding Docker images
+- Configuration files stored in `/config/additional-conf/` directory
+- Automatic service discovery and dashboard integration
+- Support for both Location blocks and custom vhost files
+
+#### Per-Service Configuration
+Services can now be customized via comment settings in `.conf` files:
+
+```apache
+# tda.conf
+#APPNAME=Tdarr
+#DASHBOARD_WINDOW=embed
+```
+
+**Available Settings:**
+- `#APPNAME=ServiceName` - Override display name for tooltips and menus
+- `#DASHBOARD_WINDOW=embed|popout` - Control how service opens
+  - `embed` - Load in dashboard iframe
+  - `popout` - Open in new window/tab (respects `DASHBOARD_WINDOWS` env var)
+
+#### Smart Window Management
+- `DASHBOARD_WINDOWS` environment variable (newtab/popout) controls global default
+- Per-service overrides allow testing different modes without changing global settings
+- Custom services default to popup mode for better UX
+
+#### Enhanced Logging
+- **DEBUG=true** environment variable enables verbose startup logging
+- Clean boot output by default
+- Full diagnostic info available when needed
+
+### 📋 Custom Service Example
+
+Add a custom service by creating `/config/additional-conf/tda.conf`:
+
+```apache
+# Tdarr Service Configuration
+#APPNAME=Tdarr
+#DASHBOARD_WINDOW=embed
+
+<Location /tdarr>
+    ProxyPass http://tdarr:8265/
+    ProxyPassReverse http://tdarr:8265/
+    ProxyPreserveHost On
+</Location>
+```
+
+Place icon at `/config/additional-conf/tda.png` (64x64 PNG)
+
+### 🐛 Bug Fixes
+
+- Fixed OIDC state cookie limit errors (increased default)
+- Fixed service href extraction from Apache config (strips quotes)
+- Fixed custom service icon path resolution  
+- Fixed service enable detection for CUSTOM category
+- Fixed vhost configuration errors for non-Location services
+- Fixed verbose output noise during startup
+- Fixed log_debug causing premature script exit with set -e
+- Fixed service extraction from conf files with improved grep patterns
+
+### ⚠️ Breaking Changes
+
+None. Version 2.1.0 is fully backward compatible with 2.0.
+
+### 🚀 Getting Started with Custom Services
+
+1. Create `/config/additional-conf/` directory
+2. Add service `.conf` file with Location blocks and settings
+3. Place service icon (`servicecode.png`) in same directory
+4. Restart container
+5. Service appears automatically in dashboard
+
+### 📞 Support
+
+Enable DEBUG logging for detailed diagnostics:
+```bash
+docker run -e DEBUG=true <image>
+```
+
+---
+
 ## Version 2.0 - Production Release
 
 ### Overview
