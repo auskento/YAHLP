@@ -34,13 +34,18 @@ YAHLP v2.1.0 introduces a modular framework for adding custom services without m
 
 ### Method 2: Virtual Host File (For independent domains)
 
-1. Create a `vhost` file in `/config/additional-conf/`:
+1. Create a `vhost` file in `/config/additional-vhost/`:
    ```bash
-   /config/additional-conf/custom-service.vhost.conf
+   /config/additional-vhost/custom-service.vhost.conf
    ```
 
-2. Define a complete VirtualHost:
+2. Define a complete VirtualHost with optional dashboard settings:
    ```apache
+   # #DASHBOARD_CODE=app
+   # #APPNAME=My App
+   # #DASHBOARD_WINDOW=popout
+   # #DASHBOARD_VISIBLE=false
+   
    <VirtualHost *:443>
        ServerName app.yourdomain.com
        DocumentRoot /var/www/app
@@ -49,7 +54,7 @@ YAHLP v2.1.0 introduces a modular framework for adding custom services without m
    </VirtualHost>
    ```
 
-3. Restart — vhost is enabled and served independently (not added to dashboard).
+3. Restart — vhost is enabled and served independently. If `DASHBOARD_VISIBLE=true`, it appears on the dashboard menu.
 
 ---
 
@@ -131,9 +136,15 @@ For services that need their own domain or independent SSL configuration:
 
 ### File Format
 
-Name the file with "vhost" in it: `custom-service.vhost.conf`
+Place vhost files in `/config/additional-vhost/` (without "vhost" keyword, just the service name):
 
 ```apache
+# Optional dashboard configuration
+# #DASHBOARD_CODE=app
+# #APPNAME=My Application
+# #DASHBOARD_WINDOW=popout
+# #DASHBOARD_VISIBLE=false
+
 <VirtualHost *:443>
     ServerName app.yourdomain.com
     DocumentRoot /var/www/app
@@ -148,11 +159,77 @@ Name the file with "vhost" in it: `custom-service.vhost.conf`
 </VirtualHost>
 ```
 
+### Dashboard Configuration for VirtualHosts
+
+VirtualHost files support the same dashboard configuration options as `.conf` files:
+
+#### `#DASHBOARD_CODE`
+3-letter code for the service. If specified, service can appear in dashboard menu.
+```apache
+# #DASHBOARD_CODE=app
+```
+
+#### `#DASHBOARD_VISIBLE`
+Whether to show this vhost in the dashboard menu: `true` or `false`
+
+- `false` (default): Service is available but hidden (no UI, just API)
+- `true`: Service appears on dashboard with icon and link
+
+```apache
+# #DASHBOARD_VISIBLE=true
+```
+
+#### `#APPNAME`
+Display name for the dashboard. If omitted with `DASHBOARD_VISIBLE=true`, uses capitalized code.
+```apache
+# #APPNAME=My Custom Service
+```
+
+#### `#DASHBOARD_WINDOW`
+How the service opens (only applies if `DASHBOARD_VISIBLE=true`): `popout` or `newtab`
+```apache
+# #DASHBOARD_WINDOW=newtab
+```
+
+### Icon and Configuration
+
+When `DASHBOARD_VISIBLE=true`:
+- **Icon**: Place at `/config/additional-vhost/{code}.png` or `.svg`
+- **Service Config**: Optional `/config/additional-vhost/{code}.json5` for status monitoring
+
+### Examples
+
+**Hidden Vhost (Keeper Automator - API only)**:
+```apache
+# #DASHBOARD_CODE=kee
+# #DASHBOARD_VISIBLE=false
+
+<VirtualHost *:443>
+    ServerName keeper.yourdomain.com
+    ProxyPass / http://keeper:3000/
+    ProxyPassReverse / http://keeper:3000/
+</VirtualHost>
+```
+
+**Dashboard-Visible Vhost**:
+```apache
+# #DASHBOARD_CODE=app
+# #APPNAME=My Application
+# #DASHBOARD_VISIBLE=true
+# #DASHBOARD_WINDOW=newtab
+
+<VirtualHost *:443>
+    ServerName app.yourdomain.com
+    ProxyPass / http://myapp:8080/
+    ProxyPassReverse / http://myapp:8080/
+</VirtualHost>
+```
+
 **Notes**:
-- Vhost files are **not** added to the dashboard menu
-- Must contain the word "vhost" in the filename
 - Fully independent configuration per-service domain
 - Requires Let's Encrypt certificate for the domain
+- Service inherit dashboard authentication (OIDC, Basic Auth, or none)
+- Vhost files are enabled via symlink to `/etc/apache2/sites-available/`
 
 ---
 

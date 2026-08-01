@@ -307,6 +307,81 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
     done
 fi
 
+# Scan vhost files for dashboard-visible services
+log_debug "[Vhosts] Scanning for dashboard-visible vhost services..."
+ADDITIONAL_VHOST_DIR="/etc/yahlp/additional-vhost"
+if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
+    for vhost_file in "$ADDITIONAL_VHOST_DIR"/*.conf; do
+        if [ -f "$vhost_file" ]; then
+            filename=$(basename "$vhost_file")
+
+            # Skip example files
+            if [[ "$filename" == *"example"* ]]; then
+                continue
+            fi
+
+            # Extract DASHBOARD_CODE (3-letter code)
+            vhost_dashboard_code=$(grep -i 'DASHBOARD_CODE' "$vhost_file" | sed 's/^[[:space:]]*#*[[:space:]]*//' | sed 's/DASHBOARD_CODE[[:space:]]*=[[:space:]]*//' | head -1 | tr -d ' ')
+
+            if [ -z "$vhost_dashboard_code" ]; then
+                log_debug "[Vhosts] Skipping $filename - no DASHBOARD_CODE found"
+                continue
+            fi
+
+            # Extract DASHBOARD_VISIBLE
+            vhost_dashboard_visible=$(grep -i 'DASHBOARD_VISIBLE' "$vhost_file" | sed 's/^[[:space:]]*#*[[:space:]]*//' | sed 's/DASHBOARD_VISIBLE[[:space:]]*=[[:space:]]*//' | head -1 | tr -d ' ')
+
+            if [ "$vhost_dashboard_visible" != "true" ]; then
+                log_debug "[Vhosts] Skipping $filename - DASHBOARD_VISIBLE is not true"
+                continue
+            fi
+
+            # Extract optional settings
+            vhost_appname=$(grep -i 'APPNAME' "$vhost_file" | sed 's/^[[:space:]]*#*[[:space:]]*//' | sed 's/APPNAME[[:space:]]*=[[:space:]]*//' | head -1)
+            vhost_dashboard_window=$(grep -i 'DASHBOARD_WINDOW' "$vhost_file" | sed 's/^[[:space:]]*#*[[:space:]]*//' | sed 's/DASHBOARD_WINDOW[[:space:]]*=[[:space:]]*//' | head -1 | tr -d ' ')
+
+            # Defaults
+            [ -z "$vhost_appname" ] && vhost_appname="$(echo $vhost_dashboard_code | tr '[:lower:]' '[:upper:]')"
+            [ -z "$vhost_dashboard_window" ] && vhost_dashboard_window="popout"
+
+            # Look for icon file
+            vhost_icon_file=""
+            vhost_icon="/icons/${vhost_dashboard_code}.png"
+            if [ -f "/etc/yahlp/service_icons/${vhost_dashboard_code}.png" ]; then
+                vhost_icon="/icons/${vhost_dashboard_code}.png"
+                vhost_icon_file="/etc/yahlp/service_icons/${vhost_dashboard_code}.png"
+            elif [ -f "/etc/yahlp/service_icons/${vhost_dashboard_code}.svg" ]; then
+                vhost_icon="/icons/${vhost_dashboard_code}.svg"
+                vhost_icon_file="/etc/yahlp/service_icons/${vhost_dashboard_code}.svg"
+            fi
+
+            # Extract ServerName from VirtualHost directive (href)
+            vhost_server_name=$(grep -i 'ServerName' "$vhost_file" | head -1 | sed 's/^[[:space:]]*ServerName[[:space:]]*//' | tr -d ' ')
+
+            if [ -z "$vhost_server_name" ]; then
+                log_debug "[Vhosts] Skipping $filename - no ServerName found"
+                continue
+            fi
+
+            # Build href (https if public, http if private)
+            vhost_href="https://${vhost_server_name}/"
+
+            # Store settings
+            SERVICE_OVERRIDES["${vhost_dashboard_code}"]="$vhost_dashboard_window"
+            SERVICE_APPNAMES["${vhost_dashboard_code}"]="$vhost_appname"
+
+            # Add to additional apps array
+            vhost_app_key="${vhost_dashboard_code^^}"
+            ADDITIONAL_APPS+=("$vhost_app_key")
+
+            # Add to SERVICES array
+            SERVICES[$vhost_app_key]="CUSTOM|$vhost_appname|Custom vhost|$vhost_icon|$vhost_href|#6366f1"
+
+            log_debug "[Vhosts] Found dashboard-visible vhost: ${vhost_dashboard_code} (${vhost_appname})"
+        fi
+    done
+fi
+
 # Service display order (same order for both menus)
 declare -a SERVICE_ORDER=(
     # USENET
