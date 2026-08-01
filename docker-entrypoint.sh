@@ -84,7 +84,29 @@ validate_dns_entries() {
             echo "    $domain → YOUR_SERVER_IP"
         done
         echo ""
-        echo "Container will exit. Resolve DNS and restart."
+
+        # Add OIDC redirect URI guidance if authentication is configured
+        if [ "$AUTHTYPE" = "entra" ]; then
+            echo "ADDITIONAL STEP - Entra ID Configuration:"
+            echo "  1. Go to Azure Portal → App registrations → Your YAHLP app"
+            echo "  2. Navigate to Authentication → Redirect URIs"
+            echo "  3. Add redirect URIs for each domain:"
+            for domain in "${dns_errors[@]}"; do
+                echo "    - https://${domain}/oauth2/callback"
+            done
+            echo ""
+        elif [ "$AUTHTYPE" = "google" ]; then
+            echo "ADDITIONAL STEP - Google OAuth Configuration:"
+            echo "  1. Go to Google Cloud Console → APIs & Services → Credentials"
+            echo "  2. Click on your OAuth 2.0 Client ID"
+            echo "  3. Add Authorized redirect URIs:"
+            for domain in "${dns_errors[@]}"; do
+                echo "    - https://${domain}/oauth2/callback"
+            done
+            echo ""
+        fi
+
+        echo "Container will exit. Resolve DNS and update OIDC redirect URIs, then restart."
         exit 1
     fi
 }
