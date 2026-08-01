@@ -308,31 +308,37 @@ if [ -d "$ADDITIONAL_CONF_DIR" ]; then
 fi
 
 # Scan vhost files for dashboard-visible services
-log_debug "[Vhosts] Scanning for dashboard-visible vhost services..."
+echo "[Apps] Scanning for dashboard-visible vhost services..."
 ADDITIONAL_VHOST_DIR="/etc/yahlp/additional-vhost"
 if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
+    echo "[Apps] Found vhost directory: $ADDITIONAL_VHOST_DIR"
+    vhost_count=0
     for vhost_file in "$ADDITIONAL_VHOST_DIR"/*.conf; do
         if [ -f "$vhost_file" ]; then
             filename=$(basename "$vhost_file")
+            echo "[Apps] Processing vhost file: $filename"
 
             # Skip example files
             if [[ "$filename" == *"example"* ]]; then
+                echo "[Apps] ✗ Skipping $filename - example file"
                 continue
             fi
 
             # Extract DASHBOARD_CODE (3-letter code)
             vhost_dashboard_code=$(grep -i 'DASHBOARD_CODE' "$vhost_file" | sed 's/^[[:space:]]*#*[[:space:]]*//' | sed 's/DASHBOARD_CODE[[:space:]]*=[[:space:]]*//' | head -1 | tr -d ' ')
+            echo "[Apps] DASHBOARD_CODE for $filename: '$vhost_dashboard_code'"
 
             if [ -z "$vhost_dashboard_code" ]; then
-                log_debug "[Vhosts] Skipping $filename - no DASHBOARD_CODE found"
+                echo "[Apps] ✗ Skipping $filename - no DASHBOARD_CODE found"
                 continue
             fi
 
             # Extract DASHBOARD_VISIBLE
             vhost_dashboard_visible=$(grep -i 'DASHBOARD_VISIBLE' "$vhost_file" | sed 's/^[[:space:]]*#*[[:space:]]*//' | sed 's/DASHBOARD_VISIBLE[[:space:]]*=[[:space:]]*//' | head -1 | tr -d ' ')
+            echo "[Apps] DASHBOARD_VISIBLE for $filename: '$vhost_dashboard_visible'"
 
             if [ "$vhost_dashboard_visible" != "true" ]; then
-                log_debug "[Vhosts] Skipping $filename - DASHBOARD_VISIBLE is not true"
+                echo "[Apps] ✗ Skipping $filename - DASHBOARD_VISIBLE is not true"
                 continue
             fi
 
@@ -350,16 +356,21 @@ if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
             if [ -f "/etc/yahlp/service_icons/${vhost_dashboard_code}.png" ]; then
                 vhost_icon="/icons/${vhost_dashboard_code}.png"
                 vhost_icon_file="/etc/yahlp/service_icons/${vhost_dashboard_code}.png"
+                echo "[Apps] ✓ Found icon: $vhost_icon_file"
             elif [ -f "/etc/yahlp/service_icons/${vhost_dashboard_code}.svg" ]; then
                 vhost_icon="/icons/${vhost_dashboard_code}.svg"
                 vhost_icon_file="/etc/yahlp/service_icons/${vhost_dashboard_code}.svg"
+                echo "[Apps] ✓ Found icon: $vhost_icon_file"
+            else
+                echo "[Apps] ⚠ No icon found for ${vhost_dashboard_code}"
             fi
 
             # Extract ServerName from VirtualHost directive (href)
             vhost_server_name=$(grep -i 'ServerName' "$vhost_file" | head -1 | sed 's/^[[:space:]]*ServerName[[:space:]]*//' | tr -d ' ')
+            echo "[Apps] ServerName for $filename: '$vhost_server_name'"
 
             if [ -z "$vhost_server_name" ]; then
-                log_debug "[Vhosts] Skipping $filename - no ServerName found"
+                echo "[Apps] ✗ Skipping $filename - no ServerName found"
                 continue
             fi
 
@@ -377,9 +388,13 @@ if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
             # Add to SERVICES array
             SERVICES[$vhost_app_key]="CUSTOM|$vhost_appname|Custom vhost|$vhost_icon|$vhost_href|#6366f1"
 
-            log_debug "[Vhosts] Found dashboard-visible vhost: ${vhost_dashboard_code} (${vhost_appname})"
+            echo "[Apps] ✓ Added vhost to menu: ${vhost_dashboard_code} (${vhost_appname}) → ${vhost_href}"
+            ((vhost_count++)) || true
         fi
     done
+    echo "[Apps] Found $vhost_count dashboard-visible vhost(s)"
+else
+    echo "[Apps] Vhost directory not found: $ADDITIONAL_VHOST_DIR"
 fi
 
 # Service display order (same order for both menus)
