@@ -748,10 +748,26 @@ chmod 775 "$ADDITIONAL_CONF_DIR"
 if [ -d "/app/examples/additional-conf" ]; then
     for example_file in /app/examples/additional-conf/*.example.conf; do
         if [ -f "$example_file" ]; then
-            dest_file="$ADDITIONAL_CONF_DIR/$(basename "$example_file")"
+            # Remove ".example" from filename when copying
+            base_name=$(basename "$example_file")
+            dest_name="${base_name%.example.conf}.conf"
+            dest_file="$ADDITIONAL_CONF_DIR/$dest_name"
             if [ ! -f "$dest_file" ]; then
                 cp "$example_file" "$dest_file"
-                echo "  (copied example: $(basename "$example_file"))"
+                echo "  (copied example: $base_name → $dest_name)"
+
+                # Also copy associated icon files (PNG/SVG) if they exist
+                service_code="${dest_name%.conf}"
+                for icon_ext in png svg; do
+                    icon_example="/app/examples/additional-conf/${service_code}.${icon_ext}"
+                    if [ -f "$icon_example" ]; then
+                        icon_dest="$ADDITIONAL_CONF_DIR/${service_code}.${icon_ext}"
+                        if [ ! -f "$icon_dest" ]; then
+                            cp "$icon_example" "$icon_dest"
+                            log_debug "    (copied icon: ${service_code}.${icon_ext})"
+                        fi
+                    fi
+                done
             fi
         fi
     done
@@ -792,10 +808,13 @@ chmod 775 "$ADDITIONAL_VHOST_DIR"
 if [ -d "/app/examples/additional-vhost" ]; then
     for example_file in /app/examples/additional-vhost/*.example.conf; do
         if [ -f "$example_file" ]; then
-            dest_file="$ADDITIONAL_VHOST_DIR/$(basename "$example_file")"
+            # Remove ".example" from filename when copying
+            base_name=$(basename "$example_file")
+            dest_name="${base_name%.example.conf}.conf"
+            dest_file="$ADDITIONAL_VHOST_DIR/$dest_name"
             if [ ! -f "$dest_file" ]; then
                 cp "$example_file" "$dest_file"
-                echo "  (copied example: $(basename "$example_file"))"
+                echo "  (copied example: $base_name → $dest_name)"
             fi
         fi
     done
