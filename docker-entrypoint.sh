@@ -9,6 +9,144 @@ log_debug() {
     return 0
 }
 
+# DNS validation helper
+check_dns() {
+    local domain="$1"
+    if nslookup "$domain" 127.0.0.11 >/dev/null 2>&1; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Validate all required DNS entries
+validate_dns_entries() {
+    local dns_errors=()
+    local domains_to_check=()
+
+    # Always check main domain
+    if [ ! -z "$DOMAIN" ]; then
+        domains_to_check+=("$DOMAIN")
+    fi
+
+    # Check vhost domains
+    if [ -d "/etc/yahlp/additional-vhost" ]; then
+        for vhost_file in /etc/yahlp/additional-vhost/*.conf; do
+            if [ -f "$vhost_file" ] && [[ ! "$(basename "$vhost_file")" == *"example"* ]]; then
+                vhost_server=$(grep -i '^[[:space:]]*ServerName' "$vhost_file" | head -1 | sed 's/^[[:space:]]*ServerName[[:space:]]*//;s/[[:space:]]*$//')
+                if [ ! -z "$vhost_server" ]; then
+                    domains_to_check+=("$vhost_server")
+                fi
+            fi
+        done
+    fi
+
+    # Check service-specific domains
+    [ ! -z "$EMBY_DOMAIN" ] && domains_to_check+=("$EMBY_DOMAIN")
+    [ ! -z "$PLEX_DOMAIN" ] && domains_to_check+=("$PLEX_DOMAIN")
+    [ ! -z "$JACKETT_DOMAIN" ] && domains_to_check+=("$JACKETT_DOMAIN")
+    [ ! -z "$SEERR_DOMAIN" ] && domains_to_check+=("$SEERR_DOMAIN")
+
+    # Check each domain
+    if [ ${#domains_to_check[@]} -gt 0 ]; then
+        echo "Validating DNS entries for domains..."
+        for domain in "${domains_to_check[@]}"; do
+            if [ ! -z "$domain" ]; then
+                if check_dns "$domain"; then
+                    echo "  ✓ DNS resolved: $domain"
+                else
+                    echo "  ✗ DNS NOT FOUND: $domain"
+                    dns_errors+=("$domain")
+                fi
+            fi
+        done
+    fi
+
+    # Report errors and exit if any DNS entries are missing
+    if [ ${#dns_errors[@]} -gt 0 ]; then
+        echo ""
+        echo "ERROR: DNS entries not found for the following domains:"
+        for domain in "${dns_errors[@]}"; do
+            echo "  - $domain"
+        done
+        echo ""
+        echo "Please create DNS A records pointing to your server IP address:"
+        echo "  Example (using your DNS provider):"
+        for domain in "${dns_errors[@]}"; do
+            echo "    $domain → YOUR_SERVER_IP"
+        done
+        echo ""
+        echo "Container will exit. Resolve DNS and restart."
+        exit 1
+    fi
+}
+
+# Inject OIDC configuration into vhost file if auth is enabled
+inject_oidc_to_vhost() {
+    local vhost_file="$1"
+    local server_name="$2"
+
+    # Only proceed if authentication is configured
+    if [ "$AUTHTYPE" != "entra" ] && [ "$AUTHTYPE" != "google" ]; then
+        return 0
+    fi
+
+    # Build OIDC configuration based on auth type
+    local oidc_config=""
+
+    if [ "$AUTHTYPE" = "entra" ]; then
+        # Entra ID configuration
+        oidc_config="
+    # Entra ID OIDC Authentication (auto-injected)
+    OIDCProviderMetadataURL \"https://login.microsoftonline.com/${AZUREAD_TENANT_ID}/v2.0/.well-known/openid-configuration\"
+    OIDCClientID \"${AZUREAD_CLIENT_ID}\"
+    OIDCClientSecret \"${AZUREAD_CLIENT_SECRET}\"
+    OIDCRedirectURI \"https://${server_name}/oauth2/callback\"
+    OIDCCryptoPassphrase \"${OIDC_PASSPHRASE:-default-passphrase}\"
+    OIDCCookiePath /
+    OIDCCookieSameSite lax
+
+    # Require authentication
+    <Location />
+        AuthType openid-connect
+        Require valid-user
+    </Location>"
+
+    elif [ "$AUTHTYPE" = "google" ]; then
+        # Google OAuth configuration
+        oidc_config="
+    # Google OAuth Authentication (auto-injected)
+    OIDCProviderMetadataURL \"https://accounts.google.com/.well-known/openid-configuration\"
+    OIDCClientID \"${GOOGLE_CLIENT_ID}\"
+    OIDCClientSecret \"${GOOGLE_CLIENT_SECRET}\"
+    OIDCRedirectURI \"https://${server_name}/oauth2/callback\"
+    OIDCCryptoPassphrase \"${OIDC_PASSPHRASE:-default-passphrase}\"
+    OIDCCookiePath /
+    OIDCCookieSameSite lax
+
+    # Require authentication
+    <Location />
+        AuthType openid-connect
+        Require valid-user
+    </Location>"
+    fi
+
+    # Check if OIDC is already in the file (skip if already configured)
+    if grep -q "OIDCProviderMetadataURL" "$vhost_file"; then
+        log_debug "OIDC already configured in $(basename "$vhost_file"), skipping injection"
+        return 0
+    fi
+
+    # Insert OIDC config before the Proxy directives
+    # Find the line with "ProxyPass" and insert OIDC config before it
+    if grep -q "ProxyPass" "$vhost_file"; then
+        sed -i "/ProxyPass/i\\$oidc_config" "$vhost_file"
+        log_debug "✓ Injected OIDC configuration into $(basename "$vhost_file")"
+    else
+        log_debug "⚠ No ProxyPass found in $(basename "$vhost_file"), OIDC not injected"
+    fi
+}
+
 # Disable default Apache sites that conflict with YAHLP configuration
 a2dissite 000-default.conf default-ssl.conf 2>/dev/null || true
 
@@ -17,6 +155,12 @@ if [ ! -d /etc/yahlp ]; then
     echo "ERROR: Config folder not mounted to /etc/yahlp"
     echo "Docker must mount config folder: -v ./config:/etc/yahlp"
     exit 1
+fi
+
+# Validate DNS entries if in public mode (before attempting certificate generation)
+if [ "$ACCESS_MODE" = "public" ] || [ -z "$ACCESS_MODE" ]; then
+    echo "Validating DNS configuration..."
+    validate_dns_entries
 fi
 
 # Fix permissions on mounted config folder for non-root execution
@@ -827,6 +971,14 @@ if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
             # Skip example files
             if [[ "$filename" == *"example"* ]]; then
                 continue
+            fi
+
+            # Extract ServerName for OIDC redirect URI
+            vhost_server_name=$(grep -i '^[[:space:]]*ServerName' "$vhost_file" | head -1 | sed 's/^[[:space:]]*ServerName[[:space:]]*//;s/[[:space:]]*$//')
+
+            # Inject global OIDC configuration if auth is enabled
+            if [ ! -z "$vhost_server_name" ]; then
+                inject_oidc_to_vhost "$vhost_file" "$vhost_server_name"
             fi
 
             # Create symlink to vhost file in sites-available (keeps source as reference)
