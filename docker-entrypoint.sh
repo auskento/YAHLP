@@ -41,11 +41,19 @@ validate_dns_entries() {
         done
     fi
 
-    # Check service-specific domains
-    [ ! -z "$EMBY_DOMAIN" ] && domains_to_check+=("$EMBY_DOMAIN")
-    [ ! -z "$PLEX_DOMAIN" ] && domains_to_check+=("$PLEX_DOMAIN")
-    [ ! -z "$JACKETT_DOMAIN" ] && domains_to_check+=("$JACKETT_DOMAIN")
-    [ ! -z "$SEERR_DOMAIN" ] && domains_to_check+=("$SEERR_DOMAIN")
+    # Check service-specific domains (only if service is enabled)
+    if [ "$EMBY_ENABLED" = "true" ] && [ ! -z "$EMBY_DOMAIN" ]; then
+        domains_to_check+=("$EMBY_DOMAIN")
+    fi
+    if [ "$PLEX_ENABLED" = "true" ] && [ ! -z "$PLEX_DOMAIN" ]; then
+        domains_to_check+=("$PLEX_DOMAIN")
+    fi
+    if [ "$JACKETT_ENABLED" = "true" ] && [ ! -z "$JACKETT_DOMAIN" ]; then
+        domains_to_check+=("$JACKETT_DOMAIN")
+    fi
+    if [ "$SEERR_ENABLED" = "true" ] && [ ! -z "$SEERR_DOMAIN" ]; then
+        domains_to_check+=("$SEERR_DOMAIN")
+    fi
 
     # Check each domain
     if [ ${#domains_to_check[@]} -gt 0 ]; then
