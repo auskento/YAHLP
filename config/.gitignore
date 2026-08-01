@@ -1,0 +1,17 @@
+# User-specific configuration files
+# Examples and templates are tracked, but user configs should not be
+
+# Vhost configurations (user-specific services)
+/additional-vhost/*.conf
+/additional-vhost/*.json5
+!/additional-vhost/*.example.conf
+
+# Service configurations (user-specific)
+/additional-conf/*.conf
+/additional-conf/*.json5
+/additional-conf/*.png
+/additional-conf/*.svg
+!/additional-conf/*.example.conf
+
+# Generated files
+*.log
