@@ -191,10 +191,21 @@ EOF
         oidc_config="${oidc_config//PASSPHRASE/${GOOGLE_CRYPTO_PASSPHRASE:-${ENTRA_CRYPTO_PASSPHRASE:-default-passphrase}}}"
     fi
 
-    # Check if OIDC is already in the file (skip if already configured)
-    if grep -q "OIDCProviderMetadataURL" "$vhost_file"; then
-        log_debug "OIDC already configured in $(basename "$vhost_file"), skipping injection"
-        return 0
+    # Remove any existing OIDC configuration (to handle auth type changes)
+    if grep -q "OIDCProviderMetadataURL\|OIDCClientID\|AuthType openid-connect" "$vhost_file"; then
+        log_debug "Removing existing OIDC configuration from $(basename "$vhost_file")..."
+        # Create temp file with OIDC directives removed
+        local temp_file="${vhost_file}.tmp"
+        awk '
+            /# (Entra ID|Google) OIDC Authentication \(auto-injected\)/ { skip=1; next }
+            /OIDCProviderMetadataURL|OIDCClientID|OIDCClientSecret|OIDCRedirectURI|OIDCCryptoPassphrase|OIDCCookiePath|OIDCCookieSameSite/ { if (skip) next }
+            /<Location \/>/ && skip { skip=0; in_location=1; next }
+            /AuthType openid-connect/ && in_location { next }
+            /Require valid-user/ && in_location { next }
+            /<\/Location>/ && in_location { in_location=0; next }
+            { print }
+        ' "$vhost_file" > "$temp_file"
+        mv "$temp_file" "$vhost_file"
     fi
 
     # Insert OIDC config before the Proxy directives using temporary file
