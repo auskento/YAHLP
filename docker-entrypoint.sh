@@ -2090,43 +2090,43 @@ fi
 # Test Apache configuration before starting
 echo ""
 echo "Testing Apache configuration..."
-{
-    echo "=== CONFIGTEST OUTPUT ==="
-    apache2ctl configtest
-    echo ""
-    echo "=== ALL VHOST CONFIGURATIONS ==="
-    echo ""
-    echo "=== /etc/apache2/sites-available/reverse-proxy.conf ==="
-    cat /etc/apache2/sites-available/reverse-proxy.conf 2>/dev/null || echo "(Not found)"
-    echo ""
 
-    if [ -d /etc/apache2/sites-available/services ]; then
-        for vhost in /etc/apache2/sites-available/services/*.conf; do
-            if [ -f "$vhost" ]; then
-                echo "=== $(basename "$vhost") ==="
-                cat "$vhost"
-                echo ""
-            fi
-        done
-    fi
+# Create log file
+> /etc/yahlp/configtest.log
 
-    if [ -d /etc/yahlp/additional-vhost ]; then
-        for vhost in /etc/yahlp/additional-vhost/*.conf; do
-            if [ -f "$vhost" ]; then
-                echo "=== $(basename "$vhost") (additional-vhost) ==="
-                cat "$vhost"
-                echo ""
-            fi
-        done
-    fi
-} > /etc/yahlp/configtest.log 2>&1
+# Write configtest output
+echo "=== CONFIGTEST OUTPUT ===" >> /etc/yahlp/configtest.log
+apache2ctl configtest >> /etc/yahlp/configtest.log 2>&1
+CONFIGTEST_EXIT=$?
+echo "" >> /etc/yahlp/configtest.log
 
-# Check if configtest passed
-CONFIGTEST_EXIT=$(grep -c "Syntax OK" /etc/yahlp/configtest.log || echo 0)
-if [ "$CONFIGTEST_EXIT" = "0" ]; then
-    CONFIGTEST_EXIT=1
-else
-    CONFIGTEST_EXIT=0
+# Write reverse proxy config
+echo "=== REVERSE PROXY CONFIG ===" >> /etc/yahlp/configtest.log
+cat /etc/apache2/sites-available/reverse-proxy.conf >> /etc/yahlp/configtest.log 2>/dev/null || echo "(Not found)" >> /etc/yahlp/configtest.log
+echo "" >> /etc/yahlp/configtest.log
+
+# Write service vhosts
+if [ -d /etc/apache2/sites-available/services ]; then
+    echo "=== SERVICE VHOSTS ===" >> /etc/yahlp/configtest.log
+    for vhost in /etc/apache2/sites-available/services/*.conf; do
+        if [ -f "$vhost" ]; then
+            echo "--- $(basename "$vhost") ---" >> /etc/yahlp/configtest.log
+            cat "$vhost" >> /etc/yahlp/configtest.log
+            echo "" >> /etc/yahlp/configtest.log
+        fi
+    done
+fi
+
+# Write additional vhosts
+if [ -d /etc/yahlp/additional-vhost ]; then
+    echo "=== ADDITIONAL VHOSTS ===" >> /etc/yahlp/configtest.log
+    for vhost in /etc/yahlp/additional-vhost/*.conf; do
+        if [ -f "$vhost" ]; then
+            echo "--- $(basename "$vhost") ---" >> /etc/yahlp/configtest.log
+            cat "$vhost" >> /etc/yahlp/configtest.log
+            echo "" >> /etc/yahlp/configtest.log
+        fi
+    done
 fi
 
 if [ $CONFIGTEST_EXIT -ne 0 ]; then
