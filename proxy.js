@@ -1264,29 +1264,20 @@ app.get('/health', (req, res) => {
 
 // Listen on both IPv4 and IPv6
 const http = require('http');
-const net = require('net');
 
 const server = http.createServer(app);
-server.setsockopt = (level, optname, value) => {
-  // Enable SO_REUSEADDR to allow quick restart
-  if (server.listening) {
-    server._handle.setSocketOption(net.SocketOption.SO_REUSEADDR, value);
-  }
-};
 
-// Listen on IPv4 with SO_REUSEADDR
-server.listen(PORT, '0.0.0.0', () => {
-  server._handle.setOption(net.SocketOption.SO_REUSEADDR, 1);
-});
+// Listen on IPv4
+server.listen(PORT, '0.0.0.0');
 
-// Listen on IPv6 (non-fatal if it fails)
+// Listen on IPv6 (non-fatal if it fails - port may be in TIME_WAIT from recent restart)
 const server6 = http.createServer(app);
 server6.listen(PORT, '::');
 server6.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
     console.warn(`⚠ IPv6 port ${PORT} already in use, continuing with IPv4 only`);
   } else {
-    console.error(`IPv6 error: ${err.message}`);
+    console.error(`⚠ IPv6 listen error: ${err.message}`);
   }
 });
 
