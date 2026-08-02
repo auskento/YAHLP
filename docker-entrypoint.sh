@@ -2098,11 +2098,19 @@ echo ""
 
 # Keep container alive by monitoring processes
 while true; do
-    sleep 60
+    sleep 5
 
     # Check if Apache is still running
     if ! ps -p $APACHE_PID > /dev/null 2>&1; then
+        echo ""
         echo "ERROR: Apache process (PID $APACHE_PID) died!"
+        echo ""
+        echo "=== Last 50 lines of Apache Error Log ==="
+        tail -50 /var/log/apache2/error.log 2>/dev/null || echo "(No error log)"
+        echo ""
+        echo "=== Last 50 lines of Apache Access Log ==="
+        tail -50 /var/log/apache2/access.log 2>/dev/null || echo "(No access log)"
+        echo ""
         break
     fi
 done
