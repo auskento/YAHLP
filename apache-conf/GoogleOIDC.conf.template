@@ -5,6 +5,7 @@ OIDCSessionType client-cookie:persistent
 OIDCProviderMetadataURL https://accounts.google.com/.well-known/openid-configuration
 OIDCClientID @@GOOGLE_CLIENT_ID@@
 OIDCClientSecret @@GOOGLE_CLIENT_SECRET@@
+OIDCRedirectURI @@VHOST_REDIRECT_URI@@
 OIDCCryptoPassphrase "@@GOOGLE_CRYPTO_PASSPHRASE@@"
 OIDCScope "openid profile email"
 OIDCSessionInactivityTimeout 3600

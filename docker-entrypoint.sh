@@ -122,18 +122,21 @@ inject_oidc_to_vhost() {
         return 0
     fi
 
-    # Determine which OIDC config to include
+    # Generate per-vhost OIDC configuration with the vhost's redirect URI
+    generate_vhost_oidc_config "$vhost_file" "$server_name"
+
+    # Determine which per-vhost OIDC config to include
     local oidc_include=""
     if [ "$AUTHTYPE" = "entra" ]; then
-        oidc_include="Include /etc/apache2/conf-available/EntraOIDC.conf"
+        oidc_include="Include /etc/apache2/conf-available/EntraOIDC-${server_name}.conf"
     elif [ "$AUTHTYPE" = "google" ]; then
-        oidc_include="Include /etc/apache2/conf-available/GoogleOIDC.conf"
+        oidc_include="Include /etc/apache2/conf-available/GoogleOIDC-${server_name}.conf"
     else
         return 0
     fi
 
     # Remove any existing OIDC Include directives
-    sed -i '/^[[:space:]]*Include.*OIDC\.conf/d' "$vhost_file" 2>/dev/null || return 0
+    sed -i '/^[[:space:]]*Include.*OIDC.*\.conf/d' "$vhost_file" 2>/dev/null || return 0
 
     # Remove inline OIDC configuration directives to avoid duplicates
     sed -i '/^[[:space:]]*OIDC.*$/d' "$vhost_file" 2>/dev/null || return 0
@@ -142,7 +145,7 @@ inject_oidc_to_vhost() {
     # OIDC requires HTTPS
     sed -i "/<VirtualHost.*:443>/a\\    $oidc_include" "$vhost_file" 2>/dev/null || return 0
 
-    log_debug "✓ Added OIDC Include to HTTPS VirtualHost in $(basename "$vhost_file")"
+    log_debug "✓ Added per-vhost OIDC Include to HTTPS VirtualHost in $(basename "$vhost_file")"
 }
 
 # Disable default Apache sites that conflict with YAHLP configuration
@@ -955,11 +958,14 @@ if [ "$AUTHTYPE" = "entra" ] && [ ! -z "$ENTRA_CLIENT_ID" ] && [ ! -z "$ENTRA_CL
     log_debug "    Substituting: ENTRA_CLIENT_ID=$ENTRA_CLIENT_ID"
     log_debug "    Substituting: COOKIE_DOMAIN=$COOKIE_DOMAIN"
 
+    # Generate main reverse-proxy OIDC config with domain's redirect URI
+    MAIN_REDIRECT_URI="https://${DOMAIN}/oauth2/callback"
     sed -e "s|@@ENTRA_PROVIDER_METADATA_URL@@|${ENTRA_PROVIDER_METADATA_URL}|g" \
         -e "s|@@ENTRA_CLIENT_ID@@|${ENTRA_CLIENT_ID}|g" \
         -e "s|@@ENTRA_CLIENT_SECRET@@|${ENTRA_CLIENT_SECRET}|g" \
         -e "s|@@ENTRA_CRYPTO_PASSPHRASE@@|${ENTRA_CRYPTO_PASSPHRASE}|g" \
         -e "s|@@COOKIE_DOMAIN@@|${COOKIE_DOMAIN}|g" \
+        -e "s|@@VHOST_REDIRECT_URI@@|${MAIN_REDIRECT_URI}|g" \
         /app/apache-templates/EntraOIDC.conf.template > /etc/apache2/conf-available/EntraOIDC.conf
 
     if [ ! -s /etc/apache2/conf-available/EntraOIDC.conf ]; then
@@ -968,8 +974,8 @@ if [ "$AUTHTYPE" = "entra" ] && [ ! -z "$ENTRA_CLIENT_ID" ] && [ ! -z "$ENTRA_CL
     fi
 
     a2enconf EntraOIDC 2>/dev/null || true
-    echo "  ✓ Entra ID OIDC configuration generated"
-    log_debug "    File size: $(wc -c < /etc/apache2/conf-available/EntraOIDC.conf) bytes"
+    echo "  ✓ Entra ID OIDC configuration generated for $DOMAIN"
+    log_debug "    Redirect URI: $MAIN_REDIRECT_URI"
 
 elif [ "$AUTHTYPE" = "google" ] && [ ! -z "$GOOGLE_CLIENT_ID" ] && [ ! -z "$GOOGLE_CLIENT_SECRET" ]; then
     echo "  Generating Google OAuth configuration..."
@@ -982,10 +988,13 @@ elif [ "$AUTHTYPE" = "google" ] && [ ! -z "$GOOGLE_CLIENT_ID" ] && [ ! -z "$GOOG
     log_debug "    Substituting: GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID"
     log_debug "    Substituting: COOKIE_DOMAIN=$COOKIE_DOMAIN"
 
+    # Generate main reverse-proxy OIDC config with domain's redirect URI
+    MAIN_REDIRECT_URI="https://${DOMAIN}/oauth2/callback"
     sed -e "s|@@GOOGLE_CLIENT_ID@@|${GOOGLE_CLIENT_ID}|g" \
         -e "s|@@GOOGLE_CLIENT_SECRET@@|${GOOGLE_CLIENT_SECRET}|g" \
         -e "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|${GOOGLE_CRYPTO_PASSPHRASE}|g" \
         -e "s|@@COOKIE_DOMAIN@@|${COOKIE_DOMAIN}|g" \
+        -e "s|@@VHOST_REDIRECT_URI@@|${MAIN_REDIRECT_URI}|g" \
         /app/apache-templates/GoogleOIDC.conf.template > /etc/apache2/conf-available/GoogleOIDC.conf
 
     if [ ! -s /etc/apache2/conf-available/GoogleOIDC.conf ]; then
@@ -994,14 +1003,58 @@ elif [ "$AUTHTYPE" = "google" ] && [ ! -z "$GOOGLE_CLIENT_ID" ] && [ ! -z "$GOOG
     fi
 
     a2enconf GoogleOIDC 2>/dev/null || true
-    echo "  ✓ Google OAuth configuration generated"
-    log_debug "    File size: $(wc -c < /etc/apache2/conf-available/GoogleOIDC.conf) bytes"
+    echo "  ✓ Google OAuth configuration generated for $DOMAIN"
+    log_debug "    Redirect URI: $MAIN_REDIRECT_URI"
 
 else
     echo "  ℹ AUTHTYPE=$AUTHTYPE (skipping OIDC)"
     [ ! -z "$ENTRA_CLIENT_ID" ] && echo "    ENTRA_CLIENT_ID is set" || echo "    ENTRA_CLIENT_ID not set"
     [ ! -z "$GOOGLE_CLIENT_ID" ] && echo "    GOOGLE_CLIENT_ID is set" || echo "    GOOGLE_CLIENT_ID not set"
 fi
+
+# Generate per-vhost OIDC config files for additional vhosts
+generate_vhost_oidc_config() {
+    local vhost_file="$1"
+    local server_name="$2"
+
+    # Only proceed if authentication is configured
+    if [ "$AUTHTYPE" != "entra" ] && [ "$AUTHTYPE" != "google" ]; then
+        return 0
+    fi
+
+    local template_file=""
+    local output_file=""
+    local redirect_uri="https://${server_name}/oauth2/callback"
+
+    if [ "$AUTHTYPE" = "entra" ]; then
+        template_file="/app/apache-templates/EntraOIDC.conf.template"
+        output_file="/etc/apache2/conf-available/EntraOIDC-${server_name}.conf"
+    elif [ "$AUTHTYPE" = "google" ]; then
+        template_file="/app/apache-templates/GoogleOIDC.conf.template"
+        output_file="/etc/apache2/conf-available/GoogleOIDC-${server_name}.conf"
+    else
+        return 0
+    fi
+
+    if [ ! -f "$template_file" ]; then
+        return 0
+    fi
+
+    # Generate config with per-vhost redirect URI
+    sed -e "s|@@ENTRA_PROVIDER_METADATA_URL@@|${ENTRA_PROVIDER_METADATA_URL}|g" \
+        -e "s|@@ENTRA_CLIENT_ID@@|${ENTRA_CLIENT_ID}|g" \
+        -e "s|@@ENTRA_CLIENT_SECRET@@|${ENTRA_CLIENT_SECRET}|g" \
+        -e "s|@@ENTRA_CRYPTO_PASSPHRASE@@|${ENTRA_CRYPTO_PASSPHRASE}|g" \
+        -e "s|@@GOOGLE_CLIENT_ID@@|${GOOGLE_CLIENT_ID}|g" \
+        -e "s|@@GOOGLE_CLIENT_SECRET@@|${GOOGLE_CLIENT_SECRET}|g" \
+        -e "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|${GOOGLE_CRYPTO_PASSPHRASE}|g" \
+        -e "s|@@COOKIE_DOMAIN@@|${COOKIE_DOMAIN}|g" \
+        -e "s|@@VHOST_REDIRECT_URI@@|${redirect_uri}|g" \
+        "$template_file" > "$output_file"
+
+    a2enconf "$(basename "$output_file" .conf)" 2>/dev/null || true
+    log_debug "✓ Generated per-vhost OIDC config for $server_name: $output_file"
+}
 
 # Enable additional VirtualHost configurations
 log_debug ""
