@@ -80,6 +80,32 @@ try {
     env['EMAIL'] = config.email;
   }
 
+  // Process auth settings (OIDC credentials)
+  if (config.auth && typeof config.auth === 'object') {
+    for (const [key, value] of Object.entries(config.auth)) {
+      if (value === null || value === undefined || value === '') {
+        continue;
+      }
+      // Map auth settings to environment variables
+      // e.g., tenant_id → AZUREAD_TENANT_ID, entra_client_id → AZUREAD_CLIENT_ID
+      if (key === 'type' || key === 'authtype') {
+        env['AUTHTYPE'] = String(value);
+      } else if (key === 'tenant_id' || key === 'azure_tenant_id') {
+        env['AZUREAD_TENANT_ID'] = String(value);
+      } else if (key === 'entra_client_id' || key === 'azure_client_id') {
+        env['AZUREAD_CLIENT_ID'] = String(value);
+      } else if (key === 'entra_client_secret' || key === 'azure_client_secret') {
+        env['AZUREAD_CLIENT_SECRET'] = String(value);
+      } else if (key === 'google_client_id') {
+        env['GOOGLE_CLIENT_ID'] = String(value);
+      } else if (key === 'google_client_secret') {
+        env['GOOGLE_CLIENT_SECRET'] = String(value);
+      } else if (key === 'oidc_passphrase' || key === 'crypto_passphrase') {
+        env['OIDC_PASSPHRASE'] = String(value);
+      }
+    }
+  }
+
   // Process sites_enabled if present
   if (config.sites_enabled && config.sites_enabled !== '') {
     env['DASHBOARD_SITES'] = config.sites_enabled;
