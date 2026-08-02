@@ -127,13 +127,13 @@ inject_oidc_to_vhost() {
 
     if [ "$AUTHTYPE" = "entra" ]; then
         # Entra ID configuration
-        oidc_config="
+        oidc_config=$(cat <<'EOF'
     # Entra ID OIDC Authentication (auto-injected)
-    OIDCProviderMetadataURL \"https://login.microsoftonline.com/${AZUREAD_TENANT_ID}/v2.0/.well-known/openid-configuration\"
-    OIDCClientID \"${AZUREAD_CLIENT_ID}\"
-    OIDCClientSecret \"${AZUREAD_CLIENT_SECRET}\"
-    OIDCRedirectURI \"https://${server_name}/oauth2/callback\"
-    OIDCCryptoPassphrase \"${OIDC_PASSPHRASE:-default-passphrase}\"
+    OIDCProviderMetadataURL https://login.microsoftonline.com/TENANT_ID/v2.0/.well-known/openid-configuration
+    OIDCClientID CLIENT_ID
+    OIDCClientSecret CLIENT_SECRET
+    OIDCRedirectURI https://SERVER_NAME/oauth2/callback
+    OIDCCryptoPassphrase PASSPHRASE
     OIDCCookiePath /
     OIDCCookieSameSite lax
 
@@ -141,17 +141,25 @@ inject_oidc_to_vhost() {
     <Location />
         AuthType openid-connect
         Require valid-user
-    </Location>"
+    </Location>
+EOF
+)
+        # Replace placeholders
+        oidc_config="${oidc_config//TENANT_ID/$AZUREAD_TENANT_ID}"
+        oidc_config="${oidc_config//CLIENT_ID/$AZUREAD_CLIENT_ID}"
+        oidc_config="${oidc_config//CLIENT_SECRET/$AZUREAD_CLIENT_SECRET}"
+        oidc_config="${oidc_config//SERVER_NAME/$server_name}"
+        oidc_config="${oidc_config//PASSPHRASE/${OIDC_PASSPHRASE:-default-passphrase}}"
 
     elif [ "$AUTHTYPE" = "google" ]; then
         # Google OAuth configuration
-        oidc_config="
+        oidc_config=$(cat <<'EOF'
     # Google OAuth Authentication (auto-injected)
-    OIDCProviderMetadataURL \"https://accounts.google.com/.well-known/openid-configuration\"
-    OIDCClientID \"${GOOGLE_CLIENT_ID}\"
-    OIDCClientSecret \"${GOOGLE_CLIENT_SECRET}\"
-    OIDCRedirectURI \"https://${server_name}/oauth2/callback\"
-    OIDCCryptoPassphrase \"${OIDC_PASSPHRASE:-default-passphrase}\"
+    OIDCProviderMetadataURL https://accounts.google.com/.well-known/openid-configuration
+    OIDCClientID CLIENT_ID
+    OIDCClientSecret CLIENT_SECRET
+    OIDCRedirectURI https://SERVER_NAME/oauth2/callback
+    OIDCCryptoPassphrase PASSPHRASE
     OIDCCookiePath /
     OIDCCookieSameSite lax
 
@@ -159,7 +167,14 @@ inject_oidc_to_vhost() {
     <Location />
         AuthType openid-connect
         Require valid-user
-    </Location>"
+    </Location>
+EOF
+)
+        # Replace placeholders
+        oidc_config="${oidc_config//CLIENT_ID/$GOOGLE_CLIENT_ID}"
+        oidc_config="${oidc_config//CLIENT_SECRET/$GOOGLE_CLIENT_SECRET}"
+        oidc_config="${oidc_config//SERVER_NAME/$server_name}"
+        oidc_config="${oidc_config//PASSPHRASE/${OIDC_PASSPHRASE:-default-passphrase}}"
     fi
 
     # Check if OIDC is already in the file (skip if already configured)
