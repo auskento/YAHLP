@@ -939,24 +939,24 @@ echo "Setting up OIDC configuration..."
 if [ "$AUTHTYPE" = "entra" ] && [ ! -z "$ENTRA_CLIENT_ID" ] && [ ! -z "$ENTRA_CLIENT_SECRET" ]; then
     echo "  Generating Entra ID OIDC configuration..."
     # Copy template and substitute values
-    if [ -f /etc/apache2/apache-conf/EntraOIDC.conf.template ]; then
+    if [ -f /app/apache-templates/EntraOIDC.conf.template ]; then
         sed -e "s|@@ENTRA_PROVIDER_METADATA_URL@@|${ENTRA_PROVIDER_METADATA_URL}|g" \
             -e "s|@@ENTRA_CLIENT_ID@@|${ENTRA_CLIENT_ID}|g" \
             -e "s|@@ENTRA_CLIENT_SECRET@@|${ENTRA_CLIENT_SECRET}|g" \
             -e "s|@@ENTRA_REDIRECT_URI@@|${ENTRA_REDIRECT_URI}|g" \
             -e "s|@@ENTRA_CRYPTO_PASSPHRASE@@|${ENTRA_CRYPTO_PASSPHRASE}|g" \
-            /etc/apache2/apache-conf/EntraOIDC.conf.template > /etc/apache2/conf-available/EntraOIDC.conf
+            /app/apache-templates/EntraOIDC.conf.template > /etc/apache2/conf-available/EntraOIDC.conf
         a2enconf EntraOIDC 2>/dev/null || true
         echo "  ✓ Entra ID OIDC configuration generated"
     fi
 elif [ "$AUTHTYPE" = "google" ] && [ ! -z "$GOOGLE_CLIENT_ID" ] && [ ! -z "$GOOGLE_CLIENT_SECRET" ]; then
     echo "  Generating Google OAuth configuration..."
-    if [ -f /etc/apache2/apache-conf/GoogleOIDC.conf.template ]; then
+    if [ -f /app/apache-templates/GoogleOIDC.conf.template ]; then
         sed -e "s|@@GOOGLE_CLIENT_ID@@|${GOOGLE_CLIENT_ID}|g" \
             -e "s|@@GOOGLE_CLIENT_SECRET@@|${GOOGLE_CLIENT_SECRET}|g" \
             -e "s|@@GOOGLE_REDIRECT_URI@@|${GOOGLE_REDIRECT_URI}|g" \
             -e "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|${GOOGLE_CRYPTO_PASSPHRASE}|g" \
-            /etc/apache2/apache-conf/GoogleOIDC.conf.template > /etc/apache2/conf-available/GoogleOIDC.conf
+            /app/apache-templates/GoogleOIDC.conf.template > /etc/apache2/conf-available/GoogleOIDC.conf
         a2enconf GoogleOIDC 2>/dev/null || true
         echo "  ✓ Google OAuth configuration generated"
     fi
