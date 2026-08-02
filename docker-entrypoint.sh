@@ -124,8 +124,8 @@ inject_oidc_to_vhost() {
 
     # Validate required credentials are set
     if [ "$AUTHTYPE" = "entra" ]; then
-        if [ -z "$AZUREAD_TENANT_ID" ] || [ -z "$AZUREAD_CLIENT_ID" ] || [ -z "$AZUREAD_CLIENT_SECRET" ]; then
-            log_debug "⚠ Entra ID credentials not configured (AZUREAD_TENANT_ID, AZUREAD_CLIENT_ID, AZUREAD_CLIENT_SECRET), skipping OIDC injection"
+        if [ -z "$ENTRA_TENANT_ID" ] || [ -z "$ENTRA_CLIENT_ID" ] || [ -z "$ENTRA_CLIENT_SECRET" ]; then
+            log_debug "⚠ Entra ID credentials not configured (ENTRA_TENANT_ID, ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET), skipping OIDC injection"
             return 0
         fi
     elif [ "$AUTHTYPE" = "google" ]; then
@@ -139,10 +139,11 @@ inject_oidc_to_vhost() {
     local oidc_config=""
 
     if [ "$AUTHTYPE" = "entra" ]; then
-        # Entra ID configuration
+        # Entra ID configuration (use provided metadata URL if available)
+        local metadata_url="${ENTRA_PROVIDER_METADATA_URL:-https://login.microsoftonline.com/${ENTRA_TENANT_ID}/v2.0/.well-known/openid-configuration}"
         oidc_config=$(cat <<'EOF'
     # Entra ID OIDC Authentication (auto-injected)
-    OIDCProviderMetadataURL https://login.microsoftonline.com/TENANT_ID/v2.0/.well-known/openid-configuration
+    OIDCProviderMetadataURL METADATA_URL
     OIDCClientID CLIENT_ID
     OIDCClientSecret CLIENT_SECRET
     OIDCRedirectURI https://SERVER_NAME/oauth2/callback
@@ -158,11 +159,11 @@ inject_oidc_to_vhost() {
 EOF
 )
         # Replace placeholders
-        oidc_config="${oidc_config//TENANT_ID/$AZUREAD_TENANT_ID}"
-        oidc_config="${oidc_config//CLIENT_ID/$AZUREAD_CLIENT_ID}"
-        oidc_config="${oidc_config//CLIENT_SECRET/$AZUREAD_CLIENT_SECRET}"
+        oidc_config="${oidc_config//METADATA_URL/$metadata_url}"
+        oidc_config="${oidc_config//CLIENT_ID/$ENTRA_CLIENT_ID}"
+        oidc_config="${oidc_config//CLIENT_SECRET/$ENTRA_CLIENT_SECRET}"
         oidc_config="${oidc_config//SERVER_NAME/$server_name}"
-        oidc_config="${oidc_config//PASSPHRASE/${OIDC_PASSPHRASE:-default-passphrase}}"
+        oidc_config="${oidc_config//PASSPHRASE/${ENTRA_CRYPTO_PASSPHRASE:-default-passphrase}}"
 
     elif [ "$AUTHTYPE" = "google" ]; then
         # Google OAuth configuration
@@ -187,7 +188,7 @@ EOF
         oidc_config="${oidc_config//CLIENT_ID/$GOOGLE_CLIENT_ID}"
         oidc_config="${oidc_config//CLIENT_SECRET/$GOOGLE_CLIENT_SECRET}"
         oidc_config="${oidc_config//SERVER_NAME/$server_name}"
-        oidc_config="${oidc_config//PASSPHRASE/${OIDC_PASSPHRASE:-default-passphrase}}"
+        oidc_config="${oidc_config//PASSPHRASE/${GOOGLE_CRYPTO_PASSPHRASE:-${ENTRA_CRYPTO_PASSPHRASE:-default-passphrase}}}"
     fi
 
     # Check if OIDC is already in the file (skip if already configured)
