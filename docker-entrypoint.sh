@@ -2087,8 +2087,12 @@ else
     fi
 fi
 
-# Write all vhost configs to debug log
+# Test Apache configuration before starting
+echo ""
+echo "Testing Apache configuration..."
 {
+    echo "=== CONFIGTEST OUTPUT ==="
+    apache2ctl configtest
     echo ""
     echo "=== ALL VHOST CONFIGURATIONS ==="
     echo ""
@@ -2115,13 +2119,15 @@ fi
             fi
         done
     fi
-} >> /etc/yahlp/configtest.log 2>&1
+} > /etc/yahlp/configtest.log 2>&1
 
-# Test Apache configuration before starting
-echo ""
-echo "Testing Apache configuration..."
-apache2ctl configtest > /etc/yahlp/configtest.log 2>&1
-CONFIGTEST_EXIT=$?
+# Check if configtest passed
+CONFIGTEST_EXIT=$(grep -c "Syntax OK" /etc/yahlp/configtest.log || echo 0)
+if [ "$CONFIGTEST_EXIT" = "0" ]; then
+    CONFIGTEST_EXIT=1
+else
+    CONFIGTEST_EXIT=0
+fi
 
 if [ $CONFIGTEST_EXIT -ne 0 ]; then
     echo ""
