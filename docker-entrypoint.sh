@@ -2020,7 +2020,22 @@ echo "=== Starting Apache ==="
 # Trap signals to gracefully shut down cron, proxy, and Apache
 trap 'echo "Shutting down..."; service cron stop 2>/dev/null; kill ${PROXY_PID} 2>/dev/null; kill ${APACHE_PID} 2>/dev/null; wait ${APACHE_PID} 2>/dev/null; exit 0' SIGTERM SIGINT
 
-# Start Apache in foreground
+# Test Apache configuration before starting
+echo "Testing Apache configuration..."
+if ! apache2ctl configtest 2>&1; then
+    echo "Apache configuration test FAILED!"
+    echo ""
+    echo "=== Apache Error Log ==="
+    cat /var/log/apache2/error.log 2>/dev/null || echo "(No error log)"
+    echo ""
+    echo "=== Checking OIDC config files ==="
+    ls -la /etc/apache2/conf-available/*OIDC* 2>/dev/null || echo "(No OIDC configs found)"
+    echo ""
+    exit 1
+fi
+
+echo "✓ Apache configuration valid"
+echo ""
 echo "Starting Apache in foreground..."
 apache2ctl -D FOREGROUND 2>&1 &
 APACHE_PID=$!
