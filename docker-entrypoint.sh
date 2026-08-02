@@ -117,10 +117,12 @@ inject_oidc_to_vhost() {
     local vhost_file="$1"
     local server_name="$2"
 
+    # TEMPORARILY DISABLED for debugging
     # Only proceed if authentication is configured
-    if [ "$AUTHTYPE" != "entra" ] && [ "$AUTHTYPE" != "google" ]; then
-        return 0
-    fi
+    #if [ "$AUTHTYPE" != "entra" ] && [ "$AUTHTYPE" != "google" ]; then
+    #    return 0
+    #fi
+    return 0
 
     # Validate required credentials are set
     if [ "$AUTHTYPE" = "entra" ]; then
