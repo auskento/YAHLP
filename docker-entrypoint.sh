@@ -943,8 +943,8 @@ if [ "$AUTHTYPE" = "entra" ] && [ ! -z "$ENTRA_CLIENT_ID" ] && [ ! -z "$ENTRA_CL
         sed -e "s|@@ENTRA_PROVIDER_METADATA_URL@@|${ENTRA_PROVIDER_METADATA_URL}|g" \
             -e "s|@@ENTRA_CLIENT_ID@@|${ENTRA_CLIENT_ID}|g" \
             -e "s|@@ENTRA_CLIENT_SECRET@@|${ENTRA_CLIENT_SECRET}|g" \
-            -e "s|@@ENTRA_REDIRECT_URI@@|${ENTRA_REDIRECT_URI}|g" \
             -e "s|@@ENTRA_CRYPTO_PASSPHRASE@@|${ENTRA_CRYPTO_PASSPHRASE}|g" \
+            -e "s|@@COOKIE_DOMAIN@@|${COOKIE_DOMAIN}|g" \
             /app/apache-templates/EntraOIDC.conf.template > /etc/apache2/conf-available/EntraOIDC.conf
         a2enconf EntraOIDC 2>/dev/null || true
         echo "  ✓ Entra ID OIDC configuration generated"
@@ -954,8 +954,8 @@ elif [ "$AUTHTYPE" = "google" ] && [ ! -z "$GOOGLE_CLIENT_ID" ] && [ ! -z "$GOOG
     if [ -f /app/apache-templates/GoogleOIDC.conf.template ]; then
         sed -e "s|@@GOOGLE_CLIENT_ID@@|${GOOGLE_CLIENT_ID}|g" \
             -e "s|@@GOOGLE_CLIENT_SECRET@@|${GOOGLE_CLIENT_SECRET}|g" \
-            -e "s|@@GOOGLE_REDIRECT_URI@@|${GOOGLE_REDIRECT_URI}|g" \
             -e "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|${GOOGLE_CRYPTO_PASSPHRASE}|g" \
+            -e "s|@@COOKIE_DOMAIN@@|${COOKIE_DOMAIN}|g" \
             /app/apache-templates/GoogleOIDC.conf.template > /etc/apache2/conf-available/GoogleOIDC.conf
         a2enconf GoogleOIDC 2>/dev/null || true
         echo "  ✓ Google OAuth configuration generated"
