@@ -5,7 +5,6 @@ OIDCSessionType client-cookie:persistent
 OIDCProviderMetadataURL @@ENTRA_PROVIDER_METADATA_URL@@
 OIDCClientID @@ENTRA_CLIENT_ID@@
 OIDCClientSecret @@ENTRA_CLIENT_SECRET@@
-OIDCRedirectURI @@VHOST_REDIRECT_URI@@
 OIDCCryptoPassphrase "@@ENTRA_CRYPTO_PASSPHRASE@@"
 OIDCScope "openid profile email"
 OIDCSessionInactivityTimeout 3600
