@@ -2049,7 +2049,8 @@ if true; then
     ls -la /etc/apache2/sites-available/*-vhost.conf 2>/dev/null || echo "(No service VirtualHosts found)"
     log_debug ""
     echo "=== Available Config Files ==="
-    ls -la /etc/apache2/conf-available/ | grep -E "emby|plex|seerr|google|entra" || echo "(No relevant configs found)"
+    ls -la /etc/apache2/conf-available/ 2>/dev/null | grep -E "emby|plex|seerr|google|entra" || true
+    echo "(Config search complete)"
     log_debug ""
     echo "========================================="
     echo "Container will keep running for debugging."
@@ -2060,7 +2061,7 @@ if true; then
     # Keep container running so you can debug
     while true; do
         sleep 300
-        echo "[$(date)] Container still running - waiting for you to debug..."
+        echo "[$(date)] Container still running..."
     done
 fi
 
