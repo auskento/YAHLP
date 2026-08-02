@@ -2087,6 +2087,36 @@ else
     fi
 fi
 
+# Write all vhost configs to debug log
+{
+    echo ""
+    echo "=== ALL VHOST CONFIGURATIONS ==="
+    echo ""
+    echo "=== /etc/apache2/sites-available/reverse-proxy.conf ==="
+    cat /etc/apache2/sites-available/reverse-proxy.conf 2>/dev/null || echo "(Not found)"
+    echo ""
+
+    if [ -d /etc/apache2/sites-available/services ]; then
+        for vhost in /etc/apache2/sites-available/services/*.conf; do
+            if [ -f "$vhost" ]; then
+                echo "=== $(basename "$vhost") ==="
+                cat "$vhost"
+                echo ""
+            fi
+        done
+    fi
+
+    if [ -d /etc/yahlp/additional-vhost ]; then
+        for vhost in /etc/yahlp/additional-vhost/*.conf; do
+            if [ -f "$vhost" ]; then
+                echo "=== $(basename "$vhost") (additional-vhost) ==="
+                cat "$vhost"
+                echo ""
+            fi
+        done
+    fi
+} >> /etc/yahlp/configtest.log 2>&1
+
 # Test Apache configuration before starting
 echo ""
 echo "Testing Apache configuration..."
