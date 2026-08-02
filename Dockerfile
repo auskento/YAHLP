@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cron \
     vim \
     net-tools \
+    dnsutils \
     imagemagick \
     file \
     tzdata \
