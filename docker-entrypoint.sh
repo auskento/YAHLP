@@ -168,11 +168,19 @@ inject_oidc_to_vhost() {
         return 0
     fi
 
-    # Insert OIDC config before the Proxy directives
-    # Find the line with "ProxyPass" and insert OIDC config before it
+    # Insert OIDC config before the Proxy directives using temporary file
     if grep -q "ProxyPass" "$vhost_file"; then
-        sed -i "/ProxyPass/i\\$oidc_config" "$vhost_file"
-        log_debug "✓ Injected OIDC configuration into $(basename "$vhost_file")"
+        local temp_file="${vhost_file}.tmp"
+        local line_num=$(grep -n "ProxyPass" "$vhost_file" | head -1 | cut -d: -f1)
+
+        if [ ! -z "$line_num" ]; then
+            # Write lines before ProxyPass, then OIDC config, then rest of file
+            head -n $((line_num - 1)) "$vhost_file" > "$temp_file"
+            echo "$oidc_config" >> "$temp_file"
+            tail -n +$line_num "$vhost_file" >> "$temp_file"
+            mv "$temp_file" "$vhost_file"
+            log_debug "✓ Injected OIDC configuration into $(basename "$vhost_file")"
+        fi
     else
         log_debug "⚠ No ProxyPass found in $(basename "$vhost_file"), OIDC not injected"
     fi
