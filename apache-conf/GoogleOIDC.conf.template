@@ -1,11 +1,21 @@
 # Google OAuth Configuration - Auto-generated from environment variables
 # Include this in your VirtualHost: Include /etc/apache2/conf-available/GoogleOIDC.conf
 
+OIDCSessionType client-cookie:persistent
 OIDCProviderMetadataURL https://accounts.google.com/.well-known/openid-configuration
 OIDCClientID @@GOOGLE_CLIENT_ID@@
 OIDCClientSecret @@GOOGLE_CLIENT_SECRET@@
 OIDCRedirectURI @@GOOGLE_REDIRECT_URI@@
 OIDCCryptoPassphrase "@@GOOGLE_CRYPTO_PASSPHRASE@@"
+OIDCScope "openid profile email"
+OIDCSessionInactivityTimeout 3600
+OIDCSessionMaxDuration 86400
+OIDCClaimPrefix OIDC_
+OIDCPassClaimsAs environment
+OIDCSSLValidateServer On
+OIDCClaimDelimiter ;
+OIDCPassUserInfoAs json
+OIDCCookieDomain @@COOKIE_DOMAIN@@
 OIDCCookiePath /
 OIDCCookieSameSite lax
 

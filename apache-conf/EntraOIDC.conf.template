@@ -1,11 +1,21 @@
 # Entra ID OIDC Configuration - Auto-generated from environment variables
 # Include this in your VirtualHost: Include /etc/apache2/conf-available/EntraOIDC.conf
 
+OIDCSessionType client-cookie:persistent
 OIDCProviderMetadataURL @@ENTRA_PROVIDER_METADATA_URL@@
 OIDCClientID @@ENTRA_CLIENT_ID@@
 OIDCClientSecret @@ENTRA_CLIENT_SECRET@@
 OIDCRedirectURI @@ENTRA_REDIRECT_URI@@
 OIDCCryptoPassphrase "@@ENTRA_CRYPTO_PASSPHRASE@@"
+OIDCScope "openid profile email"
+OIDCSessionInactivityTimeout 3600
+OIDCSessionMaxDuration 86400
+OIDCClaimPrefix OIDC_
+OIDCPassClaimsAs environment
+OIDCSSLValidateServer On
+OIDCClaimDelimiter ;
+OIDCPassUserInfoAs json
+OIDCCookieDomain @@COOKIE_DOMAIN@@
 OIDCCookiePath /
 OIDCCookieSameSite lax
 
