@@ -138,10 +138,11 @@ inject_oidc_to_vhost() {
     # Remove inline OIDC configuration directives to avoid duplicates
     sed -i '/^[[:space:]]*OIDC.*$/d' "$vhost_file" 2>/dev/null || return 0
 
-    # Add Include directive after VirtualHost opening tag
-    sed -i '/<VirtualHost/a\    '"$oidc_include" "$vhost_file" 2>/dev/null || return 0
+    # Add Include directive ONLY to HTTPS vhost (port 443), not HTTP (port 80)
+    # OIDC requires HTTPS
+    sed -i "/<VirtualHost.*:443>/a\\    $oidc_include" "$vhost_file" 2>/dev/null || return 0
 
-    log_debug "✓ Added OIDC Include to $(basename "$vhost_file")"
+    log_debug "✓ Added OIDC Include to HTTPS VirtualHost in $(basename "$vhost_file")"
 }
 
 # Disable default Apache sites that conflict with YAHLP configuration

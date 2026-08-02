@@ -377,12 +377,12 @@ if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
             # Build href (https if public, http if private)
             vhost_href="https://${vhost_server_name}/"
 
-            # Store settings
-            SERVICE_OVERRIDES["${vhost_dashboard_code}"]="$vhost_dashboard_window"
-            SERVICE_APPNAMES["${vhost_dashboard_code}"]="$vhost_appname"
+            # Store settings with uppercase key to match service_key lookup
+            vhost_app_key="${vhost_dashboard_code^^}"
+            SERVICE_OVERRIDES["$vhost_app_key"]="$vhost_dashboard_window"
+            SERVICE_APPNAMES["$vhost_app_key"]="$vhost_appname"
 
             # Add to additional apps array
-            vhost_app_key="${vhost_dashboard_code^^}"
             ADDITIONAL_APPS+=("$vhost_app_key")
 
             # Add to SERVICES array
