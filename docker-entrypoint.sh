@@ -192,7 +192,7 @@ EOF
     fi
 
     # Remove any existing OIDC configuration (to handle auth type changes)
-    if grep -q "OIDCProviderMetadataURL\|OIDCClientID\|AuthType openid-connect" "$vhost_file"; then
+    if grep -q "OIDCProviderMetadataURL\|OIDCClientID\|AuthType openid-connect" "$vhost_file" 2>/dev/null; then
         log_debug "Removing existing OIDC configuration from $(basename "$vhost_file")..."
         # Create temp file with OIDC directives removed
         local temp_file="${vhost_file}.tmp"
@@ -204,8 +204,8 @@ EOF
             /Require valid-user/ && in_location { next }
             /<\/Location>/ && in_location { in_location=0; next }
             { print }
-        ' "$vhost_file" > "$temp_file"
-        mv "$temp_file" "$vhost_file"
+        ' "$vhost_file" > "$temp_file" 2>/dev/null || return 0
+        mv "$temp_file" "$vhost_file" 2>/dev/null || return 0
     fi
 
     # Insert OIDC config before the Proxy directives using temporary file
