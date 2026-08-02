@@ -2020,17 +2020,20 @@ echo "=== Starting Apache ==="
 # Trap signals to gracefully shut down cron, proxy, and Apache
 trap 'echo "Shutting down..."; service cron stop 2>/dev/null; kill ${PROXY_PID} 2>/dev/null; kill ${APACHE_PID} 2>/dev/null; wait ${APACHE_PID} 2>/dev/null; exit 0' SIGTERM SIGINT
 
-# Start Apache in foreground and capture PID
-apache2ctl -D FOREGROUND &
+# Start Apache in foreground
+echo "Starting Apache in foreground..."
+apache2ctl -D FOREGROUND 2>&1 &
 APACHE_PID=$!
+echo "Apache started with PID: $APACHE_PID"
 
-# Wait for Apache process and check if it exits unexpectedly
-wait ${APACHE_PID}
-APACHE_EXIT=$?
-echo "Apache exited with code: $APACHE_EXIT"
+# Wait a moment for Apache to stabilize
+sleep 2
 
-# Apache should never exit - if it does, show diagnostic info
-if true; then
+# Check if Apache is still running
+if ! ps -p $APACHE_PID > /dev/null; then
+    echo "Apache failed to start!"
+    # Apache should never exit - if it does, show diagnostic info
+    if true; then
     log_debug ""
     echo "========================================="
     echo "APACHE STARTUP FAILED (Exit code: $APACHE_EXIT)"
@@ -2057,12 +2060,9 @@ if true; then
     echo "Check logs above for errors."
     echo "========================================="
     log_debug ""
-
-    # Keep container running so you can debug
-    while true; do
-        sleep 300
-        echo "[$(date)] Container still running..."
-    done
+    fi
+else
+    echo "✓ Apache is running (PID: $APACHE_PID)"
 fi
 
 # Display YAHLP release version
@@ -2073,6 +2073,24 @@ if [ -f /app/VERSION ]; then
     echo "✓ YAHLP Release: $YAHLP_VERSION"
     echo "========================================="
 fi
+
+# Keep container running - monitor Apache and proxy
+echo ""
+echo "========================================="
+echo "✓ YAHLP is running"
+echo "========================================="
+echo ""
+
+# Keep container alive by monitoring processes
+while true; do
+    sleep 60
+
+    # Check if Apache is still running
+    if ! ps -p $APACHE_PID > /dev/null 2>&1; then
+        echo "ERROR: Apache process (PID $APACHE_PID) died!"
+        break
+    fi
+done
 
 
 
