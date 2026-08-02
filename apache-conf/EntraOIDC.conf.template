@@ -1,0 +1,16 @@
+# Entra ID OIDC Configuration - Auto-generated from environment variables
+# Include this in your VirtualHost: Include /etc/apache2/conf-available/EntraOIDC.conf
+
+OIDCProviderMetadataURL @@ENTRA_PROVIDER_METADATA_URL@@
+OIDCClientID @@ENTRA_CLIENT_ID@@
+OIDCClientSecret @@ENTRA_CLIENT_SECRET@@
+OIDCRedirectURI @@ENTRA_REDIRECT_URI@@
+OIDCCryptoPassphrase "@@ENTRA_CRYPTO_PASSPHRASE@@"
+OIDCCookiePath /
+OIDCCookieSameSite lax
+
+# Require authentication
+<Location />
+    AuthType openid-connect
+    Require valid-user
+</Location>

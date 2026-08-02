@@ -112,120 +112,33 @@ validate_dns_entries() {
     fi
 }
 
-# Inject OIDC configuration into vhost file if auth is enabled
+# Inject OIDC Include into vhost file if auth is enabled
 inject_oidc_to_vhost() {
     local vhost_file="$1"
     local server_name="$2"
 
-    # TEMPORARILY DISABLED for debugging
     # Only proceed if authentication is configured
-    #if [ "$AUTHTYPE" != "entra" ] && [ "$AUTHTYPE" != "google" ]; then
-    #    return 0
-    #fi
-    return 0
+    if [ "$AUTHTYPE" != "entra" ] && [ "$AUTHTYPE" != "google" ]; then
+        return 0
+    fi
 
-    # Validate required credentials are set
+    # Determine which OIDC config to include
+    local oidc_include=""
     if [ "$AUTHTYPE" = "entra" ]; then
-        if [ -z "$ENTRA_TENANT_ID" ] || [ -z "$ENTRA_CLIENT_ID" ] || [ -z "$ENTRA_CLIENT_SECRET" ]; then
-            log_debug "⚠ Entra ID credentials not configured (ENTRA_TENANT_ID, ENTRA_CLIENT_ID, ENTRA_CLIENT_SECRET), skipping OIDC injection"
-            return 0
-        fi
+        oidc_include="Include /etc/apache2/conf-available/EntraOIDC.conf"
     elif [ "$AUTHTYPE" = "google" ]; then
-        if [ -z "$GOOGLE_CLIENT_ID" ] || [ -z "$GOOGLE_CLIENT_SECRET" ]; then
-            log_debug "⚠ Google OAuth credentials not configured (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET), skipping OIDC injection"
-            return 0
-        fi
-    fi
-
-    # Build OIDC configuration based on auth type
-    local oidc_config=""
-
-    if [ "$AUTHTYPE" = "entra" ]; then
-        # Entra ID configuration (use provided metadata URL if available)
-        local metadata_url="${ENTRA_PROVIDER_METADATA_URL:-https://login.microsoftonline.com/${ENTRA_TENANT_ID}/v2.0/.well-known/openid-configuration}"
-        oidc_config=$(cat <<'EOF'
-    # Entra ID OIDC Authentication (auto-injected)
-    OIDCProviderMetadataURL METADATA_URL
-    OIDCClientID CLIENT_ID
-    OIDCClientSecret CLIENT_SECRET
-    OIDCRedirectURI https://SERVER_NAME/oauth2/callback
-    OIDCCryptoPassphrase PASSPHRASE
-    OIDCCookiePath /
-    OIDCCookieSameSite lax
-
-    # Require authentication
-    <Location />
-        AuthType openid-connect
-        Require valid-user
-    </Location>
-EOF
-)
-        # Replace placeholders
-        oidc_config="${oidc_config//METADATA_URL/$metadata_url}"
-        oidc_config="${oidc_config//CLIENT_ID/$ENTRA_CLIENT_ID}"
-        oidc_config="${oidc_config//CLIENT_SECRET/$ENTRA_CLIENT_SECRET}"
-        oidc_config="${oidc_config//SERVER_NAME/$server_name}"
-        oidc_config="${oidc_config//PASSPHRASE/${ENTRA_CRYPTO_PASSPHRASE:-default-passphrase}}"
-
-    elif [ "$AUTHTYPE" = "google" ]; then
-        # Google OAuth configuration
-        oidc_config=$(cat <<'EOF'
-    # Google OAuth Authentication (auto-injected)
-    OIDCProviderMetadataURL https://accounts.google.com/.well-known/openid-configuration
-    OIDCClientID CLIENT_ID
-    OIDCClientSecret CLIENT_SECRET
-    OIDCRedirectURI https://SERVER_NAME/oauth2/callback
-    OIDCCryptoPassphrase PASSPHRASE
-    OIDCCookiePath /
-    OIDCCookieSameSite lax
-
-    # Require authentication
-    <Location />
-        AuthType openid-connect
-        Require valid-user
-    </Location>
-EOF
-)
-        # Replace placeholders
-        oidc_config="${oidc_config//CLIENT_ID/$GOOGLE_CLIENT_ID}"
-        oidc_config="${oidc_config//CLIENT_SECRET/$GOOGLE_CLIENT_SECRET}"
-        oidc_config="${oidc_config//SERVER_NAME/$server_name}"
-        oidc_config="${oidc_config//PASSPHRASE/${GOOGLE_CRYPTO_PASSPHRASE:-${ENTRA_CRYPTO_PASSPHRASE:-default-passphrase}}}"
-    fi
-
-    # Remove any existing OIDC configuration (to handle auth type changes)
-    if grep -q "OIDCProviderMetadataURL\|OIDCClientID\|AuthType openid-connect" "$vhost_file" 2>/dev/null; then
-        log_debug "Removing existing OIDC configuration from $(basename "$vhost_file")..."
-        # Create temp file with OIDC directives removed
-        local temp_file="${vhost_file}.tmp"
-        awk '
-            /# (Entra ID|Google) OIDC Authentication \(auto-injected\)/ { skip=1; next }
-            /OIDCProviderMetadataURL|OIDCClientID|OIDCClientSecret|OIDCRedirectURI|OIDCCryptoPassphrase|OIDCCookiePath|OIDCCookieSameSite/ { if (skip) next }
-            /<Location \/>/ && skip { skip=0; in_location=1; next }
-            /AuthType openid-connect/ && in_location { next }
-            /Require valid-user/ && in_location { next }
-            /<\/Location>/ && in_location { in_location=0; next }
-            { print }
-        ' "$vhost_file" > "$temp_file" 2>/dev/null || return 0
-        mv "$temp_file" "$vhost_file" 2>/dev/null || return 0
-    fi
-
-    # Insert OIDC config before the Proxy directives using temporary file
-    if grep -q "ProxyPass" "$vhost_file"; then
-        local temp_file="${vhost_file}.tmp"
-        local line_num=$(grep -n "ProxyPass" "$vhost_file" | head -1 | cut -d: -f1)
-
-        if [ ! -z "$line_num" ]; then
-            # Write lines before ProxyPass, then OIDC config, then rest of file
-            head -n $((line_num - 1)) "$vhost_file" > "$temp_file"
-            echo "$oidc_config" >> "$temp_file"
-            tail -n +$line_num "$vhost_file" >> "$temp_file"
-            mv "$temp_file" "$vhost_file"
-            log_debug "✓ Injected OIDC configuration into $(basename "$vhost_file")"
-        fi
+        oidc_include="Include /etc/apache2/conf-available/GoogleOIDC.conf"
     else
-        log_debug "⚠ No ProxyPass found in $(basename "$vhost_file"), OIDC not injected"
+        return 0
     fi
+
+    # Remove any existing OIDC Include directives
+    sed -i '/^[[:space:]]*Include.*OIDC\.conf/d' "$vhost_file" 2>/dev/null || return 0
+
+    # Add Include directive after VirtualHost opening tag
+    sed -i '/<VirtualHost/a\    '"$oidc_include" "$vhost_file" 2>/dev/null || return 0
+
+    log_debug "✓ Added OIDC Include to $(basename "$vhost_file")"
 }
 
 # Disable default Apache sites that conflict with YAHLP configuration
@@ -1018,6 +931,37 @@ fi
 
 if [ $CONF_COUNT -eq 0 ]; then
     echo "  (no additional service configurations found)"
+fi
+
+# Generate OIDC configuration files if auth is enabled
+log_debug ""
+echo "Setting up OIDC configuration..."
+if [ "$AUTHTYPE" = "entra" ] && [ ! -z "$ENTRA_CLIENT_ID" ] && [ ! -z "$ENTRA_CLIENT_SECRET" ]; then
+    echo "  Generating Entra ID OIDC configuration..."
+    # Copy template and substitute values
+    if [ -f /etc/apache2/apache-conf/EntraOIDC.conf.template ]; then
+        sed -e "s|@@ENTRA_PROVIDER_METADATA_URL@@|${ENTRA_PROVIDER_METADATA_URL}|g" \
+            -e "s|@@ENTRA_CLIENT_ID@@|${ENTRA_CLIENT_ID}|g" \
+            -e "s|@@ENTRA_CLIENT_SECRET@@|${ENTRA_CLIENT_SECRET}|g" \
+            -e "s|@@ENTRA_REDIRECT_URI@@|${ENTRA_REDIRECT_URI}|g" \
+            -e "s|@@ENTRA_CRYPTO_PASSPHRASE@@|${ENTRA_CRYPTO_PASSPHRASE}|g" \
+            /etc/apache2/apache-conf/EntraOIDC.conf.template > /etc/apache2/conf-available/EntraOIDC.conf
+        a2enconf EntraOIDC 2>/dev/null || true
+        echo "  ✓ Entra ID OIDC configuration generated"
+    fi
+elif [ "$AUTHTYPE" = "google" ] && [ ! -z "$GOOGLE_CLIENT_ID" ] && [ ! -z "$GOOGLE_CLIENT_SECRET" ]; then
+    echo "  Generating Google OAuth configuration..."
+    if [ -f /etc/apache2/apache-conf/GoogleOIDC.conf.template ]; then
+        sed -e "s|@@GOOGLE_CLIENT_ID@@|${GOOGLE_CLIENT_ID}|g" \
+            -e "s|@@GOOGLE_CLIENT_SECRET@@|${GOOGLE_CLIENT_SECRET}|g" \
+            -e "s|@@GOOGLE_REDIRECT_URI@@|${GOOGLE_REDIRECT_URI}|g" \
+            -e "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|${GOOGLE_CRYPTO_PASSPHRASE}|g" \
+            /etc/apache2/apache-conf/GoogleOIDC.conf.template > /etc/apache2/conf-available/GoogleOIDC.conf
+        a2enconf GoogleOIDC 2>/dev/null || true
+        echo "  ✓ Google OAuth configuration generated"
+    fi
+else
+    echo "  ℹ No OIDC credentials configured, skipping"
 fi
 
 # Enable additional VirtualHost configurations
