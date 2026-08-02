@@ -936,32 +936,67 @@ fi
 # Generate OIDC configuration files if auth is enabled
 log_debug ""
 echo "Setting up OIDC configuration..."
+echo "  Auth Type: $AUTHTYPE"
+echo "  Cookie Domain: $COOKIE_DOMAIN"
+
 if [ "$AUTHTYPE" = "entra" ] && [ ! -z "$ENTRA_CLIENT_ID" ] && [ ! -z "$ENTRA_CLIENT_SECRET" ]; then
     echo "  Generating Entra ID OIDC configuration..."
-    # Copy template and substitute values
-    if [ -f /app/apache-templates/EntraOIDC.conf.template ]; then
-        sed -e "s|@@ENTRA_PROVIDER_METADATA_URL@@|${ENTRA_PROVIDER_METADATA_URL}|g" \
-            -e "s|@@ENTRA_CLIENT_ID@@|${ENTRA_CLIENT_ID}|g" \
-            -e "s|@@ENTRA_CLIENT_SECRET@@|${ENTRA_CLIENT_SECRET}|g" \
-            -e "s|@@ENTRA_CRYPTO_PASSPHRASE@@|${ENTRA_CRYPTO_PASSPHRASE}|g" \
-            -e "s|@@COOKIE_DOMAIN@@|${COOKIE_DOMAIN}|g" \
-            /app/apache-templates/EntraOIDC.conf.template > /etc/apache2/conf-available/EntraOIDC.conf
-        a2enconf EntraOIDC 2>/dev/null || true
-        echo "  ✓ Entra ID OIDC configuration generated"
+    if [ ! -f /app/apache-templates/EntraOIDC.conf.template ]; then
+        echo "  ERROR: Template file /app/apache-templates/EntraOIDC.conf.template not found!"
+        ls -la /app/apache-templates/ 2>/dev/null || echo "(apache-templates dir not found)"
+        exit 1
     fi
+
+    log_debug "    Substituting: ENTRA_PROVIDER_METADATA_URL=$ENTRA_PROVIDER_METADATA_URL"
+    log_debug "    Substituting: ENTRA_CLIENT_ID=$ENTRA_CLIENT_ID"
+    log_debug "    Substituting: COOKIE_DOMAIN=$COOKIE_DOMAIN"
+
+    sed -e "s|@@ENTRA_PROVIDER_METADATA_URL@@|${ENTRA_PROVIDER_METADATA_URL}|g" \
+        -e "s|@@ENTRA_CLIENT_ID@@|${ENTRA_CLIENT_ID}|g" \
+        -e "s|@@ENTRA_CLIENT_SECRET@@|${ENTRA_CLIENT_SECRET}|g" \
+        -e "s|@@ENTRA_CRYPTO_PASSPHRASE@@|${ENTRA_CRYPTO_PASSPHRASE}|g" \
+        -e "s|@@COOKIE_DOMAIN@@|${COOKIE_DOMAIN}|g" \
+        /app/apache-templates/EntraOIDC.conf.template > /etc/apache2/conf-available/EntraOIDC.conf
+
+    if [ ! -s /etc/apache2/conf-available/EntraOIDC.conf ]; then
+        echo "  ERROR: Generated EntraOIDC.conf is empty!"
+        exit 1
+    fi
+
+    a2enconf EntraOIDC 2>/dev/null || true
+    echo "  ✓ Entra ID OIDC configuration generated"
+    log_debug "    File size: $(wc -c < /etc/apache2/conf-available/EntraOIDC.conf) bytes"
+
 elif [ "$AUTHTYPE" = "google" ] && [ ! -z "$GOOGLE_CLIENT_ID" ] && [ ! -z "$GOOGLE_CLIENT_SECRET" ]; then
     echo "  Generating Google OAuth configuration..."
-    if [ -f /app/apache-templates/GoogleOIDC.conf.template ]; then
-        sed -e "s|@@GOOGLE_CLIENT_ID@@|${GOOGLE_CLIENT_ID}|g" \
-            -e "s|@@GOOGLE_CLIENT_SECRET@@|${GOOGLE_CLIENT_SECRET}|g" \
-            -e "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|${GOOGLE_CRYPTO_PASSPHRASE}|g" \
-            -e "s|@@COOKIE_DOMAIN@@|${COOKIE_DOMAIN}|g" \
-            /app/apache-templates/GoogleOIDC.conf.template > /etc/apache2/conf-available/GoogleOIDC.conf
-        a2enconf GoogleOIDC 2>/dev/null || true
-        echo "  ✓ Google OAuth configuration generated"
+    if [ ! -f /app/apache-templates/GoogleOIDC.conf.template ]; then
+        echo "  ERROR: Template file /app/apache-templates/GoogleOIDC.conf.template not found!"
+        ls -la /app/apache-templates/ 2>/dev/null || echo "(apache-templates dir not found)"
+        exit 1
     fi
+
+    log_debug "    Substituting: GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID"
+    log_debug "    Substituting: COOKIE_DOMAIN=$COOKIE_DOMAIN"
+
+    sed -e "s|@@GOOGLE_CLIENT_ID@@|${GOOGLE_CLIENT_ID}|g" \
+        -e "s|@@GOOGLE_CLIENT_SECRET@@|${GOOGLE_CLIENT_SECRET}|g" \
+        -e "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|${GOOGLE_CRYPTO_PASSPHRASE}|g" \
+        -e "s|@@COOKIE_DOMAIN@@|${COOKIE_DOMAIN}|g" \
+        /app/apache-templates/GoogleOIDC.conf.template > /etc/apache2/conf-available/GoogleOIDC.conf
+
+    if [ ! -s /etc/apache2/conf-available/GoogleOIDC.conf ]; then
+        echo "  ERROR: Generated GoogleOIDC.conf is empty!"
+        exit 1
+    fi
+
+    a2enconf GoogleOIDC 2>/dev/null || true
+    echo "  ✓ Google OAuth configuration generated"
+    log_debug "    File size: $(wc -c < /etc/apache2/conf-available/GoogleOIDC.conf) bytes"
+
 else
-    echo "  ℹ No OIDC credentials configured, skipping"
+    echo "  ℹ AUTHTYPE=$AUTHTYPE (skipping OIDC)"
+    [ ! -z "$ENTRA_CLIENT_ID" ] && echo "    ENTRA_CLIENT_ID is set" || echo "    ENTRA_CLIENT_ID not set"
+    [ ! -z "$GOOGLE_CLIENT_ID" ] && echo "    GOOGLE_CLIENT_ID is set" || echo "    GOOGLE_CLIENT_ID not set"
 fi
 
 # Enable additional VirtualHost configurations
@@ -2020,16 +2055,49 @@ echo "=== Starting Apache ==="
 # Trap signals to gracefully shut down cron, proxy, and Apache
 trap 'echo "Shutting down..."; service cron stop 2>/dev/null; kill ${PROXY_PID} 2>/dev/null; kill ${APACHE_PID} 2>/dev/null; wait ${APACHE_PID} 2>/dev/null; exit 0' SIGTERM SIGINT
 
+# Verify OIDC config files exist and are valid before configtest
+echo ""
+echo "Validating OIDC configuration files..."
+if [ "$AUTHTYPE" = "entra" ]; then
+    if [ ! -f /etc/apache2/conf-available/EntraOIDC.conf ]; then
+        echo "❌ ERROR: EntraOIDC.conf not found at /etc/apache2/conf-available/EntraOIDC.conf"
+        ls -la /etc/apache2/conf-available/ | grep -i oidc || echo "(No OIDC files in conf-available)"
+        exit 1
+    fi
+    echo "✓ EntraOIDC.conf exists"
+    echo "  Content preview:"
+    head -10 /etc/apache2/conf-available/EntraOIDC.conf | sed 's/^/    /'
+elif [ "$AUTHTYPE" = "google" ]; then
+    if [ ! -f /etc/apache2/conf-available/GoogleOIDC.conf ]; then
+        echo "❌ ERROR: GoogleOIDC.conf not found at /etc/apache2/conf-available/GoogleOIDC.conf"
+        ls -la /etc/apache2/conf-available/ | grep -i oidc || echo "(No OIDC files in conf-available)"
+        exit 1
+    fi
+    echo "✓ GoogleOIDC.conf exists"
+    echo "  Content preview:"
+    head -10 /etc/apache2/conf-available/GoogleOIDC.conf | sed 's/^/    /'
+fi
+
+# Check if reverse proxy includes OIDC directives
+if grep -q "Include.*OIDC" /etc/apache2/sites-available/reverse-proxy.conf; then
+    echo "✓ Reverse proxy has OIDC Include directives"
+else
+    if [ "$AUTHTYPE" != "none" ] && [ ! -z "$AUTHTYPE" ]; then
+        echo "⚠ WARNING: Reverse proxy does not have OIDC Include directives (AUTHTYPE=$AUTHTYPE)"
+    fi
+fi
+
 # Test Apache configuration before starting
+echo ""
 echo "Testing Apache configuration..."
-apache2ctl configtest > /tmp/configtest.log 2>&1
+apache2ctl configtest > /etc/yahlp/configtest.log 2>&1
 CONFIGTEST_EXIT=$?
 
 if [ $CONFIGTEST_EXIT -ne 0 ]; then
     echo ""
     echo "❌ APACHE CONFIGURATION TEST FAILED"
     echo "=================================================="
-    cat /tmp/configtest.log
+    cat /etc/yahlp/configtest.log
     echo "=================================================="
     echo ""
     echo "=== Full Apache Error Log ==="
