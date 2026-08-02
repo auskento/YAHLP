@@ -2237,11 +2237,7 @@ if ! ps -p $APACHE_PID > /dev/null; then
     echo "(Config search complete)"
     log_debug ""
     echo "========================================="
-    echo "Container will keep running for debugging."
-    echo "Check logs above for errors."
-    echo "========================================="
-    log_debug ""
-    fi
+    exit 1
 else
     echo "✓ Apache is running (PID: $APACHE_PID)"
 fi
