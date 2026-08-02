@@ -122,6 +122,19 @@ inject_oidc_to_vhost() {
         return 0
     fi
 
+    # Validate required credentials are set
+    if [ "$AUTHTYPE" = "entra" ]; then
+        if [ -z "$AZUREAD_TENANT_ID" ] || [ -z "$AZUREAD_CLIENT_ID" ] || [ -z "$AZUREAD_CLIENT_SECRET" ]; then
+            log_debug "⚠ Entra ID credentials not configured (AZUREAD_TENANT_ID, AZUREAD_CLIENT_ID, AZUREAD_CLIENT_SECRET), skipping OIDC injection"
+            return 0
+        fi
+    elif [ "$AUTHTYPE" = "google" ]; then
+        if [ -z "$GOOGLE_CLIENT_ID" ] || [ -z "$GOOGLE_CLIENT_SECRET" ]; then
+            log_debug "⚠ Google OAuth credentials not configured (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET), skipping OIDC injection"
+            return 0
+        fi
+    fi
+
     # Build OIDC configuration based on auth type
     local oidc_config=""
 
