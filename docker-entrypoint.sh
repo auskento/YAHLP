@@ -12,7 +12,8 @@ log_debug() {
 # DNS validation helper
 check_dns() {
     local domain="$1"
-    if nslookup "$domain" 127.0.0.11 >/dev/null 2>&1; then
+    # Use dig with Google's DNS (8.8.8.8) for external DNS resolution
+    if dig +short @8.8.8.8 "$domain" | grep -q .; then
         return 0
     else
         return 1
