@@ -135,6 +135,9 @@ inject_oidc_to_vhost() {
     # Remove any existing OIDC Include directives
     sed -i '/^[[:space:]]*Include.*OIDC\.conf/d' "$vhost_file" 2>/dev/null || return 0
 
+    # Remove inline OIDC configuration directives to avoid duplicates
+    sed -i '/^[[:space:]]*OIDC.*$/d' "$vhost_file" 2>/dev/null || return 0
+
     # Add Include directive after VirtualHost opening tag
     sed -i '/<VirtualHost/a\    '"$oidc_include" "$vhost_file" 2>/dev/null || return 0
 
@@ -1164,6 +1167,7 @@ case "${AUTHTYPE}" in
 
         # Replace placeholder in reverse-proxy.conf with include statement
         sed -i 's|@@INCLUDE_BASIC_AUTH@@|Include /etc/apache2/conf-enabled/auth-basic.conf|g' /etc/apache2/sites-available/reverse-proxy.conf
+        sed -i 's|@@INCLUDE_OIDC_CONFIG@@||g' /etc/apache2/sites-available/reverse-proxy.conf
 
         # Disable OAuth2
         a2disconf oauth2-office365 2>/dev/null || true
@@ -1212,8 +1216,10 @@ case "${AUTHTYPE}" in
             a2enconf oauth2-entra 2>/dev/null || true
             a2enconf auth-entra-protect 2>/dev/null || true
 
-            # Include auth-entra-protect in VirtualHost to enforce authentication
+            # Include OIDC config and auth protection in VirtualHost
+            sed -i 's|@@INCLUDE_OIDC_CONFIG@@|Include /etc/apache2/conf-available/EntraOIDC.conf|g' /etc/apache2/sites-available/reverse-proxy.conf
             sed -i 's|@@INCLUDE_AUTH_ENTRA@@|Include /etc/apache2/conf-available/auth-entra-protect.conf|g' /etc/apache2/sites-available/reverse-proxy.conf
+            sed -i 's|@@INCLUDE_AUTH_GOOGLE@@||g' /etc/apache2/sites-available/reverse-proxy.conf
 
             echo "✓ Entra OAuth configured in Apache"
             echo "  Client ID: ${ENTRA_CLIENT_ID:0:20}..."
@@ -1259,8 +1265,10 @@ case "${AUTHTYPE}" in
             a2enconf oauth2-google 2>/dev/null || true
             a2enconf auth-google-protect 2>/dev/null || true
 
-            # Include auth-google-protect in VirtualHost to enforce authentication
+            # Include OIDC config and auth protection in VirtualHost
+            sed -i 's|@@INCLUDE_OIDC_CONFIG@@|Include /etc/apache2/conf-available/GoogleOIDC.conf|g' /etc/apache2/sites-available/reverse-proxy.conf
             sed -i 's|@@INCLUDE_AUTH_GOOGLE@@|Include /etc/apache2/conf-available/auth-google-protect.conf|g' /etc/apache2/sites-available/reverse-proxy.conf
+            sed -i 's|@@INCLUDE_AUTH_ENTRA@@||g' /etc/apache2/sites-available/reverse-proxy.conf
 
             echo "✓ Google OAuth configured in Apache"
             echo "  Client ID: ${GOOGLE_CLIENT_ID:0:20}..."

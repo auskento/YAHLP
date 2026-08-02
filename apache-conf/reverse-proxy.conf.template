@@ -144,6 +144,9 @@
     # Basic Authentication (if enabled)
     @@INCLUDE_BASIC_AUTH@@
 
+    # OIDC Configuration (Global - loaded once per vhost)
+    @@INCLUDE_OIDC_CONFIG@@
+
     # OIDC Authentication (Google or Entra)
     @@INCLUDE_AUTH_GOOGLE@@
     @@INCLUDE_AUTH_ENTRA@@
