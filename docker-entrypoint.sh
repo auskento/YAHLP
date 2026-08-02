@@ -1037,11 +1037,13 @@ generate_vhost_oidc_config() {
     fi
 
     if [ ! -f "$template_file" ]; then
+        log_debug "Template not found: $template_file"
         return 0
     fi
 
-    # Generate config with per-vhost redirect URI
-    sed -e "s|@@ENTRA_PROVIDER_METADATA_URL@@|${ENTRA_PROVIDER_METADATA_URL}|g" \
+    # Generate config with per-vhost redirect URI using a temp file to avoid partial writes
+    local temp_file="${output_file}.tmp"
+    if sed -e "s|@@ENTRA_PROVIDER_METADATA_URL@@|${ENTRA_PROVIDER_METADATA_URL}|g" \
         -e "s|@@ENTRA_CLIENT_ID@@|${ENTRA_CLIENT_ID}|g" \
         -e "s|@@ENTRA_CLIENT_SECRET@@|${ENTRA_CLIENT_SECRET}|g" \
         -e "s|@@ENTRA_CRYPTO_PASSPHRASE@@|${ENTRA_CRYPTO_PASSPHRASE}|g" \
@@ -1050,10 +1052,15 @@ generate_vhost_oidc_config() {
         -e "s|@@GOOGLE_CRYPTO_PASSPHRASE@@|${GOOGLE_CRYPTO_PASSPHRASE}|g" \
         -e "s|@@COOKIE_DOMAIN@@|${COOKIE_DOMAIN}|g" \
         -e "s|@@VHOST_REDIRECT_URI@@|${redirect_uri}|g" \
-        "$template_file" > "$output_file"
-
-    a2enconf "$(basename "$output_file" .conf)" 2>/dev/null || true
-    log_debug "✓ Generated per-vhost OIDC config for $server_name: $output_file"
+        "$template_file" > "$temp_file" 2>/dev/null; then
+        mv "$temp_file" "$output_file"
+        a2enconf "$(basename "$output_file" .conf)" 2>/dev/null || true
+        log_debug "✓ Generated per-vhost OIDC config for $server_name"
+    else
+        log_debug "Failed to generate per-vhost OIDC config for $server_name"
+        rm -f "$temp_file"
+        return 1
+    fi
 }
 
 # Enable additional VirtualHost configurations
@@ -2117,36 +2124,13 @@ echo "=== Starting Apache ==="
 # Trap signals to gracefully shut down cron, proxy, and Apache
 trap 'echo "Shutting down..."; service cron stop 2>/dev/null; kill ${PROXY_PID} 2>/dev/null; kill ${APACHE_PID} 2>/dev/null; wait ${APACHE_PID} 2>/dev/null; exit 0' SIGTERM SIGINT
 
-# Verify OIDC config files exist and are valid before configtest
-echo ""
-echo "Validating OIDC configuration files..."
-if [ "$AUTHTYPE" = "entra" ]; then
-    if [ ! -f /etc/apache2/conf-available/EntraOIDC.conf ]; then
-        echo "❌ ERROR: EntraOIDC.conf not found at /etc/apache2/conf-available/EntraOIDC.conf"
-        ls -la /etc/apache2/conf-available/ | grep -i oidc || echo "(No OIDC files in conf-available)"
-        exit 1
-    fi
-    echo "✓ EntraOIDC.conf exists"
-    echo "  Content preview:"
-    head -10 /etc/apache2/conf-available/EntraOIDC.conf | sed 's/^/    /'
-elif [ "$AUTHTYPE" = "google" ]; then
-    if [ ! -f /etc/apache2/conf-available/GoogleOIDC.conf ]; then
-        echo "❌ ERROR: GoogleOIDC.conf not found at /etc/apache2/conf-available/GoogleOIDC.conf"
-        ls -la /etc/apache2/conf-available/ | grep -i oidc || echo "(No OIDC files in conf-available)"
-        exit 1
-    fi
-    echo "✓ GoogleOIDC.conf exists"
-    echo "  Content preview:"
-    head -10 /etc/apache2/conf-available/GoogleOIDC.conf | sed 's/^/    /'
-fi
-
-# Check if reverse proxy includes OIDC directives
-if grep -q "Include.*OIDC" /etc/apache2/sites-available/reverse-proxy.conf; then
-    echo "✓ Reverse proxy has OIDC Include directives"
-else
-    if [ "$AUTHTYPE" != "none" ] && [ ! -z "$AUTHTYPE" ]; then
-        echo "⚠ WARNING: Reverse proxy does not have OIDC Include directives (AUTHTYPE=$AUTHTYPE)"
-    fi
+# Quick OIDC validation (only show errors)
+if [ "$AUTHTYPE" = "entra" ] && [ ! -f /etc/apache2/conf-available/EntraOIDC.conf ]; then
+    echo "❌ ERROR: EntraOIDC.conf not found"
+    exit 1
+elif [ "$AUTHTYPE" = "google" ] && [ ! -f /etc/apache2/conf-available/GoogleOIDC.conf ]; then
+    echo "❌ ERROR: GoogleOIDC.conf not found"
+    exit 1
 fi
 
 # Test Apache configuration before starting
@@ -2222,22 +2206,18 @@ fi
 
 echo "✓ Apache configuration valid"
 echo ""
-echo "Starting Apache in foreground..."
-apache2ctl -D FOREGROUND 2>&1 &
+echo "Starting Apache..."
+# Start Apache, suppress noise by redirecting to file
+apache2ctl -D FOREGROUND > /var/log/apache2/startup.log 2>&1 &
 APACHE_PID=$!
-echo "Apache started with PID: $APACHE_PID"
 
 # Wait a moment for Apache to stabilize
 sleep 2
 
 # Check if Apache is still running
 if ! ps -p $APACHE_PID > /dev/null; then
-    echo "Apache failed to start!"
-    # Apache should never exit - if it does, show diagnostic info
-    if true; then
-    log_debug ""
-    echo "========================================="
-    echo "APACHE STARTUP FAILED (Exit code: $APACHE_EXIT)"
+    echo ""
+    echo "❌ Apache failed to start!"
     echo "========================================="
     log_debug ""
     echo "=== Apache Error Log ==="
