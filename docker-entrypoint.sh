@@ -2022,31 +2022,35 @@ trap 'echo "Shutting down..."; service cron stop 2>/dev/null; kill ${PROXY_PID} 
 
 # Test Apache configuration before starting
 echo "Testing Apache configuration..."
-CONFIGTEST_OUTPUT=$(apache2ctl configtest 2>&1)
+apache2ctl configtest > /tmp/configtest.log 2>&1
 CONFIGTEST_EXIT=$?
 
 if [ $CONFIGTEST_EXIT -ne 0 ]; then
     echo ""
     echo "❌ APACHE CONFIGURATION TEST FAILED"
     echo "=================================================="
-    echo "$CONFIGTEST_OUTPUT"
+    cat /tmp/configtest.log
     echo "=================================================="
     echo ""
     echo "=== Full Apache Error Log ==="
     tail -100 /var/log/apache2/error.log 2>/dev/null || echo "(No error log)"
     echo ""
-    echo "=== OIDC Config Files ==="
-    if ls -la /etc/apache2/conf-available/*OIDC* 2>/dev/null | head -20; then
-        echo ""
-        echo "=== Content of EntraOIDC.conf ==="
-        cat /etc/apache2/conf-available/EntraOIDC.conf 2>/dev/null || echo "(File not found)"
-        echo ""
-        echo "=== Content of GoogleOIDC.conf ==="
-        cat /etc/apache2/conf-available/GoogleOIDC.conf 2>/dev/null || echo "(File not found)"
-    else
-        echo "(No OIDC configs found)"
-    fi
+    echo "=== Reverse Proxy Config (first 50 lines) ==="
+    head -50 /etc/apache2/sites-available/reverse-proxy.conf 2>/dev/null || echo "(Config not found)"
     echo ""
+    echo "=== OIDC Config Files ==="
+    ls -la /etc/apache2/conf-available/*OIDC* 2>/dev/null || echo "(No OIDC configs found)"
+    echo ""
+    if [ -f /etc/apache2/conf-available/EntraOIDC.conf ]; then
+        echo "=== Content of EntraOIDC.conf ==="
+        cat /etc/apache2/conf-available/EntraOIDC.conf
+        echo ""
+    fi
+    if [ -f /etc/apache2/conf-available/GoogleOIDC.conf ]; then
+        echo "=== Content of GoogleOIDC.conf ==="
+        cat /etc/apache2/conf-available/GoogleOIDC.conf
+        echo ""
+    fi
     exit 1
 fi
 
