@@ -122,6 +122,12 @@ inject_oidc_to_vhost() {
         return 0
     fi
 
+    # Check if vhost has #SKIP_OIDC comment - if so, don't inject OIDC
+    if grep -qi '#SKIP_OIDC' "$vhost_file"; then
+        log_debug "Skipping OIDC injection for $(basename "$vhost_file") (marked with #SKIP_OIDC)"
+        return 0
+    fi
+
     # Determine which OIDC config to include (use global config)
     # Each vhost will use its own ServerName for the redirect URI (mod_auth_openidc default)
     local oidc_include=""
