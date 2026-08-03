@@ -602,8 +602,8 @@ generate_services_array() {
         fi
 
         # Check if service is enabled
-        # CUSTOM services are always enabled (they're already in additional-conf)
-        if [ "$category" != "CUSTOM" ]; then
+        # CUSTOM and CUSTOM_VHOST services are always enabled (they're already in additional-conf/additional-vhost)
+        if [ "$category" != "CUSTOM" ] && [ "$category" != "CUSTOM_VHOST" ]; then
             local enable_var="ENABLE_${service_key}"
             local is_enabled="${!enable_var}"
 
@@ -615,7 +615,7 @@ generate_services_array() {
 
         # Find the 3-letter code for this service key
         local id=""
-        if [ "$category" = "CUSTOM" ]; then
+        if [ "$category" = "CUSTOM" ] || [ "$category" = "CUSTOM_VHOST" ]; then
             # For custom services, use lowercase app code as id
             id="${service_key,,}"
         else
@@ -706,8 +706,8 @@ generate_services_array() {
         # Check for per-service override (#DASHBOARD_WINDOW=embed or popout in conf file)
         local service_override="${SERVICE_OVERRIDES[$service_key]}"
 
-        # CUSTOM services: default to popup=true unless explicitly set to embed
-        if [ "$category" = "CUSTOM" ]; then
+        # CUSTOM and CUSTOM_VHOST services: default to popup=true unless explicitly set to embed
+        if [ "$category" = "CUSTOM" ] || [ "$category" = "CUSTOM_VHOST" ]; then
             if [ "$service_override" = "embed" ]; then
                 popup="false"
                 window_method=""
@@ -743,7 +743,7 @@ generate_services_array() {
         fi
 
         # Add service object with correct accent color and appname
-        if [ "$category" = "JSON5" ] || [ "$category" = "CUSTOM" ]; then
+        if [ "$category" = "JSON5" ] || [ "$category" = "CUSTOM" ] || [ "$category" = "CUSTOM_VHOST" ]; then
             # For JSON5 and custom/vhost services, add isDynamic flag (metrics fetched at runtime from proxy.js)
             array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true }"
         else
