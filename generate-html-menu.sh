@@ -731,17 +731,9 @@ generate_services_array() {
         fi
 
         # Add service object with correct accent color and appname
-        if [ "$category" = "JSON5" ] && [ -f "$json5_file" ]; then
-            # For JSON5 services, add isDynamic flag and extract metrics
-            local metrics_str=""
-            # Extract metrics from JSON5 file (basic extraction)
-            local dashboard_section=$(sed -n '/dashboard[[:space:]]*:[[:space:]]*{/,/^[[:space:]]*}/p' "$json5_file")
-            if [ ! -z "$dashboard_section" ]; then
-                # Extract metric objects - this is a simplified approach
-                # In production, you might want to use a proper JSON5 parser
-                metrics_str="metrics: []"  # Placeholder - metrics will be fetched from proxy.js at runtime
-            fi
-            array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true, $metrics_str }"
+        if [ "$category" = "JSON5" ]; then
+            # For JSON5 services, add isDynamic flag
+            array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true }"
         else
             array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
         fi
