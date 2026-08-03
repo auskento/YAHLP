@@ -322,10 +322,10 @@ async function fetchServiceStatus(service, app) {
             console.log(`[fetchServiceStatus] Loading dynamic service ${service} with ${app.metrics?.length || 0} metric(s)`);
             const stats = [];
 
-            // If no metrics configured, just return Online status
+            // If no metrics configured, skip rendering this service in status panel
             if (!app.metrics || app.metrics.length === 0) {
-                console.log(`[fetchServiceStatus] No metrics for ${service}, returning Online status`);
-                return { ...app, status: 'Online', stats: [] };
+                console.log(`[fetchServiceStatus] No metrics for ${service}, skipping panel`);
+                return null;
             }
 
             // Fetch each metric in parallel
