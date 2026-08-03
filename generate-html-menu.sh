@@ -397,12 +397,11 @@ else
     echo "[Apps] Vhost directory not found: $ADDITIONAL_VHOST_DIR"
 fi
 
-# Scan JSON5 files for dynamic services (in both additional-conf and additional-vhost)
-# JSON5 in additional-conf: full service definitions
-# JSON5 in additional-vhost: metrics metadata for vhost services
+# Scan JSON5 files for dynamic services (ONLY in additional-conf for full service definitions)
+# Note: JSON5 files in additional-vhost are metrics metadata only - read by proxy.js at runtime
 echo "[Apps] Scanning for JSON5 service configurations..."
 JSON5_COUNT=0
-for json_dir in "/etc/yahlp/additional-conf" "/etc/yahlp/additional-vhost"; do
+for json_dir in "/etc/yahlp/additional-conf"; do
     if [ -d "$json_dir" ]; then
         for json_file in "$json_dir"/*.json5; do
             if [ -f "$json_file" ]; then
