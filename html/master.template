@@ -638,7 +638,15 @@ async function loadDashboard() {
     }));
     console.log('[loadDashboard] All service statuses fetched:', statuses);
     console.log('[loadDashboard] SERVICES array:', SERVICES);
+    console.log('[loadDashboard] Dynamic services:', SERVICES.filter(s => s.isDynamic));
     console.log('[loadDashboard] Status count:', statuses.filter(s => s).length);
+
+    // Debug: log which services have status
+    statuses.forEach((status, idx) => {
+        if (status) {
+            console.log(`[loadDashboard] Service ${idx} (${SERVICES[idx]?.name}):`, status);
+        }
+    });
 
     // Special handling for Transmission: show it if any other service is configured
     // Transmission doesn't require credentials, only a URL
@@ -704,13 +712,20 @@ async function loadDashboard() {
     } else {
         // Standard layout: show only configured services
         const statusMap = new Map(statuses.filter(s => s).map(s => [s.name.toLowerCase(), s]));
+        console.log('[loadDashboard] Standard layout, status map:', statusMap);
 
-        SERVICES.forEach(app => {
+        SERVICES.forEach((app, idx) => {
             const service = codeToService[app.id];
+            console.log(`[loadDashboard] Checking service ${idx}: ${app.name} (isDynamic=${app.isDynamic}, codeToService=${!!service})`);
+
             // Skip if service has no codeToService entry AND is not dynamic
-            if (!service && !app.isDynamic) return;
+            if (!service && !app.isDynamic) {
+                console.log(`[loadDashboard]   → Skipping (no codeToService and not dynamic)`);
+                return;
+            }
 
             const status = statusMap.get(app.name.toLowerCase());
+            console.log(`[loadDashboard]   → Status found: ${!!status}`, status);
 
             // Only render services that are configured (have full status)
             if (status) {
