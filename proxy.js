@@ -22,17 +22,30 @@ function loadDynamicServices() {
     '/etc/yahlp/additional-conf'
   ];
 
-  console.log('[Proxy] Discovering dynamic services...');
+  console.log('\n[Proxy] Discovering dynamic services...');
 
   configDirs.forEach(configDir => {
+    console.log(`[Proxy] Checking ${configDir}...`);
+
     if (!fs.existsSync(configDir)) {
+      console.log(`[Proxy]   Directory does not exist: ${configDir}`);
       return;
     }
 
-    const files = fs.readdirSync(configDir);
+    let files = [];
+    try {
+      files = fs.readdirSync(configDir);
+      console.log(`[Proxy]   Found ${files.length} file(s): ${files.join(', ')}`);
+    } catch (err) {
+      console.error(`[Proxy]   Error reading directory: ${err.message}`);
+      return;
+    }
+
     files.forEach(file => {
       if (file.endsWith('.json5')) {
         const filePath = path.join(configDir, file);
+        console.log(`[Proxy]   Processing ${file}...`);
+
         try {
           const content = fs.readFileSync(filePath, 'utf8');
           const config = JSON5.parse(content);
@@ -47,19 +60,27 @@ function loadDynamicServices() {
             timeout: (config.timeout || 300) * 1000,
             headers: config.headers || {},
             graphql: config.graphql || false,
+            dashboard: config.dashboard || {},
+            api_key: config.api_key,
             ...config
           };
 
-          console.log(`  ✓ ${serviceName}: ${config.backend}`);
+          console.log(`[Proxy]     ✓ Loaded service: ${serviceName} -> ${config.backend}`);
+          if (config.dashboard?.enabled) {
+            console.log(`[Proxy]       Dashboard enabled with ${config.dashboard.metrics?.length || 0} metric(s)`);
+          }
         } catch (err) {
-          console.error(`  ✗ Failed to load ${file}: ${err.message}`);
+          console.error(`[Proxy]     ✗ Failed to load ${file}: ${err.message}`);
         }
       }
     });
   });
 
+  console.log(`[Proxy] Total dynamic services loaded: ${Object.keys(dynamicServices).length}`);
   if (Object.keys(dynamicServices).length > 0) {
-    console.log(`[Proxy] Loaded ${Object.keys(dynamicServices).length} dynamic service(s)`);
+    console.log(`[Proxy] Services: ${Object.keys(dynamicServices).join(', ')}\n`);
+  } else {
+    console.log('[Proxy] No dynamic services found.\n');
   }
 }
 
