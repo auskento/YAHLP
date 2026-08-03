@@ -397,6 +397,55 @@ else
     echo "[Apps] Vhost directory not found: $ADDITIONAL_VHOST_DIR"
 fi
 
+# Scan JSON5 files for dynamic services (in both additional-conf and additional-vhost)
+echo "[Apps] Scanning for JSON5 service configurations..."
+JSON5_COUNT=0
+for json_dir in "/etc/yahlp/additional-conf" "/etc/yahlp/additional-vhost"; do
+    if [ -d "$json_dir" ]; then
+        for json_file in "$json_dir"/*.json5; do
+            if [ -f "$json_file" ]; then
+                filename=$(basename "$json_file")
+                echo "[Apps] Processing JSON5: $filename"
+
+                # Extract service name and config using grep/sed (basic JSON5 parsing)
+                service_name=$(grep -oP '(?<=service\s*:\s*["\047])[^"\047]+' "$json_file" | head -1)
+                app_name=$(grep -oP '(?<=name\s*:\s*["\047])[^"\047]+' "$json_file" | head -1)
+                app_icon=$(grep -oP '(?<=icon\s*:\s*["\047])[^"\047]+' "$json_file" | head -1)
+
+                if [ -z "$service_name" ] || [ -z "$app_name" ]; then
+                    echo "[Apps] ✗ Skipping $filename - missing service name or app name"
+                    continue
+                fi
+
+                # Use uppercase service name as key
+                app_key="${service_name^^}"
+
+                # Use icon if provided, otherwise use service name
+                if [ -z "$app_icon" ]; then
+                    app_icon="${service_name}.png"
+                fi
+
+                app_icon_path="/icons/${app_icon}"
+
+                # Check if icon exists
+                if [ ! -f "/etc/yahlp/service_icons/${app_icon}" ]; then
+                    echo "[Apps] ⚠ Warning: Icon not found for ${service_name} (${app_icon})"
+                fi
+
+                # Add to additional apps array and SERVICES
+                if [[ ! " ${ADDITIONAL_APPS[@]} " =~ " ${app_key} " ]]; then
+                    ADDITIONAL_APPS+=("$app_key")
+                    # JSON5 services get a placeholder href (will be resolved from vhost at runtime)
+                    SERVICES[$app_key]="CUSTOM|$app_name|Custom service|$app_icon_path|/${service_name}/|#6366f1"
+                    echo "[Apps] ✓ Added JSON5 service: ${app_key} (${app_name})"
+                    ((JSON5_COUNT++)) || true
+                fi
+            fi
+        done
+    fi
+done
+echo "[Apps] Found $JSON5_COUNT JSON5 service(s)"
+
 # Service display order (same order for both menus)
 declare -a SERVICE_ORDER=(
     # USENET
