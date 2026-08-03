@@ -1075,6 +1075,53 @@ app.get('/api/emby/info', async (req, res) => {
   }
 });
 
+// Unraid endpoints
+app.get('/api/unraid/space', async (req, res) => {
+  try {
+    const cached = cache.get('unraid-space');
+    if (cached) return res.json(cached);
+
+    const config = dynamicServices['unraid'];
+    if (!config || !config.backend) {
+      return res.status(404).json({ error: 'Unraid not configured' });
+    }
+
+    const query = `{
+      array {
+        capacity {
+          kilobytes {
+            free
+          }
+        }
+      }
+    }`;
+
+    const response = await fetch(`${config.backend}/graphql`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...config.headers
+      },
+      body: JSON.stringify({ query })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Unraid returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    const freeKb = data.data?.array?.capacity?.kilobytes?.free || 0;
+    const freeGb = Math.round(freeKb / 1024 / 1024 * 100) / 100;
+
+    const result = { free: freeGb, unit: 'GB' };
+    cache.set('unraid-space', result);
+    res.json(result);
+  } catch (err) {
+    console.error('[Unraid Space Check Exception]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Maintainerr endpoints
 app.get('/api/maintainerr/api/overlays/sections', async (req, res) => {
   try {
