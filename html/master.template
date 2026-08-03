@@ -705,6 +705,8 @@ async function loadDashboard() {
         return fetchServiceStatus(service, app);
     }));
     console.log('[loadDashboard] All service statuses fetched:', statuses);
+    console.log('[loadDashboard] SERVICES array:', SERVICES);
+    console.log('[loadDashboard] Status count:', statuses.filter(s => s).length);
 
     // Special handling for Transmission: show it if any other service is configured
     // Transmission doesn't require credentials, only a URL
@@ -727,6 +729,7 @@ async function loadDashboard() {
     }
 
     let html = '';
+    console.log('[loadDashboard] Starting render, isFocusLayout:', isFocusLayout);
 
     if (isFocusLayout) {
         // For focus layout: show full panels for configured services only
@@ -807,7 +810,9 @@ async function loadDashboard() {
         });
     }
 
+    console.log('[loadDashboard] Final HTML length:', html.length, 'services in html:', (html.match(/<div class="service-card"/g) || []).length);
     content.innerHTML = html || '<div class="no-services">No configured services</div>';
+    console.log('[loadDashboard] Content updated');
 
     // Calculate dynamic icon sizing based on available space and icon count
     calculateDynamicIconSize();
