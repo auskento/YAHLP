@@ -186,16 +186,16 @@ async function loadDynamicServices() {
     const dynamicServices = await response.json();
 
     // Convert dynamic services object to array format
-    const staticIds = new Set(STATIC_SERVICES.map(s => s.id?.toLowerCase()));
+    const staticNames = new Set(STATIC_SERVICES.map(s => s.name?.toLowerCase()));
     const dynamicArray = Object.entries(dynamicServices)
-      .filter(([key]) => !staticIds.has(key.toLowerCase()))
+      .filter(([key, config]) => !staticNames.has(config.name?.toLowerCase()))
       .map(([key, config]) => ({
         id: key,
         name: config.name,
         appname: config.name,
         desc: 'Custom service',
         icon: `/icons/${config.icon}`,
-        href: key,
+        href: config.href || config.domain || `/${key}/`,
         accent: '#6366f1',
         popup: true,
         isDynamic: true,
@@ -394,15 +394,17 @@ async function fetchServiceStatus(service, app) {
             const metricPromises = app.metrics.map(async (metric) => {
                 try {
                     const url = `${apiBase}/${service}/metrics/${metric.id}`;
+                    console.log(`[fetchServiceStatus] Fetching metric from ${url}`);
                     const response = await withTimeout(fetch(url), 5000);
                     if (!response.ok) {
                         console.warn(`[fetchServiceStatus] Metric ${metric.id} failed: HTTP ${response.status}`);
                         return null;
                     }
                     const data = await response.json();
+                    console.log(`[fetchServiceStatus] Metric ${metric.id} returned:`, data);
                     return {
-                        label: metric.label,
-                        value: `${data.value} ${metric.unit || ''}`
+                        label: data.label || metric.label,
+                        value: data.value !== undefined ? `${data.value} ${data.unit || ''}`.trim() : 'N/A'
                     };
                 } catch (err) {
                     console.warn(`[fetchServiceStatus] Metric ${metric.id} error:`, err.message);
