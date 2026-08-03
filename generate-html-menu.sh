@@ -435,12 +435,17 @@ for json_dir in "/etc/yahlp/additional-conf" "/etc/yahlp/additional-vhost"; do
                 # Add to additional apps array and SERVICES
                 # Check if service already exists (by name, not by key, to handle vhost+JSON5 pairs)
                 local service_exists=false
-                for existing_key in "${!SERVICES[@]}"; do
-                    local existing_value="${SERVICES[$existing_key]}"
+                local existing_key=""
+                for key in "${!SERVICES[@]}"; do
+                    local existing_value="${SERVICES[$key]}"
                     local existing_name=$(echo "$existing_value" | cut -d'|' -f2)
                     if [ "$existing_name" = "$app_name" ]; then
                         service_exists=true
-                        echo "[Apps] ⚠ JSON5 service '$app_name' already exists (from vhost), using vhost config"
+                        existing_key="$key"
+                        echo "[Apps] ⚠ JSON5 service '$app_name' matches existing service (from vhost)"
+                        # Update existing service to include JSON5 file reference
+                        SERVICES[$existing_key]="${SERVICES[$existing_key]}|$json_file"
+                        echo "[Apps] ✓ Linked JSON5 metrics from $json_file to $app_name"
                         break
                     fi
                 done
@@ -593,7 +598,12 @@ generate_services_array() {
         fi
 
         # Parse service metadata (format: category|name|desc|icon|href|accent[|json5_file])
-        IFS='|' read -r category name desc icon href accent json5_file <<< "${SERVICES[$service_key]}"
+        # Need to handle pipes carefully since json5_file path might contain pipes
+        local service_data="${SERVICES[$service_key]}"
+        local IFS_OLD="$IFS"
+        IFS='|'
+        read -r category name desc icon href accent json5_file <<< "$service_data"
+        IFS="$IFS_OLD"
 
         # Check for per-service appname override (from #APPNAME= in conf file)
         local appname="${SERVICE_APPNAMES[$service_key]}"
@@ -745,7 +755,22 @@ generate_services_array() {
         # Add service object with correct accent color and appname
         if [ "$category" = "JSON5" ] || [ "$category" = "CUSTOM_VHOST" ]; then
             # For JSON5 and custom vhost services, add isDynamic flag (they may have metrics)
-            array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true }"
+            local metrics_array=""
+
+            # Check if there's a linked JSON5 file (7th field for vhost+JSON5 pairs)
+            if [ ! -z "$json5_file" ] && [ -f "$json5_file" ]; then
+                # Extract metrics from JSON5 (basic parsing for dashboard.metrics array)
+                # Look for "metrics: [" and extract metric definitions
+                if grep -q "metrics.*:" "$json5_file"; then
+                    metrics_array="metrics: []"  # Placeholder - will be fetched from proxy at runtime
+                fi
+            fi
+
+            if [ ! -z "$metrics_array" ]; then
+                array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true, $metrics_array }"
+            else
+                array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true }"
+            fi
         else
             array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
         fi
