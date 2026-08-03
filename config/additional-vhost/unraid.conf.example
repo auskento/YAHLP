@@ -1,0 +1,41 @@
+# Unraid WebUI Reverse Proxy Configuration
+# Place this in /etc/yahlp/additional-vhost/unraid.conf (remove .example)
+
+# DASHBOARD_CODE=UNR
+# APPNAME=Unraid
+# DASHBOARD_VISIBLE=true
+# DASHBOARD_WINDOW=popup
+
+<VirtualHost *:443>
+    ServerName unraid.limosani.au
+
+    # Enable required modules for websocket proxying
+    # Make sure mod_proxy_wstunnel is enabled
+
+    # Websocket upgrade rules
+    RewriteEngine On
+    RewriteCond %{HTTP:Upgrade} websocket [NC]
+    RewriteCond %{HTTP:Connection} upgrade [NC]
+    RewriteRule ^/?(.*) "ws://192.168.9.13:80/$1" [P,L]
+
+    # Regular HTTP proxy rules
+    ProxyPass / http://192.168.9.13/ retry=0 connectiontimeout=600 timeout=600
+    ProxyPassReverse / http://192.168.9.13/
+
+    # Websocket proxying
+    ProxyPass / ws://192.168.9.13/ retry=0 connectiontimeout=600 timeout=600
+    ProxyPassReverse / ws://192.168.9.13/
+
+    # Headers for proper proxying
+    ProxyPreserveHost On
+    RequestHeader set X-Forwarded-For %{REMOTE_ADDR}s
+    RequestHeader set X-Forwarded-Proto https
+    RequestHeader set X-Forwarded-Host %{HTTP_HOST}s
+</VirtualHost>
+
+<VirtualHost *:80>
+    ServerName unraid.limosani.au
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</VirtualHost>
