@@ -1172,15 +1172,60 @@ app.get('/api/:service/metrics/:metricId', async (req, res) => {
   }
 });
 
+// Helper: Extract ServerName from vhost file for a service
+function getServerNameFromVhost(serviceCode) {
+  const fs = require('fs');
+  const path = require('path');
+  const vhostDir = '/etc/yahlp/additional-vhost';
+
+  try {
+    if (!fs.existsSync(vhostDir)) return null;
+
+    const files = fs.readdirSync(vhostDir);
+    for (const file of files) {
+      if (!file.endsWith('.conf')) continue;
+
+      const filePath = path.join(vhostDir, file);
+      const content = fs.readFileSync(filePath, 'utf-8');
+
+      // Check if this vhost has the matching service code
+      const codeMatch = content.match(/DASHBOARD_CODE\s*=\s*([A-Z]+)/i);
+      if (!codeMatch || codeMatch[1].toUpperCase() !== serviceCode.toUpperCase()) continue;
+
+      // Extract ServerName (e.g., "unraid.example.com")
+      const serverNameMatch = content.match(/ServerName\s+([a-z0-9.-]+)/i);
+      if (serverNameMatch) {
+        return serverNameMatch[1];
+      }
+    }
+  } catch (err) {
+    console.warn(`[Dashboard] Failed to read vhost files: ${err.message}`);
+  }
+
+  return null;
+}
+
 // Service discovery endpoint - returns all available services and their metrics
 app.get('/api/services/dashboard', (req, res) => {
   const services = {};
 
   Object.entries(dynamicServices).forEach(([name, config]) => {
     if (config.dashboard?.enabled) {
+      // Try to get ServerName from vhost file
+      let href = null;
+      if (config.dashboard.dashboard_code) {
+        const serverName = getServerNameFromVhost(config.dashboard.dashboard_code);
+        if (serverName) {
+          href = `https://${serverName}`;
+        }
+      }
+      // Fall back to provided href/domain or default path
+      href = href || config.href || config.domain || `/${name}/`;
+
       services[name] = {
         name: config.name,
         icon: config.dashboard.icon || 'default.png',
+        href: href,
         metrics: config.dashboard.metrics?.map(m => ({
           id: m.id,
           label: m.label,

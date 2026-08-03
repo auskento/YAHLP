@@ -195,7 +195,7 @@ async function loadDynamicServices() {
         appname: config.name,
         desc: 'Custom service',
         icon: `/icons/${config.icon}`,
-        href: config.href || config.domain || `/${key}/`,
+        href: config.href || `/${key}/`,
         accent: '#6366f1',
         popup: true,
         isDynamic: true,
