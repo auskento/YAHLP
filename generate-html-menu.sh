@@ -551,10 +551,10 @@ generate_services_array() {
             # If not found, add it to the end
             if [ "$found" = false ]; then
                 order_array+=("$app")
-                echo "[Menu] Added $app to end of order array"
+                log_debug "[Menu] Added $app to end of order array"
             fi
         done
-        echo "[Menu] Final order array has ${#order_array[@]} services: ${order_array[@]}"
+        log_debug "[Menu] Final order array has ${#order_array[@]} services: ${order_array[@]}"
     fi
 
     for service_key in "${order_array[@]}"; do
