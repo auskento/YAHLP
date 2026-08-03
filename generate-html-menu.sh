@@ -385,8 +385,8 @@ if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
             # Add to additional apps array
             ADDITIONAL_APPS+=("$vhost_app_key")
 
-            # Add to SERVICES array
-            SERVICES[$vhost_app_key]="CUSTOM|$vhost_appname|Custom vhost|$vhost_icon|$vhost_href|#6366f1"
+            # Add to SERVICES array - mark as CUSTOM_VHOST so it can be handled as dynamic service
+            SERVICES[$vhost_app_key]="CUSTOM_VHOST|$vhost_appname|Custom vhost|$vhost_icon|$vhost_href|#6366f1"
 
             echo "[Apps] ✓ Added vhost to menu: ${vhost_dashboard_code} (${vhost_appname}) → ${vhost_href}"
             ((vhost_count++)) || true
@@ -731,8 +731,8 @@ generate_services_array() {
         fi
 
         # Add service object with correct accent color and appname
-        if [ "$category" = "JSON5" ]; then
-            # For JSON5 services, add isDynamic flag
+        if [ "$category" = "JSON5" ] || [ "$category" = "CUSTOM_VHOST" ]; then
+            # For JSON5 and custom vhost services, add isDynamic flag (they may have metrics)
             array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true }"
         else
             array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
