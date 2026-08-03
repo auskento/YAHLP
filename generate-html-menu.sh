@@ -534,7 +534,8 @@ generate_services_array() {
         order_array=("${SERVICE_ORDER[@]}")
     fi
 
-    # Add any additional services that aren't already in the order array
+    # Always add any additional services that aren't already in the order array
+    # This ensures vhost and JSON5 services are included even with DASHBOARD_ORDER
     if [ ${#ADDITIONAL_APPS[@]} -gt 0 ]; then
         log_debug "[Menu] Checking if additional apps are in order array..."
         for app in "${ADDITIONAL_APPS[@]}"; do
@@ -550,9 +551,10 @@ generate_services_array() {
             # If not found, add it to the end
             if [ "$found" = false ]; then
                 order_array+=("$app")
-                log_debug "[Menu] Added $app to end of order array"
+                echo "[Menu] Added $app to end of order array"
             fi
         done
+        echo "[Menu] Final order array has ${#order_array[@]} services: ${order_array[@]}"
     fi
 
     for service_key in "${order_array[@]}"; do
