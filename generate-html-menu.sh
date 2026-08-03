@@ -410,9 +410,9 @@ for json_dir in "/etc/yahlp/additional-conf" "/etc/yahlp/additional-vhost"; do
                 echo "[Apps] Processing JSON5: $filename"
 
                 # Extract service name and config using grep/sed (basic JSON5 parsing)
-                service_name=$(grep -oP '(?<=service\s*:\s*["\047])[^"\047]+' "$json_file" | head -1)
-                app_name=$(grep -oP '(?<=name\s*:\s*["\047])[^"\047]+' "$json_file" | head -1)
-                app_icon=$(grep -oP '(?<=icon\s*:\s*["\047])[^"\047]+' "$json_file" | head -1)
+                service_name=$(grep "service\s*:" "$json_file" | sed "s/.*service\s*:\s*['\"]//;s/['\"].*//" | head -1)
+                app_name=$(grep "name\s*:" "$json_file" | sed "s/.*name\s*:\s*['\"]//;s/['\"].*//" | head -1)
+                app_icon=$(grep "icon\s*:" "$json_file" | sed "s/.*icon\s*:\s*['\"]//;s/['\"].*//" | head -1)
 
                 if [ -z "$service_name" ] || [ -z "$app_name" ]; then
                     echo "[Apps] ✗ Skipping $filename - missing service name or app name"
