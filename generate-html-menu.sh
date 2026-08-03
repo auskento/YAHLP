@@ -435,9 +435,9 @@ for json_dir in "/etc/yahlp/additional-conf" "/etc/yahlp/additional-vhost"; do
                 # Add to additional apps array and SERVICES
                 if [[ ! " ${ADDITIONAL_APPS[@]} " =~ " ${app_key} " ]]; then
                     ADDITIONAL_APPS+=("$app_key")
-                    # JSON5 services get a placeholder href (will be resolved from vhost at runtime)
-                    SERVICES[$app_key]="CUSTOM|$app_name|Custom service|$app_icon_path|/${service_name}/|#6366f1"
-                    echo "[Apps] ✓ Added JSON5 service: ${app_key} (${app_name})"
+                    # JSON5 services - store for later processing with full config
+                    SERVICES[$app_key]="JSON5|$app_name|Custom service|$app_icon_path|/${service_name}/|#6366f1|$json_file"
+                    echo "[Apps] ✓ Added JSON5 service: ${app_key} (${app_name}) from $json_file"
                     ((JSON5_COUNT++)) || true
                 fi
             fi
@@ -580,8 +580,8 @@ generate_services_array() {
             continue
         fi
 
-        # Parse service metadata (format: category|name|desc|icon|href|accent)
-        IFS='|' read -r category name desc icon href accent <<< "${SERVICES[$service_key]}"
+        # Parse service metadata (format: category|name|desc|icon|href|accent[|json5_file])
+        IFS='|' read -r category name desc icon href accent json5_file <<< "${SERVICES[$service_key]}"
 
         # Check for per-service appname override (from #APPNAME= in conf file)
         local appname="${SERVICE_APPNAMES[$service_key]}"
@@ -731,7 +731,20 @@ generate_services_array() {
         fi
 
         # Add service object with correct accent color and appname
-        array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
+        if [ "$category" = "JSON5" ] && [ -f "$json5_file" ]; then
+            # For JSON5 services, add isDynamic flag and extract metrics
+            local metrics_str=""
+            # Extract metrics from JSON5 file (basic extraction)
+            local dashboard_section=$(sed -n '/dashboard[[:space:]]*:[[:space:]]*{/,/^[[:space:]]*}/p' "$json5_file")
+            if [ ! -z "$dashboard_section" ]; then
+                # Extract metric objects - this is a simplified approach
+                # In production, you might want to use a proper JSON5 parser
+                metrics_str="metrics: []"  # Placeholder - metrics will be fetched from proxy.js at runtime
+            fi
+            array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true, $metrics_str }"
+        else
+            array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
+        fi
         ((services_count++))
     done
 

@@ -171,78 +171,10 @@ document.addEventListener('DOMContentLoaded', function() {
 </footer>
 
 <script>
-const STATIC_SERVICES = @@SERVICES_ARRAY@@;
-let SERVICES = STATIC_SERVICES;
+const SERVICES = @@SERVICES_ARRAY@@;
 const SITES = @@SITES_ARRAY@@;
 const DASHBOARD_LANDING = '@@DASHBOARD_LANDING@@';
 const apiBase = `/api`;
-
-// Fetch and merge dynamic services from JSON5 configs
-async function loadDynamicServices() {
-  try {
-    const response = await fetch('/api/services/dashboard');
-    if (!response.ok) throw new Error('Failed to load dynamic services');
-
-    const dynamicServices = await response.json();
-
-    // Convert dynamic services object to array format
-    const staticNames = new Set(STATIC_SERVICES.map(s => s.name?.toLowerCase()));
-    const dynamicArray = Object.entries(dynamicServices)
-      .filter(([key, config]) => !staticNames.has(config.name?.toLowerCase()))
-      .map(([key, config]) => ({
-        id: key,
-        name: config.name,
-        appname: config.name,
-        desc: 'Custom service',
-        icon: `/icons/${config.icon}`,
-        href: config.href || `/${key}/`,
-        accent: '#6366f1',
-        popup: true,
-        isDynamic: true,
-        metrics: config.metrics || []
-      }));
-
-    // Merge dynamic services with static ones (avoiding duplicates)
-    SERVICES = [...STATIC_SERVICES, ...dynamicArray];
-
-    console.log('[Dashboard] Loaded', dynamicArray.length, 'dynamic service(s)');
-
-    // Refresh the dashboard if it's already rendered
-    if (window.refreshServices) {
-      window.refreshServices();
-    }
-  } catch (err) {
-    console.warn('[Dashboard] Failed to load dynamic services:', err.message);
-    // Continue with static services only
-  }
-}
-
-// Refresh services menu and dashboard when dynamic services are loaded
-window.refreshServices = async function() {
-  console.log('[Dashboard] Refreshing services with', SERVICES.length, 'total services');
-
-  // Rebuild the service menu with updated SERVICES array
-  if (document.readyState === 'loading') {
-    // Wait for DOM to be ready
-    await new Promise(r => document.addEventListener('DOMContentLoaded', r, { once: true }));
-  }
-
-  // Rebuild menu if it exists
-  const serviceMenu = document.getElementById('serviceMenu');
-  if (serviceMenu && window.buildServiceMenu) {
-    console.log('[Dashboard] Rebuilding service menu');
-    window.buildServiceMenu();
-  }
-
-  // Refresh dashboard data if already loaded
-  if (window.loadDashboard) {
-    console.log('[Dashboard] Re-loading dashboard with updated services');
-    await window.loadDashboard();
-  }
-};
-
-// Load dynamic services on page load
-document.addEventListener('DOMContentLoaded', loadDynamicServices);
 
 const codeToService = {
     'JEL': 'jellyfin', 'PLX': 'plex', 'EMB': 'emby',
@@ -1172,10 +1104,6 @@ async function goHome(e) {
 window.addEventListener('resize', () => {
     adjustIconSizes();
 });
-
-// Expose functions globally for dynamic service updates
-window.buildServiceMenu = buildServiceMenu;
-window.loadDashboard = loadDashboard;
 
 checkConfiguredServices();
 
