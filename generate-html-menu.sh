@@ -433,7 +433,19 @@ for json_dir in "/etc/yahlp/additional-conf" "/etc/yahlp/additional-vhost"; do
                 fi
 
                 # Add to additional apps array and SERVICES
-                if [[ ! " ${ADDITIONAL_APPS[@]} " =~ " ${app_key} " ]]; then
+                # Check if service already exists (by name, not by key, to handle vhost+JSON5 pairs)
+                local service_exists=false
+                for existing_key in "${!SERVICES[@]}"; do
+                    local existing_value="${SERVICES[$existing_key]}"
+                    local existing_name=$(echo "$existing_value" | cut -d'|' -f2)
+                    if [ "$existing_name" = "$app_name" ]; then
+                        service_exists=true
+                        echo "[Apps] ⚠ JSON5 service '$app_name' already exists (from vhost), using vhost config"
+                        break
+                    fi
+                done
+
+                if [ "$service_exists" = false ]; then
                     ADDITIONAL_APPS+=("$app_key")
                     # JSON5 services - store for later processing with full config
                     SERVICES[$app_key]="JSON5|$app_name|Custom service|$app_icon_path|/${service_name}/|#6366f1|$json_file"
