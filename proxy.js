@@ -1211,16 +1211,14 @@ app.get('/api/services/dashboard', (req, res) => {
 
   Object.entries(dynamicServices).forEach(([name, config]) => {
     if (config.dashboard?.enabled) {
-      // Try to get ServerName from vhost file
+      // Try to get ServerName from vhost file using service name
       let href = null;
-      if (config.dashboard.dashboard_code) {
-        const serverName = getServerNameFromVhost(config.dashboard.dashboard_code);
-        if (serverName) {
-          href = `https://${serverName}`;
-        }
+      const serverName = getServerNameFromVhost(name);
+      if (serverName) {
+        href = `https://${serverName}`;
       }
-      // Fall back to provided href/domain or default path
-      href = href || config.href || config.domain || `/${name}/`;
+      // Fall back to provided href or default path
+      href = href || config.href || `/${name}/`;
 
       services[name] = {
         name: config.name,
