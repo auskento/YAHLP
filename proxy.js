@@ -1075,51 +1075,102 @@ app.get('/api/emby/info', async (req, res) => {
   }
 });
 
-// Unraid endpoints
-app.get('/api/unraid/space', async (req, res) => {
+// Generic metric handler for any service with dashboard metrics
+app.get('/api/:service/metrics/:metricId', async (req, res) => {
   try {
-    const cached = cache.get('unraid-space');
+    const { service, metricId } = req.params;
+    const config = dynamicServices[service];
+
+    if (!config || !config.backend) {
+      return res.status(404).json({ error: `Service ${service} not configured` });
+    }
+
+    if (!config.dashboard?.metrics) {
+      return res.status(404).json({ error: `No metrics configured for ${service}` });
+    }
+
+    const metric = config.dashboard.metrics.find(m => m.id === metricId);
+    if (!metric) {
+      return res.status(404).json({ error: `Metric ${metricId} not found for ${service}` });
+    }
+
+    const cacheKey = `${service}-${metricId}`;
+    const cached = cache.get(cacheKey);
     if (cached) return res.json(cached);
 
-    const config = dynamicServices['unraid'];
-    if (!config || !config.backend) {
-      return res.status(404).json({ error: 'Unraid not configured' });
-    }
-
-    const query = `{
-      array {
-        capacity {
-          kilobytes {
-            free
-          }
-        }
-      }
-    }`;
-
-    const response = await fetch(`${config.backend}/graphql`, {
-      method: 'POST',
-      headers: {
+    // GraphQL query
+    if (metric.query) {
+      const headers = {
         'Content-Type': 'application/json',
         ...config.headers
-      },
-      body: JSON.stringify({ query })
-    });
+      };
 
-    if (!response.ok) {
-      throw new Error(`Unraid returned ${response.status}`);
+      // Add API key if configured
+      if (config.api_key) {
+        headers['Authorization'] = `Bearer ${config.api_key}`;
+      }
+
+      const response = await fetch(`${config.backend}/graphql`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ query: metric.query })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Service returned ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Extract value using path (e.g., 'array.capacity.kilobytes.free')
+      let value = data.data;
+      if (metric.path) {
+        metric.path.split('.').forEach(key => {
+          value = value?.[key];
+        });
+      }
+
+      // Apply transform if specified
+      if (metric.transform === 'kb_to_gb') {
+        value = Math.round((value || 0) / 1024 / 1024 * 100) / 100;
+      }
+
+      const result = {
+        id: metric.id,
+        label: metric.label,
+        value,
+        unit: metric.unit
+      };
+
+      cache.set(cacheKey, result);
+      res.json(result);
     }
-
-    const data = await response.json();
-    const freeKb = data.data?.array?.capacity?.kilobytes?.free || 0;
-    const freeGb = Math.round(freeKb / 1024 / 1024 * 100) / 100;
-
-    const result = { free: freeGb, unit: 'GB' };
-    cache.set('unraid-space', result);
-    res.json(result);
   } catch (err) {
-    console.error('[Unraid Space Check Exception]', err.message);
+    console.error(`[${req.params.service}/${req.params.metricId}]`, err.message);
     res.status(500).json({ error: err.message });
   }
+});
+
+// Service discovery endpoint - returns all available services and their metrics
+app.get('/api/services/dashboard', (req, res) => {
+  const services = {};
+
+  Object.entries(dynamicServices).forEach(([name, config]) => {
+    if (config.dashboard?.enabled) {
+      services[name] = {
+        name: config.name,
+        icon: config.dashboard.icon || 'default.png',
+        metrics: config.dashboard.metrics?.map(m => ({
+          id: m.id,
+          label: m.label,
+          unit: m.unit,
+          type: m.type || 'text'
+        })) || []
+      };
+    }
+  });
+
+  res.json(services);
 });
 
 // Maintainerr endpoints
