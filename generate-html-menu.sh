@@ -397,11 +397,12 @@ else
     echo "[Apps] Vhost directory not found: $ADDITIONAL_VHOST_DIR"
 fi
 
-# Scan JSON5 files for dynamic services (ONLY in additional-conf for full service definitions)
-# Note: JSON5 files in additional-vhost are metrics metadata only - read by proxy.js at runtime
+# Scan JSON5 files for dynamic services (in both directories)
+# additional-conf: full service definitions
+# additional-vhost: metrics metadata, only create service if no vhost exists
 echo "[Apps] Scanning for JSON5 service configurations..."
 JSON5_COUNT=0
-for json_dir in "/etc/yahlp/additional-conf"; do
+for json_dir in "/etc/yahlp/additional-conf" "/etc/yahlp/additional-vhost"; do
     if [ -d "$json_dir" ]; then
         for json_file in "$json_dir"/*.json5; do
             if [ -f "$json_file" ]; then
@@ -433,12 +434,17 @@ for json_dir in "/etc/yahlp/additional-conf"; do
                     echo "[Apps] ⚠ Warning: Icon not found for ${service_name} (${app_icon})"
                 fi
 
-                # Add to additional apps array and SERVICES
-                ADDITIONAL_APPS+=("$app_key")
-                # JSON5 services - store for later processing with full config
-                SERVICES[$app_key]="JSON5|$app_name|Custom service|$app_icon_path|/${service_name}/|#6366f1|$json_file"
-                echo "[Apps] ✓ Added JSON5 service: ${app_key} (${app_name}) from $json_file"
-                ((JSON5_COUNT++)) || true
+                # Add to additional apps array and SERVICES (but don't overwrite existing vhost services)
+                # Check if service already exists (from a vhost)
+                if [ -z "${SERVICES[$app_key]}" ]; then
+                    ADDITIONAL_APPS+=("$app_key")
+                    # JSON5 services - store for later processing with full config
+                    SERVICES[$app_key]="JSON5|$app_name|Custom service|$app_icon_path|/${service_name}/|#6366f1|$json_file"
+                    echo "[Apps] ✓ Added JSON5 service: ${app_key} (${app_name}) from $json_file"
+                    ((JSON5_COUNT++)) || true
+                else
+                    echo "[Apps] ⓘ JSON5 metrics for $app_name found (service exists from vhost)"
+                fi
             fi
         done
     fi
