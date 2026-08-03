@@ -397,11 +397,12 @@ else
     echo "[Apps] Vhost directory not found: $ADDITIONAL_VHOST_DIR"
 fi
 
-# Scan JSON5 files for dynamic services (only in additional-conf for actual service definitions)
-# Note: JSON5 files in additional-vhost are metadata only and are read by proxy.js at runtime
+# Scan JSON5 files for dynamic services (in both additional-conf and additional-vhost)
+# JSON5 in additional-conf: full service definitions
+# JSON5 in additional-vhost: metrics metadata for vhost services
 echo "[Apps] Scanning for JSON5 service configurations..."
 JSON5_COUNT=0
-for json_dir in "/etc/yahlp/additional-conf"; do
+for json_dir in "/etc/yahlp/additional-conf" "/etc/yahlp/additional-vhost"; do
     if [ -d "$json_dir" ]; then
         for json_file in "$json_dir"/*.json5; do
             if [ -f "$json_file" ]; then
@@ -434,30 +435,11 @@ for json_dir in "/etc/yahlp/additional-conf"; do
                 fi
 
                 # Add to additional apps array and SERVICES
-                # Check if service already exists (by name, not by key, to handle vhost+JSON5 pairs)
-                local service_exists=false
-                local existing_key=""
-                for key in "${!SERVICES[@]}"; do
-                    local existing_value="${SERVICES[$key]}"
-                    local existing_name=$(echo "$existing_value" | cut -d'|' -f2)
-                    if [ "$existing_name" = "$app_name" ]; then
-                        service_exists=true
-                        existing_key="$key"
-                        echo "[Apps] ⚠ JSON5 service '$app_name' matches existing service (from vhost)"
-                        # Update existing service to include JSON5 file reference
-                        SERVICES[$existing_key]="${SERVICES[$existing_key]}|$json_file"
-                        echo "[Apps] ✓ Linked JSON5 metrics from $json_file to $app_name"
-                        break
-                    fi
-                done
-
-                if [ "$service_exists" = false ]; then
-                    ADDITIONAL_APPS+=("$app_key")
-                    # JSON5 services - store for later processing with full config
-                    SERVICES[$app_key]="JSON5|$app_name|Custom service|$app_icon_path|/${service_name}/|#6366f1|$json_file"
-                    echo "[Apps] ✓ Added JSON5 service: ${app_key} (${app_name}) from $json_file"
-                    ((JSON5_COUNT++)) || true
-                fi
+                ADDITIONAL_APPS+=("$app_key")
+                # JSON5 services - store for later processing with full config
+                SERVICES[$app_key]="JSON5|$app_name|Custom service|$app_icon_path|/${service_name}/|#6366f1|$json_file"
+                echo "[Apps] ✓ Added JSON5 service: ${app_key} (${app_name}) from $json_file"
+                ((JSON5_COUNT++)) || true
             fi
         done
     fi
