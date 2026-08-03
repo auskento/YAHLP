@@ -186,20 +186,23 @@ async function loadDynamicServices() {
     const dynamicServices = await response.json();
 
     // Convert dynamic services object to array format
-    const dynamicArray = Object.entries(dynamicServices).map(([key, config]) => ({
-      id: key,
-      name: config.name,
-      appname: config.name,
-      desc: 'Custom service',
-      icon: `/icons/${config.icon}`,
-      href: key,
-      accent: '#6366f1',
-      popup: true,
-      isDynamic: true,
-      metrics: config.metrics || []
-    }));
+    const staticIds = new Set(STATIC_SERVICES.map(s => s.id?.toLowerCase()));
+    const dynamicArray = Object.entries(dynamicServices)
+      .filter(([key]) => !staticIds.has(key.toLowerCase()))
+      .map(([key, config]) => ({
+        id: key,
+        name: config.name,
+        appname: config.name,
+        desc: 'Custom service',
+        icon: `/icons/${config.icon}`,
+        href: key,
+        accent: '#6366f1',
+        popup: true,
+        isDynamic: true,
+        metrics: config.metrics || []
+      }));
 
-    // Merge dynamic services with static ones
+    // Merge dynamic services with static ones (avoiding duplicates)
     SERVICES = [...STATIC_SERVICES, ...dynamicArray];
 
     console.log('[Dashboard] Loaded', dynamicArray.length, 'dynamic service(s)');
@@ -729,7 +732,8 @@ async function loadDashboard() {
 
         SERVICES.forEach(app => {
             const service = codeToService[app.id];
-            if (!service) return;
+            // Skip if service has no codeToService entry AND is not dynamic
+            if (!service && !app.isDynamic) return;
 
             const status = statusMap.get(app.name.toLowerCase());
 
@@ -766,7 +770,8 @@ async function loadDashboard() {
 
         SERVICES.forEach(app => {
             const service = codeToService[app.id];
-            if (!service) return;
+            // Skip if service has no codeToService entry AND is not dynamic
+            if (!service && !app.isDynamic) return;
 
             const status = statusMap.get(app.name.toLowerCase());
 
