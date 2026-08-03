@@ -736,8 +736,8 @@ generate_services_array() {
         fi
 
         # Add service object with correct accent color and appname
-        if [ "$category" = "JSON5" ] || [ "$category" = "CUSTOM_VHOST" ]; then
-            # For JSON5 and custom vhost services, add isDynamic flag (metrics fetched at runtime from proxy.js)
+        if [ "$category" = "JSON5" ] || [ "$category" = "CUSTOM" ]; then
+            # For JSON5 and custom/vhost services, add isDynamic flag (metrics fetched at runtime from proxy.js)
             array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true }"
         else
             array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
