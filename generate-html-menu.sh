@@ -397,10 +397,11 @@ else
     echo "[Apps] Vhost directory not found: $ADDITIONAL_VHOST_DIR"
 fi
 
-# Scan JSON5 files for dynamic services (in both additional-conf and additional-vhost)
+# Scan JSON5 files for dynamic services (only in additional-conf for actual service definitions)
+# Note: JSON5 files in additional-vhost are metadata only and are read by proxy.js at runtime
 echo "[Apps] Scanning for JSON5 service configurations..."
 JSON5_COUNT=0
-for json_dir in "/etc/yahlp/additional-conf" "/etc/yahlp/additional-vhost"; do
+for json_dir in "/etc/yahlp/additional-conf"; do
     if [ -d "$json_dir" ]; then
         for json_file in "$json_dir"/*.json5; do
             if [ -f "$json_file" ]; then
@@ -754,23 +755,8 @@ generate_services_array() {
 
         # Add service object with correct accent color and appname
         if [ "$category" = "JSON5" ] || [ "$category" = "CUSTOM_VHOST" ]; then
-            # For JSON5 and custom vhost services, add isDynamic flag (they may have metrics)
-            local metrics_array=""
-
-            # Check if there's a linked JSON5 file (7th field for vhost+JSON5 pairs)
-            if [ ! -z "$json5_file" ] && [ -f "$json5_file" ]; then
-                # Extract metrics from JSON5 (basic parsing for dashboard.metrics array)
-                # Look for "metrics: [" and extract metric definitions
-                if grep -q "metrics.*:" "$json5_file"; then
-                    metrics_array="metrics: []"  # Placeholder - will be fetched from proxy at runtime
-                fi
-            fi
-
-            if [ ! -z "$metrics_array" ]; then
-                array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true, $metrics_array }"
-            else
-                array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true }"
-            fi
+            # For JSON5 and custom vhost services, add isDynamic flag (metrics fetched at runtime from proxy.js)
+            array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true }"
         else
             array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
         fi
