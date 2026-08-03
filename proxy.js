@@ -12,6 +12,76 @@ app.use(express.json());
 
 const cache = new NodeCache({ stdTTL: 30, checkperiod: 10 });
 
+// Dynamic service loading from JSON5 files
+let dynamicServices = {};
+
+function loadDynamicServices() {
+  dynamicServices = {};
+  const configDirs = [
+    '/etc/yahlp/additional-vhost',
+    '/etc/yahlp/additional-conf'
+  ];
+
+  console.log('[Proxy] Discovering dynamic services...');
+
+  configDirs.forEach(configDir => {
+    if (!fs.existsSync(configDir)) {
+      return;
+    }
+
+    const files = fs.readdirSync(configDir);
+    files.forEach(file => {
+      if (file.endsWith('.json5')) {
+        const filePath = path.join(configDir, file);
+        try {
+          const content = fs.readFileSync(filePath, 'utf8');
+          const config = JSON5.parse(content);
+
+          const serviceName = config.service || file.replace(/\.(vhost\.)?json5$/, '').split('.')[0].toLowerCase();
+
+          dynamicServices[serviceName] = {
+            name: config.name || serviceName,
+            backend: config.backend,
+            paths: config.paths || ['/'],
+            websocket: config.websocket || false,
+            timeout: (config.timeout || 300) * 1000,
+            headers: config.headers || {},
+            graphql: config.graphql || false,
+            ...config
+          };
+
+          console.log(`  ✓ ${serviceName}: ${config.backend}`);
+        } catch (err) {
+          console.error(`  ✗ Failed to load ${file}: ${err.message}`);
+        }
+      }
+    });
+  });
+
+  if (Object.keys(dynamicServices).length > 0) {
+    console.log(`[Proxy] Loaded ${Object.keys(dynamicServices).length} dynamic service(s)`);
+  }
+}
+
+// Watch for JSON5 file changes
+function watchDynamicServices() {
+  const configDirs = [
+    '/etc/yahlp/additional-vhost',
+    '/etc/yahlp/additional-conf'
+  ];
+
+  configDirs.forEach(configDir => {
+    if (fs.existsSync(configDir)) {
+      fs.watch(configDir, { persistent: false }, (eventType, filename) => {
+        if (filename && filename.endsWith('.json5')) {
+          console.log(`[Proxy] Detected change in ${filename}, reloading services...`);
+          loadDynamicServices();
+        }
+      });
+    }
+  });
+}
+
 // JSON5 Validation Function
 function validateJSON5(filePath, fileName) {
   if (!fs.existsSync(filePath)) {
@@ -1261,6 +1331,100 @@ app.get('/health', (req, res) => {
     }, {})
   });
 });
+
+// Dynamic service proxy handler
+async function handleDynamicServiceRequest(req, res) {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const pathParts = url.pathname.split('/').filter(p => p);
+  const serviceName = pathParts[0];
+  const remainingPath = '/' + pathParts.slice(1).join('/');
+
+  const serviceConfig = dynamicServices[serviceName];
+
+  if (!serviceConfig) {
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      error: 'Service not found',
+      service: serviceName,
+      available: Object.keys(dynamicServices)
+    }));
+    return;
+  }
+
+  // Check if path is allowed
+  const pathAllowed = serviceConfig.paths.some(allowedPath =>
+    allowedPath === '/' ||
+    remainingPath === allowedPath ||
+    remainingPath.startsWith(allowedPath + '/')
+  );
+
+  if (!pathAllowed) {
+    res.writeHead(403, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      error: 'Path not allowed',
+      service: serviceName,
+      path: remainingPath
+    }));
+    return;
+  }
+
+  try {
+    const backendUrl = new URL(serviceConfig.backend);
+    const targetUrl = new URL(remainingPath + url.search, serviceConfig.backend);
+
+    const headers = {
+      ...req.headers,
+      'X-Forwarded-For': req.socket.remoteAddress,
+      'X-Forwarded-Proto': req.protocol || 'http',
+      'host': backendUrl.host
+    };
+
+    // Add custom headers from config
+    Object.entries(serviceConfig.headers || {}).forEach(([key, value]) => {
+      if (value === 'remote_addr') {
+        headers[key] = req.socket.remoteAddress;
+      } else {
+        headers[key] = value;
+      }
+    });
+
+    // Remove hop-by-hop headers
+    delete headers['transfer-encoding'];
+    delete headers['connection'];
+    delete headers['keep-alive'];
+
+    const options = {
+      method: req.method,
+      headers,
+      timeout: serviceConfig.timeout
+    };
+
+    const proxyReq = await fetch(targetUrl.toString(), {
+      ...options,
+      body: ['GET', 'HEAD'].includes(req.method) ? undefined : req
+    });
+
+    res.writeHead(proxyReq.status, proxyReq.headers);
+    const body = await proxyReq.arrayBuffer();
+    res.end(Buffer.from(body));
+
+  } catch (err) {
+    console.error(`[${serviceName}] Proxy error:`, err.message);
+    res.writeHead(502, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      error: 'Bad Gateway',
+      service: serviceName,
+      message: err.message
+    }));
+  }
+}
+
+// Register dynamic routes
+app.all('/api/*', handleDynamicServiceRequest);
+
+// Initialize dynamic services
+loadDynamicServices();
+watchDynamicServices();
 
 // Listen on both IPv4 and IPv6
 const http = require('http');
