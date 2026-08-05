@@ -385,18 +385,9 @@ if [ -d "$ADDITIONAL_VHOST_DIR" ]; then
             # Add to additional apps array
             ADDITIONAL_APPS+=("$vhost_app_key")
 
-            # Check for matching JSON5 metrics file in additional-vhost
-            vhost_json5_file="/etc/yahlp/additional-vhost/${vhost_dashboard_code,,}.json5"
-
             # Add to SERVICES array - mark as CUSTOM_VHOST so it can be handled as dynamic service
-            # Format: category|name|desc|icon|href|accent|json5_file_path
-            # If JSON5 file exists, include its path so metrics can be extracted at render time
-            if [ -f "$vhost_json5_file" ]; then
-                SERVICES[$vhost_app_key]="CUSTOM_VHOST|$vhost_appname|Custom vhost|$vhost_icon|$vhost_href|#6366f1|$vhost_json5_file"
-                log_debug "[Apps] Vhost $vhost_dashboard_code will load metrics from $vhost_json5_file"
-            else
-                SERVICES[$vhost_app_key]="CUSTOM_VHOST|$vhost_appname|Custom vhost|$vhost_icon|$vhost_href|#6366f1"
-            fi
+            # Metrics will be fetched from proxy dashboard API at runtime
+            SERVICES[$vhost_app_key]="CUSTOM_VHOST|$vhost_appname|Custom vhost|$vhost_icon|$vhost_href|#6366f1"
 
             echo "[Apps] ✓ Added vhost to menu: ${vhost_dashboard_code} (${vhost_appname}) → ${vhost_href}"
             ((vhost_count++)) || true
@@ -754,22 +745,9 @@ generate_services_array() {
 
         # Add service object with correct accent color and appname
         if [ "$category" = "JSON5" ] || [ "$category" = "CUSTOM" ] || [ "$category" = "CUSTOM_VHOST" ]; then
-            # For JSON5 and custom/vhost services, add isDynamic flag (metrics fetched at runtime from proxy.js)
-            local metrics_str=""
-            if [ ! -z "$json5_file" ] && [ -f "$json5_file" ]; then
-                # Extract metrics array from JSON5 file - look for dashboard.metrics array
-                # This is a simplified extraction that works for standard JSON5 format
-                metrics_str=$(sed -n '/dashboard\s*:\s*{/,/^[[:space:]]*}/p' "$json5_file" | \
-                    sed -n '/metrics\s*:\s*\[/,/^\s*\]/p' | \
-                    sed "s/^[[:space:]]*//;s/[[:space:]]*$//;s/'\"'\"/g" 2>/dev/null)
-
-                if [ ! -z "$metrics_str" ]; then
-                    # Convert from JSON5 to JSON (remove trailing commas, quote keys)
-                    metrics_str=$(echo "$metrics_str" | sed "s/,\s*\]/]/g;s/,\s*}/}/g")
-                    metrics_str=", metrics: $metrics_str"
-                fi
-            fi
-            array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true$metrics_str }"
+            # For JSON5 and custom/vhost services, add isDynamic flag
+            # Metrics will be fetched from proxy dashboard API at runtime
+            array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup, isDynamic: true }"
         else
             array+="{ id: '$id', name: '$name', appname: '$appname', desc: '$desc', icon: '$icon', href: '$href', accent: '$accent', popup: $popup }"
         fi
