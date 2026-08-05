@@ -319,17 +319,36 @@ async function fetchServiceStatus(service, app) {
     try {
         // Handle dynamic services (loaded from JSON5 configs or vhost)
         if (app.isDynamic) {
-            console.log(`[fetchServiceStatus] Loading dynamic service ${service} with ${app.metrics?.length || 0} metric(s)`);
+            console.log(`[fetchServiceStatus] Loading dynamic service ${service}`);
             const stats = [];
 
+            // Fetch metrics from proxy for dynamic services
+            let metrics = app.metrics || [];
+            if (!metrics || metrics.length === 0) {
+                try {
+                    const dashboardResp = await withTimeout(fetch(`${apiBase}/services/dashboard`), 5000);
+                    if (dashboardResp.ok) {
+                        const dashboardData = await dashboardResp.json();
+                        if (dashboardData[service]?.metrics) {
+                            metrics = dashboardData[service].metrics;
+                            console.log(`[fetchServiceStatus] Fetched metrics from dashboard API for ${service}:`, metrics);
+                        }
+                    }
+                } catch (err) {
+                    console.warn(`[fetchServiceStatus] Failed to fetch dashboard metrics:`, err.message);
+                }
+            }
+
+            console.log(`[fetchServiceStatus] ${service} has ${metrics.length} metric(s)`);
+
             // If no metrics configured, skip rendering this service in status panel
-            if (!app.metrics || app.metrics.length === 0) {
+            if (!metrics || metrics.length === 0) {
                 console.log(`[fetchServiceStatus] No metrics for ${service}, skipping panel`);
                 return null;
             }
 
             // Fetch each metric in parallel
-            const metricPromises = app.metrics.map(async (metric) => {
+            const metricPromises = metrics.map(async (metric) => {
                 try {
                     const url = `${apiBase}/${service}/metrics/${metric.id}`;
                     console.log(`[fetchServiceStatus] Fetching metric from ${url}`);
