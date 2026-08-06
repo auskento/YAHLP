@@ -52,6 +52,12 @@ function loadDynamicServices() {
 
           const serviceName = config.service || file.replace(/\.(vhost\.)?json5$/, '').split('.')[0].toLowerCase();
 
+          // If dashboard has metrics but no enabled flag, enable it by default
+          let dashboard = config.dashboard || {};
+          if (dashboard.metrics && dashboard.metrics.length > 0 && dashboard.enabled === undefined) {
+            dashboard.enabled = true;
+          }
+
           dynamicServices[serviceName] = {
             name: config.name || serviceName,
             backend: config.backend,
@@ -60,7 +66,7 @@ function loadDynamicServices() {
             timeout: (config.timeout || 300) * 1000,
             headers: config.headers || {},
             graphql: config.graphql || false,
-            dashboard: config.dashboard || {},
+            dashboard: dashboard,
             api_key: config.api_key,
             ...config
           };
