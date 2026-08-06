@@ -1,17 +1,30 @@
-# Custom Services via VirtualHost Files
+# Custom Services
 
-This guide explains how to add custom services to YAHLP using VirtualHost configuration files without modifying the core application.
+This guide explains how to add custom services to YAHLP using VirtualHost configuration files and JSON5 metrics definitions without modifying the core application.
 
 ## Overview
 
-YAHLP supports adding optional services via Apache VirtualHost files. When you add a vhost file to the configuration directory:
+YAHLP supports adding optional services in two ways:
 
+### Apache VirtualHost Files
+Create `.conf` files in `/etc/yahlp/additional-vhost/` to add custom services with automatic HTTPS and optional authentication.
+
+When you add a vhost file:
 1. **Automatic SSL certificates** are generated via Let's Encrypt
 2. **VirtualHost is enabled** and loaded by Apache
 3. **Authentication is applied** (optional, configurable per-service)
 4. **Service is accessible** at your custom subdomain
 
-This feature allows you to extend YAHLP with any custom application (e.g., Keeper Automator, Overseerr, custom dashboards) without forking the codebase.
+### JSON5 Metrics Configuration
+Add `.json5` files alongside vhost files to enable dashboard metrics display and GraphQL support.
+
+When you add a JSON5 metrics file:
+1. **Dashboard panels** automatically appear for services with metrics
+2. **Real-time data** is fetched from GraphQL endpoints or custom APIs
+3. **Value transformations** are applied (KB to GB, etc.)
+4. **Metrics are cached** for performance (30-second TTL)
+
+This feature allows you to extend YAHLP with any custom application (e.g., Unraid, Overseerr, custom dashboards) without forking the codebase.
 
 ## Quick Start
 
@@ -71,6 +84,98 @@ When the container starts:
 - Requests SSL certificates from Let's Encrypt
 - Enables the vhost files
 - Apache loads the configuration
+
+## Adding Dashboard Metrics
+
+To display real-time metrics for your custom service on the status dashboard, add a JSON5 configuration file alongside your vhost file.
+
+### 1. Create a JSON5 Metrics File
+
+Create a `.json5` file in `/etc/yahlp/additional-vhost/` with the same base name as your vhost file:
+
+**Example: `unraid.limosani.au.vhost.conf` → `unr.json5`**
+
+```json5
+{
+  service: 'unr',                          // Service identifier (must be lowercase)
+  name: 'Unraid',                          // Display name in dashboard
+  backend: 'http://192.168.9.13',          // Backend service URL
+  api_key: 'your-api-key-here',            // Optional: API key for authentication
+  
+  // Enable dashboard metrics display
+  dashboard: {
+    metrics: [
+      {
+        id: 'free_space',                  // Unique metric ID
+        label: 'Free Space',               // Display label
+        unit: 'GB',                        // Unit for display
+        type: 'text',                      // Metric type (text, gauge, etc.)
+        query: '{ array { capacity { kilobytes { free } } } }',  // GraphQL query
+        path: 'array.capacity.kilobytes.free',  // Path to value in response
+        transform: 'kb_to_gb'              // Transform: kb_to_gb converts kilobytes to gigabytes
+      }
+    ]
+  }
+}
+```
+
+### 2. GraphQL Configuration
+
+If your service uses GraphQL:
+
+```json5
+{
+  service: 'myservice',
+  name: 'My Service',
+  backend: 'http://myservice:3000',
+  api_key: 'sk_xyz...',
+  
+  graphql: true,                           // Enable GraphQL mode
+  
+  dashboard: {
+    metrics: [
+      {
+        id: 'users',
+        label: 'Active Users',
+        query: 'query { users { count } }',
+        path: 'users.count',
+        type: 'text'
+      }
+    ]
+  }
+}
+```
+
+### 3. Supported Transformations
+
+| Transform | Input | Output | Example |
+|-----------|-------|--------|---------|
+| `kb_to_gb` | Kilobytes | Gigabytes | 1048576 KB → 1.0 GB |
+
+Omit `transform` if no conversion is needed.
+
+### 4. API Key Formats
+
+The proxy supports multiple authentication header formats automatically:
+- `X-Api-Key: {api_key}` (common for REST/GraphQL APIs)
+- `Authorization: Bearer {api_key}` (standard OAuth format)
+
+Specify your API key in the JSON5 file:
+
+```json5
+{
+  api_key: 'your-secret-key-here',  // Sent as both X-Api-Key and Authorization headers
+  ...
+}
+```
+
+### 5. Service Appears Automatically
+
+Once you create the JSON5 file:
+1. Service metrics are loaded by the proxy
+2. Dashboard displays panels with real-time data
+3. No container restart required
+4. Metrics are cached for 30 seconds
 
 ## VirtualHost File Format
 
