@@ -1140,7 +1140,6 @@ app.get('/api/:service/metrics/:metricId', async (req, res) => {
         headers['Authorization'] = `Bearer ${config.api_key}`;
       }
 
-      console.log(`[${service}/${metricId}] GraphQL query to ${config.backend}/graphql`);
       const response = await fetch(`${config.backend}/graphql`, {
         method: 'POST',
         headers,
@@ -1152,16 +1151,13 @@ app.get('/api/:service/metrics/:metricId', async (req, res) => {
       }
 
       const data = await response.json();
-      console.log(`[${service}/${metricId}] GraphQL response:`, JSON.stringify(data).substring(0, 200));
 
       // Extract value using path (e.g., 'array.capacity.kilobytes.free')
       let value = data.data;
       if (metric.path) {
-        console.log(`[${service}/${metricId}] Extracting path: ${metric.path}`);
         metric.path.split('.').forEach(key => {
           value = value?.[key];
         });
-        console.log(`[${service}/${metricId}] Extracted value: ${value}`);
       }
 
       // Apply transform if specified
