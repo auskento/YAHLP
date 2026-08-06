@@ -1103,6 +1103,8 @@ app.get('/api/emby/info', async (req, res) => {
 });
 
 // Generic metric handler for any service with dashboard metrics
+// Supports GraphQL queries with value extraction via dot-notation paths
+// Returns: { id, label, value, unit }
 app.get('/api/:service/metrics/:metricId', async (req, res) => {
   try {
     const { service, metricId } = req.params;
@@ -1121,11 +1123,12 @@ app.get('/api/:service/metrics/:metricId', async (req, res) => {
       return res.status(404).json({ error: `Metric ${metricId} not found for ${service}` });
     }
 
+    // Return cached value if available (30 second TTL)
     const cacheKey = `${service}-${metricId}`;
     const cached = cache.get(cacheKey);
     if (cached) return res.json(cached);
 
-    // GraphQL query
+    // Execute GraphQL query against backend service
     if (metric.query) {
       const headers = {
         'Content-Type': 'application/json',
@@ -1133,13 +1136,13 @@ app.get('/api/:service/metrics/:metricId', async (req, res) => {
       };
 
       // Add API key if configured - try multiple formats for compatibility
+      // Supports both X-Api-Key (REST) and Authorization (OAuth) formats
       if (config.api_key) {
-        // Try X-Api-Key header first (common format)
         headers['X-Api-Key'] = config.api_key;
-        // Also try Authorization header as fallback
         headers['Authorization'] = `Bearer ${config.api_key}`;
       }
 
+      // Execute GraphQL query against the backend service
       const response = await fetch(`${config.backend}/graphql`, {
         method: 'POST',
         headers,
@@ -1152,7 +1155,8 @@ app.get('/api/:service/metrics/:metricId', async (req, res) => {
 
       const data = await response.json();
 
-      // Extract value using path (e.g., 'array.capacity.kilobytes.free')
+      // Extract value from GraphQL response using dot-notation path
+      // Example path: 'array.capacity.kilobytes.free' navigates: data.data.array.capacity.kilobytes.free
       let value = data.data;
       if (metric.path) {
         metric.path.split('.').forEach(key => {
@@ -1160,11 +1164,14 @@ app.get('/api/:service/metrics/:metricId', async (req, res) => {
         });
       }
 
-      // Apply transform if specified
+      // Apply optional transformation to the extracted value
+      // Currently supports: kb_to_gb (kilobytes to gigabytes)
       if (metric.transform === 'kb_to_gb') {
+        // Convert KB to GB: divide by 1024 twice, round to 2 decimal places
         value = Math.round((value || 0) / 1024 / 1024 * 100) / 100;
       }
 
+      // Format result object for dashboard display
       const result = {
         id: metric.id,
         label: metric.label,
@@ -1172,6 +1179,7 @@ app.get('/api/:service/metrics/:metricId', async (req, res) => {
         unit: metric.unit
       };
 
+      // Cache result for 30 seconds to reduce load on backend
       cache.set(cacheKey, result);
       res.json(result);
     }

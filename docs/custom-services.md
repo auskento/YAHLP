@@ -26,11 +26,40 @@ When you add a JSON5 metrics file:
 
 This feature allows you to extend YAHLP with any custom application (e.g., Unraid, Overseerr, custom dashboards) without forking the codebase.
 
+## Vhost Metadata Options
+
+Add optional metadata comments to control how services appear on the dashboard. All metadata is optional except `DASHBOARD_CODE` and `DASHBOARD_VISIBLE`.
+
+### Metadata Reference
+
+| Metadata | Required | Values | Purpose |
+|----------|----------|--------|---------|
+| `DASHBOARD_CODE` | **Yes** | 3 letters (e.g., `UNR`) | Unique identifier for the service |
+| `DASHBOARD_VISIBLE` | **Yes** | `true` / `false` | Show/hide service on dashboard |
+| `APPNAME` | No | Any string | Display name in dashboard (overrides derived name) |
+| `DASHBOARD_WINDOW` | No | `embed` / `popout` | How to open: embedded panel or popup |
+| `SKIP_OIDC` | No | (flag only) | Skip OAuth authentication for this vhost |
+
+### Example with All Metadata
+
+```apache
+# DASHBOARD_CODE=UNR
+# APPNAME=Unraid Storage
+# DASHBOARD_VISIBLE=true
+# DASHBOARD_WINDOW=popout
+# SKIP_OIDC
+
+<VirtualHost *:443>
+    ServerName unraid.yourdomain.com
+    ...
+</VirtualHost>
+```
+
 ## Quick Start
 
 ### 1. Create a VirtualHost File
 
-Create a file in `/etc/yahlp/` with **"vhost" in the filename**:
+Create a file in `/etc/yahlp/additional-vhost/` with **"vhost" in the filename**:
 
 ```
 /etc/yahlp/keeper_automator_vhost.conf
@@ -76,7 +105,31 @@ Minimal example for Keeper Automator:
 </VirtualHost>
 ```
 
-### 3. Restart YAHLP
+### 3. Add Metadata Comments (Optional)
+
+Add optional metadata as comments at the top of your vhost file to customize how it appears on the dashboard:
+
+```apache
+# DASHBOARD_CODE=KPR
+# APPNAME=Keeper Automator
+# DASHBOARD_VISIBLE=true
+# DASHBOARD_WINDOW=embed
+# SKIP_OIDC
+
+<VirtualHost *:80 *:443>
+    ServerName keeper-automator.yourdomain.com
+    ...
+</VirtualHost>
+```
+
+Metadata explanations:
+- **DASHBOARD_CODE** — Unique 3-letter identifier for the service (UNR, KPR, DRS, etc.)
+- **APPNAME** — Custom display name shown in the dashboard menu (otherwise derived from domain)
+- **DASHBOARD_VISIBLE** — Set to `true` to show on dashboard, `false` to hide
+- **DASHBOARD_WINDOW** — `embed` to show in a panel, `popout` to open in a popup window
+- **SKIP_OIDC** — Add this flag to disable OAuth/OIDC authentication for the service (useful when the service handles its own auth)
+
+### 4. Restart YAHLP
 
 When the container starts:
 - Scans for files with "vhost" in the filename
