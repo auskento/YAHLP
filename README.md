@@ -2,11 +2,15 @@
 
 ![YAHLP Logo](yahlp.png)
 
-A production-ready reverse proxy and dashboard for managing 19 homelab services with automatic HTTPS, flexible authentication, and customizable layouts. YAHLP sits between your browser and your services, providing unified access, health monitoring, and a beautiful interface across any device.
+A production-ready reverse proxy and dashboard for managing homelab services with automatic HTTPS, flexible authentication, and customizable layouts. YAHLP sits between your browser and your services, providing unified access, health monitoring, live metrics, and a beautiful interface across any device.
 
 ## What YAHLP Does
 
 **Unified Access** — One dashboard for all your homelab services. No more remembering IP addresses and ports.
+
+**Dynamic Services** — Add custom services via JSON5 configuration files without code changes. Configure reverse proxies, GraphQL endpoints, and custom metrics on the fly.
+
+**Live Metrics** — Display real-time service metrics on dashboard panels (disk space, queue sizes, streaming sessions, etc.). Automatic value extraction and transformations.
 
 **Security** — Automatic HTTPS via Let's Encrypt, centralized authentication (Basic Auth, OAuth2 with Entra/Google), and request validation. Credentials stored securely, never transmitted to services unnecessarily.
 
@@ -33,7 +37,7 @@ Services communicate directly to YAHLP; YAHLP proxies requests to your backend s
 
 See [Deployment Guide](docs/installation.md) for mode selection and tradeoffs.
 
-## 📦 Supported Services (19 Total)
+## 📦 Built-in Services (19 Total)
 
 | Category | Count | Examples |
 |----------|-------|----------|
@@ -44,6 +48,15 @@ See [Deployment Guide](docs/installation.md) for mode selection and tradeoffs.
 | **Media Servers** | 3 | Jellyfin, Emby, Plex |
 
 Each service is optionally enabled/disabled via configuration. Only enabled services appear in the dashboard.
+
+### Custom Services
+
+Add unlimited custom services via JSON5 configuration files:
+- **Apache Vhost** — Any reverse-proxied service (Unraid, etc.)
+- **GraphQL Services** — Services with GraphQL APIs (Unraid, custom apps)
+- **Custom Metrics** — Display real-time data on dashboard panels
+
+Place `.conf` files in `/etc/yahlp/additional-vhost` or `.json5` configs in `/etc/yahlp/additional-conf` — services appear automatically without restarting YAHLP.
 
 ## Authentication Methods
 
